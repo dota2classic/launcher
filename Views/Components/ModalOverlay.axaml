@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="d2c_launcher.Views.Components.ModalOverlay"
+             x:Name="Root">
+    <Panel IsVisible="{Binding IsOpen, ElementName=Root}"
+           Background="#AA000000"
+           PointerPressed="OnOverlayPointerPressed">
+        <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+                MinWidth="360" MaxWidth="560"
+                Background="#151515" BorderBrush="#2A2A2A" BorderThickness="1"
+                CornerRadius="12" Padding="18"
+                BoxShadow="0 12 28 0 #80000000"
+                PointerPressed="OnDialogPointerPressed">
+            <StackPanel Spacing="12">
+                <TextBlock Text="{Binding Title, ElementName=Root}"
+                           FontSize="16" FontWeight="SemiBold"/>
+                <ContentPresenter Content="{Binding Content, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+            </StackPanel>
+        </Border>
+    </Panel>
+</UserControl>

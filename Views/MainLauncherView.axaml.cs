@@ -85,12 +85,34 @@ public partial class MainLauncherView : UserControl
 
     private void OnInvitePlayerClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        // Placeholder for party invite action handler.
+        if (DataContext is MainLauncherViewModel vm)
+            vm.OpenInviteModal();
     }
 
     private async void OnSearchGameClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         if (DataContext is MainLauncherViewModel vm)
             await vm.ToggleSearchAsync();
+    }
+
+    private void OnCloseInviteModalClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is MainLauncherViewModel vm)
+            vm.CloseInviteModal();
+    }
+
+    private async void OnInviteCandidateClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is not MainLauncherViewModel vm)
+            return;
+
+        if (sender is not Avalonia.Controls.Button button)
+            return;
+
+        if (button.DataContext is not d2c_launcher.Models.InviteCandidateView candidate)
+            return;
+
+        await vm.InvitePlayerAsync(candidate.SteamId);
+        vm.CloseInviteModal();
     }
 }

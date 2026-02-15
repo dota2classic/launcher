@@ -9,4 +9,5 @@ public interface IBackendApiService
 {
     Task<IReadOnlyList<PartyMemberView>> GetMyPartyAsync(string bearerToken, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<MatchmakingModeInfo>> GetEnabledMatchmakingModesAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<InviteCandidateView>> SearchPlayersAsync(string name, int count = 25, CancellationToken cancellationToken = default);
 }

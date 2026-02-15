@@ -1,0 +1,16 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="d2c_launcher.Views.Components.ModalCard"
+             x:Name="Root">
+    <Border Background="#151515" BorderBrush="#2A2A2A" BorderThickness="1"
+            CornerRadius="12" Padding="18" BoxShadow="0 12 28 0 #80000000"
+            Width="{Binding FixedWidth, ElementName=Root}"
+            MinWidth="{Binding FixedWidth, ElementName=Root}"
+            MaxWidth="{Binding FixedWidth, ElementName=Root}">
+        <StackPanel Spacing="12" HorizontalAlignment="Stretch">
+            <TextBlock Text="{Binding Title, ElementName=Root}"
+                       FontSize="16" FontWeight="SemiBold"/>
+            <ContentPresenter Content="{Binding Content, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+        </StackPanel>
+    </Border>
+</UserControl>

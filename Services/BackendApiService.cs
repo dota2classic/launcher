@@ -121,6 +121,100 @@ public sealed class BackendApiService : IBackendApiService
         return result;
     }
 
+    public async Task<IReadOnlyList<InviteCandidateView>> SearchPlayersAsync(string name, int count = 25, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return Array.Empty<InviteCandidateView>();
+
+        using var httpClient = new HttpClient
+        {
+            BaseAddress = BaseUri,
+            Timeout = TimeSpan.FromSeconds(10)
+        };
+
+        AppLog.Info($"Searching players: name='{name}', count={count}");
+        var api = new DotaclassicApiClient(httpClient);
+        var users = await api.PlayerController_searchAsync(name, count, cancellationToken);
+        if (users == null)
+            return Array.Empty<InviteCandidateView>();
+
+        var result = new List<InviteCandidateView>();
+        foreach (var user in users)
+        {
+            if (user == null)
+                continue;
+
+            if (string.IsNullOrWhiteSpace(user.SteamId))
+                continue;
+
+            var displayName = !string.IsNullOrWhiteSpace(user.Name) ? user.Name : user.SteamId;
+            if (string.IsNullOrWhiteSpace(displayName))
+                continue;
+
+            var initials = GetInitials(displayName);
+            result.Add(new InviteCandidateView(user.SteamId, displayName, initials, false));
+        }
+
+        AppLog.Info($"Search returned {result.Count} players.");
+        _ = LoadInviteAvatarsAsync(result, users, cancellationToken);
+        return result;
+    }
+
+    private async Task LoadInviteAvatarsAsync(
+        IReadOnlyList<InviteCandidateView> views,
+        IEnumerable<UserDTO> users,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var httpClient = new HttpClient
+            {
+                BaseAddress = BaseUri,
+                Timeout = TimeSpan.FromSeconds(10)
+            };
+
+            var viewList = views.ToList();
+            var userList = users.ToList();
+            var count = Math.Min(viewList.Count, userList.Count);
+
+            for (var i = 0; i < count; i++)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    return;
+
+                var user = userList[i];
+                var avatarUrl = user?.AvatarSmall ?? user?.Avatar;
+                if (string.IsNullOrWhiteSpace(avatarUrl))
+                    continue;
+
+                var avatar = await TryLoadAvatarAsync(httpClient, avatarUrl, cancellationToken);
+                if (avatar == null)
+                    continue;
+
+                var view = viewList[i];
+                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                {
+                    view.AvatarImage?.Dispose();
+                    view.AvatarImage = avatar;
+                });
+            }
+        }
+        catch
+        {
+            // Ignore avatar load failures.
+        }
+    }
+
+    private static string GetInitials(string name)
+    {
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0)
+            return "?";
+        if (parts.Length == 1)
+            return parts[0].Length >= 2 ? parts[0].Substring(0, 2).ToUpperInvariant() : parts[0].ToUpperInvariant();
+        return (parts[0][0].ToString() + parts[^1][0]).ToUpperInvariant();
+    }
+
     private static async Task<Bitmap?> TryLoadAvatarAsync(HttpClient httpClient, string? avatarUrl, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(avatarUrl))

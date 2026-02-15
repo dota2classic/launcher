@@ -4,6 +4,7 @@
              xmlns:local="using:d2c_launcher"
              xmlns:vm="using:d2c_launcher.ViewModels"
              xmlns:v="using:d2c_launcher.Views"
+             xmlns:dialogHost="using:DialogHostAvalonia"
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
@@ -19,5 +20,6 @@
   
     <Application.Styles>
         <FluentTheme />
+        <dialogHost:DialogHostStyles />
     </Application.Styles>
 </Application>

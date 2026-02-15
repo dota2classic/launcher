@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using d2c_launcher.Api;
 using d2c_launcher.Integration;
 using d2c_launcher.Models;
@@ -26,7 +28,9 @@ public partial class MainLauncherViewModel : ViewModelBase
     private readonly DispatcherTimer _runStateTimer;
     private readonly DispatcherTimer _partyRefreshTimer;
     private CancellationTokenSource? _ticketExchangeCts;
+    private CancellationTokenSource? _inviteSearchCts;
     private int _partyRefreshRunning;
+    private HashSet<string> _onlineUsers = new(StringComparer.Ordinal);
 
     [ObservableProperty]
     private User? _currentUser;
@@ -57,6 +61,17 @@ public partial class MainLauncherViewModel : ViewModelBase
 
     [ObservableProperty]
     private string _searchingModesText = "Не в поиске";
+
+    [ObservableProperty]
+    private bool _isInviteModalOpen;
+
+    [ObservableProperty]
+    private string _inviteSearchText = "";
+
+    [ObservableProperty]
+    private ObservableCollection<InviteCandidateView> _inviteCandidates = new();
+
+    public IRelayCommand CloseInviteModalCommand { get; }
 
     public string? SteamAuthTicket { get; private set; }
 
@@ -124,6 +139,9 @@ public partial class MainLauncherViewModel : ViewModelBase
         _queueSocketService.PartyUpdated += party => Dispatcher.UIThread.Post(() => _ = RefreshPartyAsync());
         _queueSocketService.QueueStateUpdated += msg => Dispatcher.UIThread.Post(() => UpdateQueueCounts(msg));
         _queueSocketService.PlayerQueueStateUpdated += msg => Dispatcher.UIThread.Post(() => UpdatePlayerQueueState(msg));
+        _queueSocketService.OnlineUpdated += msg => Dispatcher.UIThread.Post(() => UpdateOnlineUsers(msg));
+
+        CloseInviteModalCommand = new RelayCommand(CloseInviteModal);
 
         if (!string.IsNullOrWhiteSpace(_backendAccessToken))
             _ = EnsureQueueConnectionAsync(_backendAccessToken, CancellationToken.None);
@@ -309,6 +327,111 @@ public partial class MainLauncherViewModel : ViewModelBase
             return;
 
         await _queueSocketService.EnterQueueAsync(selected);
+    }
+
+    public void OpenInviteModal()
+    {
+        IsInviteModalOpen = true;
+        _ = LoadInitialInviteCandidatesAsync();
+    }
+
+    public void CloseInviteModal()
+    {
+        IsInviteModalOpen = false;
+        InviteSearchText = "";
+    }
+
+    partial void OnInviteSearchTextChanged(string value)
+    {
+        AppLog.Info($"Invite search text changed: '{value}'");
+        _ = SearchInviteCandidatesAsync(value);
+    }
+
+    private async Task SearchInviteCandidatesAsync(string query)
+    {
+        _inviteSearchCts?.Cancel();
+        _inviteSearchCts?.Dispose();
+        _inviteSearchCts = new CancellationTokenSource();
+        var ct = _inviteSearchCts.Token;
+
+        try
+        {
+            AppLog.Info($"Invite search started: '{query}'");
+            await Task.Delay(300, ct);
+            if (ct.IsCancellationRequested)
+                return;
+
+            if (string.IsNullOrWhiteSpace(query) || query.Length < 1)
+            {
+                AppLog.Info("Invite search cleared (empty query).");
+                InviteCandidates = new ObservableCollection<InviteCandidateView>();
+                return;
+            }
+
+            var results = await _backendApiService.SearchPlayersAsync(query, 25, ct);
+            if (ct.IsCancellationRequested)
+                return;
+
+            AppLog.Info($"Invite search results: {results.Count}");
+            Dispatcher.UIThread.Post(() =>
+            {
+                InviteCandidates = new ObservableCollection<InviteCandidateView>(results);
+                foreach (var candidate in InviteCandidates)
+                    candidate.IsOnline = _onlineUsers.Contains(candidate.SteamId);
+            });
+        }
+        catch (OperationCanceledException)
+        {
+            // Ignore rapid search changes.
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("Failed to search players.", ex);
+        }
+    }
+
+    private async Task LoadInitialInviteCandidatesAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(InviteSearchText))
+            return;
+
+        try
+        {
+            AppLog.Info("Loading initial invite candidates.");
+            var results = await _backendApiService.SearchPlayersAsync("a", 10);
+            Dispatcher.UIThread.Post(() =>
+            {
+                InviteCandidates = new ObservableCollection<InviteCandidateView>(results);
+            });
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("Failed to load initial invite candidates.", ex);
+        }
+    }
+
+    private void UpdateOnlineUsers(OnlineUpdateMessage msg)
+    {
+        _onlineUsers = msg.Online?.ToHashSet(StringComparer.Ordinal) ?? new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var candidate in InviteCandidates)
+            candidate.IsOnline = _onlineUsers.Contains(candidate.SteamId);
+    }
+
+    public async Task InvitePlayerAsync(string steamId)
+    {
+        if (string.IsNullOrWhiteSpace(steamId))
+            return;
+
+        try
+        {
+            await _queueSocketService.InviteToPartyAsync(steamId);
+            AppLog.Info($"Invite sent for steamId: {steamId}");
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("Failed to invite player to party.", ex);
+        }
     }
 
     private void DisposePartyAvatars()

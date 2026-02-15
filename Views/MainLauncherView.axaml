@@ -3,12 +3,16 @@
              xmlns:vm="using:d2c_launcher.ViewModels"
              xmlns:m="using:d2c_launcher.Models"
              xmlns:util="using:d2c_launcher.Util"
+             xmlns:components="using:d2c_launcher.Views.Components"
+             xmlns:dialogHost="using:DialogHostAvalonia"
              x:Class="d2c_launcher.Views.MainLauncherView"
              x:DataType="vm:MainLauncherViewModel">
     <UserControl.Resources>
         <util:BooleanToCancelTextConverter x:Key="BooleanToCancelTextConverter"/>
         <util:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>
         <util:InverseBoolConverter x:Key="InverseBoolConverter"/>
+        <util:NullToBoolConverter x:Key="NullToBoolConverter"/>
+        <util:NullToInverseBoolConverter x:Key="NullToInverseBoolConverter"/>
     </UserControl.Resources>
     <UserControl.Styles>
         <Style Selector="Button.play-primary">
@@ -33,139 +37,188 @@
         </Style>
     </UserControl.Styles>
 
-    <Grid>
-        <Grid RowDefinitions="Auto,*,Auto">
-            <Grid Grid.Row="0" Margin="20,14" ColumnDefinitions="*,Auto">
-                <TextBlock Text="D2C Launcher" VerticalAlignment="Center" FontSize="26" FontWeight="SemiBold"/>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
-                    <Button Classes="settings-icon" Content="⚙" Click="OnSettingsClicked"/>
-                    <Border VerticalAlignment="Center" Padding="10,8" CornerRadius="10"
-                            Background="{DynamicResource ThemeBorderLowBrush}">
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <Border Width="36" Height="36" CornerRadius="8" ClipToBounds="True"
-                                    Background="#E0E0E0">
-                                <Image Source="{Binding AvatarImage}" Width="36" Height="36" Stretch="UniformToFill"/>
-                            </Border>
-                            <TextBlock Text="{Binding CurrentUser.PersonaName}" VerticalAlignment="Center"
-                                       FontWeight="SemiBold"/>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-            </Grid>
-
-            <Grid Grid.Row="1" Margin="20,8,20,10" ColumnDefinitions="*,360">
-                <Border Grid.Column="0" CornerRadius="12" Background="#0F0F0F" BorderBrush="#2A2A2A"
-                        BorderThickness="1" Padding="16" Margin="0,0,16,0">
-                    <Grid RowDefinitions="Auto,*">
-                        <TextBlock Text="Чат" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,12"/>
-                        <Border Grid.Row="1" CornerRadius="8" Background="#1A1A1A" BorderBrush="#2A2A2A"
-                                BorderThickness="1">
-                            <Grid RowDefinitions="*,Auto">
-                                <TextBlock Text="Чат пока не реализован" Opacity="0.6"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                <Border Grid.Row="1" Height="44" Background="#151515" BorderThickness="1,1,1,0"
-                                        BorderBrush="#2A2A2A">
-                                    <TextBlock Text="Введите сообщение..." Opacity="0.4"
-                                               VerticalAlignment="Center" Margin="12,0"/>
-                                </Border>
-                            </Grid>
-                        </Border>
-                    </Grid>
-                </Border>
-
-                <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
-                    <Border Padding="12" CornerRadius="12" Background="#141414" BorderBrush="#2A2A2A"
-                            BorderThickness="1" Margin="0,0,0,12">
-                        <StackPanel Spacing="10">
-                            <TextBlock Text="Группа" FontSize="14" FontWeight="SemiBold"/>
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <ItemsControl ItemsSource="{Binding PartyMembers}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <StackPanel Orientation="Horizontal" Spacing="6"/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate x:DataType="m:PartyMemberView">
-                                            <Border Width="40" Height="40" CornerRadius="6" ClipToBounds="True"
-                                                    Background="#1E1E1E" BorderBrush="#2A2A2A" BorderThickness="1">
-                                                <Image Source="{Binding AvatarImage}" Stretch="UniformToFill"/>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                                <Button IsVisible="{Binding CanInviteToParty}" Width="40" Height="40" FontSize="20"
-                                        Content="+" Click="OnInvitePlayerClicked"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Grid.Row="1" Padding="12" CornerRadius="12" Background="#141414" BorderBrush="#2A2A2A"
-                            BorderThickness="1">
-                        <StackPanel Spacing="12">
-                            <TextBlock Text="Поиск игры" FontSize="14" FontWeight="SemiBold"/>
-                            <TextBlock Text="{Binding SearchingModesText}" Opacity="0.6" FontSize="12"/>
-                            <Border Opacity="{Binding IsSearching, Converter={StaticResource BoolToOpacityConverter}}"
-                                    IsEnabled="{Binding IsSearching, Converter={StaticResource InverseBoolConverter}}">
-                                <ItemsControl ItemsSource="{Binding MatchmakingModes}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
+    <dialogHost:DialogHost IsOpen="{Binding IsInviteModalOpen, Mode=TwoWay}"
+                            CloseOnClickAway="True">
+        <dialogHost:DialogHost.DialogContent>
+            <components:ModalCard Title="Пригласить игрока" FixedWidth="520">
+                <Grid RowDefinitions="Auto,*,Auto" Width="520">
+                    <TextBox Grid.Row="0" Text="{Binding InviteSearchText}" Watermark="Поиск игрока" Width="520"/>
+                    <Border Grid.Row="1" Background="#121212" BorderBrush="#2A2A2A" BorderThickness="1"
+                            CornerRadius="8" Height="260" Margin="0,10,0,10" Width="520">
+                        <ScrollViewer>
+                            <ItemsControl ItemsSource="{Binding InviteCandidates}">
                                 <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="m:MatchmakingModeView">
-                                        <Border Padding="10,8" CornerRadius="8" Background="#1B1B1B"
-                                                BorderBrush="#2A2A2A" BorderThickness="1" Margin="0,0,0,8">
-                                            <Grid ColumnDefinitions="Auto,*" VerticalAlignment="Center">
-                                                <CheckBox IsChecked="{Binding IsSelected}" Margin="0,0,8,0"/>
-                                                <StackPanel Grid.Column="1">
-                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
-                                                    <TextBlock Text="{Binding InQueue, StringFormat={}{0} в поиске}"
-                                                               Opacity="0.6" FontSize="12"/>
+                                    <DataTemplate x:DataType="m:InviteCandidateView">
+                                        <Button Click="OnInviteCandidateClicked"
+                                                Background="Transparent" BorderThickness="0" Padding="0"
+                                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                            <Border Padding="8" BorderBrush="#242424" BorderThickness="0,0,0,1">
+                                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                                    <Grid Width="36" Height="36">
+                                                        <Border Width="36" Height="36" CornerRadius="18" ClipToBounds="True"
+                                                                Background="#2A2A2A" BorderBrush="#3A3A3A" BorderThickness="1">
+                                                            <Grid>
+                                                                <Image Source="{Binding AvatarImage}" Stretch="UniformToFill"
+                                                                       IsVisible="{Binding AvatarImage, Converter={StaticResource NullToBoolConverter}}"/>
+                                                                <TextBlock Text="{Binding Initials}" HorizontalAlignment="Center"
+                                                                           VerticalAlignment="Center" FontSize="12"
+                                                                           IsVisible="{Binding AvatarImage, Converter={StaticResource NullToInverseBoolConverter}}"/>
+                                                            </Grid>
+                                                        </Border>
+                                                        <Ellipse Width="10" Height="10" Fill="#44D46F"
+                                                                 IsVisible="{Binding IsOnline}"
+                                                                 HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                                                 Margin="0,0,2,2"/>
+                                                    </Grid>
+                                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
                                                 </StackPanel>
-                                            </Grid>
-                                        </Border>
+                                            </Border>
+                                        </Button>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Border>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="Закрыть" Command="{Binding CloseInviteModalCommand}"/>
+                    </StackPanel>
+                </Grid>
+            </components:ModalCard>
+        </dialogHost:DialogHost.DialogContent>
+
+        <Grid>
+            <Grid RowDefinitions="Auto,*,Auto">
+                <Grid Grid.Row="0" Margin="20,14" ColumnDefinitions="*,Auto">
+                    <TextBlock Text="D2C Launcher" VerticalAlignment="Center" FontSize="26" FontWeight="SemiBold"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+                        <Button Classes="settings-icon" Content="⚙" Click="OnSettingsClicked"/>
+                        <Border VerticalAlignment="Center" Padding="10,8" CornerRadius="10"
+                                Background="{DynamicResource ThemeBorderLowBrush}">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <Border Width="36" Height="36" CornerRadius="8" ClipToBounds="True"
+                                        Background="#E0E0E0">
+                                    <Image Source="{Binding AvatarImage}" Width="36" Height="36" Stretch="UniformToFill"/>
+                                </Border>
+                                <TextBlock Text="{Binding CurrentUser.PersonaName}" VerticalAlignment="Center"
+                                           FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Grid.Row="1" Margin="20,8,20,10" ColumnDefinitions="*,360">
+                    <Border Grid.Column="0" CornerRadius="12" Background="#0F0F0F" BorderBrush="#2A2A2A"
+                            BorderThickness="1" Padding="16" Margin="0,0,16,0">
+                        <Grid RowDefinitions="Auto,*">
+                            <TextBlock Text="Чат" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                            <Border Grid.Row="1" CornerRadius="8" Background="#1A1A1A" BorderBrush="#2A2A2A"
+                                    BorderThickness="1">
+                                <Grid RowDefinitions="*,Auto">
+                                    <TextBlock Text="Чат пока не реализован" Opacity="0.6"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <Border Grid.Row="1" Height="44" Background="#151515" BorderThickness="1,1,1,0"
+                                            BorderBrush="#2A2A2A">
+                                        <TextBlock Text="Введите сообщение..." Opacity="0.4"
+                                                   VerticalAlignment="Center" Margin="12,0"/>
+                                    </Border>
+                                </Grid>
                             </Border>
-                        </StackPanel>
+                        </Grid>
                     </Border>
 
-                    <Button Grid.Row="2" Height="56" Margin="0,12,0,0" FontSize="18" FontWeight="SemiBold"
-                            Content="{Binding IsSearching, Converter={StaticResource BooleanToCancelTextConverter}}"
-                            Click="OnSearchGameClicked"/>
+                    <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
+                        <Border Padding="12" CornerRadius="12" Background="#141414" BorderBrush="#2A2A2A"
+                                BorderThickness="1" Margin="0,0,0,12">
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="Группа" FontSize="14" FontWeight="SemiBold"/>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <ItemsControl ItemsSource="{Binding PartyMembers}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal" Spacing="6"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="m:PartyMemberView">
+                                                <Border Width="40" Height="40" CornerRadius="6" ClipToBounds="True"
+                                                        Background="#1E1E1E" BorderBrush="#2A2A2A" BorderThickness="1">
+                                                    <Image Source="{Binding AvatarImage}" Stretch="UniformToFill"/>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <Button IsVisible="{Binding CanInviteToParty}" Width="40" Height="40" FontSize="20"
+                                            Content="+" Click="OnInvitePlayerClicked"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Row="1" Padding="12" CornerRadius="12" Background="#141414" BorderBrush="#2A2A2A"
+                                BorderThickness="1">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Поиск игры" FontSize="14" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding SearchingModesText}" Opacity="0.6" FontSize="12"/>
+                                <Border Opacity="{Binding IsSearching, Converter={StaticResource BoolToOpacityConverter}}"
+                                        IsEnabled="{Binding IsSearching, Converter={StaticResource InverseBoolConverter}}">
+                                    <ItemsControl ItemsSource="{Binding MatchmakingModes}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="m:MatchmakingModeView">
+                                                <Border Padding="10,8" CornerRadius="8" Background="#1B1B1B"
+                                                        BorderBrush="#2A2A2A" BorderThickness="1" Margin="0,0,0,8">
+                                                    <Grid ColumnDefinitions="Auto,*" VerticalAlignment="Center">
+                                                        <CheckBox IsChecked="{Binding IsSelected}" Margin="0,0,8,0"/>
+                                                        <StackPanel Grid.Column="1">
+                                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                                            <TextBlock Text="{Binding InQueue, StringFormat={}{0} в поиске}"
+                                                                       Opacity="0.6" FontSize="12"/>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <Button Grid.Row="2" Height="56" Margin="0,12,0,0" FontSize="18" FontWeight="SemiBold"
+                                Content="{Binding IsSearching, Converter={StaticResource BooleanToCancelTextConverter}}"
+                                Click="OnSearchGameClicked"/>
+                    </Grid>
                 </Grid>
+
+                <StackPanel Grid.Row="2" Margin="20,0,20,20" HorizontalAlignment="Left" VerticalAlignment="Bottom" Spacing="8">
+                    <TextBlock Text="{Binding GameDirectory, FallbackValue='Game path not selected'}"
+                               TextWrapping="Wrap" MaxWidth="520" TextTrimming="CharacterEllipsis"
+                               Opacity="0.85"/>
+                    <Button Classes="play-primary" Content="{Binding LaunchButtonText}"
+                            IsEnabled="{Binding IsLaunchEnabled}" Click="OnPrimaryActionClicked"/>
+                </StackPanel>
             </Grid>
 
-            <StackPanel Grid.Row="2" Margin="20,0,20,20" HorizontalAlignment="Left" VerticalAlignment="Bottom" Spacing="8">
-                <TextBlock Text="{Binding GameDirectory, FallbackValue='Game path not selected'}"
-                           TextWrapping="Wrap" MaxWidth="520" TextTrimming="CharacterEllipsis"
-                           Opacity="0.85"/>
-                <Button Classes="play-primary" Content="{Binding LaunchButtonText}"
-                        IsEnabled="{Binding IsLaunchEnabled}" Click="OnPrimaryActionClicked"/>
-            </StackPanel>
+            <Panel x:Name="SettingsOverlay" IsVisible="{Binding IsSettingsOpen}" ZIndex="100"
+                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#80000000"
+                   PointerPressed="OnSettingsOverlayBackdropPressed">
+                <Border x:Name="SettingsPanel" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        PointerPressed="OnSettingsPanelPointerPressed"
+                        MinWidth="320" Padding="24" CornerRadius="8"
+                        Background="{DynamicResource ThemeBackgroundBrush}">
+                    <StackPanel Spacing="16">
+                        <TextBlock Text="Settings" FontSize="20" FontWeight="SemiBold"/>
+                        <TextBlock Text="Game directory:"/>
+                        <TextBlock Text="{Binding GameDirectory, FallbackValue='Not set'}"
+                                   TextWrapping="Wrap" TextTrimming="CharacterEllipsis"/>
+                        <Button Content="Change game directory" Click="OnSelectDotaExeClicked"/>
+                        <Button Content="Close" HorizontalAlignment="Right" Click="OnCloseSettingsClicked"/>
+                    </StackPanel>
+                </Border>
+            </Panel>
         </Grid>
-
-        <!-- Settings overlay (fills grid when visible) -->
-        <Panel x:Name="SettingsOverlay" IsVisible="{Binding IsSettingsOpen}" ZIndex="100"
-               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#80000000"
-               PointerPressed="OnSettingsOverlayBackdropPressed">
-            <Border x:Name="SettingsPanel" HorizontalAlignment="Center" VerticalAlignment="Center"
-                    PointerPressed="OnSettingsPanelPointerPressed"
-                    MinWidth="320" Padding="24" CornerRadius="8"
-                    Background="{DynamicResource ThemeBackgroundBrush}">
-                <StackPanel Spacing="16">
-                    <TextBlock Text="Settings" FontSize="20" FontWeight="SemiBold"/>
-                    <TextBlock Text="Game directory:"/>
-                    <TextBlock Text="{Binding GameDirectory, FallbackValue='Not set'}"
-                               TextWrapping="Wrap" TextTrimming="CharacterEllipsis"/>
-                    <Button Content="Change game directory" Click="OnSelectDotaExeClicked"/>
-                    <Button Content="Close" HorizontalAlignment="Right" Click="OnCloseSettingsClicked"/>
-                </StackPanel>
-            </Border>
-        </Panel>
-    </Grid>
+    </dialogHost:DialogHost>
 
 </UserControl>
