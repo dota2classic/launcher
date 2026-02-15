@@ -1,0 +1,23 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="d2c_launcher.App"
+             xmlns:local="using:d2c_launcher"
+             xmlns:vm="using:d2c_launcher.ViewModels"
+             xmlns:v="using:d2c_launcher.Views"
+             RequestedThemeVariant="Default">
+             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+    <Application.DataTemplates>
+        <DataTemplate DataType="vm:LaunchSteamFirstViewModel">
+            <v:LaunchSteamFirstView/>
+        </DataTemplate>
+        <DataTemplate DataType="vm:MainLauncherViewModel">
+            <v:MainLauncherView/>
+        </DataTemplate>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+  
+    <Application.Styles>
+        <FluentTheme />
+    </Application.Styles>
+</Application>

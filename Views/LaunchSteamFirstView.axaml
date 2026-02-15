@@ -1,0 +1,12 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:d2c_launcher.ViewModels"
+             x:Class="d2c_launcher.Views.LaunchSteamFirstView"
+             x:DataType="vm:LaunchSteamFirstViewModel">
+
+    <TextBlock Text="{Binding Message}"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center"
+               FontSize="18"/>
+
+</UserControl>

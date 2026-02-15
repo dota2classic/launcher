@@ -1,0 +1,35 @@
+# Build outputs
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.swp
+*.tmp
+
+# Visual Studio / VS Code
+.vs/
+.vscode/
+
+# Rider
+.idea/
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# Steam runtime artifacts
+steam_api.dll
+steam_api64.dll
+
+# Logs
+*.log
+
+# Optional: ignore sanitized OpenAPI artifacts if regenerated
+# api-openapi.sanitized.json
