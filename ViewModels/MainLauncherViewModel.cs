@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -27,10 +28,13 @@ public partial class MainLauncherViewModel : ViewModelBase
     private readonly IQueueSocketService _queueSocketService;
     private readonly DispatcherTimer _runStateTimer;
     private readonly DispatcherTimer _partyRefreshTimer;
+    private readonly DispatcherTimer _queueTimer;
     private CancellationTokenSource? _ticketExchangeCts;
     private CancellationTokenSource? _inviteSearchCts;
     private int _partyRefreshRunning;
     private HashSet<string> _onlineUsers = new(StringComparer.Ordinal);
+    private DateTimeOffset? _enterQueueAt;
+    private int _queuedModeCount;
 
     [ObservableProperty]
     private User? _currentUser;
@@ -71,7 +75,67 @@ public partial class MainLauncherViewModel : ViewModelBase
     [ObservableProperty]
     private ObservableCollection<InviteCandidateView> _inviteCandidates = new();
 
+    [ObservableProperty]
+    private string _queueButtonMainText = "Ð˜Ð“Ð ÐÐ¢Ð¬";
+
+    [ObservableProperty]
+    private string _queueButtonModeCountText = "";
+
+    [ObservableProperty]
+    private string _queueButtonTimeText = "";
+
+    [ObservableProperty]
+    private bool _isAcceptGameModalOpen;
+
+    [ObservableProperty]
+    private bool _isServerSearchingModalOpen;
+
+    [ObservableProperty]
+    private bool _hasMyPlayerAccepted;
+
+    /// <summary>True when the local player has already sent any response (Ready or Decline) — hides the Accept/Decline buttons.</summary>
+    [ObservableProperty]
+    private bool _hasMyPlayerResponded;
+
+    [ObservableProperty]
+    private string? _serverUrl;
+
+    public bool HasServerUrl => !string.IsNullOrEmpty(ServerUrl);
+
+    partial void OnServerUrlChanged(string? value)
+    {
+        OnPropertyChanged(nameof(HasServerUrl));
+        UpdateQueueButtonState();
+    }
+
+    [ObservableProperty]
+    private ObservableCollection<RoomPlayerView> _roomPlayers = new();
+
+    [ObservableProperty]
+    private string? _currentRoomId;
+
+    [ObservableProperty]
+    private MatchmakingMode? _roomMode;
+
+    public string RoomModeText => RoomMode.HasValue
+        ? MatchmakingModes.FirstOrDefault(m => m.ModeId == (int)RoomMode.Value)?.Name ?? RoomMode.Value.ToString()
+        : "";
+
+    partial void OnRoomModeChanged(MatchmakingMode? value) => OnPropertyChanged(nameof(RoomModeText));
+
+    /// <summary>Blue when game ready, green when searching, dark gray when idle.</summary>
+    public IBrush QueueButtonBackground => HasServerUrl
+        ? new SolidColorBrush(Color.Parse("#1A5276"))
+        : IsSearching ? new SolidColorBrush(Color.Parse("#1F8B4C")) : new SolidColorBrush(Color.Parse("#3A3A3A"));
+
+    /// <summary>Lighter version for hover state.</summary>
+    public IBrush QueueButtonHoverBackground => HasServerUrl
+        ? new SolidColorBrush(Color.Parse("#2E86C1"))
+        : IsSearching ? new SolidColorBrush(Color.Parse("#2F9B5C")) : new SolidColorBrush(Color.Parse("#4A4A4A"));
+
     public IRelayCommand CloseInviteModalCommand { get; }
+    public IRelayCommand AcceptGameCommand { get; }
+    public IRelayCommand DeclineGameCommand { get; }
 
     public string? SteamAuthTicket { get; private set; }
 
@@ -122,6 +186,10 @@ public partial class MainLauncherViewModel : ViewModelBase
         _partyRefreshTimer.Tick += (_, _) => _ = RefreshPartyAsync();
         _partyRefreshTimer.Start();
 
+        _queueTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _queueTimer.Tick += (_, _) => UpdateQueueButtonState();
+        _queueTimer.Start();
+
         _steamManager.OnUserUpdated += u => Dispatcher.UIThread.Post(() =>
         {
             var oldBitmap = AvatarImage;
@@ -139,15 +207,21 @@ public partial class MainLauncherViewModel : ViewModelBase
         _queueSocketService.PartyUpdated += party => Dispatcher.UIThread.Post(() => _ = RefreshPartyAsync());
         _queueSocketService.QueueStateUpdated += msg => Dispatcher.UIThread.Post(() => UpdateQueueCounts(msg));
         _queueSocketService.PlayerQueueStateUpdated += msg => Dispatcher.UIThread.Post(() => UpdatePlayerQueueState(msg));
+        _queueSocketService.PlayerRoomStateUpdated += msg => Dispatcher.UIThread.Post(() => _ = UpdatePlayerRoomStateAsync(msg));
+        _queueSocketService.PlayerGameStateUpdated += msg => Dispatcher.UIThread.Post(() => UpdatePlayerGameState(msg));
+        _queueSocketService.ServerSearchingUpdated += msg => Dispatcher.UIThread.Post(() => UpdateServerSearching(msg));
         _queueSocketService.OnlineUpdated += msg => Dispatcher.UIThread.Post(() => UpdateOnlineUsers(msg));
 
         CloseInviteModalCommand = new RelayCommand(CloseInviteModal);
+        AcceptGameCommand = new RelayCommand(AcceptGame);
+        DeclineGameCommand = new RelayCommand(DeclineGame);
 
         if (!string.IsNullOrWhiteSpace(_backendAccessToken))
             _ = EnsureQueueConnectionAsync(_backendAccessToken, CancellationToken.None);
 
         _ = RefreshPartyAsync();
         _ = RefreshMatchmakingModesAsync();
+        UpdateQueueButtonState();
     }
 
     private async Task ExchangeSteamTicketAsync(string? ticket)
@@ -228,12 +302,14 @@ public partial class MainLauncherViewModel : ViewModelBase
                 return;
             }
 
-            var members = await _backendApiService.GetMyPartyAsync(BackendAccessToken);
+            var partySnapshot = await _backendApiService.GetMyPartySnapshotAsync(BackendAccessToken);
             DisposePartyAvatars();
             PartyMembers.Clear();
-            foreach (var m in members)
+            foreach (var m in partySnapshot.Members)
                 PartyMembers.Add(m);
 
+            _enterQueueAt = partySnapshot.EnterQueueAt;
+            UpdateQueueButtonState();
             OnPropertyChanged(nameof(CanInviteToParty));
         }
         catch (Exception ex)
@@ -251,6 +327,8 @@ public partial class MainLauncherViewModel : ViewModelBase
     {
         DisposePartyAvatars();
         PartyMembers.Clear();
+        _enterQueueAt = null;
+        UpdateQueueButtonState();
         OnPropertyChanged(nameof(CanInviteToParty));
     }
 
@@ -271,6 +349,7 @@ public partial class MainLauncherViewModel : ViewModelBase
     {
         if (msg.InQueue)
         {
+            _queuedModeCount = msg.Modes?.Length ?? 0;
             var names = MatchmakingModes
                 .Where(m => msg.Modes.Any(x => (int)x == m.ModeId))
                 .Select(m => m.Name)
@@ -281,10 +360,46 @@ public partial class MainLauncherViewModel : ViewModelBase
         }
         else
         {
+            _queuedModeCount = 0;
             SearchingModesText = "Не в поиске";
         }
 
         IsSearching = msg.InQueue;
+        UpdateQueueButtonState();
+    }
+
+    private void UpdateQueueButtonState()
+    {
+        if (HasServerUrl)
+        {
+            QueueButtonMainText = "ПОДКЛЮЧИТЬСЯ";
+            QueueButtonModeCountText = "";
+            QueueButtonTimeText = "";
+        }
+        else if (IsSearching)
+        {
+            QueueButtonMainText = "ОТМЕНИТЬ ПОИСК";
+            QueueButtonModeCountText = _queuedModeCount > 0 ? FormatModeCount(_queuedModeCount) : "";
+            var elapsed = _enterQueueAt.HasValue
+                ? DateTimeOffset.UtcNow.Subtract(_enterQueueAt.Value.UtcDateTime)
+                : TimeSpan.Zero;
+            QueueButtonTimeText = $"{(int)elapsed.TotalMinutes}:{elapsed.Seconds:D2}";
+        }
+        else
+        {
+            QueueButtonMainText = "ИГРАТЬ";
+            QueueButtonModeCountText = "";
+            QueueButtonTimeText = "";
+        }
+        OnPropertyChanged(nameof(QueueButtonBackground));
+        OnPropertyChanged(nameof(QueueButtonHoverBackground));
+    }
+
+    private static string FormatModeCount(int n)
+    {
+        if (n == 1) return "1 РЕЖИМ";
+        if (n >= 2 && n <= 4) return $"{n} РЕЖИМА";
+        return $"{n} РЕЖИМОВ";
     }
 
     public async Task RefreshMatchmakingModesAsync()
@@ -314,6 +429,12 @@ public partial class MainLauncherViewModel : ViewModelBase
 
     public async Task ToggleSearchAsync()
     {
+        if (HasServerUrl)
+        {
+            ConnectToGame();
+            return;
+        }
+
         if (IsSearching)
         {
             await _queueSocketService.LeaveAllQueuesAsync();
@@ -327,6 +448,103 @@ public partial class MainLauncherViewModel : ViewModelBase
             return;
 
         await _queueSocketService.EnterQueueAsync(selected);
+    }
+
+    private void ConnectToGame() => _ = ConnectToGameAsync();
+
+    private async Task ConnectToGameAsync()
+    {
+        var url = ServerUrl;
+        if (string.IsNullOrEmpty(url))
+            return;
+
+        AppLog.Info($"ConnectToGame: serverUrl={url}");
+
+        // If another Dota (not ours) is running, kill it first
+        if (RunState == GameRunState.OtherDotaRunning)
+        {
+            AppLog.Info("ConnectToGame: killing foreign Dota processes");
+            KillAllDotaProcesses();
+            await Task.Delay(1500);
+            RefreshRunState();
+        }
+
+        // Launch our Dota if it's not already up
+        if (RunState != GameRunState.OurGameRunning)
+        {
+            if (string.IsNullOrWhiteSpace(GameDirectory))
+            {
+                AppLog.Info("ConnectToGame: no game directory set, cannot launch");
+                return;
+            }
+
+            AppLog.Info("ConnectToGame: launching our Dota");
+            LaunchGame();
+        }
+
+        // Poll for the DOTA 2 window (up to 90 s)
+        AppLog.Info("ConnectToGame: waiting for DOTA 2 window...");
+        var deadline = DateTimeOffset.UtcNow.AddSeconds(90);
+        while (DateTimeOffset.UtcNow < deadline)
+        {
+            await Task.Delay(1500);
+            if (DotaConsoleConnector.IsWindowOpen())
+                break;
+        }
+
+        if (!DotaConsoleConnector.IsWindowOpen())
+        {
+            AppLog.Info("ConnectToGame: timed out waiting for DOTA 2 window");
+            return;
+        }
+
+        // Give the console subsystem a moment to finish initializing
+        await Task.Delay(3000);
+
+        AppLog.Info($"ConnectToGame: sending 'connect {url}'");
+        DotaConsoleConnector.SendCommand($"connect {url}");
+    }
+
+    private static void KillAllDotaProcesses()
+    {
+        var processes = Process.GetProcessesByName("dota");
+        try
+        {
+            foreach (var p in processes)
+            {
+                try { p.Kill(entireProcessTree: true); } catch { }
+            }
+        }
+        finally
+        {
+            foreach (var p in processes)
+                p.Dispose();
+        }
+    }
+
+    private void UpdateServerSearching(PlayerServerSearchingMessage msg)
+    {
+        AppLog.Info($"UpdateServerSearching: searching={msg.Searching}");
+        IsServerSearchingModalOpen = msg.Searching;
+        // Keep the room modal visible while searching
+        if (msg.Searching)
+            IsAcceptGameModalOpen = true;
+    }
+
+    private void UpdatePlayerGameState(PlayerGameStateMessage? msg)
+    {
+        if (msg == null)
+        {
+            AppLog.Info("UpdatePlayerGameState: cleared");
+            ServerUrl = null;
+            return;
+        }
+
+        AppLog.Info($"UpdatePlayerGameState: serverUrl={msg.ServerUrl}");
+        ServerUrl = msg.ServerUrl;
+        // Close ready-check and server-searching modals now that the game is starting
+        IsAcceptGameModalOpen = false;
+        IsServerSearchingModalOpen = false;
     }
 
     public void OpenInviteModal()
@@ -434,6 +652,219 @@ public partial class MainLauncherViewModel : ViewModelBase
         }
     }
 
+    private async Task UpdatePlayerRoomStateAsync(PlayerRoomStateMessage? msg)
+    {
+        if (msg == null)
+        {
+            AppLog.Info("UpdatePlayerRoomStateAsync: msg=null (room cleared)");
+            // Room cancelled or cleared
+            IsAcceptGameModalOpen = false;
+            HasMyPlayerAccepted = false;
+            HasMyPlayerResponded = false;
+            CurrentRoomId = null;
+            RoomMode = null;
+            DisposeRoomAvatars();
+            RoomPlayers.Clear();
+            return;
+        }
+
+        AppLog.Info($"UpdatePlayerRoomStateAsync: roomId={msg.RoomId}, mode={msg.Mode}, entries={msg.Entries?.Length ?? 0}");
+        foreach (var e in msg.Entries ?? Array.Empty<PlayerRoomEntry>())
+            AppLog.Info($"  Entry: steamId={e.SteamId}, state={e.State}");
+
+        CurrentRoomId = msg.RoomId;
+        RoomMode = msg.Mode;
+
+        // Update existing players or add new ones
+        var steamIds = msg.Entries.Select(e => e.SteamId).ToHashSet(StringComparer.Ordinal);
+        
+        // Remove players no longer in room
+        for (int i = RoomPlayers.Count - 1; i >= 0; i--)
+        {
+            if (!steamIds.Contains(RoomPlayers[i].SteamId))
+            {
+                RoomPlayers[i].AvatarImage?.Dispose();
+                RoomPlayers.RemoveAt(i);
+            }
+        }
+
+        // Update or add players
+        foreach (var entry in msg.Entries)
+        {
+            var existing = RoomPlayers.FirstOrDefault(p => p.SteamId == entry.SteamId);
+            if (existing != null)
+            {
+                // Update state
+                existing.State = entry.State;
+            }
+            else
+            {
+                // Add new player - fetch user info
+                try
+                {
+                    var user = await FetchUserInfoAsync(entry.SteamId);
+                    // Room may have been cleared while we were awaiting — bail out
+                    if (CurrentRoomId != msg.RoomId)
+                    {
+                        AppLog.Info($"UpdatePlayerRoomStateAsync: room changed during fetch, aborting (expected={msg.RoomId}, current={CurrentRoomId})");
+                        user?.AvatarImage?.Dispose();
+                        return;
+                    }
+                    var roomPlayer = new RoomPlayerView(
+                        entry.SteamId,
+                        user?.Name ?? entry.SteamId,
+                        user?.AvatarImage,
+                        entry.State
+                    );
+                    RoomPlayers.Add(roomPlayer);
+                }
+                catch (Exception ex)
+                {
+                    AppLog.Error($"Failed to fetch user info for {entry.SteamId}", ex);
+                    if (CurrentRoomId != msg.RoomId)
+                        return;
+                    var roomPlayer = new RoomPlayerView(
+                        entry.SteamId,
+                        entry.SteamId,
+                        null,
+                        entry.State
+                    );
+                    RoomPlayers.Add(roomPlayer);
+                }
+            }
+        }
+
+        // Track whether the local player has already responded (any non-Pending state)
+        // Backend uses SteamID3 (32-bit account ID); local SteamID64 → lower 32 bits gives account ID
+        var myId = CurrentUser != null
+            ? ((uint)(CurrentUser.SteamId & 0xFFFFFFFF)).ToString()
+            : null;
+        var myEntry = myId != null ? msg.Entries.FirstOrDefault(e => e.SteamId == myId) : null;
+        HasMyPlayerAccepted = myEntry?.State == ReadyState.Ready;
+        HasMyPlayerResponded = myEntry != null && myEntry.State != ReadyState.Pending;
+
+        // Open modal if not already open
+        if (!IsAcceptGameModalOpen)
+        {
+            IsAcceptGameModalOpen = true;
+        }
+    }
+
+    private async Task<(string? Name, Bitmap? AvatarImage)?> FetchUserInfoAsync(string steamId)
+    {
+        if (string.IsNullOrWhiteSpace(BackendAccessToken))
+            return null;
+
+        try
+        {
+            using var httpClient = new System.Net.Http.HttpClient
+            {
+                BaseAddress = new Uri("https://api.dotaclassic.ru/"),
+                Timeout = TimeSpan.FromSeconds(5)
+            };
+            httpClient.DefaultRequestHeaders.Authorization = 
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", BackendAccessToken);
+
+            var api = new DotaclassicApiClient(httpClient);
+            var user = await api.PlayerController_userAsync(steamId);
+            
+            if (user == null)
+                return null;
+
+            Bitmap? avatar = null;
+            var avatarUrl = user.AvatarSmall ?? user.Avatar;
+            if (!string.IsNullOrWhiteSpace(avatarUrl))
+            {
+                try
+                {
+                    var uri = new Uri(avatarUrl, UriKind.RelativeOrAbsolute);
+                    if (!uri.IsAbsoluteUri)
+                        uri = new Uri(new Uri("https://api.dotaclassic.ru/"), uri);
+
+                    using var response = await httpClient.GetAsync(uri);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        await using var stream = await response.Content.ReadAsStreamAsync();
+                        avatar = new Bitmap(stream);
+                    }
+                }
+                catch
+                {
+                    // Ignore avatar load failures
+                }
+            }
+
+            return (user.Name, avatar);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private void AcceptGame()
+    {
+        if (string.IsNullOrWhiteSpace(CurrentRoomId))
+            return;
+
+        _ = AcceptGameAsync();
+    }
+
+    private async Task AcceptGameAsync()
+    {
+        if (string.IsNullOrWhiteSpace(CurrentRoomId))
+            return;
+
+        try
+        {
+            await _queueSocketService.SetReadyCheckAsync(CurrentRoomId, true);
+            AppLog.Info($"Accepted game for room: {CurrentRoomId}");
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("Failed to accept game.", ex);
+        }
+    }
+
+    private void DeclineGame()
+    {
+        if (string.IsNullOrWhiteSpace(CurrentRoomId))
+            return;
+
+        _ = DeclineGameAsync();
+    }
+
+    private async Task DeclineGameAsync()
+    {
+        if (string.IsNullOrWhiteSpace(CurrentRoomId))
+            return;
+
+        try
+        {
+            await _queueSocketService.SetReadyCheckAsync(CurrentRoomId, false);
+            AppLog.Info($"Declined game for room: {CurrentRoomId}");
+            
+            // Close modal after declining
+            IsAcceptGameModalOpen = false;
+            HasMyPlayerAccepted = false;
+            HasMyPlayerResponded = false;
+            CurrentRoomId = null;
+            RoomMode = null;
+            DisposeRoomAvatars();
+            RoomPlayers.Clear();
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("Failed to decline game.", ex);
+        }
+    }
+
+    private void DisposeRoomAvatars()
+    {
+        foreach (var player in RoomPlayers)
+            player.AvatarImage?.Dispose();
+    }
+
     private void DisposePartyAvatars()
     {
         foreach (var member in PartyMembers)
@@ -521,47 +952,30 @@ public partial class MainLauncherViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsLaunchEnabled));
     }
 
-    /// <summary>Same command as dota684.bat so process tree and context match double‑clicking the bat.</summary>
-    private const string LauncherBatchFileName = "dota684.bat";
-    private const string GameLaunchArguments = "";
-
     public void LaunchGame()
     {
         if (string.IsNullOrEmpty(GameDirectory))
             return;
         try
         {
-            var proxyExe = Path.Combine(AppContext.BaseDirectory, "d2c-launch-proxy.exe");
-            if (!File.Exists(proxyExe))
+            var exePath = Path.Combine(GameDirectory, "dota.exe");
+            if (!File.Exists(exePath))
+            {
+                AppLog.Info($"LaunchGame: dota.exe not found at {exePath}");
                 return;
+            }
 
-            var launcherBat = Path.Combine(GameDirectory, LauncherBatchFileName);
-            if (File.Exists(launcherBat))
+            AppLog.Info($"LaunchGame: starting {exePath}");
+            using var _ = Process.Start(new ProcessStartInfo
             {
-                using var _ = Process.Start(new ProcessStartInfo
-                {
-                    FileName = proxyExe,
-                    WorkingDirectory = GameDirectory,
-                    UseShellExecute = false,
-                    Arguments = "\"" + launcherBat + "\" \"" + GameDirectory + "\""
-                });
-            }
-            else
-            {
-                var exePath = Path.Combine(GameDirectory, "dota.exe");
-                var launchArgs = string.IsNullOrWhiteSpace(GameLaunchArguments) ? "" : GameLaunchArguments;
-                using var _ = Process.Start(new ProcessStartInfo
-                {
-                    FileName = proxyExe,
-                    WorkingDirectory = GameDirectory,
-                    UseShellExecute = false,
-                    Arguments = "\"" + exePath + "\" \"" + GameDirectory + "\" \"" + launchArgs + "\""
-                });
-            }
+                FileName = exePath,
+                WorkingDirectory = GameDirectory,
+                UseShellExecute = false,
+            });
         }
-        catch
+        catch (Exception ex)
         {
-            // Ignore
+            AppLog.Error("LaunchGame failed.", ex);
         }
         RefreshRunState();
     }
@@ -580,3 +994,4 @@ public partial class MainLauncherViewModel : ViewModelBase
         NotifyLaunchProps();
     }
 }
+

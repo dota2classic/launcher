@@ -80,11 +80,19 @@ public sealed class QueueSocketService : IQueueSocketService
         socket.On("CONNECTION_COMPLETE", _ => UpdateState(GameCoordinatorState.ConnectionComplete));
         socket.On("QUEUE_STATE", response => RaiseParsed("QUEUE_STATE", response, QueueStateUpdated));
         socket.On("PLAYER_QUEUE_STATE", response => RaiseParsed("PLAYER_QUEUE_STATE", response, PlayerQueueStateUpdated));
-        socket.On("PLAYER_ROOM_STATE", response => RaiseParsed("PLAYER_ROOM_STATE", response, PlayerRoomStateUpdated));
-        socket.On("PLAYER_ROOM_FOUND", response => RaiseParsed("PLAYER_ROOM_FOUND", response, PlayerRoomStateUpdated));
+        socket.On("PLAYER_ROOM_STATE", response =>
+        {
+            AppLog.Info($"PLAYER_ROOM_STATE raw: {response}");
+            RaiseParsedNullable("PLAYER_ROOM_STATE", response, PlayerRoomStateUpdated);
+        });
+        socket.On("PLAYER_ROOM_FOUND", response =>
+        {
+            AppLog.Info($"PLAYER_ROOM_FOUND raw: {response}");
+            RaiseParsedNullable("PLAYER_ROOM_FOUND", response, PlayerRoomStateUpdated);
+        });
         socket.On("PLAYER_PARTY_STATE", response => RaiseParsed("PLAYER_PARTY_STATE", response, PartyUpdated));
-        socket.On("PLAYER_GAME_STATE", response => RaiseParsed("PLAYER_GAME_STATE", response, PlayerGameStateUpdated));
-        socket.On("PLAYER_GAME_READY", response => RaiseParsed("PLAYER_GAME_READY", response, PlayerGameStateUpdated));
+        socket.On("PLAYER_GAME_STATE", response => RaiseParsedNullable("PLAYER_GAME_STATE", response, PlayerGameStateUpdated));
+        socket.On("PLAYER_GAME_READY", response => RaiseParsedNullable("PLAYER_GAME_READY", response, PlayerGameStateUpdated));
         socket.On("PLAYER_SERVER_SEARCHING", response => RaiseParsed("PLAYER_SERVER_SEARCHING", response, ServerSearchingUpdated));
         socket.On("ONLINE_UPDATE", response => RaiseParsed("ONLINE_UPDATE", response, OnlineUpdated));
         socket.On("PLAYER_PARTY_INVITES_STATE", response => RaiseParsed("PLAYER_PARTY_INVITES_STATE", response, PartyInvitationsUpdated));
@@ -192,6 +200,31 @@ public sealed class QueueSocketService : IQueueSocketService
         else
         {
             AppLog.Error($"Socket event parse failed: {eventName}");
+        }
+    }
+
+    /// <summary>
+    /// Like RaiseParsed but invokes the handler with null when the payload is null or fails to parse.
+    /// Used for events where null means "state cleared" (e.g. PLAYER_ROOM_STATE).
+    /// </summary>
+    private static void RaiseParsedNullable<T>(string eventName, SocketIOResponse response, Action<T?>? handler) where T : class
+    {
+        AppLog.Info($"Socket event received: {eventName}");
+        if (handler == null)
+        {
+            AppLog.Info($"Socket event ignored (no handler): {eventName}");
+            return;
+        }
+
+        if (TryGetPayload(response, out T? payload))
+        {
+            AppLog.Info($"Socket event parsed: {eventName} payload={(payload == null ? "null" : "non-null")}");
+            handler(payload);
+        }
+        else
+        {
+            AppLog.Info($"Socket event parse failed, invoking handler with null: {eventName}");
+            handler(null);
         }
     }
 

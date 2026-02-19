@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Globalization;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
@@ -33,12 +34,12 @@ public sealed class BackendApiService : IBackendApiService
         [13] = "Турбо"
     };
 
-    public async Task<IReadOnlyList<PartyMemberView>> GetMyPartyAsync(string bearerToken, CancellationToken cancellationToken = default)
+    public async Task<PartySnapshot> GetMyPartySnapshotAsync(string bearerToken, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(bearerToken))
         {
             AppLog.Info("Party fetch skipped: backend token is empty.");
-            return Array.Empty<PartyMemberView>();
+            return new PartySnapshot(Array.Empty<PartyMemberView>(), null);
         }
 
         using var httpClient = new HttpClient
@@ -53,7 +54,7 @@ public sealed class BackendApiService : IBackendApiService
         if (party == null)
         {
             AppLog.Info("Party fetch returned null party object.");
-            return Array.Empty<PartyMemberView>();
+            return new PartySnapshot(Array.Empty<PartyMemberView>(), null);
         }
 
         var map = new Dictionary<string, PartyMemberView>(StringComparer.Ordinal);
@@ -87,9 +88,20 @@ public sealed class BackendApiService : IBackendApiService
             }
         }
 
+        DateTimeOffset? enterQueueAt = null;
+        if (!string.IsNullOrWhiteSpace(party.EnterQueueAt) &&
+            DateTimeOffset.TryParse(
+                party.EnterQueueAt,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                out var parsed))
+        {
+            enterQueueAt = parsed;
+        }
+
         var result = map.Values.ToList();
         AppLog.Info($"Party fetch success. Members: {result.Count}");
-        return result;
+        return new PartySnapshot(result, enterQueueAt);
     }
 
     public async Task<IReadOnlyList<MatchmakingModeInfo>> GetEnabledMatchmakingModesAsync(CancellationToken cancellationToken = default)

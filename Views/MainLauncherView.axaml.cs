@@ -40,6 +40,7 @@ public partial class MainLauncherView : UserControl
         }
     }
 
+
     private void OnSettingsClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         if (DataContext is MainLauncherViewModel vm)
