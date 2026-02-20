@@ -13,7 +13,6 @@
     <AvaloniaResource Include="Assets\**" />
     <ContentWithTargetPath Include="steam_api64.dll" CopyToOutputDirectory="PreserveNewest" TargetPath="steam_api64.dll" />
     <ContentWithTargetPath Include="steam_appid.txt" CopyToOutputDirectory="PreserveNewest" TargetPath="steam_appid.txt" />
-    <Compile Remove="GameLaunchProxy\**\*.cs" />
     <Compile Remove="SteamBridge\**\*.cs" />
   </ItemGroup>
 
@@ -36,16 +35,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="GameLaunchProxy\GameLaunchProxy.csproj" />
     <ProjectReference Include="SteamBridge\SteamBridge.csproj" />
   </ItemGroup>
-
-  <Target Name="CopyGameLaunchProxyOutput" AfterTargets="Build">
-    <ItemGroup>
-      <ProxyFiles Include="GameLaunchProxy\bin\$(Configuration)\net10.0\d2c-launch-proxy.*" />
-    </ItemGroup>
-    <Copy SourceFiles="@(ProxyFiles)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
-  </Target>
 
   <Target Name="CopySteamBridgeOutput" AfterTargets="Build">
     <ItemGroup>
