@@ -26,7 +26,7 @@
         </Style>
     </UserControl.Styles>
 
-    <Grid Margin="20,14" ColumnDefinitions="Auto,Auto,*" ColumnSpacing="10">
+    <Grid Margin="20,14" ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="10">
         <Border Grid.Column="0" CornerRadius="6" Background="#1A1A1A" BorderBrush="#2D2922" BorderThickness="1"
                 Width="300">
             <Button Background="Transparent"
@@ -45,7 +45,13 @@
                 BorderBrush="#2D2922"
                 Background="#243D63"
                 Click="OnSelectDotaExeClicked"/>
-        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+        <!-- Online stats -->
+        <TextBlock Grid.Column="2"
+                   Text="{Binding OnlineStatsText}"
+                   Foreground="#AFA38A" FontSize="12"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
             <Button Classes="play-primary"
                     Content="{Binding Launch.LaunchButtonText}"
                     IsEnabled="{Binding Launch.IsLaunchEnabled}"

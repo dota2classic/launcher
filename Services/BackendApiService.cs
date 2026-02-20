@@ -80,17 +80,26 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         {
             foreach (var p in party.Players)
             {
-                var user = p?.Summary?.User;
+                var summary = p?.Summary;
+                var user = summary?.User;
                 if (user == null || string.IsNullOrWhiteSpace(user.SteamId))
                     continue;
 
                 var avatarUrl = user.AvatarSmall ?? user.Avatar;
                 var avatar = await TryLoadAvatarAsync(httpClient, avatarUrl, cancellationToken);
+
+                var ban = summary.BanStatus;
+                var access = summary.AccessMap;
                 map[user.SteamId] = new PartyMemberView(
                     user.SteamId,
                     user.Name ?? "",
                     avatarUrl,
-                    avatar);
+                    avatar,
+                    isBanned: ban?.IsBanned ?? false,
+                    bannedUntil: ban?.BannedUntil,
+                    canPlayHumanGames: access?.HumanGames ?? true,
+                    canPlaySimpleModes: access?.SimpleModes ?? true,
+                    canPlayEducation: access?.Education ?? true);
             }
         }
 
@@ -237,6 +246,39 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         catch
         {
             // Ignore avatar load failures.
+        }
+    }
+
+    public Task<Bitmap?> LoadAvatarFromUrlAsync(string? url, CancellationToken cancellationToken = default)
+        => TryLoadAvatarAsync(_httpClient, url, cancellationToken);
+
+    public async Task<(int InGame, int OnSite)> GetOnlineStatsAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            // Parse manually: the API returns inGame as a JSON string ("2"), not a number,
+            // so the generated client's double field silently gives 0.
+            var json = await _httpClient.GetStringAsync("v1/stats/online", cancellationToken).ConfigureAwait(false);
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            var root = doc.RootElement;
+
+            // inGame may be a string or a number
+            var inGame = 0;
+            if (root.TryGetProperty("inGame", out var inGameEl))
+            {
+                if (inGameEl.ValueKind == System.Text.Json.JsonValueKind.String)
+                    int.TryParse(inGameEl.GetString(), out inGame);
+                else if (inGameEl.ValueKind == System.Text.Json.JsonValueKind.Number)
+                    inGame = inGameEl.GetInt32();
+            }
+
+            var onSite = root.TryGetProperty("sessions", out var sessionsEl) ? sessionsEl.GetInt32() : 0;
+
+            return (inGame, onSite);
+        }
+        catch
+        {
+            return (0, 0);
         }
     }
 

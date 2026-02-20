@@ -2,13 +2,33 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:d2c_launcher.ViewModels"
              xmlns:m="using:d2c_launcher.Models"
+             xmlns:util="using:d2c_launcher.Util"
+             xmlns:materialIcons="using:Material.Icons.Avalonia"
              x:Class="d2c_launcher.Views.Components.PartyPanel"
              x:DataType="vm:PartyViewModel">
+
+    <UserControl.Resources>
+        <util:BanBorderBrushConverter x:Key="BanBorderBrushConverter"/>
+    </UserControl.Resources>
 
     <Border Padding="12" CornerRadius="12" Background="#141414" BorderBrush="#2D2922"
             BorderThickness="1" Margin="0,0,0,12">
         <StackPanel Spacing="10">
-            <TextBlock Text="Группа" Foreground="#E9D39A" FontWeight="SemiBold" FontSize="14"/>
+
+            <!-- Header: title + leave button -->
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="Группа" Foreground="#E9D39A" FontWeight="SemiBold" FontSize="14"
+                           VerticalAlignment="Center"/>
+                <Button Grid.Column="1"
+                        IsVisible="{Binding CanLeaveParty}"
+                        Command="{Binding LeavePartyCommand}"
+                        Background="Transparent" BorderThickness="0"
+                        Padding="4" ToolTip.Tip="Покинуть группу">
+                    <materialIcons:MaterialIcon Kind="ExitToApp" Width="18" Height="18" Foreground="#AFA38A"/>
+                </Button>
+            </Grid>
+
+            <!-- Members + invite button -->
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <ItemsControl ItemsSource="{Binding PartyMembers}">
                     <ItemsControl.ItemsPanel>
@@ -18,16 +38,25 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="m:PartyMemberView">
-                            <Border Width="40" Height="40" CornerRadius="6" ClipToBounds="True"
-                                    Background="#1E1E1E" BorderBrush="#2D2922" BorderThickness="1">
-                                <Image Source="{Binding AvatarImage}" Stretch="UniformToFill"/>
+                            <!-- Outer border: sharp (no radius) red indicator when banned -->
+                            <Border BorderThickness="2" Padding="0"
+                                    BorderBrush="{Binding IsBanned, Converter={StaticResource BanBorderBrushConverter}}"
+                                    ToolTip.Tip="{Binding Name}">
+                                <!-- Inner border: avatar with rounded clip -->
+                                <Border Width="40" Height="40" CornerRadius="6" ClipToBounds="True"
+                                        Background="#1E1E1E">
+                                    <Image Source="{Binding AvatarImage}" Stretch="UniformToFill"/>
+                                </Border>
                             </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-                <Button IsVisible="{Binding CanInviteToParty}" Width="40" Height="40" FontSize="20"
+                <Button IsVisible="{Binding CanInviteToParty}"
+                        Width="40" Height="40" FontSize="20" Padding="0"
+                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                         Content="+" Click="OnInvitePlayerClicked"/>
             </StackPanel>
+
         </StackPanel>
     </Border>
 </UserControl>

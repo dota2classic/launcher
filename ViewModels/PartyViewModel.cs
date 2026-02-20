@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
@@ -37,8 +38,10 @@ public partial class PartyViewModel : ViewModelBase
     private ObservableCollection<InviteCandidateView> _inviteCandidates = new();
 
     public bool CanInviteToParty => PartyMembers.Count < 5;
+    public bool CanLeaveParty => PartyMembers.Count > 1;
 
     public IRelayCommand CloseInviteModalCommand { get; }
+    public IRelayCommand LeavePartyCommand { get; }
 
     public PartyViewModel(IQueueSocketService queueSocketService, IBackendApiService backendApiService)
     {
@@ -53,6 +56,7 @@ public partial class PartyViewModel : ViewModelBase
         queueSocketService.OnlineUpdated += msg => Dispatcher.UIThread.Post(() => UpdateOnlineUsers(msg));
 
         CloseInviteModalCommand = new RelayCommand(CloseInviteModal);
+        LeavePartyCommand = new AsyncRelayCommand(LeavePartyAsync);
     }
 
     public void OpenInviteModal()
@@ -94,9 +98,11 @@ public partial class PartyViewModel : ViewModelBase
             foreach (var m in partySnapshot.Members)
                 PartyMembers.Add(m);
 
-            // Notify parent to update queue timer
+            // Notify parent to update queue timer and restrictions
             EnterQueueAtChanged?.Invoke(partySnapshot.EnterQueueAt);
+            PartyMembersChanged?.Invoke(partySnapshot.Members);
             OnPropertyChanged(nameof(CanInviteToParty));
+            OnPropertyChanged(nameof(CanLeaveParty));
         }
         catch (Exception ex)
         {
@@ -112,12 +118,23 @@ public partial class PartyViewModel : ViewModelBase
     /// <summary>Raised when the queue start timestamp changes, so QueueViewModel can update its timer.</summary>
     public event Action<DateTimeOffset?>? EnterQueueAtChanged;
 
+    /// <summary>Raised after every party refresh with the current member list (for restriction propagation).</summary>
+    public event Action<IReadOnlyList<Models.PartyMemberView>>? PartyMembersChanged;
+
     public void ClearParty()
     {
         DisposePartyAvatars();
         PartyMembers.Clear();
         EnterQueueAtChanged?.Invoke(null);
+        PartyMembersChanged?.Invoke(Array.Empty<Models.PartyMemberView>());
         OnPropertyChanged(nameof(CanInviteToParty));
+        OnPropertyChanged(nameof(CanLeaveParty));
+    }
+
+    private async Task LeavePartyAsync()
+    {
+        try { await _queueSocketService.LeavePartyAsync(); }
+        catch (Exception ex) { AppLog.Error("Failed to leave party.", ex); }
     }
 
     private void UpdateOnlineUsers(OnlineUpdateMessage msg)

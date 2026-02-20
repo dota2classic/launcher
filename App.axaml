@@ -5,6 +5,7 @@
              xmlns:vm="using:d2c_launcher.ViewModels"
              xmlns:v="using:d2c_launcher.Views"
              xmlns:dialogHost="using:DialogHostAvalonia"
+             xmlns:materialIcons="using:Material.Icons.Avalonia"
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
@@ -21,5 +22,44 @@
     <Application.Styles>
         <FluentTheme />
         <dialogHost:DialogHostStyles />
+        <materialIcons:MaterialIconStyles/>
+        <Style Selector="CheckBox">
+            <Setter Property="Foreground" Value="#D4C89A"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Grid ColumnDefinitions="Auto,*" VerticalAlignment="Center">
+                        <Border x:Name="CheckMark"
+                                Grid.Column="0"
+                                Width="18" Height="18"
+                                CornerRadius="4"
+                                Background="#1A1A1A"
+                                BorderBrush="#3A3322"
+                                BorderThickness="1.5"
+                                VerticalAlignment="Center">
+                            <Path x:Name="CheckGlyph"
+                                  Data="M 3 9 L 7 13 L 15 5"
+                                  Stroke="#E9D39A"
+                                  StrokeThickness="2"
+                                  StrokeLineCap="Round"
+                                  IsVisible="{TemplateBinding IsChecked}"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"/>
+                        </Border>
+                        <ContentPresenter Grid.Column="1"
+                                          Margin="8,0,0,0"
+                                          Content="{TemplateBinding Content}"
+                                          VerticalAlignment="Center"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+        <Style Selector="CheckBox:pointerover /template/ Border#CheckMark">
+            <Setter Property="BorderBrush" Value="#E9D39A"/>
+            <Setter Property="Background" Value="#222211"/>
+        </Style>
+        <Style Selector="CheckBox:checked /template/ Border#CheckMark">
+            <Setter Property="BorderBrush" Value="#E9D39A"/>
+            <Setter Property="Background" Value="#1A1A1A"/>
+        </Style>
     </Application.Styles>
 </Application>

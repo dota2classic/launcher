@@ -3,6 +3,7 @@
              xmlns:vm="using:d2c_launcher.ViewModels"
              xmlns:m="using:d2c_launcher.Models"
              xmlns:util="using:d2c_launcher.Util"
+             xmlns:materialIcons="using:Material.Icons.Avalonia"
              x:Class="d2c_launcher.Views.Components.GameSearchPanel"
              x:DataType="vm:QueueViewModel">
     <UserControl.Resources>
@@ -23,12 +24,28 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="m:MatchmakingModeView">
-                            <Border Padding="10,8" CornerRadius="8" Background="#1B1B1B"
-                                    BorderBrush="#2D2922" BorderThickness="1" Margin="0,0,0,8">
+                            <Border Padding="4,10"
+                                    BorderBrush="#2D2922" BorderThickness="0,0,0,1">
                                 <Grid ColumnDefinitions="Auto,*" VerticalAlignment="Center">
-                                    <CheckBox IsChecked="{Binding IsSelected}" Margin="0,0,8,0"/>
+                                    <CheckBox IsChecked="{Binding IsSelected}"
+                                              IsEnabled="{Binding IsRestricted, Converter={StaticResource InverseBoolConverter}}"
+                                              Margin="0,0,8,0"/>
                                     <StackPanel Grid.Column="1">
-                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="#E9D39A"/>
+                                        <!-- Mode name with lock icon when restricted -->
+                                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                            <materialIcons:MaterialIcon Kind="Lock"
+                                                                         Width="12" Height="12"
+                                                                         Foreground="#E74C3C"
+                                                                         IsVisible="{Binding IsRestricted}"
+                                                                         VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Name}"
+                                                       FontWeight="SemiBold" Foreground="#E9D39A"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <!-- Ban/access restriction reason -->
+                                        <TextBlock Text="{Binding RestrictionText}"
+                                                   IsVisible="{Binding IsRestricted}"
+                                                   Foreground="#E74C3C" FontSize="11"/>
                                         <TextBlock Text="{Binding InQueue, StringFormat={}{0} в поиске}"
                                                    Foreground="#AFA38A" FontSize="12"/>
                                     </StackPanel>

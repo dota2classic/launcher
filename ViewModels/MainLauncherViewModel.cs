@@ -18,6 +18,8 @@ public partial class MainLauncherViewModel : ViewModelBase
     private readonly ISettingsStorage _settingsStorage;
     private readonly ISteamAuthApi _steamAuthApi;
     private readonly IQueueSocketService _queueSocketService;
+    private readonly IBackendApiService _backendApiService;
+    private readonly DispatcherTimer _onlineStatsTimer;
     private CancellationTokenSource? _ticketExchangeCts;
 
     // ── Child ViewModels ──────────────────────────────────────────────────────
@@ -25,6 +27,7 @@ public partial class MainLauncherViewModel : ViewModelBase
     public QueueViewModel Queue { get; }
     public RoomViewModel Room { get; }
     public PartyViewModel Party { get; }
+    public NotificationAreaViewModel NotificationArea { get; }
 
     // ── Auth / user state ─────────────────────────────────────────────────────
     [ObservableProperty]
@@ -38,6 +41,14 @@ public partial class MainLauncherViewModel : ViewModelBase
 
     [ObservableProperty]
     private bool _isSettingsOpen;
+
+    [ObservableProperty]
+    private int _onlineInGame;
+
+    [ObservableProperty]
+    private int _onlineSessions;
+
+    public string OnlineStatsText => $"{OnlineInGame} в игре, {OnlineSessions} на сайте";
 
     public string LoggedInAsText => CurrentUser != null
         ? "Logged in as: " + CurrentUser.PersonaName
@@ -54,6 +65,7 @@ public partial class MainLauncherViewModel : ViewModelBase
         _settingsStorage = settingsStorage;
         _steamAuthApi = steamAuthApi;
         _queueSocketService = queueSocketService;
+        _backendApiService = backendApiService;
 
         var settings = settingsStorage.Get();
         _backendAccessToken = settings.BackendAccessToken;
@@ -65,6 +77,7 @@ public partial class MainLauncherViewModel : ViewModelBase
         Queue = new QueueViewModel(queueSocketService, backendApiService);
         Room = new RoomViewModel(queueSocketService, backendApiService);
         Party = new PartyViewModel(queueSocketService, backendApiService);
+        NotificationArea = new NotificationAreaViewModel(backendApiService, queueSocketService);
 
         // Wire delegates into children that need auth state
         Room.GetCurrentUser = () => CurrentUser;
@@ -75,6 +88,28 @@ public partial class MainLauncherViewModel : ViewModelBase
 
         // Keep queue timer in sync with party queue time
         Party.EnterQueueAtChanged += time => Queue.SetEnterQueueAt(time);
+
+        // Push party restrictions into queue mode list
+        Party.PartyMembersChanged += members => Queue.ApplyPartyRestrictions(members);
+
+        // Party invites → floating notifications
+        queueSocketService.PartyInviteReceived += msg =>
+            Dispatcher.UIThread.Post(() => NotificationArea.AddInvite(msg));
+        queueSocketService.PartyInviteExpired += msg =>
+            Dispatcher.UIThread.Post(() => NotificationArea.RemoveByInviteId(msg.InviteId));
+
+        // на сайте: updated from socket events
+        queueSocketService.OnlineUpdated += msg => Dispatcher.UIThread.Post(() =>
+        {
+            OnlineSessions = msg.Online?.Length ?? 0;
+            OnPropertyChanged(nameof(OnlineStatsText));
+        });
+
+        // в игре: polled from API every 5 seconds
+        _onlineStatsTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
+        _onlineStatsTimer.Tick += (_, _) => { _ = RefreshInGameCountAsync(); };
+        _onlineStatsTimer.Start();
+        _ = RefreshInGameCountAsync();
 
         // Steam events
         _steamManager.OnUserUpdated += u => Dispatcher.UIThread.Post(() =>
@@ -172,6 +207,13 @@ public partial class MainLauncherViewModel : ViewModelBase
             return;
         }
         await _queueSocketService.ConnectAsync(token, cancellationToken);
+    }
+
+    private async Task RefreshInGameCountAsync()
+    {
+        var (inGame, _) = await _backendApiService.GetOnlineStatsAsync();
+        OnlineInGame = inGame;
+        OnPropertyChanged(nameof(OnlineStatsText));
     }
 
     private void PersistBackendToken(string? token)

@@ -13,6 +13,13 @@ public sealed partial class MatchmakingModeView : ObservableObject
     [ObservableProperty]
     private int _inQueue;
 
+    [ObservableProperty]
+    private string? _restrictionText;
+
+    public bool IsRestricted => !string.IsNullOrEmpty(RestrictionText);
+
+    partial void OnRestrictionTextChanged(string? value) => OnPropertyChanged(nameof(IsRestricted));
+
     public MatchmakingModeView(int modeId, string name, bool isSelected = false)
     {
         ModeId = modeId;

@@ -131,6 +131,12 @@
             <!-- Room ready-check modal -->
             <components:AcceptGameModal DataContext="{Binding Room}"/>
 
+            <!-- Floating party invite notifications (top-right) -->
+            <components:NotificationArea DataContext="{Binding NotificationArea}"
+                                         ZIndex="150"
+                                         HorizontalAlignment="Right" VerticalAlignment="Top"
+                                         Margin="0,12,20,0"/>
+
             <!-- Settings overlay -->
             <Panel x:Name="SettingsOverlay" IsVisible="{Binding IsSettingsOpen}" ZIndex="100"
                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#80000000"

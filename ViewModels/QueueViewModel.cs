@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -42,12 +43,12 @@ public partial class QueueViewModel : ViewModelBase
     /// <summary>Blue when game ready, green when searching, dark gray when idle.</summary>
     public IBrush QueueButtonBackground => _hasServerUrl
         ? new SolidColorBrush(Color.Parse("#1A5276"))
-        : IsSearching ? new SolidColorBrush(Color.Parse("#1F8B4C")) : new SolidColorBrush(Color.Parse("#3A3A3A"));
+        : IsSearching ? new SolidColorBrush(Color.Parse("#27AE60")) : new SolidColorBrush(Color.Parse("#1F8B4C"));
 
     /// <summary>Lighter version for hover state.</summary>
     public IBrush QueueButtonHoverBackground => _hasServerUrl
         ? new SolidColorBrush(Color.Parse("#2E86C1"))
-        : IsSearching ? new SolidColorBrush(Color.Parse("#2F9B5C")) : new SolidColorBrush(Color.Parse("#4A4A4A"));
+        : IsSearching ? new SolidColorBrush(Color.Parse("#2ECC71")) : new SolidColorBrush(Color.Parse("#27AE60"));
 
     public QueueViewModel(IQueueSocketService queueSocketService, IBackendApiService backendApiService)
     {
@@ -107,7 +108,9 @@ public partial class QueueViewModel : ViewModelBase
                 next.Add(view);
             }
 
-            MatchmakingModes = next;
+            MatchmakingModes = new ObservableCollection<MatchmakingModeView>(
+                next.OrderBy(m => GetModePriority(m.ModeId)));
+            ApplyRestrictionsToModes();
         }
         catch (Exception ex)
         {
@@ -179,6 +182,93 @@ public partial class QueueViewModel : ViewModelBase
     }
 
     public void SetEnterQueueAt(DateTimeOffset? time) => _enterQueueAt = time;
+
+    // Priority mirrors getLobbyTypePriority from the web client (lower = shown first)
+    private static int GetModePriority(int modeId) => modeId + modeId switch
+    {
+        1  => -1000,  // UNRANKED   (Обычная 5x5)
+        8  => -1500,  // HIGHROOM   (Highroom 5x5)
+        12 => -100,   // BOTS2X2    (2x2 с ботами)
+        13 => -500,   // TURBO      (Турбо)
+        _  => 0
+    };
+
+    // Mode ID → access category
+    private static readonly System.Collections.Generic.HashSet<int> HumanGameModeIds =
+        new() { 0, 1, 3, 4, 5, 6, 8, 9, 10, 11 };
+    private static readonly System.Collections.Generic.HashSet<int> SimpleModeIds =
+        new() { 2, 13 };
+    private static readonly System.Collections.Generic.HashSet<int> EducationModeIds =
+        new() { 7, 12 };
+
+    private IReadOnlyList<Models.PartyMemberView> _latestPartyMembers = Array.Empty<Models.PartyMemberView>();
+
+    public void ApplyPartyRestrictions(IReadOnlyList<Models.PartyMemberView> members)
+    {
+        _latestPartyMembers = members;
+        ApplyRestrictionsToModes();
+    }
+
+    private void ApplyRestrictionsToModes()
+    {
+        foreach (var mode in MatchmakingModes)
+        {
+            string? restriction = null;
+            foreach (var member in _latestPartyMembers)
+            {
+                if (!CanMemberPlayMode(member, mode.ModeId))
+                {
+                    restriction = FormatMemberRestriction(member);
+                    break;
+                }
+            }
+            mode.RestrictionText = restriction;
+        }
+    }
+
+    private static bool CanMemberPlayMode(Models.PartyMemberView member, int modeId)
+    {
+        if (member.IsBanned)
+        {
+            // Permaban (> 2 years from now) blocks every mode
+            if (IsPermaban(member.BannedUntil))
+                return false;
+            // Regular ban blocks human 5×5 modes only
+            return !HumanGameModeIds.Contains(modeId);
+        }
+
+        // Not banned: honour the access map
+        if (HumanGameModeIds.Contains(modeId)) return member.CanPlayHumanGames;
+        if (SimpleModeIds.Contains(modeId)) return member.CanPlaySimpleModes;
+        if (EducationModeIds.Contains(modeId)) return member.CanPlayEducation;
+        return true;
+    }
+
+    private static bool IsPermaban(string? bannedUntil)
+    {
+        if (string.IsNullOrEmpty(bannedUntil))
+            return true; // no end date → treat as permanent
+        if (!DateTimeOffset.TryParse(bannedUntil, System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.AssumeUniversal, out var until))
+            return true;
+        return until > DateTimeOffset.UtcNow.AddYears(2);
+    }
+
+    private static string FormatMemberRestriction(Models.PartyMemberView member)
+    {
+        if (member.IsBanned)
+        {
+            if (IsPermaban(member.BannedUntil))
+                return "Аккаунт заблокирован навсегда";
+
+            if (!string.IsNullOrEmpty(member.BannedUntil) &&
+                DateTimeOffset.TryParse(member.BannedUntil, System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.AssumeUniversal, out var until))
+                return $"Поиск запрещён до {until.LocalDateTime:dd.MM.yyyy, HH:mm}";
+        }
+
+        return "Нет доступа к режиму";
+    }
 
     private static string FormatModeCount(int n)
     {

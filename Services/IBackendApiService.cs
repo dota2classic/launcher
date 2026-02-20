@@ -12,4 +12,6 @@ public interface IBackendApiService
     Task<IReadOnlyList<MatchmakingModeInfo>> GetEnabledMatchmakingModesAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<InviteCandidateView>> SearchPlayersAsync(string name, int count = 25, CancellationToken cancellationToken = default);
     Task<(string? Name, Bitmap? AvatarImage)?> GetUserInfoAsync(string steamId, string bearerToken, CancellationToken cancellationToken = default);
+    Task<(int InGame, int OnSite)> GetOnlineStatsAsync(CancellationToken cancellationToken = default);
+    Task<Avalonia.Media.Imaging.Bitmap?> LoadAvatarFromUrlAsync(string? url, CancellationToken cancellationToken = default);
 }
