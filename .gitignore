@@ -26,7 +26,6 @@ $RECYCLE.BIN/
 
 # Steam runtime artifacts
 steam_api.dll
-steam_api64.dll
 
 # Logs
 *.log
