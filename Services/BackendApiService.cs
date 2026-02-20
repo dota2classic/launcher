@@ -13,9 +13,15 @@ using d2c_launcher.Util;
 
 namespace d2c_launcher.Services;
 
-public sealed class BackendApiService : IBackendApiService
+public sealed class BackendApiService : IBackendApiService, IDisposable
 {
     private static readonly Uri BaseUri = new("https://api.dotaclassic.ru/");
+    // Single shared client for requests that don't require per-request auth (modes, etc.)
+    private readonly HttpClient _httpClient = new HttpClient
+    {
+        BaseAddress = BaseUri,
+        Timeout = TimeSpan.FromSeconds(10)
+    };
     private static readonly IReadOnlyDictionary<int, string> MatchmakingModeLabels = new Dictionary<int, string>
     {
         [0] = "Рейтинговая 5x5",
@@ -106,13 +112,7 @@ public sealed class BackendApiService : IBackendApiService
 
     public async Task<IReadOnlyList<MatchmakingModeInfo>> GetEnabledMatchmakingModesAsync(CancellationToken cancellationToken = default)
     {
-        using var httpClient = new HttpClient
-        {
-            BaseAddress = BaseUri,
-            Timeout = TimeSpan.FromSeconds(10)
-        };
-
-        var api = new DotaclassicApiClient(httpClient);
+        var api = new DotaclassicApiClient(_httpClient);
         var modes = await api.StatsController_getMatchmakingInfoAsync(cancellationToken);
         if (modes == null)
             return Array.Empty<MatchmakingModeInfo>();
@@ -172,6 +172,35 @@ public sealed class BackendApiService : IBackendApiService
         return result;
     }
 
+    public async Task<(string? Name, Bitmap? AvatarImage)?> GetUserInfoAsync(string steamId, string bearerToken, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(steamId) || string.IsNullOrWhiteSpace(bearerToken))
+            return null;
+
+        try
+        {
+            using var authClient = new HttpClient
+            {
+                BaseAddress = BaseUri,
+                Timeout = TimeSpan.FromSeconds(5)
+            };
+            authClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
+
+            var api = new DotaclassicApiClient(authClient);
+            var user = await api.PlayerController_userAsync(steamId, cancellationToken).ConfigureAwait(false);
+            if (user == null)
+                return null;
+
+            var avatarUrl = user.AvatarSmall ?? user.Avatar;
+            var avatar = await TryLoadAvatarAsync(authClient, avatarUrl, cancellationToken).ConfigureAwait(false);
+            return (user.Name, avatar);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     private async Task LoadInviteAvatarsAsync(
         IReadOnlyList<InviteCandidateView> views,
         IEnumerable<UserDTO> users,
@@ -179,12 +208,6 @@ public sealed class BackendApiService : IBackendApiService
     {
         try
         {
-            using var httpClient = new HttpClient
-            {
-                BaseAddress = BaseUri,
-                Timeout = TimeSpan.FromSeconds(10)
-            };
-
             var viewList = views.ToList();
             var userList = users.ToList();
             var count = Math.Min(viewList.Count, userList.Count);
@@ -199,7 +222,7 @@ public sealed class BackendApiService : IBackendApiService
                 if (string.IsNullOrWhiteSpace(avatarUrl))
                     continue;
 
-                var avatar = await TryLoadAvatarAsync(httpClient, avatarUrl, cancellationToken);
+                var avatar = await TryLoadAvatarAsync(_httpClient, avatarUrl, cancellationToken);
                 if (avatar == null)
                     continue;
 
@@ -216,6 +239,8 @@ public sealed class BackendApiService : IBackendApiService
             // Ignore avatar load failures.
         }
     }
+
+    public void Dispose() => _httpClient.Dispose();
 
     private static string GetInitials(string name)
     {

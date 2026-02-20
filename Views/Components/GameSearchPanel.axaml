@@ -1,0 +1,43 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:d2c_launcher.ViewModels"
+             xmlns:m="using:d2c_launcher.Models"
+             xmlns:util="using:d2c_launcher.Util"
+             x:Class="d2c_launcher.Views.Components.GameSearchPanel"
+             x:DataType="vm:QueueViewModel">
+    <UserControl.Resources>
+        <util:InverseBoolConverter x:Key="InverseBoolConverter"/>
+    </UserControl.Resources>
+
+    <Border Padding="12" CornerRadius="12" Background="#141414" BorderBrush="#2D2922"
+            BorderThickness="1">
+        <StackPanel Spacing="12">
+            <TextBlock Text="Поиск игры" Foreground="#E9D39A" FontWeight="SemiBold" FontSize="14"/>
+            <TextBlock Text="{Binding SearchingModesText}" Foreground="#AFA38A" FontSize="12"/>
+            <Border IsEnabled="{Binding IsSearching, Converter={StaticResource InverseBoolConverter}}">
+                <ItemsControl ItemsSource="{Binding MatchmakingModes}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="m:MatchmakingModeView">
+                            <Border Padding="10,8" CornerRadius="8" Background="#1B1B1B"
+                                    BorderBrush="#2D2922" BorderThickness="1" Margin="0,0,0,8">
+                                <Grid ColumnDefinitions="Auto,*" VerticalAlignment="Center">
+                                    <CheckBox IsChecked="{Binding IsSelected}" Margin="0,0,8,0"/>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="#E9D39A"/>
+                                        <TextBlock Text="{Binding InQueue, StringFormat={}{0} в поиске}"
+                                                   Foreground="#AFA38A" FontSize="12"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+        </StackPanel>
+    </Border>
+</UserControl>

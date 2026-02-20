@@ -64,12 +64,6 @@ public partial class MainLauncherView : UserControl
         e.Handled = true;
     }
 
-    private void OnLaunchGameClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        if (DataContext is MainLauncherViewModel vm)
-            vm.LaunchGame();
-    }
-
     private void OnPrimaryActionClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         if (DataContext is not MainLauncherViewModel vm)
@@ -94,12 +88,6 @@ public partial class MainLauncherView : UserControl
     {
         if (DataContext is MainLauncherViewModel vm)
             await vm.ToggleSearchAsync();
-    }
-
-    private void OnCloseInviteModalClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        if (DataContext is MainLauncherViewModel vm)
-            vm.CloseInviteModal();
     }
 
     private async void OnInviteCandidateClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

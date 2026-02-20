@@ -1,0 +1,26 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:d2c_launcher.ViewModels"
+             x:Class="d2c_launcher.Views.Components.QueueButton"
+             x:DataType="vm:QueueViewModel">
+
+    <Button Height="56" HorizontalAlignment="Stretch"
+            HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+            Background="{Binding QueueButtonBackground}" Foreground="White"
+            FontWeight="Bold" FontSize="18" BorderThickness="0" CornerRadius="10"
+            Padding="18,12,18,16" Click="OnQueueButtonClicked">
+        <Button.Styles>
+            <Style Selector="Button:pointerover">
+                <Setter Property="Background" Value="{Binding QueueButtonHoverBackground}"/>
+            </Style>
+        </Button.Styles>
+        <StackPanel HorizontalAlignment="Center" Spacing="4">
+            <TextBlock Text="{Binding QueueButtonMainText}" HorizontalAlignment="Center"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8"
+                        IsVisible="{Binding IsSearching}">
+                <TextBlock Text="{Binding QueueButtonModeCountText}" Foreground="White" FontSize="14"/>
+                <TextBlock Text="{Binding QueueButtonTimeText}" Foreground="#F5D042" FontSize="14"/>
+            </StackPanel>
+        </StackPanel>
+    </Button>
+</UserControl>

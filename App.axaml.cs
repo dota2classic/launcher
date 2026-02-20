@@ -8,11 +8,14 @@ using d2c_launcher.Integration;
 using d2c_launcher.Services;
 using d2c_launcher.ViewModels;
 using d2c_launcher.Views;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace d2c_launcher;
 
 public partial class App : Application
 {
+    private ServiceProvider? _services;
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -23,16 +26,29 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             DisableAvaloniaDataAnnotationValidation();
-            var steamManager = new SteamManager();
-            desktop.Exit += (_, _) => steamManager.Dispose();
-            var settingsStorage = new SettingsStorage();
-            var steamAuthApi = new SteamAuthApi();
-            var backendApi = new BackendApiService();
-            var queueSocket = new QueueSocketService();
-            desktop.Exit += (_, _) => queueSocket.Dispose();
+
+            var services = new ServiceCollection();
+            services.AddSingleton<SteamManager>();
+            services.AddSingleton<ISettingsStorage, SettingsStorage>();
+            services.AddSingleton<ISteamAuthApi, SteamAuthApi>();
+            services.AddSingleton<IBackendApiService, BackendApiService>();
+            services.AddSingleton<IQueueSocketService, QueueSocketService>();
+            services.AddTransient<MainWindowViewModel>();
+
+            _services = services.BuildServiceProvider();
+
+            var steamManager = _services.GetRequiredService<SteamManager>();
+            var queueSocket = _services.GetRequiredService<IQueueSocketService>();
+            desktop.Exit += (_, _) =>
+            {
+                steamManager.Dispose();
+                queueSocket.Dispose();
+                _services.Dispose();
+            };
+
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainWindowViewModel(steamManager, settingsStorage, steamAuthApi, backendApi, queueSocket),
+                DataContext = _services.GetRequiredService<MainWindowViewModel>(),
             };
         }
 

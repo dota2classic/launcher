@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:d2c_launcher.ViewModels"
+             xmlns:m="using:d2c_launcher.Models"
+             x:Class="d2c_launcher.Views.Components.PartyPanel"
+             x:DataType="vm:PartyViewModel">
+
+    <Border Padding="12" CornerRadius="12" Background="#141414" BorderBrush="#2D2922"
+            BorderThickness="1" Margin="0,0,0,12">
+        <StackPanel Spacing="10">
+            <TextBlock Text="Группа" Foreground="#E9D39A" FontWeight="SemiBold" FontSize="14"/>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <ItemsControl ItemsSource="{Binding PartyMembers}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="6"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="m:PartyMemberView">
+                            <Border Width="40" Height="40" CornerRadius="6" ClipToBounds="True"
+                                    Background="#1E1E1E" BorderBrush="#2D2922" BorderThickness="1">
+                                <Image Source="{Binding AvatarImage}" Stretch="UniformToFill"/>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Button IsVisible="{Binding CanInviteToParty}" Width="40" Height="40" FontSize="20"
+                        Content="+" Click="OnInvitePlayerClicked"/>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>
