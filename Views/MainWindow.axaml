@@ -8,7 +8,7 @@
         x:Class="d2c_launcher.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/icon.ico"
-        Title="D2C Launcher">
+        Title="{Binding WindowTitle}">
 
     <Grid>
         <Grid.RowDefinitions>

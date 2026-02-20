@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 using d2c_launcher.Models;
+using d2c_launcher.Util;
 
 namespace d2c_launcher.Integration;
 
@@ -60,11 +61,11 @@ public class SteamManager : IDisposable
                 }
                 else if (activeUser != 0 && activeUser != _lastActiveUser)
                 {
-                    var snapshot = QueryBridgeSnapshot();
+                    AppLog.Info($"[SteamManager] New active Steam user {activeUser}, querying bridge...");
+                    var snapshot = await QueryBridgeSnapshotAsync(ct);
+
                     if (snapshot?.SteamId.HasValue == true && !string.IsNullOrWhiteSpace(snapshot.PersonaName))
                     {
-                        // Only mark user as loaded after a successful bridge query.
-                        _lastActiveUser = activeUser;
                         var user = new User(
                             snapshot.SteamId.Value,
                             snapshot.PersonaName,
@@ -72,19 +73,34 @@ public class SteamManager : IDisposable
                             snapshot.AvatarWidth ?? 0,
                             snapshot.AvatarHeight ?? 0);
                         SetUser(user);
-                        SetAuthTicket(snapshot.AuthTicket);
+
+                        if (snapshot.AuthTicket != null)
+                        {
+                            // Full success: advance user marker so we stop re-querying.
+                            _lastActiveUser = activeUser;
+                            SetAuthTicket(snapshot.AuthTicket);
+                            AppLog.Info($"[SteamManager] Auth ticket acquired for user {activeUser}.");
+                        }
+                        else
+                        {
+                            // User info OK but auth ticket timed out in bridge — show the user
+                            // in the UI but retry the full bridge query next tick.
+                            // Do NOT clear any existing auth ticket.
+                            AppLog.Info("[SteamManager] Bridge returned user info but no auth ticket — will retry next tick.");
+                        }
                     }
                     else
                     {
-                        // Bridge failed or returned no user — leave _lastActiveUser unchanged
-                        // so the query is retried on the next tick.
+                        // Bridge failed entirely — clear state and retry next tick.
+                        AppLog.Error("[SteamManager] Bridge returned no user info.");
                         SetUser(null);
                         SetAuthTicket(null);
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                AppLog.Error("[SteamManager] MonitorLoop exception.", ex);
                 SetSteamStatus(SteamStatus.Offline);
                 SetUser(null);
                 SetAuthTicket(null);
@@ -141,15 +157,19 @@ public class SteamManager : IDisposable
         }
     }
 
-    private SteamSnapshot? QueryBridgeSnapshot()
+    private async Task<SteamSnapshot?> QueryBridgeSnapshotAsync(CancellationToken ct)
     {
         var bridgePath = System.IO.Path.Combine(AppContext.BaseDirectory, BridgeExeName);
         if (!System.IO.File.Exists(bridgePath))
+        {
+            AppLog.Error($"[SteamManager] Bridge not found at: {bridgePath}");
             return null;
+        }
 
         // WorkingDirectory must be the bridge's own directory so SteamAPI.Init()
         // finds steam_appid.txt regardless of the parent process CWD (e.g. Velopack).
         var bridgeDir = System.IO.Path.GetDirectoryName(bridgePath) ?? AppContext.BaseDirectory;
+        AppLog.Info($"[SteamManager] Launching bridge: {bridgePath}");
 
         using var process = new Process
         {
@@ -165,18 +185,43 @@ public class SteamManager : IDisposable
         };
 
         process.Start();
-        var output = process.StandardOutput.ReadToEnd();
-        // Auth ticket callback can take up to 3 s; allow 8 s total.
-        if (!process.WaitForExit(8000))
+
+        // Read output asynchronously to prevent deadlock from full pipe buffers.
+        var outputTask = process.StandardOutput.ReadToEndAsync();
+
+        // Give bridge up to 12 s (auth ticket callback can take up to 8 s).
+        using var killCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        killCts.CancelAfter(TimeSpan.FromSeconds(12));
+
+        try
         {
+            await process.WaitForExitAsync(killCts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            AppLog.Error("[SteamManager] Bridge timed out after 12 s — killing process.");
             try { process.Kill(entireProcessTree: true); } catch { }
             return null;
         }
 
-        if (string.IsNullOrWhiteSpace(output))
-            return null;
+        var output = await outputTask;
+        AppLog.Info($"[SteamManager] Bridge output: {(output.Length > 200 ? output[..200] + "..." : output)}");
 
-        return JsonSerializer.Deserialize<SteamSnapshot>(output);
+        if (string.IsNullOrWhiteSpace(output))
+        {
+            AppLog.Error("[SteamManager] Bridge returned empty output.");
+            return null;
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize<SteamSnapshot>(output);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("[SteamManager] Failed to parse bridge output.", ex);
+            return null;
+        }
     }
 
     private void SetUser(User? user)

@@ -29,7 +29,10 @@ jobs:
         run: dotnet build -c Release --no-restore
 
       - name: Publish
-        run: dotnet publish d2c-launcher.csproj -c Release -r win-x64 --self-contained true -o publish/
+        shell: pwsh
+        run: |
+          $version = if ("${{ github.ref }}" -like 'refs/tags/v*') { "${{ github.ref_name }}" -replace '^v', '' } else { "0.0.0" }
+          dotnet publish d2c-launcher.csproj -c Release -r win-x64 --self-contained true -p:Version=$version -o publish/
 
       - name: Publish SteamBridge
         run: dotnet publish SteamBridge/SteamBridge.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true -o publish/

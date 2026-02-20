@@ -8,7 +8,7 @@ namespace d2c_steam_bridge;
 
 internal static class Program
 {
-    private static readonly TimeSpan AuthTicketTimeout = TimeSpan.FromSeconds(3);
+    private static readonly TimeSpan AuthTicketTimeout = TimeSpan.FromSeconds(8);
     private const string DefaultWebApiIdentity = "dotaclassic.ru";
     private const string WebApiIdentityEnvVar = "D2C_STEAM_WEBAPI_IDENTITY";
     private static Callback<GetTicketForWebApiResponse_t>? _getTicketResponse;

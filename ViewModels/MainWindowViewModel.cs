@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -28,6 +29,9 @@ public partial class MainWindowViewModel : ViewModelBase
     private bool _updateAvailable;
 
     public bool IsSteamRunning => SteamStatus is SteamStatus.Running or SteamStatus.Offline;
+
+    public string WindowTitle { get; } =
+        $"D2C Launcher v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "?"}";
 
     public MainWindowViewModel(
         SteamManager steamManager,
