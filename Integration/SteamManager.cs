@@ -60,10 +60,11 @@ public class SteamManager : IDisposable
                 }
                 else if (activeUser != 0 && activeUser != _lastActiveUser)
                 {
-                    _lastActiveUser = activeUser;
                     var snapshot = QueryBridgeSnapshot();
                     if (snapshot?.SteamId.HasValue == true && !string.IsNullOrWhiteSpace(snapshot.PersonaName))
                     {
+                        // Only mark user as loaded after a successful bridge query.
+                        _lastActiveUser = activeUser;
                         var user = new User(
                             snapshot.SteamId.Value,
                             snapshot.PersonaName,
@@ -75,6 +76,8 @@ public class SteamManager : IDisposable
                     }
                     else
                     {
+                        // Bridge failed or returned no user — leave _lastActiveUser unchanged
+                        // so the query is retried on the next tick.
                         SetUser(null);
                         SetAuthTicket(null);
                     }
@@ -144,11 +147,16 @@ public class SteamManager : IDisposable
         if (!System.IO.File.Exists(bridgePath))
             return null;
 
+        // WorkingDirectory must be the bridge's own directory so SteamAPI.Init()
+        // finds steam_appid.txt regardless of the parent process CWD (e.g. Velopack).
+        var bridgeDir = System.IO.Path.GetDirectoryName(bridgePath) ?? AppContext.BaseDirectory;
+
         using var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
                 FileName = bridgePath,
+                WorkingDirectory = bridgeDir,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -158,7 +166,8 @@ public class SteamManager : IDisposable
 
         process.Start();
         var output = process.StandardOutput.ReadToEnd();
-        if (!process.WaitForExit(2000))
+        // Auth ticket callback can take up to 3 s; allow 8 s total.
+        if (!process.WaitForExit(8000))
         {
             try { process.Kill(entireProcessTree: true); } catch { }
             return null;

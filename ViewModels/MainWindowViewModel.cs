@@ -56,6 +56,11 @@ public partial class MainWindowViewModel : ViewModelBase
             });
         };
 
+        _steamManager.OnUserUpdated += _ =>
+        {
+            Dispatcher.UIThread.Post(UpdateContentViewModel);
+        };
+
         _ = CheckForUpdatesAsync();
     }
 
@@ -71,9 +76,25 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private void UpdateContentViewModel()
     {
+        // Don't recreate MainLauncherViewModel if it's already showing and the user
+        // is still loaded — OnUserUpdated fires on every update, not just on first load.
+        if (SteamStatus == SteamStatus.Running
+            && _steamManager.CurrentUser != null
+            && CurrentContentViewModel is MainLauncherViewModel)
+            return;
+
         (CurrentContentViewModel as IDisposable)?.Dispose();
-        CurrentContentViewModel = SteamStatus == SteamStatus.NotRunning
-            ? new LaunchSteamFirstViewModel()
-            : new MainLauncherViewModel(_steamManager, _settingsStorage, _steamAuthApi, _backendApiService, _queueSocketService);
+
+        CurrentContentViewModel = SteamStatus switch
+        {
+            SteamStatus.Running when _steamManager.CurrentUser != null =>
+                new MainLauncherViewModel(_steamManager, _settingsStorage, _steamAuthApi, _backendApiService, _queueSocketService),
+            SteamStatus.Running =>
+                new LaunchSteamFirstViewModel("Connecting to Steam..."),
+            SteamStatus.Offline =>
+                new LaunchSteamFirstViewModel("Please log in to Steam."),
+            _ =>
+                new LaunchSteamFirstViewModel()
+        };
     }
 }
