@@ -121,9 +121,9 @@ public partial class MainWindowViewModel : ViewModelBase
         CurrentContentViewModel = SteamStatus switch
         {
             SteamStatus.Running =>
-                new LaunchSteamFirstViewModel("Connecting to Steam..."),
+                new LaunchSteamFirstViewModel("Подключение к Steam..."),
             SteamStatus.Offline =>
-                new LaunchSteamFirstViewModel("Please log in to Steam."),
+                new LaunchSteamFirstViewModel("Войдите в аккаунт Steam."),
             _ =>
                 new LaunchSteamFirstViewModel()
         };

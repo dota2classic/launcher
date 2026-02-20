@@ -1,73 +1,73 @@
 <UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:d2c_launcher.ViewModels"
-             x:Class="d2c_launcher.Views.Components.LauncherHeader"
-             x:DataType="vm:MainLauncherViewModel">
-    <UserControl.Styles>
-        <Style Selector="Button.play-primary">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="Padding" Value="20,10"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Background">
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop Color="#FF1F8B4C" Offset="0"/>
-                    <GradientStop Color="#FF2FBF6A" Offset="1"/>
-                </LinearGradientBrush>
-            </Setter>
-        </Style>
-        <Style Selector="Button.settings-icon">
-            <Setter Property="Width" Value="38"/>
-            <Setter Property="Height" Value="38"/>
-            <Setter Property="FontSize" Value="18"/>
-            <Setter Property="CornerRadius" Value="8"/>
-        </Style>
-    </UserControl.Styles>
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            xmlns:vm="using:d2c_launcher.ViewModels"
+            x:Class="d2c_launcher.Views.Components.LauncherHeader"
+            x:DataType="vm:MainLauncherViewModel">
+   <UserControl.Styles>
+       <Style Selector="Button.play-primary">
+           <Setter Property="Foreground" Value="White"/>
+           <Setter Property="FontWeight" Value="Bold"/>
+           <Setter Property="FontSize" Value="16"/>
+           <Setter Property="Padding" Value="20,10"/>
+           <Setter Property="BorderThickness" Value="0"/>
+           <Setter Property="CornerRadius" Value="12"/>
+           <Setter Property="Background">
+               <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                   <GradientStop Color="#1a5aaa" Offset="0"/>
+                   <GradientStop Color="#3a90d6" Offset="1"/>
+               </LinearGradientBrush>
+           </Setter>
+       </Style>
+       <Style Selector="Button.settings-icon">
+           <Setter Property="Width" Value="38"/>
+           <Setter Property="Height" Value="38"/>
+           <Setter Property="FontSize" Value="18"/>
+           <Setter Property="CornerRadius" Value="8"/>
+       </Style>
+   </UserControl.Styles>
 
-    <Grid Margin="20,14" ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="10">
-        <Border Grid.Column="0" CornerRadius="6" Background="#1A1A1A" BorderBrush="#2D2922" BorderThickness="1"
-                Width="300">
-            <Button Background="Transparent"
-                    BorderThickness="0"
-                    HorizontalContentAlignment="Left"
-                    Padding="10,6"
-                    Click="OnSelectDotaExeClicked">
-                <TextBlock Text="{Binding Launch.GameDirectory, FallbackValue='Select game folder'}"
-                           TextTrimming="CharacterEllipsis"/>
-            </Button>
-        </Border>
-        <Button Grid.Column="1"
-                Content="Обзор"
-                Padding="12,6"
-                CornerRadius="6"
-                BorderBrush="#2D2922"
-                Background="#243D63"
-                Click="OnSelectDotaExeClicked"/>
-        <!-- Online stats -->
-        <TextBlock Grid.Column="2"
-                   Text="{Binding OnlineStatsText}"
-                   Foreground="#AFA38A" FontSize="12"
-                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+   <Grid Margin="20,14" ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="10">
+       <Border Grid.Column="0" CornerRadius="6" Background="#1c2024" BorderBrush="#2d3842" BorderThickness="1"
+               Width="300">
+           <Button Background="Transparent"
+                   BorderThickness="0"
+                   HorizontalContentAlignment="Left"
+                   Padding="10,6"
+                   Click="OnSelectDotaExeClicked">
+               <TextBlock Text="{Binding Launch.GameDirectory, FallbackValue='Выберите папку с игрой'}"
+                          TextTrimming="CharacterEllipsis"/>
+           </Button>
+       </Border>
+       <Button Grid.Column="1"
+               Content="Обзор"
+               Padding="12,6"
+               CornerRadius="6"
+               BorderBrush="#2d3842"
+               Background="#243446"
+               Click="OnSelectDotaExeClicked"/>
+       <!-- Online stats -->
+       <TextBlock Grid.Column="2"
+                  Text="{Binding OnlineStatsText}"
+                  Foreground="#AAAAAA" FontSize="12"
+                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
-        <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
-            <Button Classes="play-primary"
-                    Content="{Binding Launch.LaunchButtonText}"
-                    IsEnabled="{Binding Launch.IsLaunchEnabled}"
-                    Click="OnPrimaryActionClicked"/>
-            <Button Classes="settings-icon" Content="⚙" Click="OnSettingsClicked"/>
-            <Border VerticalAlignment="Center" Padding="10,8" CornerRadius="10"
-                    Background="#2A2A2A">
-                <StackPanel Orientation="Horizontal" Spacing="10">
-                    <Border Width="36" Height="36" CornerRadius="8" ClipToBounds="True"
-                            Background="#E0E0E0">
-                        <Image Source="{Binding AvatarImage}" Width="36" Height="36" Stretch="UniformToFill"/>
-                    </Border>
-                    <TextBlock Text="{Binding CurrentUser.PersonaName}" VerticalAlignment="Center"
-                               FontWeight="SemiBold"/>
-                </StackPanel>
-            </Border>
-        </StackPanel>
-    </Grid>
+       <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+           <Button Classes="play-primary"
+                   Content="{Binding Launch.LaunchButtonText}"
+                   IsEnabled="{Binding Launch.IsLaunchEnabled}"
+                   Click="OnPrimaryActionClicked"/>
+           <Button Classes="settings-icon" Content="⚙" Click="OnSettingsClicked"/>
+           <Border VerticalAlignment="Center" Padding="10,8" CornerRadius="10"
+                   Background="#242c34">
+               <StackPanel Orientation="Horizontal" Spacing="10">
+                   <Border Width="36" Height="36" CornerRadius="8" ClipToBounds="True"
+                           Background="#2d3842">
+                       <Image Source="{Binding AvatarImage}" Width="36" Height="36" Stretch="UniformToFill"/>
+                   </Border>
+                   <TextBlock Text="{Binding CurrentUser.PersonaName}" VerticalAlignment="Center"
+                              FontWeight="SemiBold"/>
+               </StackPanel>
+           </Border>
+       </StackPanel>
+   </Grid>
 </UserControl>

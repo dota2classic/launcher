@@ -18,9 +18,9 @@
 
         <Border Grid.Row="0" Background="#1a6b30" IsVisible="{Binding UpdateAvailable}" Padding="12,8">
             <Grid>
-                <TextBlock Text="A new version is available and ready to install."
+                <TextBlock Text="Доступна новая версия, готова к установке."
                            VerticalAlignment="Center" Foreground="White" FontSize="13"/>
-                <Button HorizontalAlignment="Right" Content="Restart &amp; Update"
+                <Button HorizontalAlignment="Right" Content="Перезапустить и обновить"
                         Command="{Binding ApplyUpdateCommand}"/>
             </Grid>
         </Border>

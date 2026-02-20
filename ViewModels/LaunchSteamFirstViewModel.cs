@@ -4,7 +4,7 @@ public partial class LaunchSteamFirstViewModel : ViewModelBase
 {
     public string Message { get; }
 
-    public LaunchSteamFirstViewModel(string message = "Launch Steam first.")
+    public LaunchSteamFirstViewModel(string message = "Сначала запустите Steam.")
     {
         Message = message;
     }

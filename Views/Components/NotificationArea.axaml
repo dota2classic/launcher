@@ -1,65 +1,65 @@
 <UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:d2c_launcher.ViewModels"
-             x:Class="d2c_launcher.Views.Components.NotificationArea"
-             x:DataType="vm:NotificationAreaViewModel">
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            xmlns:vm="using:d2c_launcher.ViewModels"
+            x:Class="d2c_launcher.Views.Components.NotificationArea"
+            x:DataType="vm:NotificationAreaViewModel">
 
-    <ItemsControl ItemsSource="{Binding Invites}">
-        <ItemsControl.ItemTemplate>
-            <DataTemplate x:DataType="vm:PartyInviteNotificationViewModel">
-                <Border Background="#1E1F22"
-                        BorderBrush="#3A3322" BorderThickness="1"
-                        CornerRadius="10" Padding="14"
-                        Margin="0,0,0,8" Width="290">
-                    <StackPanel Spacing="12">
+   <ItemsControl ItemsSource="{Binding Invites}">
+       <ItemsControl.ItemTemplate>
+           <DataTemplate x:DataType="vm:PartyInviteNotificationViewModel">
+               <Border Background="#1c2024"
+                       BorderBrush="#2d3842" BorderThickness="1"
+                       CornerRadius="10" Padding="14"
+                       Margin="0,0,0,8" Width="290">
+                   <StackPanel Spacing="12">
 
-                        <!-- Inviter info + countdown -->
-                        <Grid ColumnDefinitions="Auto,*,Auto">
-                            <Border Grid.Column="0"
-                                    Width="42" Height="42"
-                                    CornerRadius="6" ClipToBounds="True"
-                                    Background="#2A2A2A">
-                                <Image Source="{Binding InviterAvatarImage}" Stretch="UniformToFill"/>
-                            </Border>
-                            <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding InviterName}"
-                                           FontWeight="SemiBold" Foreground="#E9D39A"
-                                           TextTrimming="CharacterEllipsis"/>
-                                <TextBlock Text="Приглашает в группу"
-                                           FontSize="11" Foreground="#AFA38A"/>
-                            </StackPanel>
-                            <TextBlock Grid.Column="2"
-                                       Text="{Binding RemainingSeconds}"
-                                       Foreground="#5A5A5A" FontSize="11"
-                                       VerticalAlignment="Top"/>
-                        </Grid>
+                       <!-- Inviter info + countdown -->
+                       <Grid ColumnDefinitions="Auto,*,Auto">
+                           <Border Grid.Column="0"
+                                   Width="42" Height="42"
+                                   CornerRadius="6" ClipToBounds="True"
+                                   Background="#242c34">
+                               <Image Source="{Binding InviterAvatarImage}" Stretch="UniformToFill"/>
+                           </Border>
+                           <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                               <TextBlock Text="{Binding InviterName}"
+                                          FontWeight="SemiBold" Foreground="#4DA9F3"
+                                          TextTrimming="CharacterEllipsis"/>
+                               <TextBlock Text="Приглашает в группу"
+                                          FontSize="11" Foreground="#AAAAAA"/>
+                           </StackPanel>
+                           <TextBlock Grid.Column="2"
+                                      Text="{Binding RemainingSeconds}"
+                                      Foreground="#535252" FontSize="11"
+                                      VerticalAlignment="Top"/>
+                       </Grid>
 
-                        <!-- Accept / Decline -->
-                        <Grid ColumnDefinitions="*,6,*">
-                            <Button Grid.Column="0"
-                                    Content="ПРИНЯТЬ"
-                                    Command="{Binding AcceptCommand}"
-                                    Background="#1F8B4C" Foreground="White"
-                                    FontSize="12" FontWeight="Bold"
-                                    CornerRadius="6" BorderThickness="0"
-                                    HorizontalAlignment="Stretch"
-                                    HorizontalContentAlignment="Center"
-                                    Padding="0,8"/>
-                            <Button Grid.Column="2"
-                                    Content="ОТКЛОНИТЬ"
-                                    Command="{Binding DeclineCommand}"
-                                    Background="#6E2828" Foreground="White"
-                                    FontSize="12" FontWeight="Bold"
-                                    CornerRadius="6" BorderThickness="0"
-                                    HorizontalAlignment="Stretch"
-                                    HorizontalContentAlignment="Center"
-                                    Padding="0,8"/>
-                        </Grid>
+                       <!-- Accept / Decline -->
+                       <Grid ColumnDefinitions="*,6,*">
+                           <Button Grid.Column="0"
+                                   Content="ПРИНЯТЬ"
+                                   Command="{Binding AcceptCommand}"
+                                   Background="#1a5aaa" Foreground="White"
+                                   FontSize="12" FontWeight="Bold"
+                                   CornerRadius="6" BorderThickness="0"
+                                   HorizontalAlignment="Stretch"
+                                   HorizontalContentAlignment="Center"
+                                   Padding="0,8"/>
+                           <Button Grid.Column="2"
+                                   Content="ОТКЛОНИТЬ"
+                                   Command="{Binding DeclineCommand}"
+                                   Background="#6e2222" Foreground="White"
+                                   FontSize="12" FontWeight="Bold"
+                                   CornerRadius="6" BorderThickness="0"
+                                   HorizontalAlignment="Stretch"
+                                   HorizontalContentAlignment="Center"
+                                   Padding="0,8"/>
+                       </Grid>
 
-                    </StackPanel>
-                </Border>
-            </DataTemplate>
-        </ItemsControl.ItemTemplate>
-    </ItemsControl>
+                   </StackPanel>
+               </Border>
+           </DataTemplate>
+       </ItemsControl.ItemTemplate>
+   </ItemsControl>
 
 </UserControl>

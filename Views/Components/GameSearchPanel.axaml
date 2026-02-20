@@ -1,59 +1,59 @@
 <UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:d2c_launcher.ViewModels"
-             xmlns:m="using:d2c_launcher.Models"
-             xmlns:util="using:d2c_launcher.Util"
-             xmlns:materialIcons="using:Material.Icons.Avalonia"
-             x:Class="d2c_launcher.Views.Components.GameSearchPanel"
-             x:DataType="vm:QueueViewModel">
-    <UserControl.Resources>
-        <util:InverseBoolConverter x:Key="InverseBoolConverter"/>
-    </UserControl.Resources>
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            xmlns:vm="using:d2c_launcher.ViewModels"
+            xmlns:m="using:d2c_launcher.Models"
+            xmlns:util="using:d2c_launcher.Util"
+            xmlns:materialIcons="using:Material.Icons.Avalonia"
+            x:Class="d2c_launcher.Views.Components.GameSearchPanel"
+            x:DataType="vm:QueueViewModel">
+   <UserControl.Resources>
+       <util:InverseBoolConverter x:Key="InverseBoolConverter"/>
+   </UserControl.Resources>
 
-    <Border Padding="12" CornerRadius="12" Background="#141414" BorderBrush="#2D2922"
-            BorderThickness="1">
-        <StackPanel Spacing="12">
-            <TextBlock Text="Поиск игры" Foreground="#E9D39A" FontWeight="SemiBold" FontSize="14"/>
-            <Border IsEnabled="{Binding IsSearching, Converter={StaticResource InverseBoolConverter}}">
-                <ItemsControl ItemsSource="{Binding MatchmakingModes}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="m:MatchmakingModeView">
-                            <Border Padding="4,10"
-                                    BorderBrush="#2D2922" BorderThickness="0,0,0,1">
-                                <Grid ColumnDefinitions="Auto,*" VerticalAlignment="Center">
-                                    <CheckBox IsChecked="{Binding IsSelected}"
-                                              IsEnabled="{Binding IsRestricted, Converter={StaticResource InverseBoolConverter}}"
-                                              Margin="0,0,8,0"/>
-                                    <StackPanel Grid.Column="1">
-                                        <!-- Mode name with lock icon when restricted -->
-                                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                                            <materialIcons:MaterialIcon Kind="Lock"
-                                                                         Width="12" Height="12"
-                                                                         Foreground="#E74C3C"
-                                                                         IsVisible="{Binding IsRestricted}"
-                                                                         VerticalAlignment="Center"/>
-                                            <TextBlock Text="{Binding Name}"
-                                                       FontWeight="SemiBold" Foreground="#E9D39A"
-                                                       VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                        <!-- Ban/access restriction reason -->
-                                        <TextBlock Text="{Binding RestrictionText}"
-                                                   IsVisible="{Binding IsRestricted}"
-                                                   Foreground="#E74C3C" FontSize="11"/>
-                                        <TextBlock Text="{Binding InQueue, StringFormat={}{0} в поиске}"
-                                                   Foreground="#AFA38A" FontSize="12"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </Border>
-        </StackPanel>
-    </Border>
+   <Border Padding="12" CornerRadius="12" Background="#121315" BorderBrush="#2d3842"
+           BorderThickness="1">
+       <StackPanel Spacing="12">
+           <TextBlock Text="Поиск игры" Foreground="#D9D9D9" FontWeight="SemiBold" FontSize="14"/>
+           <Border IsEnabled="{Binding IsSearching, Converter={StaticResource InverseBoolConverter}}">
+               <ItemsControl ItemsSource="{Binding MatchmakingModes}">
+                   <ItemsControl.ItemsPanel>
+                       <ItemsPanelTemplate>
+                           <StackPanel/>
+                       </ItemsPanelTemplate>
+                   </ItemsControl.ItemsPanel>
+                   <ItemsControl.ItemTemplate>
+                       <DataTemplate x:DataType="m:MatchmakingModeView">
+                           <Border Padding="4,10"
+                                   BorderBrush="#2d3842" BorderThickness="0,0,0,1">
+                               <Grid ColumnDefinitions="Auto,*" VerticalAlignment="Center">
+                                   <CheckBox IsChecked="{Binding IsSelected}"
+                                             IsEnabled="{Binding IsRestricted, Converter={StaticResource InverseBoolConverter}}"
+                                             Margin="0,0,8,0"/>
+                                   <StackPanel Grid.Column="1">
+                                       <!-- Mode name with lock icon when restricted -->
+                                       <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                           <materialIcons:MaterialIcon Kind="Lock"
+                                                                        Width="12" Height="12"
+                                                                        Foreground="#C62626"
+                                                                        IsVisible="{Binding IsRestricted}"
+                                                                        VerticalAlignment="Center"/>
+                                           <TextBlock Text="{Binding Name}"
+                                                      FontWeight="SemiBold" Foreground="#D9D9D9"
+                                                      VerticalAlignment="Center"/>
+                                       </StackPanel>
+                                       <!-- Ban/access restriction reason -->
+                                       <TextBlock Text="{Binding RestrictionText}"
+                                                  IsVisible="{Binding IsRestricted}"
+                                                  Foreground="#C62626" FontSize="11"/>
+                                       <TextBlock Text="{Binding InQueue, StringFormat={}{0} в поиске}"
+                                                  Foreground="#AAAAAA" FontSize="12"/>
+                                   </StackPanel>
+                               </Grid>
+                           </Border>
+                       </DataTemplate>
+                   </ItemsControl.ItemTemplate>
+               </ItemsControl>
+           </Border>
+       </StackPanel>
+   </Border>
 </UserControl>

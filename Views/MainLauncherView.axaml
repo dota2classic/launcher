@@ -1,161 +1,161 @@
 <UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:d2c_launcher.ViewModels"
-             xmlns:m="using:d2c_launcher.Models"
-             xmlns:util="using:d2c_launcher.Util"
-             xmlns:components="using:d2c_launcher.Views.Components"
-             xmlns:dialogHost="using:DialogHostAvalonia"
-             x:Class="d2c_launcher.Views.MainLauncherView"
-             x:DataType="vm:MainLauncherViewModel">
-    <UserControl.Background>
-        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#0D0E10" Offset="0"/>
-            <GradientStop Color="#141516" Offset="0.55"/>
-            <GradientStop Color="#0B0C0E" Offset="1"/>
-        </LinearGradientBrush>
-    </UserControl.Background>
-    <UserControl.Resources>
-        <util:NullToBoolConverter x:Key="NullToBoolConverter"/>
-        <util:NullToInverseBoolConverter x:Key="NullToInverseBoolConverter"/>
-    </UserControl.Resources>
-    <UserControl.Styles>
-        <Style Selector="TextBlock.section-title">
-            <Setter Property="Foreground" Value="#E9D39A"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="14"/>
-        </Style>
-    </UserControl.Styles>
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            xmlns:vm="using:d2c_launcher.ViewModels"
+            xmlns:m="using:d2c_launcher.Models"
+            xmlns:util="using:d2c_launcher.Util"
+            xmlns:components="using:d2c_launcher.Views.Components"
+            xmlns:dialogHost="using:DialogHostAvalonia"
+            x:Class="d2c_launcher.Views.MainLauncherView"
+            x:DataType="vm:MainLauncherViewModel">
+   <UserControl.Background>
+       <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+           <GradientStop Color="#0c0c0c" Offset="0"/>
+           <GradientStop Color="#1c2024" Offset="0.55"/>
+           <GradientStop Color="#0c0c0c" Offset="1"/>
+       </LinearGradientBrush>
+   </UserControl.Background>
+   <UserControl.Resources>
+       <util:NullToBoolConverter x:Key="NullToBoolConverter"/>
+       <util:NullToInverseBoolConverter x:Key="NullToInverseBoolConverter"/>
+   </UserControl.Resources>
+   <UserControl.Styles>
+       <Style Selector="TextBlock.section-title">
+           <Setter Property="Foreground" Value="#D9D9D9"/>
+           <Setter Property="FontWeight" Value="SemiBold"/>
+           <Setter Property="FontSize" Value="14"/>
+       </Style>
+   </UserControl.Styles>
 
-    <dialogHost:DialogHost IsOpen="{Binding Party.IsInviteModalOpen, Mode=TwoWay}"
-                            CloseOnClickAway="True">
-        <dialogHost:DialogHost.DialogContent>
-            <components:ModalCard Title="Пригласить игрока" FixedWidth="520">
-                <Grid RowDefinitions="Auto,*,Auto" Width="520">
-                    <TextBox Grid.Row="0" Text="{Binding Party.InviteSearchText}" Watermark="Поиск игрока" Width="520"/>
-                    <Border Grid.Row="1" Background="#121212" BorderBrush="#2D2922" BorderThickness="1"
-                            CornerRadius="8" Height="260" Margin="0,10,0,10" Width="520">
-                        <ScrollViewer>
-                            <ItemsControl ItemsSource="{Binding Party.InviteCandidates}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="m:InviteCandidateView">
-                                        <Button Click="OnInviteCandidateClicked"
-                                                Background="Transparent" BorderThickness="0" Padding="0"
-                                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-                                            <Border Padding="8" BorderBrush="#242424" BorderThickness="0,0,0,1">
-                                                <StackPanel Orientation="Horizontal" Spacing="10">
-                                                    <Grid Width="36" Height="36">
-                                                        <Border Width="36" Height="36" CornerRadius="18" ClipToBounds="True"
-                                                                Background="#2A2A2A" BorderBrush="#3A3A3A" BorderThickness="1">
-                                                            <Grid>
-                                                                <Image Source="{Binding AvatarImage}" Stretch="UniformToFill"
-                                                                       IsVisible="{Binding AvatarImage, Converter={StaticResource NullToBoolConverter}}"/>
-                                                                <TextBlock Text="{Binding Initials}" HorizontalAlignment="Center"
-                                                                           VerticalAlignment="Center" FontSize="12"
-                                                                           IsVisible="{Binding AvatarImage, Converter={StaticResource NullToInverseBoolConverter}}"/>
-                                                            </Grid>
-                                                        </Border>
-                                                        <Ellipse Width="10" Height="10" Fill="#44D46F"
-                                                                 IsVisible="{Binding IsOnline}"
-                                                                 HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                                                                 Margin="0,0,2,2"/>
-                                                    </Grid>
-                                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-                                                </StackPanel>
-                                            </Border>
-                                        </Button>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
-                    </Border>
-                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Content="Закрыть" Command="{Binding Party.CloseInviteModalCommand}"/>
-                    </StackPanel>
-                </Grid>
-            </components:ModalCard>
-        </dialogHost:DialogHost.DialogContent>
+   <dialogHost:DialogHost IsOpen="{Binding Party.IsInviteModalOpen, Mode=TwoWay}"
+                           CloseOnClickAway="True">
+       <dialogHost:DialogHost.DialogContent>
+           <components:ModalCard Title="Пригласить игрока" FixedWidth="520">
+               <Grid RowDefinitions="Auto,*,Auto" Width="520">
+                   <TextBox Grid.Row="0" Text="{Binding Party.InviteSearchText}" Watermark="Поиск игрока" Width="520"/>
+                   <Border Grid.Row="1" Background="#0c0c0c" BorderBrush="#2d3842" BorderThickness="1"
+                           CornerRadius="8" Height="260" Margin="0,10,0,10" Width="520">
+                       <ScrollViewer>
+                           <ItemsControl ItemsSource="{Binding Party.InviteCandidates}">
+                               <ItemsControl.ItemTemplate>
+                                   <DataTemplate x:DataType="m:InviteCandidateView">
+                                       <Button Click="OnInviteCandidateClicked"
+                                               Background="Transparent" BorderThickness="0" Padding="0"
+                                               HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                           <Border Padding="8" BorderBrush="#242c34" BorderThickness="0,0,0,1">
+                                               <StackPanel Orientation="Horizontal" Spacing="10">
+                                                   <Grid Width="36" Height="36">
+                                                       <Border Width="36" Height="36" CornerRadius="18" ClipToBounds="True"
+                                                               Background="#242c34" BorderBrush="#2d3842" BorderThickness="1">
+                                                           <Grid>
+                                                               <Image Source="{Binding AvatarImage}" Stretch="UniformToFill"
+                                                                      IsVisible="{Binding AvatarImage, Converter={StaticResource NullToBoolConverter}}"/>
+                                                               <TextBlock Text="{Binding Initials}" HorizontalAlignment="Center"
+                                                                          VerticalAlignment="Center" FontSize="12"
+                                                                          IsVisible="{Binding AvatarImage, Converter={StaticResource NullToInverseBoolConverter}}"/>
+                                                           </Grid>
+                                                       </Border>
+                                                       <Ellipse Width="10" Height="10" Fill="#44D46F"
+                                                                IsVisible="{Binding IsOnline}"
+                                                                HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                                                Margin="0,0,2,2"/>
+                                                   </Grid>
+                                                   <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                               </StackPanel>
+                                           </Border>
+                                       </Button>
+                                   </DataTemplate>
+                               </ItemsControl.ItemTemplate>
+                           </ItemsControl>
+                       </ScrollViewer>
+                   </Border>
+                   <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                       <Button Content="Закрыть" Command="{Binding Party.CloseInviteModalCommand}"/>
+                   </StackPanel>
+               </Grid>
+           </components:ModalCard>
+       </dialogHost:DialogHost.DialogContent>
 
-        <Grid>
-            <Grid RowDefinitions="Auto,*,Auto">
-                <components:LauncherHeader Grid.Row="0" DataContext="{Binding}"/>
+       <Grid>
+           <Grid RowDefinitions="Auto,*,Auto">
+               <components:LauncherHeader Grid.Row="0" DataContext="{Binding}"/>
 
-                <Grid Grid.Row="1" Margin="20,8,20,10" ColumnDefinitions="*,360">
-                    <!-- Chat placeholder -->
-                    <Border Grid.Column="0" CornerRadius="12" Background="#121315" BorderBrush="#2D2922"
-                            BorderThickness="1" Padding="16" Margin="0,0,16,0">
-                        <Grid RowDefinitions="Auto,*">
-                            <TextBlock Text="Чат" Classes="section-title" Margin="0,0,0,12"/>
-                            <Border Grid.Row="1" CornerRadius="8" Background="#1A1A1A" BorderBrush="#2D2922"
-                                    BorderThickness="1">
-                                <Grid RowDefinitions="*,Auto">
-                                    <TextBlock Text="Чат пока не реализован" Opacity="0.6"
-                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <Border Grid.Row="1" Height="44" Background="#151515" BorderThickness="1,1,1,0"
-                                            BorderBrush="#2D2922">
-                                        <TextBlock Text="Введите сообщение..." Opacity="0.4"
-                                                   VerticalAlignment="Center" Margin="12,0"/>
-                                    </Border>
-                                </Grid>
-                            </Border>
-                        </Grid>
-                    </Border>
+               <Grid Grid.Row="1" Margin="20,8,20,10" ColumnDefinitions="*,360">
+                   <!-- Chat placeholder -->
+                   <Border Grid.Column="0" CornerRadius="12" Background="#121315" BorderBrush="#2d3842"
+                           BorderThickness="1" Padding="16" Margin="0,0,16,0">
+                       <Grid RowDefinitions="Auto,*">
+                           <TextBlock Text="Чат" Classes="section-title" Margin="0,0,0,12"/>
+                           <Border Grid.Row="1" CornerRadius="8" Background="#1c2024" BorderBrush="#2d3842"
+                                   BorderThickness="1">
+                               <Grid RowDefinitions="*,Auto">
+                                   <TextBlock Text="Чат пока не реализован" Opacity="0.6"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                   <Border Grid.Row="1" Height="44" Background="#0c0c0c" BorderThickness="1,1,1,0"
+                                           BorderBrush="#2d3842">
+                                       <TextBlock Text="Введите сообщение..." Opacity="0.4"
+                                                  VerticalAlignment="Center" Margin="12,0"/>
+                                   </Border>
+                               </Grid>
+                           </Border>
+                       </Grid>
+                   </Border>
 
-                    <!-- Right panel: party + modes + queue button -->
-                    <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
-                        <components:PartyPanel Grid.Row="0"
-                                               DataContext="{Binding Party}"
-                                               InviteClicked="OnInvitePlayerClicked"/>
+                   <!-- Right panel: party + modes + queue button -->
+                   <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
+                       <components:PartyPanel Grid.Row="0"
+                                              DataContext="{Binding Party}"
+                                              InviteClicked="OnInvitePlayerClicked"/>
 
-                        <components:GameSearchPanel Grid.Row="1" DataContext="{Binding Queue}"/>
+                       <components:GameSearchPanel Grid.Row="1" DataContext="{Binding Queue}"/>
 
-                        <!-- Server URL + queue button -->
-                        <StackPanel Grid.Row="2" Spacing="6" Margin="0,12,0,0">
-                            <Border IsVisible="{Binding Launch.HasServerUrl}"
-                                    Background="#0D1B2A" BorderBrush="#1A5276" BorderThickness="1"
-                                    CornerRadius="8" Padding="10,6">
-                                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                                    <TextBlock Text="Сервер:" Foreground="#5D9EC7" FontSize="12" VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding Launch.ServerUrl}" Foreground="#AED6F1" FontSize="12"
-                                               FontFamily="Monospace" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Border>
-                            <components:QueueButton DataContext="{Binding Queue}"
-                                                    SearchClicked="OnSearchGameClicked"/>
-                        </StackPanel>
-                    </Grid>
-                </Grid>
+                       <!-- Server URL + queue button -->
+                       <StackPanel Grid.Row="2" Spacing="6" Margin="0,12,0,0">
+                           <Border IsVisible="{Binding Launch.HasServerUrl}"
+                                   Background="#121315" BorderBrush="#243446" BorderThickness="1"
+                                   CornerRadius="8" Padding="10,6">
+                               <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                   <TextBlock Text="Сервер:" Foreground="#4DA9F3" FontSize="12" VerticalAlignment="Center"/>
+                                   <TextBlock Text="{Binding Launch.ServerUrl}" Foreground="#D9D9D9" FontSize="12"
+                                              FontFamily="Monospace" VerticalAlignment="Center"/>
+                               </StackPanel>
+                           </Border>
+                           <components:QueueButton DataContext="{Binding Queue}"
+                                                   SearchClicked="OnSearchGameClicked"/>
+                       </StackPanel>
+                   </Grid>
+               </Grid>
 
-                <Grid Grid.Row="2" Margin="20,0,20,20"/>
-            </Grid>
+               <Grid Grid.Row="2" Margin="20,0,20,20"/>
+           </Grid>
 
-            <!-- Room ready-check modal -->
-            <components:AcceptGameModal DataContext="{Binding Room}"/>
+           <!-- Room ready-check modal -->
+           <components:AcceptGameModal DataContext="{Binding Room}"/>
 
-            <!-- Floating party invite notifications (top-right) -->
-            <components:NotificationArea DataContext="{Binding NotificationArea}"
-                                         ZIndex="150"
-                                         HorizontalAlignment="Right" VerticalAlignment="Top"
-                                         Margin="0,12,20,0"/>
+           <!-- Floating party invite notifications (top-right) -->
+           <components:NotificationArea DataContext="{Binding NotificationArea}"
+                                        ZIndex="150"
+                                        HorizontalAlignment="Right" VerticalAlignment="Top"
+                                        Margin="0,12,20,0"/>
 
-            <!-- Settings overlay -->
-            <Panel x:Name="SettingsOverlay" IsVisible="{Binding IsSettingsOpen}" ZIndex="100"
-                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#80000000"
-                   PointerPressed="OnSettingsOverlayBackdropPressed">
-                <Border x:Name="SettingsPanel" HorizontalAlignment="Center" VerticalAlignment="Center"
-                        PointerPressed="OnSettingsPanelPointerPressed"
-                        MinWidth="320" Padding="24" CornerRadius="8"
-                        Background="#1E1E1E">
-                    <StackPanel Spacing="16">
-                        <TextBlock Text="Settings" FontSize="20" FontWeight="SemiBold"/>
-                        <TextBlock Text="Game directory:"/>
-                        <TextBlock Text="{Binding Launch.GameDirectory, FallbackValue='Not set'}"
-                                   TextWrapping="Wrap" TextTrimming="CharacterEllipsis"/>
-                        <Button Content="Change game directory" Click="OnSelectDotaExeClicked"/>
-                        <Button Content="Close" HorizontalAlignment="Right" Click="OnCloseSettingsClicked"/>
-                    </StackPanel>
-                </Border>
-            </Panel>
-        </Grid>
-    </dialogHost:DialogHost>
+           <!-- Settings overlay -->
+           <Panel x:Name="SettingsOverlay" IsVisible="{Binding IsSettingsOpen}" ZIndex="100"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#80000000"
+                  PointerPressed="OnSettingsOverlayBackdropPressed">
+               <Border x:Name="SettingsPanel" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       PointerPressed="OnSettingsPanelPointerPressed"
+                       MinWidth="320" Padding="24" CornerRadius="8"
+                       Background="#1c2024">
+                   <StackPanel Spacing="16">
+                       <TextBlock Text="Настройки" FontSize="20" FontWeight="SemiBold"/>
+                       <TextBlock Text="Директория игры:"/>
+                       <TextBlock Text="{Binding Launch.GameDirectory, FallbackValue='Не указано'}"
+                                  TextWrapping="Wrap" TextTrimming="CharacterEllipsis"/>
+                       <Button Content="Изменить директорию" Click="OnSelectDotaExeClicked"/>
+                       <Button Content="Закрыть" HorizontalAlignment="Right" Click="OnCloseSettingsClicked"/>
+                   </StackPanel>
+               </Border>
+           </Panel>
+       </Grid>
+   </dialogHost:DialogHost>
 
 </UserControl>
