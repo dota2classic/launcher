@@ -34,18 +34,23 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="m:RoomPlayerView">
                             <StackPanel Spacing="4" Margin="8,6" Width="74" HorizontalAlignment="Center">
-                                <Border Width="52" Height="52" CornerRadius="26" ClipToBounds="True"
-                                        BorderBrush="{Binding StateColor}" BorderThickness="3"
-                                        Background="#2A2A2A" HorizontalAlignment="Center">
-                                    <Grid>
-                                        <Image Source="{Binding AvatarImage}" Stretch="UniformToFill"
-                                               IsVisible="{Binding AvatarImage, Converter={StaticResource NullToBoolConverter}}"/>
-                                        <TextBlock Text="{Binding Initials}"
-                                                   IsVisible="{Binding AvatarImage, Converter={StaticResource NullToInverseBoolConverter}}"
-                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                   FontSize="18" FontWeight="SemiBold" Foreground="#CCCCCC"/>
-                                    </Grid>
-                                </Border>
+                                <Panel Width="58" Height="58" HorizontalAlignment="Center">
+                                    <Ellipse Width="58" Height="58"
+                                             Stroke="{Binding StateColor}" StrokeThickness="3"
+                                             Fill="Transparent"/>
+                                    <Border Width="52" Height="52" CornerRadius="26" ClipToBounds="True"
+                                            Background="#2A2A2A"
+                                            HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Grid>
+                                            <Image Source="{Binding AvatarImage}" Stretch="UniformToFill"
+                                                   IsVisible="{Binding AvatarImage, Converter={StaticResource NullToBoolConverter}}"/>
+                                            <TextBlock Text="{Binding Initials}"
+                                                       IsVisible="{Binding AvatarImage, Converter={StaticResource NullToInverseBoolConverter}}"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                       FontSize="18" FontWeight="SemiBold" Foreground="#CCCCCC"/>
+                                        </Grid>
+                                    </Border>
+                                </Panel>
                                 <TextBlock Text="{Binding Name}" HorizontalAlignment="Center"
                                            FontSize="11" TextTrimming="CharacterEllipsis" MaxWidth="74"
                                            TextAlignment="Center" Foreground="#DDDDDD"/>

@@ -18,6 +18,7 @@ public class SteamManager : IDisposable
     private readonly Task _monitorTask;
     private ulong _lastActiveUser;
     private string? _steamAuthTicket;
+    private int _bridgeFailStreak;
 
     public event Action<User?>? OnUserUpdated;
     public event Action<SteamStatus>? OnSteamStatusUpdated;
@@ -25,6 +26,7 @@ public class SteamManager : IDisposable
 
     public User? CurrentUser { get; private set; }
     public SteamStatus SteamStatus { get; private set; } = SteamStatus.NotRunning;
+    public string? CurrentAuthTicket => _steamAuthTicket;
 
     public SteamManager()
     {
@@ -56,6 +58,7 @@ public class SteamManager : IDisposable
                 if (nextStatus != SteamStatus.Running)
                 {
                     _lastActiveUser = 0;
+                    _bridgeFailStreak = 0;
                     SetUser(null);
                     SetAuthTicket(null);
                 }
@@ -66,6 +69,7 @@ public class SteamManager : IDisposable
 
                     if (snapshot?.SteamId.HasValue == true && !string.IsNullOrWhiteSpace(snapshot.PersonaName))
                     {
+                        _bridgeFailStreak = 0;
                         var user = new User(
                             snapshot.SteamId.Value,
                             snapshot.PersonaName,
@@ -91,10 +95,20 @@ public class SteamManager : IDisposable
                     }
                     else
                     {
-                        // Bridge failed entirely — clear state and retry next tick.
-                        AppLog.Error("[SteamManager] Bridge returned no user info.");
+                        // Bridge failed — log the status code for diagnosis and apply backoff.
+                        _bridgeFailStreak++;
+                        var bridgeStatus = snapshot?.Status ?? "null";
+                        AppLog.Error($"[SteamManager] Bridge returned no user info (status={bridgeStatus}, streak={_bridgeFailStreak}).");
                         SetUser(null);
                         SetAuthTicket(null);
+
+                        // Back off exponentially (1s, 2s, 4s, 8s, cap 30s) to avoid hammering Steam API.
+                        var backoffSeconds = Math.Min(30, (int)Math.Pow(2, _bridgeFailStreak - 1));
+                        if (backoffSeconds > 1)
+                        {
+                            AppLog.Info($"[SteamManager] Backing off {backoffSeconds}s before next bridge query.");
+                            await Task.Delay(TimeSpan.FromSeconds(backoffSeconds - 1), ct); // -1 because the loop adds 1s
+                        }
                     }
                 }
             }

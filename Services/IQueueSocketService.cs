@@ -12,6 +12,7 @@ public interface IQueueSocketService : IDisposable
     event Action<PartyDto>? PartyUpdated;
     event Action<PlayerQueueStateMessage>? PlayerQueueStateUpdated;
     event Action<PlayerRoomStateMessage?>? PlayerRoomStateUpdated;
+    event Action<PlayerRoomStateMessage?>? PlayerRoomFound;
     event Action<PlayerGameStateMessage?>? PlayerGameStateUpdated;
     event Action<QueueStateMessage>? QueueStateUpdated;
     event Action<PlayerServerSearchingMessage>? ServerSearchingUpdated;

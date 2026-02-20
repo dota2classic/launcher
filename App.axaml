@@ -17,6 +17,9 @@
         <DataTemplate DataType="vm:LaunchSteamFirstViewModel">
             <v:LaunchSteamFirstView/>
         </DataTemplate>
+        <DataTemplate DataType="vm:SelectGameViewModel">
+            <v:SelectGameView/>
+        </DataTemplate>
         <DataTemplate DataType="vm:MainLauncherViewModel">
             <v:MainLauncherView/>
         </DataTemplate>

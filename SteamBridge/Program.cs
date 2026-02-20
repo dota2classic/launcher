@@ -29,7 +29,7 @@ internal static class Program
 
             if (!SteamAPI.Init())
             {
-                WriteSnapshot(new Snapshot("Offline"));
+                WriteSnapshot(new Snapshot("InitFailed"));
                 return 0;
             }
 
@@ -39,7 +39,7 @@ internal static class Program
                 SteamAPI.RunCallbacks();
                 if (!SteamUser.BLoggedOn())
                 {
-                    WriteSnapshot(new Snapshot("Offline"));
+                    WriteSnapshot(new Snapshot("NotLoggedIn"));
                     return 0;
                 }
 

@@ -80,19 +80,46 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private void UpdateContentViewModel()
     {
-        // Don't recreate MainLauncherViewModel if it's already showing and the user
-        // is still loaded — OnUserUpdated fires on every update, not just on first load.
-        if (SteamStatus == SteamStatus.Running
-            && _steamManager.CurrentUser != null
-            && CurrentContentViewModel is MainLauncherViewModel)
+        var steamOk = SteamStatus == SteamStatus.Running && _steamManager.CurrentUser != null;
+
+        if (steamOk)
+        {
+            var gameDir = _settingsStorage.Get().GameDirectory;
+
+            if (string.IsNullOrWhiteSpace(gameDir))
+            {
+                // Already showing the picker — don't recreate it.
+                if (CurrentContentViewModel is SelectGameViewModel)
+                    return;
+
+                (CurrentContentViewModel as IDisposable)?.Dispose();
+
+                var selectVm = new SelectGameViewModel();
+                selectVm.GameDirectorySelected = path =>
+                {
+                    var settings = _settingsStorage.Get();
+                    settings.GameDirectory = path;
+                    _settingsStorage.Save(settings);
+                    Dispatcher.UIThread.Post(UpdateContentViewModel);
+                };
+                CurrentContentViewModel = selectVm;
+                return;
+            }
+
+            // Game directory is set — show (or keep) the main launcher.
+            if (CurrentContentViewModel is MainLauncherViewModel)
+                return;
+
+            (CurrentContentViewModel as IDisposable)?.Dispose();
+            CurrentContentViewModel = new MainLauncherViewModel(
+                _steamManager, _settingsStorage, _steamAuthApi, _backendApiService, _queueSocketService);
             return;
+        }
 
         (CurrentContentViewModel as IDisposable)?.Dispose();
 
         CurrentContentViewModel = SteamStatus switch
         {
-            SteamStatus.Running when _steamManager.CurrentUser != null =>
-                new MainLauncherViewModel(_steamManager, _settingsStorage, _steamAuthApi, _backendApiService, _queueSocketService),
             SteamStatus.Running =>
                 new LaunchSteamFirstViewModel("Connecting to Steam..."),
             SteamStatus.Offline =>

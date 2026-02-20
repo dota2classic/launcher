@@ -92,11 +92,24 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         // Push party restrictions into queue mode list
         Party.PartyMembersChanged += members => Queue.ApplyPartyRestrictions(members);
 
-        // Party invites → floating notifications
+        // Party invites → floating notifications + sound
         queueSocketService.PartyInviteReceived += msg =>
+        {
+            Util.SoundPlayer.Play("party_invite.mp3");
             Dispatcher.UIThread.Post(() => NotificationArea.AddInvite(msg));
+        };
         queueSocketService.PartyInviteExpired += msg =>
             Dispatcher.UIThread.Post(() => NotificationArea.RemoveByInviteId(msg.InviteId));
+
+        // Match found (initial PLAYER_ROOM_FOUND event only, not subsequent state updates) → sound
+        queueSocketService.PlayerRoomFound += _ => Util.SoundPlayer.Play("match_found.mp3");
+
+        // Server assigned (connect now) → sound
+        queueSocketService.PlayerGameStateUpdated += msg =>
+        {
+            if (!string.IsNullOrEmpty(msg?.ServerUrl))
+                Util.SoundPlayer.Play("ready_check_no_focus.wav");
+        };
 
         // на сайте: updated from socket events
         queueSocketService.OnlineUpdated += msg => Dispatcher.UIThread.Post(() =>
@@ -125,7 +138,12 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
             _ = ExchangeSteamTicketAsync(ticket);
         });
 
-        if (!string.IsNullOrWhiteSpace(_backendAccessToken))
+        // If the ticket was already acquired before this VM was created (e.g. the user was on
+        // SelectGameView when the SteamManager fired OnSteamAuthorizationChanged), exchange it now.
+        var currentTicket = _steamManager.CurrentAuthTicket;
+        if (!string.IsNullOrWhiteSpace(currentTicket))
+            _ = ExchangeSteamTicketAsync(currentTicket);
+        else if (!string.IsNullOrWhiteSpace(_backendAccessToken))
             _ = EnsureQueueConnectionAsync(_backendAccessToken, CancellationToken.None);
 
         _ = Party.RefreshPartyAsync();

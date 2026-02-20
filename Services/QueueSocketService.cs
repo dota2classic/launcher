@@ -29,6 +29,7 @@ public sealed class QueueSocketService : IQueueSocketService
     public event Action<PartyDto>? PartyUpdated;
     public event Action<PlayerQueueStateMessage>? PlayerQueueStateUpdated;
     public event Action<PlayerRoomStateMessage?>? PlayerRoomStateUpdated;
+    public event Action<PlayerRoomStateMessage?>? PlayerRoomFound;
     public event Action<PlayerGameStateMessage?>? PlayerGameStateUpdated;
     public event Action<QueueStateMessage>? QueueStateUpdated;
     public event Action<PlayerServerSearchingMessage>? ServerSearchingUpdated;
@@ -88,6 +89,7 @@ public sealed class QueueSocketService : IQueueSocketService
         socket.On("PLAYER_ROOM_FOUND", response =>
         {
             AppLog.Info($"PLAYER_ROOM_FOUND raw: {response}");
+            RaiseParsedNullable("PLAYER_ROOM_FOUND", response, PlayerRoomFound);
             RaiseParsedNullable("PLAYER_ROOM_FOUND", response, PlayerRoomStateUpdated);
         });
         socket.On("PLAYER_PARTY_STATE", response => RaiseParsed("PLAYER_PARTY_STATE", response, PartyUpdated));
