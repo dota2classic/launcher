@@ -33,6 +33,7 @@ public partial class App : Application
             services.AddSingleton<ISteamAuthApi, SteamAuthApi>();
             services.AddSingleton<IBackendApiService, BackendApiService>();
             services.AddSingleton<IQueueSocketService, QueueSocketService>();
+            services.AddSingleton<UpdateService>();
             services.AddSingleton<MainWindowViewModel>();
 
             _services = services.BuildServiceProvider();

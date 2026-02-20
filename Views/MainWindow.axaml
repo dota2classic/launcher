@@ -10,6 +10,22 @@
         Icon="/Assets/icon.ico"
         Title="D2C Launcher">
 
-    <ContentControl Content="{Binding CurrentContentViewModel}"/>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="#1a6b30" IsVisible="{Binding UpdateAvailable}" Padding="12,8">
+            <Grid>
+                <TextBlock Text="A new version is available and ready to install."
+                           VerticalAlignment="Center" Foreground="White" FontSize="13"/>
+                <Button HorizontalAlignment="Right" Content="Restart &amp; Update"
+                        Command="{Binding ApplyUpdateCommand}"/>
+            </Grid>
+        </Border>
+
+        <ContentControl Grid.Row="1" Content="{Binding CurrentContentViewModel}"/>
+    </Grid>
 
 </Window>

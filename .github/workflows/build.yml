@@ -3,12 +3,16 @@ name: Build
 on:
   push:
     branches: [ master ]
+    tags:
+      - 'v*.*.*'
   pull_request:
     branches: [ master ]
 
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
@@ -25,7 +29,7 @@ jobs:
         run: dotnet build -c Release --no-restore
 
       - name: Publish
-        run: dotnet publish d2c-launcher.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish/
+        run: dotnet publish d2c-launcher.csproj -c Release -r win-x64 --self-contained true -o publish/
 
       - name: Publish SteamBridge
         run: dotnet publish SteamBridge/SteamBridge.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true -o publish/
@@ -35,3 +39,31 @@ jobs:
         with:
           name: d2c-launcher-win-x64
           path: publish/
+
+      - name: Install Velopack CLI
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: dotnet tool install -g vpk
+
+      - name: Pack with Velopack
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}" -replace '^v', ''
+          vpk pack `
+            --packId "d2c-launcher" `
+            --packVersion $version `
+            --packDir publish/ `
+            --mainExe d2c-launcher.exe `
+            --packTitle "D2C Launcher" `
+            --icon Assets/icon.ico
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          vpk upload github `
+            --repoUrl https://github.com/dota2classic/launcher `
+            --publish `
+            --releaseName "D2C Launcher ${{ github.ref_name }}" `
+            --tag "${{ github.ref_name }}" `
+            --token "${{ secrets.GITHUB_TOKEN }}"
