@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using Steamworks;
 
@@ -176,15 +177,19 @@ internal static class Program
 
     private static void WriteSnapshot(Snapshot snapshot)
     {
-        Console.WriteLine(JsonSerializer.Serialize(snapshot));
+        Console.WriteLine(JsonSerializer.Serialize(snapshot, SnapshotJsonContext.Default.Snapshot));
     }
 
-    private sealed record Snapshot(
-        string Status,
-        ulong? SteamId = null,
-        string? PersonaName = null,
-        byte[]? AvatarRgba = null,
-        int AvatarWidth = 0,
-        int AvatarHeight = 0,
-        string? AuthTicket = null);
 }
+
+internal sealed record Snapshot(
+    string Status,
+    ulong? SteamId = null,
+    string? PersonaName = null,
+    byte[]? AvatarRgba = null,
+    int AvatarWidth = 0,
+    int AvatarHeight = 0,
+    string? AuthTicket = null);
+
+[JsonSerializable(typeof(Snapshot))]
+internal partial class SnapshotJsonContext : JsonSerializerContext { }

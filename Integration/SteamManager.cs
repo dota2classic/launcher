@@ -186,8 +186,9 @@ public class SteamManager : IDisposable
 
         process.Start();
 
-        // Read output asynchronously to prevent deadlock from full pipe buffers.
+        // Read both stdout and stderr asynchronously to prevent pipe-buffer deadlock.
         var outputTask = process.StandardOutput.ReadToEndAsync();
+        var stderrTask = process.StandardError.ReadToEndAsync();
 
         // Give bridge up to 12 s (auth ticket callback can take up to 8 s).
         using var killCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
@@ -205,7 +206,11 @@ public class SteamManager : IDisposable
         }
 
         var output = await outputTask;
-        AppLog.Info($"[SteamManager] Bridge output: {(output.Length > 200 ? output[..200] + "..." : output)}");
+        var stderr = await stderrTask;
+        if (!string.IsNullOrWhiteSpace(stderr))
+            AppLog.Info($"[SteamManager] Bridge stderr: {stderr.Trim()}");
+
+        AppLog.Info($"[SteamManager] Bridge stdout: {(output.Length > 200 ? output[..200] + "..." : output)}");
 
         if (string.IsNullOrWhiteSpace(output))
         {
