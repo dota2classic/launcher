@@ -4,11 +4,11 @@
              x:Class="d2c_launcher.Views.Components.QueueButton"
              x:DataType="vm:QueueViewModel">
 
-    <Button Height="56" HorizontalAlignment="Stretch"
+    <Button Height="68" HorizontalAlignment="Stretch"
             HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
             Background="{Binding QueueButtonBackground}" Foreground="White"
             FontWeight="Bold" FontSize="18" BorderThickness="0" CornerRadius="10"
-            Padding="18,12,18,16" Click="OnQueueButtonClicked">
+            Padding="18,12" Click="OnQueueButtonClicked">
         <Button.Styles>
             <Style Selector="Button:pointerover">
                 <Setter Property="Background" Value="{Binding QueueButtonHoverBackground}"/>

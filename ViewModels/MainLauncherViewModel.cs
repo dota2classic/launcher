@@ -12,7 +12,7 @@ using d2c_launcher.Util;
 
 namespace d2c_launcher.ViewModels;
 
-public partial class MainLauncherViewModel : ViewModelBase
+public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 {
     private readonly SteamManager _steamManager;
     private readonly ISettingsStorage _settingsStorage;
@@ -229,4 +229,13 @@ public partial class MainLauncherViewModel : ViewModelBase
     public void OpenInviteModal() => Party.OpenInviteModal();
     public void CloseInviteModal() => Party.CloseInviteModal();
     public async Task InvitePlayerAsync(string steamId) => await Party.InvitePlayerAsync(steamId);
+
+    public void Dispose()
+    {
+        _onlineStatsTimer.Stop();
+        _ticketExchangeCts?.Dispose();
+        Launch.Dispose();
+        Queue.Dispose();
+        Party.Dispose();
+    }
 }

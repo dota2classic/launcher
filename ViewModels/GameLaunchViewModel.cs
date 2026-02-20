@@ -11,7 +11,7 @@ using d2c_launcher.Util;
 
 namespace d2c_launcher.ViewModels;
 
-public partial class GameLaunchViewModel : ViewModelBase
+public partial class GameLaunchViewModel : ViewModelBase, IDisposable
 {
     private readonly ISettingsStorage _settingsStorage;
     private readonly DispatcherTimer _runStateTimer;
@@ -256,4 +256,6 @@ public partial class GameLaunchViewModel : ViewModelBase
         OnPropertyChanged(nameof(LaunchButtonText));
         OnPropertyChanged(nameof(IsLaunchEnabled));
     }
+
+    public void Dispose() => _runStateTimer.Stop();
 }

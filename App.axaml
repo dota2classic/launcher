@@ -9,7 +9,11 @@
              RequestedThemeVariant="Default">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
-    <Application.DataTemplates>
+    <Application.Resources>
+        <FontFamily x:Key="TrajanPro3">avares://d2c-launcher/Assets/Fonts#Trajan Pro 3</FontFamily>
+    </Application.Resources>
+
+   <Application.DataTemplates>
         <DataTemplate DataType="vm:LaunchSteamFirstViewModel">
             <v:LaunchSteamFirstView/>
         </DataTemplate>
@@ -21,6 +25,12 @@
   
     <Application.Styles>
         <FluentTheme />
+        <Style Selector=":is(TemplatedControl)">
+            <Setter Property="FontFamily" Value="{StaticResource TrajanPro3}"/>
+        </Style>
+        <Style Selector="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource TrajanPro3}"/>
+        </Style>
         <dialogHost:DialogHostStyles />
         <materialIcons:MaterialIconStyles/>
         <Style Selector="CheckBox">

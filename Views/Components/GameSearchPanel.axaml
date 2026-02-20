@@ -14,7 +14,6 @@
             BorderThickness="1">
         <StackPanel Spacing="12">
             <TextBlock Text="Поиск игры" Foreground="#E9D39A" FontWeight="SemiBold" FontSize="14"/>
-            <TextBlock Text="{Binding SearchingModesText}" Foreground="#AFA38A" FontSize="12"/>
             <Border IsEnabled="{Binding IsSearching, Converter={StaticResource InverseBoolConverter}}">
                 <ItemsControl ItemsSource="{Binding MatchmakingModes}">
                     <ItemsControl.ItemsPanel>

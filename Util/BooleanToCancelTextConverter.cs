@@ -4,21 +4,6 @@ using Avalonia.Media;
 
 namespace d2c_launcher.Util;
 
-public sealed class BooleanToCancelTextConverter : IValueConverter
-{
-    public static readonly BooleanToCancelTextConverter Instance = new();
-
-    public object? Convert(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
-    {
-        return value is bool b && b ? "ОТМЕНИТЬ" : "ИГРАТЬ";
-    }
-
-    public object? ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
-    {
-        throw new NotSupportedException();
-    }
-}
-
 public sealed class BoolToOpacityConverter : IValueConverter
 {
     public static readonly BoolToOpacityConverter Instance = new();

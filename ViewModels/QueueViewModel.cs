@@ -13,8 +13,15 @@ using d2c_launcher.Util;
 
 namespace d2c_launcher.ViewModels;
 
-public partial class QueueViewModel : ViewModelBase
+public partial class QueueViewModel : ViewModelBase, IDisposable
 {
+    // Static brushes — allocated once; avoid new allocations on every property read.
+    private static readonly IBrush BrushReady         = new SolidColorBrush(Color.Parse("#1A5276"));
+    private static readonly IBrush BrushSearching     = new SolidColorBrush(Color.Parse("#27AE60"));
+    private static readonly IBrush BrushIdle          = new SolidColorBrush(Color.Parse("#1F8B4C"));
+    private static readonly IBrush BrushReadyHover    = new SolidColorBrush(Color.Parse("#2E86C1"));
+    private static readonly IBrush BrushSearchingHover = new SolidColorBrush(Color.Parse("#2ECC71"));
+    private static readonly IBrush BrushIdleHover     = new SolidColorBrush(Color.Parse("#27AE60"));
     private readonly IQueueSocketService _queueSocketService;
     private readonly IBackendApiService _backendApiService;
     private readonly DispatcherTimer _queueTimer;
@@ -41,14 +48,12 @@ public partial class QueueViewModel : ViewModelBase
     private string _queueButtonTimeText = "";
 
     /// <summary>Blue when game ready, green when searching, dark gray when idle.</summary>
-    public IBrush QueueButtonBackground => _hasServerUrl
-        ? new SolidColorBrush(Color.Parse("#1A5276"))
-        : IsSearching ? new SolidColorBrush(Color.Parse("#27AE60")) : new SolidColorBrush(Color.Parse("#1F8B4C"));
+    public IBrush QueueButtonBackground => _hasServerUrl ? BrushReady
+        : IsSearching ? BrushSearching : BrushIdle;
 
     /// <summary>Lighter version for hover state.</summary>
-    public IBrush QueueButtonHoverBackground => _hasServerUrl
-        ? new SolidColorBrush(Color.Parse("#2E86C1"))
-        : IsSearching ? new SolidColorBrush(Color.Parse("#2ECC71")) : new SolidColorBrush(Color.Parse("#27AE60"));
+    public IBrush QueueButtonHoverBackground => _hasServerUrl ? BrushReadyHover
+        : IsSearching ? BrushSearchingHover : BrushIdleHover;
 
     public QueueViewModel(IQueueSocketService queueSocketService, IBackendApiService backendApiService)
     {
@@ -244,29 +249,25 @@ public partial class QueueViewModel : ViewModelBase
         return true;
     }
 
-    private static bool IsPermaban(string? bannedUntil)
+    private static bool TryGetBanExpiry(string? bannedUntil, out DateTimeOffset until)
     {
-        if (string.IsNullOrEmpty(bannedUntil))
-            return true; // no end date → treat as permanent
-        if (!DateTimeOffset.TryParse(bannedUntil, System.Globalization.CultureInfo.InvariantCulture,
-                System.Globalization.DateTimeStyles.AssumeUniversal, out var until))
-            return true;
-        return until > DateTimeOffset.UtcNow.AddYears(2);
+        until = default;
+        return !string.IsNullOrEmpty(bannedUntil) &&
+               DateTimeOffset.TryParse(bannedUntil, System.Globalization.CultureInfo.InvariantCulture,
+                   System.Globalization.DateTimeStyles.AssumeUniversal, out until);
     }
+
+    private static bool IsPermaban(string? bannedUntil)
+        => !TryGetBanExpiry(bannedUntil, out var until) || until > DateTimeOffset.UtcNow.AddYears(2);
 
     private static string FormatMemberRestriction(Models.PartyMemberView member)
     {
         if (member.IsBanned)
         {
-            if (IsPermaban(member.BannedUntil))
+            if (!TryGetBanExpiry(member.BannedUntil, out var until) || until > DateTimeOffset.UtcNow.AddYears(2))
                 return "Аккаунт заблокирован навсегда";
-
-            if (!string.IsNullOrEmpty(member.BannedUntil) &&
-                DateTimeOffset.TryParse(member.BannedUntil, System.Globalization.CultureInfo.InvariantCulture,
-                    System.Globalization.DateTimeStyles.AssumeUniversal, out var until))
-                return $"Поиск запрещён до {until.LocalDateTime:dd.MM.yyyy, HH:mm}";
+            return $"Поиск запрещён до {until.LocalDateTime:dd.MM.yyyy, HH:mm}";
         }
-
         return "Нет доступа к режиму";
     }
 
@@ -276,4 +277,6 @@ public partial class QueueViewModel : ViewModelBase
         if (n >= 2 && n <= 4) return $"{n} РЕЖИМА";
         return $"{n} РЕЖИМОВ";
     }
+
+    public void Dispose() => _queueTimer.Stop();
 }

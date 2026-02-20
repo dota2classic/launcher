@@ -13,7 +13,7 @@ using d2c_launcher.Util;
 
 namespace d2c_launcher.ViewModels;
 
-public partial class PartyViewModel : ViewModelBase
+public partial class PartyViewModel : ViewModelBase, IDisposable
 {
     private readonly IQueueSocketService _queueSocketService;
     private readonly IBackendApiService _backendApiService;
@@ -222,5 +222,11 @@ public partial class PartyViewModel : ViewModelBase
     {
         foreach (var member in PartyMembers)
             member.AvatarImage?.Dispose();
+    }
+
+    public void Dispose()
+    {
+        _partyRefreshTimer.Stop();
+        _inviteSearchCts?.Dispose();
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using d2c_launcher.Integration;
@@ -50,6 +51,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private void UpdateContentViewModel()
     {
+        (CurrentContentViewModel as IDisposable)?.Dispose();
         CurrentContentViewModel = SteamStatus == SteamStatus.NotRunning
             ? new LaunchSteamFirstViewModel()
             : new MainLauncherViewModel(_steamManager, _settingsStorage, _steamAuthApi, _backendApiService, _queueSocketService);

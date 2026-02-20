@@ -179,7 +179,17 @@ public sealed class QueueSocketService : IQueueSocketService
 
     public void Dispose()
     {
-        _socket?.Dispose();
+        if (_socket == null)
+            return;
+
+        try
+        {
+            if (_socket.Connected)
+                Task.Run(() => _socket.DisconnectAsync()).Wait(TimeSpan.FromSeconds(2));
+        }
+        catch { }
+
+        _socket.Dispose();
         _socket = null;
     }
 

@@ -16,8 +16,15 @@ namespace d2c_launcher.Services;
 public sealed class BackendApiService : IBackendApiService, IDisposable
 {
     private static readonly Uri BaseUri = new("https://api.dotaclassic.ru/");
-    // Single shared client for requests that don't require per-request auth (modes, etc.)
+    // Shared client for unauthenticated requests (modes, online stats, avatar loading).
     private readonly HttpClient _httpClient = new HttpClient
+    {
+        BaseAddress = BaseUri,
+        Timeout = TimeSpan.FromSeconds(10)
+    };
+    // Shared client for authenticated requests. Auth header is set per-call before use.
+    // Thread-safe for our single-user desktop app (only one token in flight at a time).
+    private readonly HttpClient _authHttpClient = new HttpClient
     {
         BaseAddress = BaseUri,
         Timeout = TimeSpan.FromSeconds(10)
@@ -48,14 +55,9 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
             return new PartySnapshot(Array.Empty<PartyMemberView>(), null);
         }
 
-        using var httpClient = new HttpClient
-        {
-            BaseAddress = BaseUri,
-            Timeout = TimeSpan.FromSeconds(10)
-        };
-        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
+        _authHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
 
-        var api = new DotaclassicApiClient(httpClient);
+        var api = new DotaclassicApiClient(_authHttpClient);
         var party = await api.PlayerController_myPartyAsync(cancellationToken);
         if (party == null)
         {
@@ -68,7 +70,7 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         if (party.Leader != null && !string.IsNullOrWhiteSpace(party.Leader.SteamId))
         {
             var leaderAvatarUrl = party.Leader.AvatarSmall ?? party.Leader.Avatar;
-            var leaderAvatar = await TryLoadAvatarAsync(httpClient, leaderAvatarUrl, cancellationToken);
+            var leaderAvatar = await TryLoadAvatarAsync(_httpClient, leaderAvatarUrl, cancellationToken);
             map[party.Leader.SteamId] = new PartyMemberView(
                 party.Leader.SteamId,
                 party.Leader.Name ?? "",
@@ -86,7 +88,7 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
                     continue;
 
                 var avatarUrl = user.AvatarSmall ?? user.Avatar;
-                var avatar = await TryLoadAvatarAsync(httpClient, avatarUrl, cancellationToken);
+                var avatar = await TryLoadAvatarAsync(_httpClient, avatarUrl, cancellationToken);
 
                 var ban = summary.BanStatus;
                 var access = summary.AccessMap;
@@ -147,14 +149,8 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         if (string.IsNullOrWhiteSpace(name))
             return Array.Empty<InviteCandidateView>();
 
-        using var httpClient = new HttpClient
-        {
-            BaseAddress = BaseUri,
-            Timeout = TimeSpan.FromSeconds(10)
-        };
-
         AppLog.Info($"Searching players: name='{name}', count={count}");
-        var api = new DotaclassicApiClient(httpClient);
+        var api = new DotaclassicApiClient(_httpClient);
         var users = await api.PlayerController_searchAsync(name, count, cancellationToken);
         if (users == null)
             return Array.Empty<InviteCandidateView>();
@@ -188,20 +184,14 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
 
         try
         {
-            using var authClient = new HttpClient
-            {
-                BaseAddress = BaseUri,
-                Timeout = TimeSpan.FromSeconds(5)
-            };
-            authClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
-
-            var api = new DotaclassicApiClient(authClient);
+            _authHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
+            var api = new DotaclassicApiClient(_authHttpClient);
             var user = await api.PlayerController_userAsync(steamId, cancellationToken).ConfigureAwait(false);
             if (user == null)
                 return null;
 
             var avatarUrl = user.AvatarSmall ?? user.Avatar;
-            var avatar = await TryLoadAvatarAsync(authClient, avatarUrl, cancellationToken).ConfigureAwait(false);
+            var avatar = await TryLoadAvatarAsync(_httpClient, avatarUrl, cancellationToken).ConfigureAwait(false);
             return (user.Name, avatar);
         }
         catch
@@ -282,7 +272,11 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         }
     }
 
-    public void Dispose() => _httpClient.Dispose();
+    public void Dispose()
+    {
+        _httpClient.Dispose();
+        _authHttpClient.Dispose();
+    }
 
     private static string GetInitials(string name)
     {
