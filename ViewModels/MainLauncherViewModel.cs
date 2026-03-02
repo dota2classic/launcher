@@ -57,6 +57,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public MainLauncherViewModel(
         SteamManager steamManager,
         ISettingsStorage settingsStorage,
+        IGameLaunchSettingsStorage launchSettingsStorage,
         ISteamAuthApi steamAuthApi,
         IBackendApiService backendApiService,
         IQueueSocketService queueSocketService)
@@ -73,7 +74,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         _avatarImage = SteamAvatarHelper.FromUser(_currentUser);
 
         // Create child ViewModels
-        Launch = new GameLaunchViewModel(settingsStorage, queueSocketService);
+        Launch = new GameLaunchViewModel(settingsStorage, launchSettingsStorage, queueSocketService);
         Queue = new QueueViewModel(queueSocketService, backendApiService);
         Room = new RoomViewModel(queueSocketService, backendApiService);
         Party = new PartyViewModel(queueSocketService, backendApiService);

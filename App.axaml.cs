@@ -43,6 +43,7 @@ public partial class App : Application
             var services = new ServiceCollection();
             services.AddSingleton<SteamManager>();
             services.AddSingleton<ISettingsStorage, SettingsStorage>();
+            services.AddSingleton<IGameLaunchSettingsStorage, GameLaunchSettingsStorage>();
             services.AddSingleton<ISteamAuthApi, SteamAuthApi>();
             services.AddSingleton<IBackendApiService, BackendApiService>();
             services.AddSingleton<IQueueSocketService, QueueSocketService>();

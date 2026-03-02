@@ -14,6 +14,7 @@ namespace d2c_launcher.ViewModels;
 public partial class GameLaunchViewModel : ViewModelBase, IDisposable
 {
     private readonly ISettingsStorage _settingsStorage;
+    private readonly IGameLaunchSettingsStorage _launchSettingsStorage;
     private readonly DispatcherTimer _runStateTimer;
 
     [ObservableProperty]
@@ -55,9 +56,10 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
 
     public bool PlayButtonIsStop => RunState is GameRunState.OurGameRunning or GameRunState.OtherDotaRunning;
 
-    public GameLaunchViewModel(ISettingsStorage settingsStorage, IQueueSocketService queueSocketService)
+    public GameLaunchViewModel(ISettingsStorage settingsStorage, IGameLaunchSettingsStorage launchSettingsStorage, IQueueSocketService queueSocketService)
     {
         _settingsStorage = settingsStorage;
+        _launchSettingsStorage = launchSettingsStorage;
         var settings = settingsStorage.Get();
         _gameDirectory = settings.GameDirectory;
         _runState = GameRunState.None;
@@ -98,10 +100,18 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
                 return;
             }
 
-            AppLog.Info($"LaunchGame: starting {exePath}");
+            var launchSettings = _launchSettingsStorage.Get();
+            var cliArgs = CfgGenerator.BuildCliArgs(launchSettings);
+            var execArg = CfgGenerator.Generate(launchSettings, GameDirectory);
+            var arguments = execArg != null
+                ? $"{cliArgs} {execArg}".Trim()
+                : cliArgs;
+
+            AppLog.Info($"LaunchGame: starting {exePath} {arguments}");
             using var _ = Process.Start(new ProcessStartInfo
             {
                 FileName = exePath,
+                Arguments = arguments,
                 WorkingDirectory = GameDirectory,
                 UseShellExecute = false,
             });

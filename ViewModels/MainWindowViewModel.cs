@@ -14,6 +14,7 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly SteamManager _steamManager;
     private readonly ISettingsStorage _settingsStorage;
+    private readonly IGameLaunchSettingsStorage _launchSettingsStorage;
     private readonly ISteamAuthApi _steamAuthApi;
     private readonly IBackendApiService _backendApiService;
     private readonly IQueueSocketService _queueSocketService;
@@ -36,6 +37,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel(
         SteamManager steamManager,
         ISettingsStorage settingsStorage,
+        IGameLaunchSettingsStorage launchSettingsStorage,
         ISteamAuthApi steamAuthApi,
         IBackendApiService backendApiService,
         IQueueSocketService queueSocketService,
@@ -43,6 +45,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
+        _launchSettingsStorage = launchSettingsStorage;
         _steamAuthApi = steamAuthApi;
         _backendApiService = backendApiService;
         _queueSocketService = queueSocketService;
@@ -112,7 +115,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
             (CurrentContentViewModel as IDisposable)?.Dispose();
             CurrentContentViewModel = new MainLauncherViewModel(
-                _steamManager, _settingsStorage, _steamAuthApi, _backendApiService, _queueSocketService);
+                _steamManager, _settingsStorage, _launchSettingsStorage, _steamAuthApi, _backendApiService, _queueSocketService);
             return;
         }
 
