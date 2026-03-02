@@ -1,0 +1,156 @@
+# D2C Launcher — Agent Instructions
+
+## Project Overview
+
+**D2C Launcher** is a Windows desktop application for **Dota 2 Classic** — a community-maintained server running the old Dota 2 on the Source 1 engine. The launcher handles:
+
+- Steam authentication (via SteamBridge subprocess)
+- Matchmaking queue and real-time updates (Socket.IO)
+- Party management (invite, accept, leave)
+- Game install validation and launching
+- Application auto-updates (Velopack + GitHub Releases)
+
+**Backend API:** `https://api.dotaclassic.ru`
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Language | C# (.NET 10.0) |
+| UI Framework | Avalonia UI 11.x (Fluent theme, dark) |
+| UI Pattern | MVVM via `CommunityToolkit.Mvvm` |
+| DI Container | `Microsoft.Extensions.DependencyInjection` |
+| Real-time | `SocketIOClient` (Socket.IO / WebSocket) |
+| Steam | `Steamworks.NET` + custom `SteamBridge` subprocess |
+| API Client | NSwag-generated from `api-openapi.json` |
+| Audio | `NAudio` |
+| Updates | `Velopack` |
+| Dialogs | `DialogHost.Avalonia` |
+| Icons | `Material.Icons.Avalonia` |
+
+---
+
+## Key Directories
+
+- `Views/` — Avalonia XAML UI; `Components/` for reusable sub-views
+- `ViewModels/` — MVVM ViewModels (CommunityToolkit)
+- `Services/` — Business logic: REST API, WebSocket, Steam auth, settings, updates
+- `Models/` — DTOs and domain models
+- `Integration/` — Steam process monitoring (`SteamManager`), Dota console commands
+- `Util/` — Logging, audio, P/Invoke, XAML converters
+- `Generated/` — NSwag-generated API client (**do not edit**)
+- `SteamBridge/` — Separate console app that queries Steam SDK and outputs JSON to stdout
+
+---
+
+## Architecture & Key Patterns
+
+### App State Routing
+`MainWindowViewModel` is the root and routes the window content based on state:
+1. **Steam not running / user not logged in** → `LaunchSteamFirstView`
+2. **Game directory not set** → `SelectGameView`
+3. **Ready** → `MainLauncherView`
+
+### MVVM Conventions
+- Use `[ObservableProperty]` from CommunityToolkit.Mvvm for bindable properties
+- Commands use `[RelayCommand]` attribute
+- Child ViewModels are created fresh when entering a state
+- Services are singleton, injected via constructor DI
+
+### Service Registration (App.axaml.cs)
+All services registered as singletons in `ServiceCollection`. ViewModels are typically transient or manually instantiated.
+
+### SteamBridge Pattern
+The main app cannot use Steamworks.NET directly when published trimmed. Instead:
+1. `SteamManager` spawns `d2c-steam-bridge.exe` as a subprocess
+2. SteamBridge queries Steam SDK and writes a JSON snapshot to stdout
+3. SteamManager reads stdout, parses the snapshot
+4. Includes: SteamID, persona name, avatar (RGBA bytes), auth ticket
+5. Timeout: 12 seconds; uses exponential backoff on failures
+
+### Real-time Communication
+`QueueSocketService` connects to `wss://api.dotaclassic.ru` via Socket.IO.
+
+**Key inbound events:** `QueueStateUpdated`, `PlayerRoomFound`, `PlayerRoomStateUpdated`, `PlayerGameStateUpdated`, `PartyInviteReceived`, `PartyUpdated`, `NotificationCreated`, `ServerSearchingUpdated`
+
+**Key outbound events:** `EnterQueueAsync`, `LeaveAllQueuesAsync`, `SetReadyCheckAsync`, `InviteToPartyAsync`, `AcceptPartyInviteAsync`
+
+### Settings Persistence
+- Path: `%AppData%\d2c-launcher\launcher_settings.json`
+- Fields: `GameDirectory`, `BackendAccessToken`
+- Accessed via `ISettingsStorage` (singleton, cached in memory)
+
+### Game Launch
+`GameLaunchViewModel` / `DotaConsoleConnector` — launches the Dota 2 process from `GameDirectory` with appropriate Source 1 launch arguments, and can send console commands via `FindWindowA` / `SendMessageA` P/Invoke.
+
+### API Client
+`Generated/DotaclassicApiClient.g.cs` is auto-generated from `api-openapi.json` using NSwag. **Never edit this file manually.** To regenerate:
+```
+nswag run nswag.json
+```
+
+---
+
+## Build & Run
+
+### Prerequisites
+- .NET 10.0 SDK
+- Steam must be running for testing Steam auth features
+- The launcher uses Steam App ID **480** (Spacewar/demo). Dota 2 itself ships its own `steam_appid.txt` — do not add or override it for the game directory
+
+### Build
+```bash
+dotnet build
+```
+
+### Run (debug)
+```bash
+dotnet run --project d2c-launcher
+```
+
+### Publish (production, win-x64)
+```bash
+dotnet publish d2c-launcher -c Release -r win-x64 --self-contained
+dotnet publish SteamBridge -c Release -r win-x64 --self-contained -p:PublishTrimmed=true
+```
+
+### Release
+Push a tag matching `v*.*.*` to trigger GitHub Actions. The workflow:
+1. Builds and publishes both projects
+2. Packs with Velopack
+3. Creates a GitHub Release with the artifacts
+
+---
+
+## Localization
+- UI text is in **Russian** (Cyrillic)
+- No external localization framework — strings are hardcoded in XAML and ViewModels
+- When adding new UI text, write in Russian
+
+---
+
+## Important Files
+
+| File | Purpose |
+|------|---------|
+| [App.axaml.cs](App.axaml.cs) | DI registration, app startup |
+| [Integration/SteamManager.cs](Integration/SteamManager.cs) | Steam process monitoring, auth tickets |
+| [Services/QueueSocketService.cs](Services/QueueSocketService.cs) | Socket.IO real-time events |
+| [Services/BackendApiService.cs](Services/BackendApiService.cs) | REST API calls |
+| [ViewModels/MainWindowViewModel.cs](ViewModels/MainWindowViewModel.cs) | App state routing |
+| [ViewModels/MainLauncherViewModel.cs](ViewModels/MainLauncherViewModel.cs) | Main screen logic |
+| [Generated/DotaclassicApiClient.g.cs](Generated/DotaclassicApiClient.g.cs) | **Auto-generated — do not edit** |
+| [SteamBridge/Program.cs](SteamBridge/Program.cs) | Steam SDK subprocess |
+| [api-openapi.json](api-openapi.json) | Backend OpenAPI spec |
+
+---
+
+## Do Not
+
+- Edit `Generated/DotaclassicApiClient.g.cs` manually — regenerate from the OpenAPI spec
+- Add platform-specific code for non-Windows targets — this is Windows-only
+- Commit secrets or tokens
+- Use `Task.Result` or `.Wait()` — always `await` async methods
+- Register new ViewModels as singletons — they should be transient or manually created
