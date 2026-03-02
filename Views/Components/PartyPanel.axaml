@@ -11,25 +11,27 @@
        <util:BanBorderBrushConverter x:Key="BanBorderBrushConverter"/>
    </UserControl.Resources>
 
-   <Border Padding="12" CornerRadius="0" Background="#121315" BorderBrush="#2d3842"
+   <Border CornerRadius="0" Background="#121315" BorderBrush="#2d3842"
            BorderThickness="1" Margin="0,0,0,12">
-       <StackPanel Spacing="10">
+       <StackPanel>
 
            <!-- Header: title + leave button -->
-           <Grid ColumnDefinitions="*,Auto">
-               <TextBlock Text="Группа" Foreground="#D9D9D9" FontWeight="SemiBold" FontSize="14"
-                          VerticalAlignment="Center"/>
-               <Button Grid.Column="1"
-                       IsVisible="{Binding CanLeaveParty}"
-                       Command="{Binding LeavePartyCommand}"
-                       Background="Transparent" BorderThickness="0"
-                       Padding="4" ToolTip.Tip="Покинуть группу">
-                   <materialIcons:MaterialIcon Kind="ExitToApp" Width="18" Height="18" Foreground="#AAAAAA"/>
-               </Button>
-           </Grid>
+           <Border Background="#0A0B0D" Padding="12,10">
+               <Grid ColumnDefinitions="*,Auto">
+                   <TextBlock Text="Группа" Foreground="#D9D9D9" FontWeight="SemiBold" FontSize="13"
+                              VerticalAlignment="Center"/>
+                   <Button Grid.Column="1"
+                           IsVisible="{Binding CanLeaveParty}"
+                           Command="{Binding LeavePartyCommand}"
+                           Background="Transparent" BorderThickness="0"
+                           Padding="4" ToolTip.Tip="Покинуть группу">
+                       <materialIcons:MaterialIcon Kind="ExitToApp" Width="18" Height="18" Foreground="#AAAAAA"/>
+                   </Button>
+               </Grid>
+           </Border>
 
            <!-- Members + invite button -->
-           <StackPanel Orientation="Horizontal" Spacing="8">
+           <StackPanel Orientation="Horizontal" Spacing="8" Margin="12,10,12,12">
                <ItemsControl ItemsSource="{Binding PartyMembers}">
                    <ItemsControl.ItemsPanel>
                        <ItemsPanelTemplate>

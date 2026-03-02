@@ -93,10 +93,12 @@
                <Grid Grid.Row="1" Margin="20,8,20,10" ColumnDefinitions="*,360">
                    <!-- Chat placeholder -->
                    <Border Grid.Column="0" CornerRadius="0" Background="#121315" BorderBrush="#2d3842"
-                           BorderThickness="1" Padding="16" Margin="0,0,16,0">
+                           BorderThickness="1" Margin="0,0,16,0">
                        <Grid RowDefinitions="Auto,*">
-                           <TextBlock Text="Чат" Classes="section-title" Margin="0,0,0,12"/>
-                           <Border Grid.Row="1" CornerRadius="0" Background="#1c2024" BorderBrush="#2d3842"
+                           <Border Background="#0A0B0D" Padding="12,10">
+                               <TextBlock Text="Чат" Foreground="#D9D9D9" FontWeight="SemiBold" FontSize="13"/>
+                           </Border>
+                           <Border Grid.Row="1" Margin="16" CornerRadius="0" Background="#1c2024" BorderBrush="#2d3842"
                                    BorderThickness="1">
                                <Grid RowDefinitions="*,Auto">
                                    <TextBlock Text="Чат пока не реализован" Opacity="0.6"
