@@ -11,7 +11,7 @@
        <util:BanBorderBrushConverter x:Key="BanBorderBrushConverter"/>
    </UserControl.Resources>
 
-   <Border Padding="12" CornerRadius="12" Background="#121315" BorderBrush="#2d3842"
+   <Border Padding="12" CornerRadius="0" Background="#121315" BorderBrush="#2d3842"
            BorderThickness="1" Margin="0,0,0,12">
        <StackPanel Spacing="10">
 
@@ -43,7 +43,7 @@
                                    BorderBrush="{Binding IsBanned, Converter={StaticResource BanBorderBrushConverter}}"
                                    ToolTip.Tip="{Binding Name}">
                                <!-- Inner border: avatar with rounded clip -->
-                               <Border Width="40" Height="40" CornerRadius="6" ClipToBounds="True"
+                               <Border Width="40" Height="40" CornerRadius="0" ClipToBounds="True"
                                        Background="#1c2024">
                                    <Image Source="{Binding AvatarImage}" Stretch="UniformToFill"/>
                                </Border>

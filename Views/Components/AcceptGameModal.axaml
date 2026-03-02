@@ -14,7 +14,7 @@
    <Panel IsVisible="{Binding IsAcceptGameModalOpen}" ZIndex="200"
           HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#90000000">
        <Border HorizontalAlignment="Center" VerticalAlignment="Center"
-               Padding="24" CornerRadius="12"
+               Padding="24" CornerRadius="0"
                Background="#121315" BorderBrush="#2d3842" BorderThickness="1"
                BoxShadow="0 12 28 0 #80000000">
            <StackPanel Spacing="16" MaxWidth="580">
@@ -73,7 +73,7 @@
                                IsVisible="{Binding HasMyPlayerResponded, Converter={StaticResource InverseBoolConverter}}">
                        <Button Content="Принять" Command="{Binding AcceptGameCommand}"
                                Foreground="White" FontWeight="Bold" Padding="28,10"
-                               CornerRadius="8" BorderThickness="0">
+                               CornerRadius="0" BorderThickness="0">
                            <Button.Background>
                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                                    <GradientStop Color="#1a5aaa" Offset="0"/>
@@ -83,7 +83,7 @@
                        </Button>
                        <Button Content="Отклонить" Command="{Binding DeclineGameCommand}"
                                Background="#1a0f0f" Foreground="#C62626" FontWeight="Bold"
-                               Padding="28,10" CornerRadius="8" BorderBrush="#C62626" BorderThickness="1"/>
+                               Padding="28,10" CornerRadius="0" BorderBrush="#C62626" BorderThickness="1"/>
                    </StackPanel>
 
                    <TextBlock Text="Ожидание других игроков..." HorizontalAlignment="Center"

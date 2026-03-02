@@ -8,7 +8,7 @@
         <Border HorizontalAlignment="Center" VerticalAlignment="Center"
                 MinWidth="360" MaxWidth="560"
                 Background="#151515" BorderBrush="#2A2A2A" BorderThickness="1"
-                CornerRadius="12" Padding="18"
+                CornerRadius="0" Padding="18"
                 BoxShadow="0 12 28 0 #80000000"
                 PointerPressed="OnDialogPointerPressed">
             <StackPanel Spacing="12">

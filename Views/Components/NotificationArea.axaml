@@ -9,7 +9,7 @@
            <DataTemplate x:DataType="vm:PartyInviteNotificationViewModel">
                <Border Background="#1c2024"
                        BorderBrush="#2d3842" BorderThickness="1"
-                       CornerRadius="10" Padding="14"
+                       CornerRadius="0" Padding="14"
                        Margin="0,0,0,8" Width="290">
                    <StackPanel Spacing="12">
 
@@ -17,7 +17,7 @@
                        <Grid ColumnDefinitions="Auto,*,Auto">
                            <Border Grid.Column="0"
                                    Width="42" Height="42"
-                                   CornerRadius="6" ClipToBounds="True"
+                                   CornerRadius="0" ClipToBounds="True"
                                    Background="#242c34">
                                <Image Source="{Binding InviterAvatarImage}" Stretch="UniformToFill"/>
                            </Border>
@@ -41,7 +41,7 @@
                                    Command="{Binding AcceptCommand}"
                                    Background="#1a5aaa" Foreground="White"
                                    FontSize="12" FontWeight="Bold"
-                                   CornerRadius="6" BorderThickness="0"
+                                   CornerRadius="0" BorderThickness="0"
                                    HorizontalAlignment="Stretch"
                                    HorizontalContentAlignment="Center"
                                    Padding="0,8"/>
@@ -50,7 +50,7 @@
                                    Command="{Binding DeclineCommand}"
                                    Background="#6e2222" Foreground="White"
                                    FontSize="12" FontWeight="Bold"
-                                   CornerRadius="6" BorderThickness="0"
+                                   CornerRadius="0" BorderThickness="0"
                                    HorizontalAlignment="Stretch"
                                    HorizontalContentAlignment="Center"
                                    Padding="0,8"/>

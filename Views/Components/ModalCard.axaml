@@ -3,7 +3,7 @@
              x:Class="d2c_launcher.Views.Components.ModalCard"
              x:Name="Root">
     <Border Background="#121315" BorderBrush="#2d3842" BorderThickness="1"
-            CornerRadius="12" Padding="18" BoxShadow="0 12 28 0 #80000000"
+            CornerRadius="0" Padding="18" BoxShadow="0 12 28 0 #80000000"
             Width="{Binding FixedWidth, ElementName=Root}"
             MinWidth="{Binding FixedWidth, ElementName=Root}"
             MaxWidth="{Binding FixedWidth, ElementName=Root}">

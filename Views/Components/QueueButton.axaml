@@ -7,7 +7,7 @@
     <Button Height="68" HorizontalAlignment="Stretch"
             HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
             Background="{Binding QueueButtonBackground}" Foreground="White"
-            FontWeight="Bold" FontSize="18" BorderThickness="0" CornerRadius="10"
+            FontWeight="Bold" FontSize="18" BorderThickness="0" CornerRadius="0"
             Padding="18,12" Click="OnQueueButtonClicked">
         <Button.Styles>
             <Style Selector="Button:pointerover">

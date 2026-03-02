@@ -26,7 +26,7 @@
 
        <Button Content="Выбрать dota.exe"
                HorizontalAlignment="Center"
-               Padding="24,12" CornerRadius="10"
+               Padding="24,12" CornerRadius="0"
                FontSize="15" FontWeight="SemiBold"
                Foreground="White" BorderThickness="0"
                Click="OnBrowseClicked">
