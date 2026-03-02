@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia.Media;
+using d2c_launcher.Models;
 using d2c_launcher.ViewModels;
 using d2c_launcher.Views;
 using d2c_launcher.Views.Components;
@@ -45,6 +49,33 @@ public static class PreviewRegistry
                 (new LaunchSteamFirstView(), new LaunchSteamFirstViewModel()),
             ["SelectGame"] = () =>
                 (new SelectGameView(), new SelectGameViewModel()),
+            ["InviteModal"] = () =>
+            {
+                var stub = new StubQueueSocketService();
+                var vm = new PartyViewModel(stub, new StubBackendApiService());
+                vm.InviteCandidates = new ObservableCollection<InviteCandidateView>([
+                    new InviteCandidateView("1", "♥Gryst♥",             "G",  isOnline: true),
+                    new InviteCandidateView("2", "rampage",              "R",  isOnline: true),
+                    new InviteCandidateView("3", "Богдан",               "Б",  isOnline: true),
+                    new InviteCandidateView("4", "просто хлеб",          "П",  isOnline: true),
+                    new InviteCandidateView("5", "STEALTH-ТРАМБАi",      "S",  isOnline: true),
+                    new InviteCandidateView("6", "egor_lib",             "E",  isOnline: false),
+                    new InviteCandidateView("7", "Buyback из Алабуги",   "B",  isOnline: true),
+                    new InviteCandidateView("8", "divine orb",           "D",  isOnline: false),
+                ]);
+                vm.IsInviteModalOpen = true;
+
+                // Wrap the ModalCard in a fixed-size dark panel to simulate the overlay context
+                var hostPanel = new Panel
+                {
+                    Width = 600,
+                    Height = 520,
+                    Background = new SolidColorBrush(Color.Parse("#90000000")),
+                };
+                var view = new InviteModalPreviewControl { DataContext = vm };
+                hostPanel.Children.Add(view);
+                return (hostPanel, null);
+            },
         };
 
     public static IEnumerable<string> AvailableNames => Registry.Keys;

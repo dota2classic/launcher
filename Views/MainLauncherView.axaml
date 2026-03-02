@@ -29,12 +29,22 @@
    <dialogHost:DialogHost IsOpen="{Binding Party.IsInviteModalOpen, Mode=TwoWay}"
                            CloseOnClickAway="True">
        <dialogHost:DialogHost.DialogContent>
-           <components:ModalCard Title="Пригласить игрока" FixedWidth="520">
-               <Grid RowDefinitions="Auto,*,Auto" Width="520">
-                   <TextBox Grid.Row="0" Text="{Binding Party.InviteSearchText}" Watermark="Поиск игрока" Width="520"/>
-                   <Border Grid.Row="1" Background="#0c0c0c" BorderBrush="#2d3842" BorderThickness="1"
-                           CornerRadius="0" Height="260" Margin="0,10,0,10" Width="520">
-                       <ScrollViewer>
+           <Border Background="#121315" BorderBrush="#2d3842" BorderThickness="1"
+                   Padding="18" BoxShadow="0 12 28 0 #80000000" Width="300">
+               <StackPanel Spacing="12">
+                   <Grid ColumnDefinitions="*,Auto">
+                       <TextBlock Text="Выбрать игрока"
+                                  FontSize="16" FontWeight="SemiBold" Foreground="#D9D9D9"
+                                  VerticalAlignment="Center"/>
+                       <Button Grid.Column="1" Click="OnCloseInviteModal"
+                               Background="Transparent" BorderThickness="0"
+                               Padding="2,0" Cursor="Hand" VerticalAlignment="Center">
+                           <TextBlock Text="✕" FontSize="16" Foreground="#AAAAAA" VerticalAlignment="Center"/>
+                       </Button>
+                   </Grid>
+                   <TextBox Text="{Binding Party.InviteSearchText}" Watermark="Никнейм игрока"/>
+                   <Border Background="#0c0c0c" BorderBrush="#2d3842" BorderThickness="1" Height="300">
+                       <ScrollViewer HorizontalScrollBarVisibility="Disabled">
                            <ItemsControl ItemsSource="{Binding Party.InviteCandidates}">
                                <ItemsControl.ItemTemplate>
                                    <DataTemplate x:DataType="m:InviteCandidateView">
@@ -43,23 +53,27 @@
                                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                                            <Border Padding="8" BorderBrush="#242c34" BorderThickness="0,0,0,1">
                                                <StackPanel Orientation="Horizontal" Spacing="10">
-                                                   <Grid Width="36" Height="36">
-                                                       <Border Width="36" Height="36" CornerRadius="18" ClipToBounds="True"
-                                                               Background="#242c34" BorderBrush="#2d3842" BorderThickness="1">
-                                                           <Grid>
-                                                               <Image Source="{Binding AvatarImage}" Stretch="UniformToFill"
-                                                                      IsVisible="{Binding AvatarImage, Converter={StaticResource NullToBoolConverter}}"/>
-                                                               <TextBlock Text="{Binding Initials}" HorizontalAlignment="Center"
-                                                                          VerticalAlignment="Center" FontSize="12"
-                                                                          IsVisible="{Binding AvatarImage, Converter={StaticResource NullToInverseBoolConverter}}"/>
-                                                           </Grid>
-                                                       </Border>
+                                                   <Grid Width="40" Height="40">
+                                                       <Panel Width="36" Height="36"
+                                                              HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                           <Ellipse Width="36" Height="36" Fill="#242c34"/>
+                                                           <Ellipse Width="36" Height="36"
+                                                                    IsVisible="{Binding AvatarImage, Converter={StaticResource NullToBoolConverter}}">
+                                                               <Ellipse.Fill>
+                                                                   <ImageBrush Source="{Binding AvatarImage}" Stretch="UniformToFill"/>
+                                                               </Ellipse.Fill>
+                                                           </Ellipse>
+                                                           <TextBlock Text="{Binding Initials}" HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center" FontSize="12"
+                                                                      IsVisible="{Binding AvatarImage, Converter={StaticResource NullToInverseBoolConverter}}"/>
+                                                       </Panel>
                                                        <Ellipse Width="10" Height="10" Fill="#44D46F"
                                                                 IsVisible="{Binding IsOnline}"
                                                                 HorizontalAlignment="Right" VerticalAlignment="Bottom"
                                                                 Margin="0,0,2,2"/>
                                                    </Grid>
-                                                   <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                                   <TextBlock Text="{Binding Name}" VerticalAlignment="Center"
+                                                              TextTrimming="CharacterEllipsis"/>
                                                </StackPanel>
                                            </Border>
                                        </Button>
@@ -68,11 +82,8 @@
                            </ItemsControl>
                        </ScrollViewer>
                    </Border>
-                   <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-                       <Button Content="Закрыть" Command="{Binding Party.CloseInviteModalCommand}"/>
-                   </StackPanel>
-               </Grid>
-           </components:ModalCard>
+               </StackPanel>
+           </Border>
        </dialogHost:DialogHost.DialogContent>
 
        <Grid>

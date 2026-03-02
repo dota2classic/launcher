@@ -84,6 +84,12 @@ public partial class MainLauncherView : UserControl
             vm.OpenInviteModal();
     }
 
+    private void OnCloseInviteModal(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is MainLauncherViewModel vm)
+            vm.CloseInviteModal();
+    }
+
     private async void OnSearchGameClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         if (DataContext is MainLauncherViewModel vm)
