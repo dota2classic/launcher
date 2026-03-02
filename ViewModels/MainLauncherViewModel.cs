@@ -54,6 +54,37 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         ? "Logged in as: " + CurrentUser.PersonaName
         : "Steam offline or not logged in.";
 
+    // ── Launch settings (exposed for settings UI) ────────────────────────────
+    private readonly IGameLaunchSettingsStorage _launchSettingsStorage;
+
+    public static string[] AvailableLanguages { get; } = ["russian", "english"];
+
+    public string SelectedLanguage
+    {
+        get => _launchSettingsStorage.Get().Language;
+        set
+        {
+            var s = _launchSettingsStorage.Get();
+            if (s.Language == value) return;
+            s.Language = value;
+            _launchSettingsStorage.Save(s);
+            OnPropertyChanged();
+        }
+    }
+
+    public bool NoVid
+    {
+        get => _launchSettingsStorage.Get().NoVid;
+        set
+        {
+            var s = _launchSettingsStorage.Get();
+            if (s.NoVid == value) return;
+            s.NoVid = value;
+            _launchSettingsStorage.Save(s);
+            OnPropertyChanged();
+        }
+    }
+
     public MainLauncherViewModel(
         SteamManager steamManager,
         ISettingsStorage settingsStorage,
@@ -64,6 +95,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
+        _launchSettingsStorage = launchSettingsStorage;
         _steamAuthApi = steamAuthApi;
         _queueSocketService = queueSocketService;
         _backendApiService = backendApiService;

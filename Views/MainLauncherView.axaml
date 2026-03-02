@@ -167,10 +167,35 @@
                        Background="#1c2024">
                    <StackPanel Spacing="16">
                        <TextBlock Text="Настройки" FontSize="20" FontWeight="SemiBold"/>
-                       <TextBlock Text="Директория игры:"/>
-                       <TextBlock Text="{Binding Launch.GameDirectory, FallbackValue='Не указано'}"
-                                  TextWrapping="Wrap" TextTrimming="CharacterEllipsis"/>
-                       <Button Content="Изменить директорию" Click="OnSelectDotaExeClicked"/>
+
+                       <!-- Game directory -->
+                       <StackPanel Spacing="4">
+                           <TextBlock Text="Директория игры:" Classes="section-title"/>
+                           <TextBlock Text="{Binding Launch.GameDirectory, FallbackValue='Не указано'}"
+                                      TextWrapping="Wrap" TextTrimming="CharacterEllipsis"/>
+                           <Button Content="Изменить директорию" Click="OnSelectDotaExeClicked"/>
+                       </StackPanel>
+
+                       <Border Height="1" Background="#2d3842"/>
+
+                       <!-- Launch settings -->
+                       <TextBlock Text="Параметры запуска" Classes="section-title"/>
+
+                       <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="10">
+                           <!-- Language -->
+                           <TextBlock Text="Язык игры" VerticalAlignment="Center"/>
+                           <ComboBox Grid.Column="1" MinWidth="120"
+                                     ItemsSource="{Binding AvailableLanguages}"
+                                     SelectedItem="{Binding SelectedLanguage}"/>
+
+                           <!-- NoVid -->
+                           <TextBlock Grid.Row="1" Text="Пропускать интро" VerticalAlignment="Center"/>
+                           <ToggleSwitch Grid.Row="1" Grid.Column="1"
+                                         IsChecked="{Binding NoVid}"
+                                         OnContent="" OffContent=""
+                                         HorizontalAlignment="Right"/>
+                       </Grid>
+
                        <Button Content="Закрыть" HorizontalAlignment="Right" Click="OnCloseSettingsClicked"/>
                    </StackPanel>
                </Border>

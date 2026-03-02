@@ -115,6 +115,13 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
                 WorkingDirectory = GameDirectory,
                 UseShellExecute = false,
             });
+
+            // After first launch, enable -novid to skip the intro on subsequent launches
+            if (!launchSettings.NoVid)
+            {
+                launchSettings.NoVid = true;
+                _launchSettingsStorage.Save(launchSettings);
+            }
         }
         catch (Exception ex)
         {

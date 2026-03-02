@@ -47,6 +47,8 @@ public static class CfgGenerator
             parts.Add("-novid");
         if (settings.Console)
             parts.Add("-console");
+        if (!string.IsNullOrWhiteSpace(settings.Language))
+            parts.Add($"-language {settings.Language}");
         if (!string.IsNullOrWhiteSpace(settings.ExtraArgs))
             parts.Add(settings.ExtraArgs.Trim());
 

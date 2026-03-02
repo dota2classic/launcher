@@ -68,6 +68,13 @@ internal sealed class StubBackendApiService : IBackendApiService
         => Task.FromResult<Bitmap?>(null);
 }
 
+internal sealed class StubGameLaunchSettingsStorage : IGameLaunchSettingsStorage
+{
+    private GameLaunchSettings _settings = new();
+    public GameLaunchSettings Get() => _settings;
+    public void Save(GameLaunchSettings settings) => _settings = settings;
+}
+
 internal sealed class StubSettingsStorage : ISettingsStorage
 {
     public LauncherSettings Get() => new();

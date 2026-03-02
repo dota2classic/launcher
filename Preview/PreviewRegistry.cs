@@ -49,6 +49,12 @@ public static class PreviewRegistry
                 (new LaunchSteamFirstView(), new LaunchSteamFirstViewModel()),
             ["SelectGame"] = () =>
                 (new SelectGameView(), new SelectGameViewModel()),
+            ["SettingsPanel"] = () =>
+            {
+                var launchStorage = new StubGameLaunchSettingsStorage();
+                var vm = new SettingsPanelPreviewViewModel(launchStorage);
+                return (new SettingsPanelPreviewControl(), vm);
+            },
             ["InviteModal"] = () =>
             {
                 var stub = new StubQueueSocketService();
