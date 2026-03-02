@@ -232,6 +232,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         {
             foreach (var p in processes)
             {
+                // TODO: Log kill failures — bare catch hides access-denied / race conditions.
                 try { p.Kill(entireProcessTree: true); } catch { }
             }
         }

@@ -152,6 +152,8 @@ public sealed class QueueSocketService : IQueueSocketService
         if (_socket == null || !_socket.Connected)
             return;
 
+        // TODO: SocketIOClient.EmitAsync overloads accept a CancellationToken — pass it here
+        // so callers can actually cancel in-flight emits.
         if (payload == null)
             await _socket.EmitAsync(eventName).ConfigureAwait(false);
         else
@@ -186,6 +188,9 @@ public sealed class QueueSocketService : IQueueSocketService
 
         try
         {
+            // TODO: Task.Run+.Wait blocks the calling thread (often the UI thread) for up to 2 s.
+            // Replace with async disposal: implement IAsyncDisposable and await DisconnectAsync()
+            // directly, or at minimum fire-and-forget with a short timeout using ConfigureAwait(false).
             if (_socket.Connected)
                 Task.Run(() => _socket.DisconnectAsync()).Wait(TimeSpan.FromSeconds(2));
         }

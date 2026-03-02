@@ -36,11 +36,17 @@ public class SettingsStorage : ISettingsStorage
 
         try
         {
+            // TODO: File.ReadAllText blocks the calling thread. For settings this is fine
+            // (tiny file, read once), but consider File.ReadAllTextAsync if Get() is ever
+            // called from async context.
             var json = File.ReadAllText(_filePath);
             _cached = JsonSerializer.Deserialize<LauncherSettings>(json) ?? new LauncherSettings();
         }
-        catch
+        catch (Exception ex)
         {
+            // TODO: Log this — silent fallback hides corruption or permission issues.
+            // AppLog.Error("Failed to load settings, using defaults.", ex);
+            _ = ex;
             _cached = new LauncherSettings();
         }
 

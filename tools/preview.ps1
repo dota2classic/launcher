@@ -25,6 +25,11 @@ $repoRoot = Split-Path $PSScriptRoot -Parent
 $exePath  = Join-Path $repoRoot "bin\Debug\net10.0\d2c-launcher.exe"
 $outDir   = Join-Path $PSScriptRoot "screenshots"
 
+# --- Clean up old screenshots ---
+if (Test-Path $outDir) {
+    Get-ChildItem -Path $outDir -Filter "*.png" | Remove-Item -Force
+}
+
 # --- Kill any existing instance ---
 Get-Process -Name "d2c-launcher" -ErrorAction SilentlyContinue | Stop-Process -Force
 

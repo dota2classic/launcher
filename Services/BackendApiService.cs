@@ -15,6 +15,8 @@ namespace d2c_launcher.Services;
 
 public sealed class BackendApiService : IBackendApiService, IDisposable
 {
+    // TODO: Read base URL from an environment variable (e.g. D2C_API_URL) for parity with
+    // QueueSocketService, which already uses D2C_SOCKET_URL. Hardcoding makes staging impossible.
     private static readonly Uri BaseUri = new("https://api.dotaclassic.ru/");
     // Shared client for unauthenticated requests (modes, online stats, avatar loading).
     private readonly HttpClient _httpClient = new HttpClient
@@ -22,6 +24,9 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         BaseAddress = BaseUri,
         Timeout = TimeSpan.FromSeconds(10)
     };
+    // TODO: Merge into a single HttpClient. Setting DefaultRequestHeaders per-call is not
+    // thread-safe under concurrent requests. Prefer passing the bearer token via a delegating
+    // handler or creating a new HttpRequestMessage per call.
     // Shared client for authenticated requests. Auth header is set per-call before use.
     // Thread-safe for our single-user desktop app (only one token in flight at a time).
     private readonly HttpClient _authHttpClient = new HttpClient
