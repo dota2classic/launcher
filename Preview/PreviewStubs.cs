@@ -41,13 +41,18 @@ internal sealed class StubQueueSocketService : IQueueSocketService
 internal sealed class StubBackendApiService : IBackendApiService
 {
     public Task<PartySnapshot> GetMyPartySnapshotAsync(string bearerToken, CancellationToken cancellationToken = default)
-        => Task.FromResult(new PartySnapshot([], null));
+        => Task.FromResult(new PartySnapshot([
+            new PartyMemberView("76561198000000001", "Player One", null, null),
+            new PartyMemberView("76561198000000002", "Player Two", null, null),
+        ], null));
 
     public Task<IReadOnlyList<MatchmakingModeInfo>> GetEnabledMatchmakingModesAsync(CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<MatchmakingModeInfo>>([
-            new MatchmakingModeInfo(1, "All Pick"),
-            new MatchmakingModeInfo(2, "Captain's Mode"),
-            new MatchmakingModeInfo(3, "Random Draft"),
+            new MatchmakingModeInfo(8,  "Highroom 5x5"),
+            new MatchmakingModeInfo(1,  "Обычная 5x5"),
+            new MatchmakingModeInfo(13, "Турбо"),
+            new MatchmakingModeInfo(2,  "1x1 Мид"),
+            new MatchmakingModeInfo(7,  "Против ботов"),
         ]);
 
     public Task<IReadOnlyList<InviteCandidateView>> SearchPlayersAsync(string name, int count = 25, CancellationToken cancellationToken = default)

@@ -5,7 +5,23 @@
       "Bash(dotnet add package:*)",
       "Bash(dotnet build:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git rm:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(dotnet run:*)",
+      "Bash(dotnet clean:*)",
+      "Bash(ls:*)",
+      "Bash(\"/c/Users/enchantinggg4/AppData/Local/d2c-launcher/current/d2c-steam-bridge.exe\")",
+      "Bash(echo:*)",
+      "Bash(dotnet publish:*)",
+      "Bash(/tmp/bridge-test/d2c-steam-bridge.exe)",
+      "Bash(pwsh tools/preview.ps1 GameSearchPanel)",
+      "Bash(powershell -ExecutionPolicy Bypass -File tools/preview.ps1 GameSearchPanel)",
+      "Bash(powershell -ExecutionPolicy Bypass -File tools/preview.ps1:*)",
+      "Bash(python3:*)",
+      "Bash(node -e:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File \"c:\\\\Users\\\\enchantinggg4\\\\Documents\\\\d2c-launcher\\\\tools\\\\preview.ps1\" PartyPanel)"
     ]
   }
 }

@@ -52,9 +52,19 @@
                    </ItemsControl.ItemTemplate>
                </ItemsControl>
                <Button IsVisible="{Binding CanInviteToParty}"
-                       Width="40" Height="40" FontSize="20" Padding="0"
-                       HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
-                       Content="+" Click="OnInvitePlayerClicked"/>
+                       Padding="0"
+                       Background="Transparent" BorderThickness="0"
+                       Cursor="Hand"
+                       Click="OnInvitePlayerClicked">
+                   <Border BorderThickness="2" BorderBrush="#2D2922" Padding="0">
+                       <Border Width="40" Height="40" Background="#1c2024">
+                           <materialIcons:MaterialIcon Kind="Plus" Width="20" Height="20"
+                                                       Foreground="#666666"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                       </Border>
+                   </Border>
+               </Button>
            </StackPanel>
 
        </StackPanel>

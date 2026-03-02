@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace d2c_launcher.Models;
 
@@ -25,5 +26,12 @@ public sealed partial class MatchmakingModeView : ObservableObject
         ModeId = modeId;
         Name = name;
         _isSelected = isSelected;
+    }
+
+    [RelayCommand]
+    private void ToggleSelection()
+    {
+        if (!IsRestricted)
+            IsSelected = !IsSelected;
     }
 }

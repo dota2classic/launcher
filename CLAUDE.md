@@ -154,8 +154,8 @@ Push a tag matching `v*.*.*` to trigger GitHub Actions. The workflow:
 Render a single UI component in isolation, screenshot it, and iterate — without running the full launcher.
 
 ```powershell
-# From repo root:
-pwsh tools/preview.ps1 PartyPanel
+# From repo root (use powershell, not pwsh — pwsh is not installed):
+powershell -ExecutionPolicy Bypass -File tools/preview.ps1 PartyPanel
 # → C:\...\tools\screenshots\20260302_143201.png
 ```
 

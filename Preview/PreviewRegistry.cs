@@ -17,6 +17,8 @@ public static class PreviewRegistry
             {
                 var stub = new StubQueueSocketService();
                 var vm = new PartyViewModel(stub, new StubBackendApiService());
+                vm.PartyMembers.Add(new d2c_launcher.Models.PartyMemberView("1", "Player One", null, null));
+                vm.PartyMembers.Add(new d2c_launcher.Models.PartyMemberView("2", "Player Two", null, null));
                 return (new PartyPanel(), vm);
             },
             ["QueueButton"] = () =>
