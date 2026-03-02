@@ -180,6 +180,25 @@ Stub services are in [Preview/PreviewStubs.cs](Preview/PreviewStubs.cs).
 
 **Note:** Steam does not need to be running for the preview tool to work.
 
+### Full App Screenshot
+
+To screenshot the full running app (all real services, real routing), use:
+
+```powershell
+# From repo root (use powershell, not pwsh):
+powershell -ExecutionPolicy Bypass -File tools/screenshot.ps1
+# → C:\...\tools\screenshots\20260302_143201.png
+```
+
+The script builds incrementally, launches the app without any special flags, waits up to 15 seconds for the window, screenshots it, kills the process, and prints the PNG path.
+
+Use the `Read` tool on the returned path to view the screenshot.
+
+**Notes:**
+- If Steam is not running the app will show the `LaunchSteamFirst` screen — that is expected and still useful for layout review.
+- Pass `-WaitSeconds 20` if startup is slow.
+- Output goes to the same `tools/screenshots/` directory as component previews.
+
 ---
 
 ## Do Not
