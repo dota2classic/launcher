@@ -7,6 +7,7 @@ using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using Avalonia.Markup.Xaml;
 using d2c_launcher.Integration;
+using d2c_launcher.Preview;
 using d2c_launcher.Services;
 using d2c_launcher.ViewModels;
 using d2c_launcher.Views;
@@ -28,6 +29,16 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             DisableAvaloniaDataAnnotationValidation();
+
+            var args = desktop.Args ?? [];
+            var previewIdx = Array.IndexOf(args, "--preview");
+            if (previewIdx >= 0)
+            {
+                var componentName = previewIdx + 1 < args.Length ? args[previewIdx + 1] : "";
+                desktop.MainWindow = new PreviewWindow(componentName);
+                base.OnFrameworkInitializationCompleted();
+                return;
+            }
 
             var services = new ServiceCollection();
             services.AddSingleton<SteamManager>();

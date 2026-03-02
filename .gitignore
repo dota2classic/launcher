@@ -30,5 +30,8 @@ steam_api.dll
 # Logs
 *.log
 
+# Component preview screenshots
+tools/screenshots/
+
 # Optional: ignore sanitized OpenAPI artifacts if regenerated
 # api-openapi.sanitized.json

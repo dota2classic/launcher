@@ -1,0 +1,15 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="d2c_launcher.Views.PreviewWindow"
+        Title="Preview"
+        Width="800" Height="600"
+        WindowStartupLocation="CenterScreen"
+        Background="#1a1c20">
+
+    <Border Padding="24">
+        <ContentControl x:Name="Host"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"/>
+    </Border>
+
+</Window>

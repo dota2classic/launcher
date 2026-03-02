@@ -147,6 +147,41 @@ Push a tag matching `v*.*.*` to trigger GitHub Actions. The workflow:
 
 ---
 
+## Developer Tools
+
+### Component Preview (Storybook-like)
+
+Render a single UI component in isolation, screenshot it, and iterate — without running the full launcher.
+
+```powershell
+# From repo root:
+pwsh tools/preview.ps1 PartyPanel
+# → C:\...\tools\screenshots\20260302_143201.png
+```
+
+The script always runs an incremental `dotnet build`, launches the app in `--preview` mode, waits for the window, screenshots it, kills the process, and prints the PNG path.
+
+Use the `Read` tool on the returned path to view the screenshot.
+
+**Available components:**
+
+| Name | View | ViewModel |
+|------|------|-----------|
+| `PartyPanel` | Party member list with invite button | `PartyViewModel` (stub) |
+| `QueueButton` | Matchmaking search button | `QueueViewModel` (stub) |
+| `GameSearchPanel` | Mode checkboxes (shows 3 mock modes) | `QueueViewModel` (stub) |
+| `AcceptGameModal` | Ready check accept/decline dialog | `RoomViewModel` (stub) |
+| `NotificationArea` | Floating invite notifications | `NotificationAreaViewModel` (stub) |
+| `LaunchSteamFirst` | "Launch Steam first" screen | `LaunchSteamFirstViewModel` |
+| `SelectGame` | Game directory picker screen | `SelectGameViewModel` |
+
+**To add a new component to the registry:** edit [Preview/PreviewRegistry.cs](Preview/PreviewRegistry.cs) and add an entry.
+Stub services are in [Preview/PreviewStubs.cs](Preview/PreviewStubs.cs).
+
+**Note:** Steam does not need to be running for the preview tool to work.
+
+---
+
 ## Do Not
 
 - Edit `Generated/DotaclassicApiClient.g.cs` manually — regenerate from the OpenAPI spec
