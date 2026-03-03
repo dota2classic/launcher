@@ -10,6 +10,8 @@ public class GameLaunchSettingsStorage : IGameLaunchSettingsStorage
     private readonly string _filePath;
     private GameLaunchSettings? _cached;
 
+    public event Action? SettingsChanged;
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         WriteIndented = true
@@ -53,5 +55,6 @@ public class GameLaunchSettingsStorage : IGameLaunchSettingsStorage
         _cached = settings;
         var json = JsonSerializer.Serialize(settings, JsonOptions);
         File.WriteAllText(_filePath, json);
+        SettingsChanged?.Invoke();
     }
 }

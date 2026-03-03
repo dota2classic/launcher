@@ -71,8 +71,9 @@ internal sealed class StubBackendApiService : IBackendApiService
 internal sealed class StubGameLaunchSettingsStorage : IGameLaunchSettingsStorage
 {
     private GameLaunchSettings _settings = new();
+    public event Action? SettingsChanged;
     public GameLaunchSettings Get() => _settings;
-    public void Save(GameLaunchSettings settings) => _settings = settings;
+    public void Save(GameLaunchSettings settings) { _settings = settings; SettingsChanged?.Invoke(); }
 }
 
 internal sealed class StubSettingsStorage : ISettingsStorage

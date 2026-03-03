@@ -85,6 +85,20 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         }
     }
 
+    public bool ColorblindMode
+    {
+        get => _launchSettingsStorage.Get().ColorblindMode;
+        set
+        {
+            var s = _launchSettingsStorage.Get();
+            if (s.ColorblindMode == value) return;
+            s.ColorblindMode = value;
+            _launchSettingsStorage.Save(s);
+            OnPropertyChanged();
+            PushCvarIfGameRunning("dota_hud_colorblind", value ? "1" : "0");
+        }
+    }
+
     public MainLauncherViewModel(
         SteamManager steamManager,
         ISettingsStorage settingsStorage,
@@ -179,8 +193,27 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         else if (!string.IsNullOrWhiteSpace(_backendAccessToken))
             _ = EnsureQueueConnectionAsync(_backendAccessToken, CancellationToken.None);
 
+        // When settings are updated from config.cfg sync, refresh UI-bound properties
+        _launchSettingsStorage.SettingsChanged += OnLaunchSettingsChanged;
+
         _ = Party.RefreshPartyAsync();
         _ = Queue.RefreshMatchmakingModesAsync();
+    }
+
+    private void OnLaunchSettingsChanged()
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            OnPropertyChanged(nameof(ColorblindMode));
+        });
+    }
+
+    private void PushCvarIfGameRunning(string cvar, string value)
+    {
+        if (Launch.IsSyncingFromGame)
+            return;
+        if (Launch.RunState == GameRunState.OurGameRunning)
+            DotaConsoleConnector.SendCommand($"{cvar} {value}");
     }
 
     // ── Search / connect ──────────────────────────────────────────────────────

@@ -201,6 +201,19 @@ Use the `Read` tool on the returned path to view the screenshot.
 
 ---
 
+## Documentation
+
+Project documentation lives in the `docs/` directory. Current files:
+
+| File | Topic |
+|------|-------|
+| [docs/source-engine-launch.md](docs/source-engine-launch.md) | Source 1 engine launch mechanics (`-flag` vs `+command`), usage in D2C Launcher |
+| [docs/source-engine-config-persistence.md](docs/source-engine-config-persistence.md) | `config.cfg` format, `FCVAR_ARCHIVE`, `host_writeconfig`, reading config from launcher |
+
+When you discover new domain knowledge, architectural decisions, or non-trivial technical details during implementation, **write them up as a new `.md` file in `docs/`** and add an entry to this table. Keep docs focused — one topic per file.
+
+---
+
 ## Do Not
 
 - Edit `Generated/DotaclassicApiClient.g.cs` manually — regenerate from the OpenAPI spec

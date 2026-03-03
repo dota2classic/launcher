@@ -45,8 +45,8 @@ public static class CfgGenerator
 
         if (settings.NoVid)
             parts.Add("-novid");
-        if (settings.Console)
-            parts.Add("-console");
+        // Console is enabled via con_enable cvar in cfg, not -console flag
+        // -console forces the console open at launch; con_enable just allows opening it with ~
         if (!string.IsNullOrWhiteSpace(settings.Language))
             parts.Add($"-language {settings.Language}");
         if (!string.IsNullOrWhiteSpace(settings.ExtraArgs))
@@ -57,8 +57,12 @@ public static class CfgGenerator
 
     private static IEnumerable<string> BuildCfgLines(GameLaunchSettings settings)
     {
-        if (settings.FpsMax.HasValue)
-            yield return $"fps_max {settings.FpsMax.Value}";
+        foreach (var entry in CvarMapping.Entries)
+        {
+            if (entry.IsEmpty(settings))
+                continue;
+            yield return $"{entry.CvarName} {entry.GetValue(settings)}";
+        }
 
         if (!string.IsNullOrWhiteSpace(settings.CustomCfgLines))
             yield return settings.CustomCfgLines.Trim();

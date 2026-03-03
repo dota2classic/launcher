@@ -9,6 +9,7 @@ public class GameLaunchSettings
 
     // Cfg cvars (+exec d2c_launch.cfg)
     public int? FpsMax { get; set; }
+    public bool ColorblindMode { get; set; } = false;
 
     // Escape hatches for power users
     public string? ExtraArgs { get; set; }

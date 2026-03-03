@@ -30,6 +30,17 @@ public class SettingsPanelPreviewViewModel
         }
     }
 
+    public bool ColorblindMode
+    {
+        get => _storage.Get().ColorblindMode;
+        set
+        {
+            var s = _storage.Get();
+            s.ColorblindMode = value;
+            _storage.Save(s);
+        }
+    }
+
     public SettingsPanelPreviewViewModel(IGameLaunchSettingsStorage storage)
     {
         _storage = storage;

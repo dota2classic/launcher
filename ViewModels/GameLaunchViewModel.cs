@@ -17,6 +17,22 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
     private readonly IGameLaunchSettingsStorage _launchSettingsStorage;
     private readonly DispatcherTimer _runStateTimer;
 
+    /// <summary>Counts ticks while game is running; config.cfg is synced every N ticks.</summary>
+    private int _cfgSyncTickCounter;
+    private const int CfgSyncIntervalTicks = 5; // ~7.5 s at 1.5 s/tick
+
+    /// <summary>
+    /// True when host_writeconfig was sent and we're waiting one tick for the engine to flush.
+    /// On the next tick we read config.cfg and clear this flag.
+    /// </summary>
+    private bool _cfgFlushPending;
+
+    /// <summary>
+    /// True while settings are being updated from config.cfg.
+    /// Checked by MainLauncherViewModel to avoid pushing the same values back to the game.
+    /// </summary>
+    public bool IsSyncingFromGame { get; private set; }
+
     [ObservableProperty]
     private string? _gameDirectory;
 
@@ -229,10 +245,45 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
             var newState = ourRunning
                 ? GameRunState.OurGameRunning
                 : (otherRunning ? GameRunState.OtherDotaRunning : GameRunState.None);
+
+            var previousState = RunState;
             if (RunState != newState)
             {
                 RunState = newState;
                 NotifyLaunchProps();
+            }
+
+            // Config.cfg sync: periodic while running + final read on game exit.
+            // Two-phase approach: tick N sends host_writeconfig to flush cvars to disk,
+            // tick N+1 reads config.cfg (giving the engine one frame to write the file).
+            if (newState == GameRunState.OurGameRunning)
+            {
+                if (_cfgFlushPending)
+                {
+                    // Phase 2: engine had time to write — now read config.cfg
+                    _cfgFlushPending = false;
+                    ReadSettingsFromGame();
+                }
+                else
+                {
+                    _cfgSyncTickCounter++;
+                    if (_cfgSyncTickCounter >= CfgSyncIntervalTicks)
+                    {
+                        _cfgSyncTickCounter = 0;
+                        // Phase 1: tell the engine to flush config.cfg
+                        FlushGameConfig();
+                    }
+                }
+            }
+            else
+            {
+                if (previousState == GameRunState.OurGameRunning)
+                {
+                    // Game just exited — clean shutdown already wrote config.cfg, just read it
+                    ReadSettingsFromGame();
+                }
+                _cfgSyncTickCounter = 0;
+                _cfgFlushPending = false;
             }
         }
         finally
@@ -287,6 +338,47 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(IsLaunchEnabled));
         OnPropertyChanged(nameof(PlayButtonText));
         OnPropertyChanged(nameof(PlayButtonIsStop));
+    }
+
+    /// <summary>
+    /// Phase 1: send <c>host_writeconfig</c> to the running game so it flushes
+    /// all FCVAR_ARCHIVE cvars to config.cfg. The actual read happens on the next
+    /// timer tick (see <see cref="_cfgFlushPending"/>), giving the engine a full
+    /// frame to write the file.
+    /// </summary>
+    private void FlushGameConfig()
+    {
+        if (DotaConsoleConnector.IsWindowOpen())
+        {
+            DotaConsoleConnector.SendCommand("host_writeconfig");
+            _cfgFlushPending = true;
+        }
+    }
+
+    /// <summary>
+    /// Phase 2 (or final sync on exit): read config.cfg and apply any changed
+    /// cvar values back to the launcher settings.
+    /// </summary>
+    private void ReadSettingsFromGame()
+    {
+        if (string.IsNullOrWhiteSpace(GameDirectory))
+            return;
+
+        var settings = _launchSettingsStorage.Get();
+        var changed = DotaCfgReader.ApplyToSettings(settings, GameDirectory);
+        if (!changed)
+            return;
+
+        AppLog.Info("SyncSettingsFromGame: config.cfg had new values, updating launcher settings");
+        IsSyncingFromGame = true;
+        try
+        {
+            _launchSettingsStorage.Save(settings);
+        }
+        finally
+        {
+            IsSyncingFromGame = false;
+        }
     }
 
     public void Dispose() => _runStateTimer.Stop();
