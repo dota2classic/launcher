@@ -1,58 +1,13 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:preview="using:d2c_launcher.Preview"
+             xmlns:vm="using:d2c_launcher.ViewModels"
+             xmlns:components="using:d2c_launcher.Views.Components"
              x:Class="d2c_launcher.Preview.SettingsPanelPreviewControl"
-             x:DataType="preview:SettingsPanelPreviewViewModel"
+             x:DataType="vm:SettingsViewModel"
              HorizontalAlignment="Center" VerticalAlignment="Center">
 
-    <UserControl.Styles>
-        <Style Selector="TextBlock.section-title">
-            <Setter Property="Foreground" Value="#D9D9D9"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="14"/>
-        </Style>
-    </UserControl.Styles>
-
-    <Border MinWidth="320" Padding="24" CornerRadius="0" Background="#1c2024">
-        <StackPanel Spacing="16">
-            <TextBlock Text="Настройки" FontSize="20" FontWeight="SemiBold"/>
-
-            <!-- Game directory -->
-            <StackPanel Spacing="4">
-                <TextBlock Text="Директория игры:" Classes="section-title"/>
-                <TextBlock Text="C:\Games\Dota 6.84" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"/>
-                <Button Content="Изменить директорию"/>
-            </StackPanel>
-
-            <Border Height="1" Background="#2d3842"/>
-
-            <!-- Launch settings -->
-            <TextBlock Text="Параметры запуска" Classes="section-title"/>
-
-            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
-                <!-- Language -->
-                <TextBlock Text="Язык игры" VerticalAlignment="Center"/>
-                <ComboBox Grid.Column="1" MinWidth="120"
-                          ItemsSource="{Binding AvailableLanguages}"
-                          SelectedItem="{Binding SelectedLanguage}"/>
-
-                <!-- NoVid -->
-                <TextBlock Grid.Row="1" Text="Пропускать интро" VerticalAlignment="Center"/>
-                <ToggleSwitch Grid.Row="1" Grid.Column="1"
-                              IsChecked="{Binding NoVid}"
-                              OnContent="" OffContent=""
-                              HorizontalAlignment="Right"/>
-
-                <!-- Colorblind -->
-                <TextBlock Grid.Row="2" Text="Режим дальтоника" VerticalAlignment="Center"/>
-                <ToggleSwitch Grid.Row="2" Grid.Column="1"
-                              IsChecked="{Binding ColorblindMode}"
-                              OnContent="" OffContent=""
-                              HorizontalAlignment="Right"/>
-            </Grid>
-
-            <Button Content="Закрыть" HorizontalAlignment="Right"/>
-        </StackPanel>
+    <Border Padding="24" CornerRadius="0" Background="#1c2024">
+        <components:SettingsPanel/>
     </Border>
 
 </UserControl>

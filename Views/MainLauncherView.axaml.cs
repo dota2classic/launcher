@@ -1,8 +1,10 @@
+using System;
 using System.IO;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
 using d2c_launcher.ViewModels;
+using d2c_launcher.Views.Components;
 
 namespace d2c_launcher.Views;
 
@@ -11,6 +13,22 @@ public partial class MainLauncherView : UserControl
     public MainLauncherView()
     {
         InitializeComponent();
+
+        // Handle routed events from the SettingsPanel component
+        AddHandler(SettingsPanel.SelectDirectoryRequestedEvent, OnSelectDotaExeClicked);
+        AddHandler(SettingsPanel.CloseRequestedEvent, OnCloseSettingsClicked);
+    }
+
+    protected override void OnDataContextChanged(EventArgs e)
+    {
+        base.OnDataContextChanged(e);
+        UpdateSettingsGameDirectory();
+    }
+
+    private void UpdateSettingsGameDirectory()
+    {
+        if (DataContext is MainLauncherViewModel vm)
+            SettingsPanelControl.SetGameDirectory(vm.Launch.GameDirectory);
     }
 
     private async void OnSelectDotaExeClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -36,6 +54,7 @@ public partial class MainLauncherView : UserControl
             if (!string.IsNullOrEmpty(path))
             {
                 vm.SetGameDirectory(Path.GetDirectoryName(path));
+                UpdateSettingsGameDirectory();
             }
         }
     }
@@ -44,7 +63,10 @@ public partial class MainLauncherView : UserControl
     private void OnSettingsClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         if (DataContext is MainLauncherViewModel vm)
+        {
             vm.OpenSettings();
+            UpdateSettingsGameDirectory();
+        }
     }
 
     private void OnCloseSettingsClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

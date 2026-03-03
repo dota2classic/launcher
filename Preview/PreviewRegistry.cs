@@ -52,7 +52,8 @@ public static class PreviewRegistry
             ["SettingsPanel"] = () =>
             {
                 var launchStorage = new StubGameLaunchSettingsStorage();
-                var vm = new SettingsPanelPreviewViewModel(launchStorage);
+                var cvarProvider = new StubCvarSettingsProvider();
+                var vm = new SettingsViewModel(launchStorage, cvarProvider);
                 return (new SettingsPanelPreviewControl(), vm);
             },
             ["InviteModal"] = () =>

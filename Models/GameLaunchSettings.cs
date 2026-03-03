@@ -1,15 +1,14 @@
 namespace d2c_launcher.Models;
 
+/// <summary>
+/// Launcher-specific settings persisted as JSON.
+/// Game cvars live in <see cref="CvarSettings"/> backed by config.cfg.
+/// </summary>
 public class GameLaunchSettings
 {
     // CLI flags (-flag)
     public bool NoVid { get; set; } = false;
-    public bool Console { get; set; } = true;
     public string Language { get; set; } = "russian";
-
-    // Cfg cvars (+exec d2c_launch.cfg)
-    public int? FpsMax { get; set; }
-    public bool ColorblindMode { get; set; } = false;
 
     // Escape hatches for power users
     public string? ExtraArgs { get; set; }

@@ -1,0 +1,85 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:d2c_launcher.ViewModels"
+             x:Class="d2c_launcher.Views.Components.SettingsPanel"
+             x:DataType="vm:SettingsViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="TextBlock.section-title">
+            <Setter Property="Foreground" Value="#D9D9D9"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+    </UserControl.Styles>
+
+    <StackPanel Width="500">
+        <TextBlock Text="Настройки" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,4"/>
+
+        <!-- ═══ Game directory (always visible above tabs) ═══ -->
+        <StackPanel Spacing="4" Margin="0,0,0,12">
+            <TextBlock Text="Директория игры:" Classes="section-title"/>
+            <TextBlock x:Name="GameDirectoryText" Text="Не указано"
+                       TextWrapping="Wrap" TextTrimming="CharacterEllipsis"/>
+            <Button Content="Изменить директорию" Click="OnSelectDirectoryClicked"/>
+        </StackPanel>
+
+        <TabControl>
+            <!-- ═══ Tab 1: Visual ═══ -->
+            <TabItem Header="Визуальные">
+                <StackPanel Spacing="16" Margin="0,12,0,0">
+                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="10">
+                        <TextBlock Text="Язык игры" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Column="1" MinWidth="120"
+                                  ItemsSource="{Binding AvailableLanguages}"
+                                  SelectedItem="{Binding SelectedLanguage}"/>
+
+                        <TextBlock Grid.Row="1" Text="Пропускать интро" VerticalAlignment="Center"/>
+                        <ToggleSwitch Grid.Row="1" Grid.Column="1"
+                                      IsChecked="{Binding NoVid}"
+                                      OnContent="" OffContent=""
+                                      HorizontalAlignment="Right"/>
+                    </Grid>
+                </StackPanel>
+            </TabItem>
+
+            <!-- ═══ Tab 2: Gameplay ═══ -->
+            <TabItem Header="Геймплей">
+                <StackPanel Spacing="16" Margin="0,12,0,0">
+                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="10">
+                        <TextBlock Text="Автоатака" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Column="1" MinWidth="180"
+                                  ItemsSource="{Binding AutoAttackOptions}"
+                                  SelectedIndex="{Binding AutoAttackSelectedIndex}"/>
+
+                        <TextBlock Grid.Row="1" Text="Атака правой кнопкой" VerticalAlignment="Center"/>
+                        <ToggleSwitch Grid.Row="1" Grid.Column="1"
+                                      IsChecked="{Binding ForceRightClickAttack}"
+                                      OnContent="" OffContent=""
+                                      HorizontalAlignment="Right"/>
+
+                        <TextBlock Grid.Row="2" Text="Запретить зум камеры" VerticalAlignment="Center"/>
+                        <ToggleSwitch Grid.Row="2" Grid.Column="1"
+                                      IsChecked="{Binding DisableCameraZoom}"
+                                      OnContent="" OffContent=""
+                                      HorizontalAlignment="Right"/>
+
+                        <TextBlock Grid.Row="3" Text="Автоповтор правой кнопки" VerticalAlignment="Center"/>
+                        <ToggleSwitch Grid.Row="3" Grid.Column="1"
+                                      IsChecked="{Binding RightMouseAutoRepeat}"
+                                      OnContent="" OffContent=""
+                                      HorizontalAlignment="Right"/>
+
+                        <TextBlock Grid.Row="4" Text="Камера на героя при спавне" VerticalAlignment="Center"/>
+                        <ToggleSwitch Grid.Row="4" Grid.Column="1"
+                                      IsChecked="{Binding ResetCameraOnSpawn}"
+                                      OnContent="" OffContent=""
+                                      HorizontalAlignment="Right"/>
+                    </Grid>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+
+        <Button Content="Закрыть" HorizontalAlignment="Right" Margin="0,12,0,0" Click="OnCloseClicked"/>
+    </StackPanel>
+
+</UserControl>

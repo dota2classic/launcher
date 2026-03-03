@@ -1,6 +1,7 @@
 {
   "permissions": {
     "allow": [
+      "Read",
       "Bash(grep:*)",
       "Bash(dotnet add package:*)",
       "Bash(dotnet build:*)",
@@ -23,7 +24,8 @@
       "Bash(node -e:*)",
       "Bash(powershell -ExecutionPolicy Bypass -File \"c:\\\\Users\\\\enchantinggg4\\\\Documents\\\\d2c-launcher\\\\tools\\\\preview.ps1\" PartyPanel)",
       "Bash(powershell -ExecutionPolicy Bypass -File \"c:\\\\Users\\\\enchantinggg4\\\\Documents\\\\d2c-launcher\\\\tools\\\\preview.ps1\" LaunchSteamFirst)",
-      "Bash(powershell -ExecutionPolicy Bypass -File tools/screenshot.ps1)"
+      "Bash(powershell -ExecutionPolicy Bypass -File tools/screenshot.ps1)",
+      "Bash(dotnet test \"d2c-launcher.Tests/d2c-launcher.Tests.csproj\" --logger \"console;verbosity=normal\")"
     ]
   }
 }

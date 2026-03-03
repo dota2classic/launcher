@@ -4,7 +4,7 @@ using d2c_launcher.Models;
 namespace d2c_launcher.Services;
 
 /// <summary>
-/// Central registry mapping Source engine cvar names to <see cref="GameLaunchSettings"/> properties.
+/// Central registry mapping Source engine cvar names to <see cref="CvarSettings"/> properties.
 /// Used by CfgGenerator (write), DotaCfgReader (read-back), and live console push.
 /// </summary>
 public static class CvarMapping
@@ -21,9 +21,24 @@ public static class CvarMapping
             (s, v) => s.Console = v is "1",
             IsEmpty: _ => false),
 
-        new("dota_hud_colorblind",
-            s => s.ColorblindMode ? "1" : "0",
-            (s, v) => s.ColorblindMode = v is "1",
+        new("dota_camera_disable_zoom",
+            s => s.DisableCameraZoom ? "1" : "0",
+            (s, v) => s.DisableCameraZoom = v is "1",
+            IsEmpty: _ => false),
+
+        new("dota_force_right_click_attack",
+            s => s.ForceRightClickAttack ? "1" : "0",
+            (s, v) => s.ForceRightClickAttack = v is "1",
+            IsEmpty: _ => false),
+
+        new("dota_player_auto_repeat_right_mouse",
+            s => s.RightMouseAutoRepeat ? "1" : "0",
+            (s, v) => s.RightMouseAutoRepeat = v is "1",
+            IsEmpty: _ => false),
+
+        new("dota_reset_camera_on_spawn",
+            s => s.ResetCameraOnSpawn ? "1" : "0",
+            (s, v) => s.ResetCameraOnSpawn = v is "1",
             IsEmpty: _ => false),
     ];
 }
@@ -34,6 +49,6 @@ public static class CvarMapping
 /// <param name="IsEmpty">Returns true if the setting should be omitted from cfg output (e.g. fps_max not set).</param>
 public record CvarEntry(
     string CvarName,
-    Func<GameLaunchSettings, string> GetValue,
-    Action<GameLaunchSettings, string> SetValue,
-    Func<GameLaunchSettings, bool> IsEmpty);
+    Func<CvarSettings, string> GetValue,
+    Action<CvarSettings, string> SetValue,
+    Func<CvarSettings, bool> IsEmpty);

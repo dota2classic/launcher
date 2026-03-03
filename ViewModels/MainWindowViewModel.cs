@@ -18,6 +18,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly ISteamAuthApi _steamAuthApi;
     private readonly IBackendApiService _backendApiService;
     private readonly IQueueSocketService _queueSocketService;
+    private readonly ICvarSettingsProvider _cvarProvider;
     private readonly UpdateService _updateService;
 
     [ObservableProperty]
@@ -41,6 +42,7 @@ public partial class MainWindowViewModel : ViewModelBase
         ISteamAuthApi steamAuthApi,
         IBackendApiService backendApiService,
         IQueueSocketService queueSocketService,
+        ICvarSettingsProvider cvarProvider,
         UpdateService updateService)
     {
         _steamManager = steamManager;
@@ -49,6 +51,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _steamAuthApi = steamAuthApi;
         _backendApiService = backendApiService;
         _queueSocketService = queueSocketService;
+        _cvarProvider = cvarProvider;
         _updateService = updateService;
         _steamStatus = steamManager.SteamStatus;
         UpdateContentViewModel();
@@ -115,7 +118,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
             (CurrentContentViewModel as IDisposable)?.Dispose();
             CurrentContentViewModel = new MainLauncherViewModel(
-                _steamManager, _settingsStorage, _launchSettingsStorage, _steamAuthApi, _backendApiService, _queueSocketService);
+                _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider, _steamAuthApi, _backendApiService, _queueSocketService);
             return;
         }
 

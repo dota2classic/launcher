@@ -15,6 +15,7 @@
     <ContentWithTargetPath Include="steam_api64.dll" CopyToOutputDirectory="PreserveNewest" TargetPath="steam_api64.dll" />
     <ContentWithTargetPath Include="steam_appid.txt" CopyToOutputDirectory="PreserveNewest" TargetPath="steam_appid.txt" />
     <Compile Remove="SteamBridge\**\*.cs" />
+    <Compile Remove="d2c-launcher.Tests\**\*.cs" />
   </ItemGroup>
 
   <ItemGroup>

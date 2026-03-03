@@ -6,19 +6,22 @@ using d2c_launcher.Models;
 namespace d2c_launcher.Services;
 
 /// <summary>
-/// Generates d2c_launch.cfg from <see cref="GameLaunchSettings"/> and writes it to
-/// {gameDirectory}/dota/cfg/. The file is a derived artifact — never edit it manually.
+/// Generates d2c_launch.cfg for custom cfg lines and builds CLI arguments.
+/// Cvars are now written directly to config.cfg by <see cref="CvarSettingsProvider"/>.
 /// </summary>
 public static class CfgGenerator
 {
     private const string CfgFileName = "d2c_launch.cfg";
 
     /// <summary>
-    /// Writes the cfg file and returns the +exec argument string, e.g. "+exec d2c_launch.cfg".
-    /// Returns null if the cfg directory could not be resolved or created.
+    /// Writes d2c_launch.cfg if <see cref="GameLaunchSettings.CustomCfgLines"/> is set.
+    /// Returns the +exec argument string, or null if no cfg file is needed.
     /// </summary>
     public static string? Generate(GameLaunchSettings settings, string gameDirectory)
     {
+        if (string.IsNullOrWhiteSpace(settings.CustomCfgLines))
+            return null;
+
         var cfgDir = Path.Combine(gameDirectory, "dota", "cfg");
         try
         {
@@ -29,8 +32,7 @@ public static class CfgGenerator
             return null;
         }
 
-        var lines = BuildCfgLines(settings);
-        var content = string.Join("\n", lines) + "\n";
+        var content = settings.CustomCfgLines.Trim() + "\n";
         File.WriteAllText(Path.Combine(cfgDir, CfgFileName), content, Encoding.UTF8);
 
         return $"+exec {CfgFileName}";
@@ -45,26 +47,11 @@ public static class CfgGenerator
 
         if (settings.NoVid)
             parts.Add("-novid");
-        // Console is enabled via con_enable cvar in cfg, not -console flag
-        // -console forces the console open at launch; con_enable just allows opening it with ~
         if (!string.IsNullOrWhiteSpace(settings.Language))
             parts.Add($"-language {settings.Language}");
         if (!string.IsNullOrWhiteSpace(settings.ExtraArgs))
             parts.Add(settings.ExtraArgs.Trim());
 
         return string.Join(" ", parts);
-    }
-
-    private static IEnumerable<string> BuildCfgLines(GameLaunchSettings settings)
-    {
-        foreach (var entry in CvarMapping.Entries)
-        {
-            if (entry.IsEmpty(settings))
-                continue;
-            yield return $"{entry.CvarName} {entry.GetValue(settings)}";
-        }
-
-        if (!string.IsNullOrWhiteSpace(settings.CustomCfgLines))
-            yield return settings.CustomCfgLines.Trim();
     }
 }

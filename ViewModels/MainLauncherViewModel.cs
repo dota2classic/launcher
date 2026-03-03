@@ -19,6 +19,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     private readonly ISteamAuthApi _steamAuthApi;
     private readonly IQueueSocketService _queueSocketService;
     private readonly IBackendApiService _backendApiService;
+    private readonly ICvarSettingsProvider _cvarProvider;
     private readonly DispatcherTimer _onlineStatsTimer;
     private CancellationTokenSource? _ticketExchangeCts;
 
@@ -28,6 +29,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public RoomViewModel Room { get; }
     public PartyViewModel Party { get; }
     public NotificationAreaViewModel NotificationArea { get; }
+    public SettingsViewModel Settings { get; }
 
     // ── Auth / user state ─────────────────────────────────────────────────────
     [ObservableProperty]
@@ -54,62 +56,18 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         ? "Logged in as: " + CurrentUser.PersonaName
         : "Steam offline or not logged in.";
 
-    // ── Launch settings (exposed for settings UI) ────────────────────────────
-    private readonly IGameLaunchSettingsStorage _launchSettingsStorage;
-
-    public static string[] AvailableLanguages { get; } = ["russian", "english"];
-
-    public string SelectedLanguage
-    {
-        get => _launchSettingsStorage.Get().Language;
-        set
-        {
-            var s = _launchSettingsStorage.Get();
-            if (s.Language == value) return;
-            s.Language = value;
-            _launchSettingsStorage.Save(s);
-            OnPropertyChanged();
-        }
-    }
-
-    public bool NoVid
-    {
-        get => _launchSettingsStorage.Get().NoVid;
-        set
-        {
-            var s = _launchSettingsStorage.Get();
-            if (s.NoVid == value) return;
-            s.NoVid = value;
-            _launchSettingsStorage.Save(s);
-            OnPropertyChanged();
-        }
-    }
-
-    public bool ColorblindMode
-    {
-        get => _launchSettingsStorage.Get().ColorblindMode;
-        set
-        {
-            var s = _launchSettingsStorage.Get();
-            if (s.ColorblindMode == value) return;
-            s.ColorblindMode = value;
-            _launchSettingsStorage.Save(s);
-            OnPropertyChanged();
-            PushCvarIfGameRunning("dota_hud_colorblind", value ? "1" : "0");
-        }
-    }
-
     public MainLauncherViewModel(
         SteamManager steamManager,
         ISettingsStorage settingsStorage,
         IGameLaunchSettingsStorage launchSettingsStorage,
+        ICvarSettingsProvider cvarProvider,
         ISteamAuthApi steamAuthApi,
         IBackendApiService backendApiService,
         IQueueSocketService queueSocketService)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
-        _launchSettingsStorage = launchSettingsStorage;
+        _cvarProvider = cvarProvider;
         _steamAuthApi = steamAuthApi;
         _queueSocketService = queueSocketService;
         _backendApiService = backendApiService;
@@ -119,12 +77,19 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         _currentUser = steamManager.CurrentUser;
         _avatarImage = SteamAvatarHelper.FromUser(_currentUser);
 
+        // Seed cvar state from config.cfg on startup
+        var gameDir = settings.GameDirectory;
+        if (!string.IsNullOrWhiteSpace(gameDir))
+            cvarProvider.LoadFromConfigCfg(gameDir);
+
         // Create child ViewModels
-        Launch = new GameLaunchViewModel(settingsStorage, launchSettingsStorage, queueSocketService);
+        Launch = new GameLaunchViewModel(settingsStorage, launchSettingsStorage, cvarProvider, queueSocketService);
         Queue = new QueueViewModel(queueSocketService, backendApiService);
         Room = new RoomViewModel(queueSocketService, backendApiService);
         Party = new PartyViewModel(queueSocketService, backendApiService);
         NotificationArea = new NotificationAreaViewModel(backendApiService, queueSocketService);
+        Settings = new SettingsViewModel(launchSettingsStorage, cvarProvider);
+        Settings.PushCvar = PushCvarIfGameRunning;
 
         // Wire delegates into children that need auth state
         Room.GetCurrentUser = () => CurrentUser;
@@ -193,25 +158,20 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         else if (!string.IsNullOrWhiteSpace(_backendAccessToken))
             _ = EnsureQueueConnectionAsync(_backendAccessToken, CancellationToken.None);
 
-        // When settings are updated from config.cfg sync, refresh UI-bound properties
-        _launchSettingsStorage.SettingsChanged += OnLaunchSettingsChanged;
+        // When cvar state changes (e.g. config.cfg re-read after game exit), refresh UI
+        _cvarProvider.CvarChanged += OnCvarChanged;
 
         _ = Party.RefreshPartyAsync();
         _ = Queue.RefreshMatchmakingModesAsync();
     }
 
-    private void OnLaunchSettingsChanged()
+    private void OnCvarChanged()
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            OnPropertyChanged(nameof(ColorblindMode));
-        });
+        Dispatcher.UIThread.Post(() => Settings.RefreshFromCvarProvider());
     }
 
     private void PushCvarIfGameRunning(string cvar, string value)
     {
-        if (Launch.IsSyncingFromGame)
-            return;
         if (Launch.RunState == GameRunState.OurGameRunning)
             DotaConsoleConnector.SendCommand($"{cvar} {value}");
     }
