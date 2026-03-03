@@ -45,15 +45,30 @@ public class CvarSettingsProvider : ICvarSettingsProvider
         if (changed)
             CvarChanged?.Invoke();
 
+        // Enforce cl_cloud_settings 0 every time we read config.cfg.
+        // This prevents retail Dota 2 from merging its cloud config with D2C's local config.
+        try
+        {
+            DotaCfgWriter.WriteCvars(gameDirectory, new Dictionary<string, string> { ["cl_cloud_settings"] = "0" });
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("CvarSettingsProvider: failed to enforce cl_cloud_settings=0", ex);
+        }
+
         return changed;
     }
 
     /// <summary>
     /// Builds a dictionary of all managed cvar names → current string values.
+    /// Always includes cl_cloud_settings=0 to prevent retail Dota 2 cloud sync from conflicting.
     /// </summary>
     private static Dictionary<string, string> BuildCvarDictionary(CvarSettings settings)
     {
-        var cvars = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var cvars = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["cl_cloud_settings"] = "0",
+        };
 
         foreach (var entry in CvarMapping.Entries)
         {
