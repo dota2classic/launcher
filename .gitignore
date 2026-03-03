@@ -35,3 +35,4 @@ tools/screenshots/
 
 # Optional: ignore sanitized OpenAPI artifacts if regenerated
 # api-openapi.sanitized.json
+.claude/
