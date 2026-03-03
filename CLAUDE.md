@@ -1,5 +1,25 @@
 # D2C Launcher — Agent Instructions
 
+## Memory Bank
+
+At the start of **every session**, read all files in `memory-bank/`:
+
+| File | What it covers |
+|------|---------------|
+| [`memory-bank/projectbrief.md`](memory-bank/projectbrief.md) | Project identity and scope |
+| [`memory-bank/productContext.md`](memory-bank/productContext.md) | Why it exists, user journey, UX goals |
+| [`memory-bank/systemPatterns.md`](memory-bank/systemPatterns.md) | Architecture and coding patterns |
+| [`memory-bank/techContext.md`](memory-bank/techContext.md) | Tech stack, tools, build commands |
+| [`memory-bank/activeContext.md`](memory-bank/activeContext.md) | Current focus and recent changes |
+| [`memory-bank/progress.md`](memory-bank/progress.md) | Feature status and known gaps |
+
+As you work:
+- Update `memory-bank/activeContext.md` when focus shifts or significant progress is made
+- Update `memory-bank/progress.md` when features complete or new issues are found
+- Add new files to `docs/` when you discover domain knowledge, and add an entry to the table below
+
+---
+
 ## Project Overview
 
 **D2C Launcher** is a Windows desktop application for **Dota 2 Classic** — a community-maintained server running the old Dota 2 on the Source 1 engine. The launcher handles:
@@ -45,51 +65,9 @@
 
 ---
 
-## Architecture & Key Patterns
+## Architecture
 
-### App State Routing
-`MainWindowViewModel` is the root and routes the window content based on state:
-1. **Steam not running / user not logged in** → `LaunchSteamFirstView`
-2. **Game directory not set** → `SelectGameView`
-3. **Ready** → `MainLauncherView`
-
-### MVVM Conventions
-- Use `[ObservableProperty]` from CommunityToolkit.Mvvm for bindable properties
-- Commands use `[RelayCommand]` attribute
-- Child ViewModels are created fresh when entering a state
-- Services are singleton, injected via constructor DI
-
-### Service Registration (App.axaml.cs)
-All services registered as singletons in `ServiceCollection`. ViewModels are typically transient or manually instantiated.
-
-### SteamBridge Pattern
-The main app cannot use Steamworks.NET directly when published trimmed. Instead:
-1. `SteamManager` spawns `d2c-steam-bridge.exe` as a subprocess
-2. SteamBridge queries Steam SDK and writes a JSON snapshot to stdout
-3. SteamManager reads stdout, parses the snapshot
-4. Includes: SteamID, persona name, avatar (RGBA bytes), auth ticket
-5. Timeout: 12 seconds; uses exponential backoff on failures
-
-### Real-time Communication
-`QueueSocketService` connects to `wss://api.dotaclassic.ru` via Socket.IO.
-
-**Key inbound events:** `QueueStateUpdated`, `PlayerRoomFound`, `PlayerRoomStateUpdated`, `PlayerGameStateUpdated`, `PartyInviteReceived`, `PartyUpdated`, `NotificationCreated`, `ServerSearchingUpdated`
-
-**Key outbound events:** `EnterQueueAsync`, `LeaveAllQueuesAsync`, `SetReadyCheckAsync`, `InviteToPartyAsync`, `AcceptPartyInviteAsync`
-
-### Settings Persistence
-- Path: `%AppData%\d2c-launcher\launcher_settings.json`
-- Fields: `GameDirectory`, `BackendAccessToken`
-- Accessed via `ISettingsStorage` (singleton, cached in memory)
-
-### Game Launch
-`GameLaunchViewModel` / `DotaConsoleConnector` — launches the Dota 2 process from `GameDirectory` with appropriate Source 1 launch arguments, and can send console commands via `FindWindowA` / `SendMessageA` P/Invoke.
-
-### API Client
-`Generated/DotaclassicApiClient.g.cs` is auto-generated from `api-openapi.json` using NSwag. **Never edit this file manually.** To regenerate:
-```
-nswag run nswag.json
-```
+See [`memory-bank/systemPatterns.md`](memory-bank/systemPatterns.md) for all architecture patterns (state routing, MVVM, SteamBridge, real-time, settings sync, game launch, API client).
 
 ---
 

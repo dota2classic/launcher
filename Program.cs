@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using System;
+using d2c_launcher.Services;
 using Velopack;
 
 namespace d2c_launcher;
@@ -13,6 +14,7 @@ sealed class Program
     public static void Main(string[] args)
     {
         VelopackApp.Build().Run();
+        HardwareInfoService.LogAll();
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 
