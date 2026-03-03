@@ -10,20 +10,84 @@
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="14"/>
         </Style>
+
+        <!-- TabControl: transparent, no outer border -->
+        <Style Selector="TabControl">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+
+        <!-- Remove separator line and content area border from TabControl template -->
+        <Style Selector="TabControl /template/ Border">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+
+        <!-- Flat underline tab item -->
+        <Style Selector="TabItem">
+            <Setter Property="Foreground" Value="#707070"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,0,20,0"/>
+            <Setter Property="Padding" Value="0,10"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Background="Transparent"
+                            BorderThickness="0,0,0,2"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter Name="PART_HeaderPresenter"
+                                          Content="{TemplateBinding Header}"
+                                          ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                          Foreground="{TemplateBinding Foreground}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+
+        <Style Selector="TabItem:selected">
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#3B82F6"/>
+        </Style>
+
+        <Style Selector="TabItem:pointerover">
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+        </Style>
+
+        <Style Selector="TabItem:selected:pointerover">
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+        </Style>
     </UserControl.Styles>
 
     <StackPanel Width="500">
-        <TextBlock Text="Настройки" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,4"/>
+        <!-- Header -->
+        <Border Background="#0A0B0D" Padding="18,10">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="Настройки"
+                           FontSize="16" FontWeight="SemiBold" Foreground="#D9D9D9"
+                           VerticalAlignment="Center"/>
+                <Button Grid.Column="1" Click="OnCloseClicked"
+                        Background="Transparent" BorderThickness="0"
+                        Padding="2,0" Cursor="Hand" VerticalAlignment="Center">
+                    <TextBlock Text="✕" FontSize="16" Foreground="#AAAAAA" VerticalAlignment="Center"/>
+                </Button>
+            </Grid>
+        </Border>
 
+        <StackPanel Spacing="12" Margin="18,12,18,18">
         <!-- ═══ Game directory (always visible above tabs) ═══ -->
-        <StackPanel Spacing="4" Margin="0,0,0,12">
+        <StackPanel Spacing="4">
             <TextBlock Text="Директория игры:" Classes="section-title"/>
             <TextBlock x:Name="GameDirectoryText" Text="Не указано"
                        TextWrapping="Wrap" TextTrimming="CharacterEllipsis"/>
             <Button Content="Изменить директорию" Click="OnSelectDirectoryClicked"/>
         </StackPanel>
 
-        <TabControl>
+        <TabControl MinHeight="260">
             <!-- ═══ Tab 1: Visual ═══ -->
             <TabItem Header="Визуальные">
                 <StackPanel Spacing="16" Margin="0,12,0,0">
@@ -79,7 +143,7 @@
             </TabItem>
         </TabControl>
 
-        <Button Content="Закрыть" HorizontalAlignment="Right" Margin="0,12,0,0" Click="OnCloseClicked"/>
-    </StackPanel>
+        </StackPanel><!-- /inner content -->
+    </StackPanel><!-- /root -->
 
 </UserControl>

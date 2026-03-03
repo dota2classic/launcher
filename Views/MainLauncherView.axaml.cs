@@ -112,6 +112,17 @@ public partial class MainLauncherView : UserControl
             vm.CloseInviteModal();
     }
 
+    private void OnInviteOverlayBackdropPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
+    {
+        if (DataContext is MainLauncherViewModel vm && e.Source == sender)
+            vm.CloseInviteModal();
+    }
+
+    private void OnInviteModalPointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
+    {
+        e.Handled = true;
+    }
+
     private async void OnSearchGameClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         if (DataContext is MainLauncherViewModel vm)
