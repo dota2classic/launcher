@@ -10,6 +10,7 @@
 
     <Application.Resources>
         <FontFamily x:Key="TrajanPro3">avares://d2c-launcher/Assets/Fonts#Trajan Pro 3</FontFamily>
+        <FontFamily x:Key="NotoSans">avares://d2c-launcher/Assets/Fonts#Noto Sans</FontFamily>
     </Application.Resources>
 
    <Application.DataTemplates>
@@ -31,10 +32,10 @@
     <Application.Styles>
         <FluentTheme />
         <Style Selector=":is(TemplatedControl)">
-            <Setter Property="FontFamily" Value="{StaticResource TrajanPro3}"/>
+            <Setter Property="FontFamily" Value="{StaticResource NotoSans}"/>
         </Style>
         <Style Selector="TextBlock">
-            <Setter Property="FontFamily" Value="{StaticResource TrajanPro3}"/>
+            <Setter Property="FontFamily" Value="{StaticResource NotoSans}"/>
             <Setter Property="Foreground" Value="#D9D9D9"/>
         </Style>
         <dialogHost:DialogHostStyles />

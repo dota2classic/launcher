@@ -7,7 +7,9 @@
     <UserControl.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="#0c0c0c" Offset="0"/>
-            <GradientStop Color="#1c2024" Offset="0.55"/>
+            <GradientStop Color="#141820" Offset="0.35"/>
+            <GradientStop Color="#1c2024" Offset="0.5"/>
+            <GradientStop Color="#141820" Offset="0.65"/>
             <GradientStop Color="#0c0c0c" Offset="1"/>
         </LinearGradientBrush>
     </UserControl.Background>
@@ -16,6 +18,7 @@
                 Spacing="16" MaxWidth="480">
 
         <TextBlock Text="Dota 2 Classic"
+                   FontFamily="{StaticResource TrajanPro3}"
                    FontSize="28" FontWeight="Bold"
                    HorizontalAlignment="Center"
                    Foreground="#D9D9D9"/>
@@ -27,22 +30,32 @@
         <ProgressBar Value="{Binding ProgressValue}"
                      IsIndeterminate="{Binding IsIndeterminate}"
                      Minimum="0" Maximum="100"
-                     Height="6" CornerRadius="3"
+                     Height="6" CornerRadius="0"
                      Foreground="#3a90d6"
                      Background="#2a2a2a"/>
 
         <TextBlock Text="{Binding DetailsText}"
                    FontSize="12" HorizontalAlignment="Center"
                    Foreground="#888888"
-                   TextTrimming="CharacterEllipsis"
+                   TextWrapping="Wrap"
                    TextAlignment="Center"/>
 
         <!-- Error panel -->
-        <StackPanel IsVisible="{Binding HasError}" Spacing="8" HorizontalAlignment="Center">
+        <StackPanel IsVisible="{Binding HasError}" Spacing="12" HorizontalAlignment="Center">
             <TextBlock Text="{Binding ErrorText}"
-                       FontSize="12" Foreground="#e05555"
+                       FontSize="13" Foreground="#e05555"
                        TextWrapping="Wrap" TextAlignment="Center"
                        MaxWidth="420"/>
+            <Button Command="{Binding RetryCommand}"
+                    HorizontalAlignment="Center"
+                    Padding="24,7" CornerRadius="0"
+                    Background="Transparent"
+                    BorderBrush="#e05555" BorderThickness="1"
+                    Foreground="#e05555"
+                    FontSize="13" FontWeight="SemiBold">
+                <TextBlock Text="Повторить"
+                           FontSize="13" FontWeight="SemiBold" Foreground="#e05555"/>
+            </Button>
         </StackPanel>
 
     </StackPanel>

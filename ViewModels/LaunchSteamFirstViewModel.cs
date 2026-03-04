@@ -1,11 +1,26 @@
+using System;
+using System.Diagnostics;
+using CommunityToolkit.Mvvm.Input;
+
 namespace d2c_launcher.ViewModels;
 
 public partial class LaunchSteamFirstViewModel : ViewModelBase
 {
-    public string Message { get; }
+    public Action? TryAgainCallback { get; set; }
 
-    public LaunchSteamFirstViewModel(string message = "Сначала запустите Steam.")
+    [RelayCommand]
+    private void OpenSteam()
     {
-        Message = message;
+        try
+        {
+            Process.Start(new ProcessStartInfo("steam://") { UseShellExecute = true });
+        }
+        catch
+        {
+            // If steam:// protocol is not registered, ignore
+        }
     }
+
+    [RelayCommand]
+    private void TryAgain() => TryAgainCallback?.Invoke();
 }

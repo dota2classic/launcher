@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
 
@@ -36,6 +37,18 @@ public partial class GameDownloadViewModel : ViewModelBase
     }
 
     public void StartAsync() => _ = RunAsync();
+
+    [RelayCommand]
+    private void Retry()
+    {
+        HasError = false;
+        ErrorText = "";
+        StatusText = "Подключение к серверу...";
+        IsIndeterminate = true;
+        ProgressValue = 0;
+        DetailsText = "";
+        StartAsync();
+    }
 
     private async Task RunAsync()
     {

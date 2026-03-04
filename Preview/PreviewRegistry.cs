@@ -64,6 +64,22 @@ public static class PreviewRegistry
                 };
                 return (new GameDownloadView(), vm);
             },
+            ["GameDownloadError"] = () =>
+            {
+                var vm = new GameDownloadViewModel(
+                    new StubLocalManifestService(),
+                    new StubManifestDiffService(),
+                    new StubGameDownloadService())
+                {
+                    GameDirectory = @"C:\fake\dota2classic",
+                    StatusText = "Ошибка загрузки",
+                    ErrorText = "Ошибка подключения к серверу обновлений.\nПроверьте интернет-соединение и попробуйте снова.",
+                    ProgressValue = 47,
+                    IsIndeterminate = false,
+                    HasError = true,
+                };
+                return (new GameDownloadView(), vm);
+            },
             ["SettingsPanel"] = () =>
             {
                 var launchStorage = new StubGameLaunchSettingsStorage();

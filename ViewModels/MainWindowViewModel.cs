@@ -151,14 +151,9 @@ public partial class MainWindowViewModel : ViewModelBase
 
         (CurrentContentViewModel as System.IDisposable)?.Dispose();
 
-        CurrentContentViewModel = SteamStatus switch
+        CurrentContentViewModel = new LaunchSteamFirstViewModel
         {
-            SteamStatus.Running =>
-                new LaunchSteamFirstViewModel("Подключение к Steam..."),
-            SteamStatus.Offline =>
-                new LaunchSteamFirstViewModel("Войдите в аккаунт Steam."),
-            _ =>
-                new LaunchSteamFirstViewModel()
+            TryAgainCallback = UpdateContentViewModel
         };
     }
 }

@@ -1,3 +1,5 @@
+using System.IO;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
@@ -16,9 +18,23 @@ public partial class SelectGameView : UserControl
         => await PickFolderAsync();
 
     private async void OnAlreadyInstalledClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-        => await PickFolderAsync();
+        => await PickInstalledExeAsync();
 
-    private async System.Threading.Tasks.Task PickFolderAsync()
+    private async void OnChangeDownloadClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is SelectGameViewModel vm)
+            vm.SelectedDownloadPath = null;
+        await PickFolderAsync();
+    }
+
+    private async void OnChangeInstalledClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is SelectGameViewModel vm)
+            vm.SelectedInstalledPath = null;
+        await PickInstalledExeAsync();
+    }
+
+    private async Task PickFolderAsync()
     {
         var topLevel = this.GetVisualRoot() as TopLevel;
         if (topLevel?.StorageProvider == null || DataContext is not SelectGameViewModel vm)
@@ -26,15 +42,50 @@ public partial class SelectGameView : UserControl
 
         var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
-            Title = "Выберите папку Dota 2 Classic",
+            Title = "Выберите папку для установки Dota 2 Classic",
             AllowMultiple = false
         });
 
-        if (folders.Count > 0)
+        if (folders.Count == 0)
+            return;
+
+        var path = folders[0].TryGetLocalPath();
+        if (string.IsNullOrEmpty(path))
+            return;
+
+        vm.SelectedDownloadPath = path;
+        await Task.Delay(150); // brief visual confirmation before routing
+        vm.NotifyGameDirectorySelected(path);
+    }
+
+    private async Task PickInstalledExeAsync()
+    {
+        var topLevel = this.GetVisualRoot() as TopLevel;
+        if (topLevel?.StorageProvider == null || DataContext is not SelectGameViewModel vm)
+            return;
+
+        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            var path = folders[0].TryGetLocalPath();
-            if (!string.IsNullOrEmpty(path))
-                vm.NotifyGameDirectorySelected(path);
-        }
+            Title = "Выберите dota.exe",
+            AllowMultiple = false,
+            FileTypeFilter = new[]
+            {
+                new FilePickerFileType("dota.exe") { Patterns = new[] { "dota.exe" } }
+            }
+        });
+
+        if (files.Count == 0)
+            return;
+
+        var exePath = files[0].TryGetLocalPath();
+        if (string.IsNullOrEmpty(exePath))
+            return;
+
+        var dir = Path.GetDirectoryName(exePath);
+        if (string.IsNullOrEmpty(dir))
+            return;
+
+        vm.SelectedInstalledPath = dir;
+        vm.NotifyGameDirectorySelected(dir);
     }
 }

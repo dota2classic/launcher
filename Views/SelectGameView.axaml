@@ -7,15 +7,18 @@
    <UserControl.Background>
        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
            <GradientStop Color="#0c0c0c" Offset="0"/>
-           <GradientStop Color="#1c2024" Offset="0.55"/>
+           <GradientStop Color="#141820" Offset="0.35"/>
+           <GradientStop Color="#1c2024" Offset="0.5"/>
+           <GradientStop Color="#141820" Offset="0.65"/>
            <GradientStop Color="#0c0c0c" Offset="1"/>
        </LinearGradientBrush>
    </UserControl.Background>
 
    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-               Spacing="16" MaxWidth="420">
+               Spacing="16" MaxWidth="420" Margin="24,0">
 
        <TextBlock Text="Dota 2 Classic"
+                  FontFamily="{StaticResource TrajanPro3}"
                   FontSize="28" FontWeight="Bold"
                   HorizontalAlignment="Center"
                   Foreground="#D9D9D9"/>
@@ -24,27 +27,87 @@
                   FontSize="14" HorizontalAlignment="Center"
                   Foreground="#AAAAAA"/>
 
-       <Button Content="Скачать игру"
-               HorizontalAlignment="Center"
-               Padding="32,14" CornerRadius="0"
+       <Rectangle Height="4" Fill="Transparent"/>
+
+       <!-- Download option -->
+       <Button HorizontalAlignment="Stretch"
+               Padding="32,10" CornerRadius="0"
                FontSize="16" FontWeight="SemiBold"
                Foreground="White" BorderThickness="0"
                Click="OnDownloadClicked">
            <Button.Background>
-               <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                   <GradientStop Color="#1a5aaa" Offset="0"/>
-                   <GradientStop Color="#3a90d6" Offset="1"/>
+               <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                   <GradientStop Color="#3a90d6" Offset="0"/>
+                   <GradientStop Color="#1a5aaa" Offset="1"/>
                </LinearGradientBrush>
            </Button.Background>
+           <TextBlock Text="Скачать игру"
+                      FontSize="16" FontWeight="SemiBold" Foreground="White"
+                      HorizontalAlignment="Center"/>
        </Button>
 
-       <Button Content="У меня уже установлена дота"
-               HorizontalAlignment="Center"
+       <!-- Download path row (shown after folder is picked) -->
+       <Grid IsVisible="{Binding SelectedDownloadPath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+             ColumnDefinitions="*,Auto">
+           <Border Grid.Column="0"
+                   Background="#121315"
+                   BorderBrush="#2d3842" BorderThickness="1,1,0,1"
+                   Padding="12,8">
+               <TextBlock Text="{Binding SelectedDownloadPath}"
+                          FontSize="12" Foreground="#AAAAAA"
+                          TextTrimming="CharacterEllipsis"
+                          VerticalAlignment="Center"/>
+           </Border>
+           <Button Grid.Column="1"
+                   Content="Изменить"
+                   Background="#1e2530"
+                   BorderBrush="#2d3842" BorderThickness="1"
+                   Foreground="#888888"
+                   FontSize="12" Padding="14,8" CornerRadius="0"
+                   Click="OnChangeDownloadClicked"/>
+       </Grid>
+
+       <!-- OR separator -->
+       <Grid ColumnDefinitions="*,Auto,*" VerticalAlignment="Center">
+           <Rectangle Grid.Column="0" Height="1" Fill="#1e1e1e" VerticalAlignment="Center"/>
+           <TextBlock Grid.Column="1"
+                      Text="или"
+                      FontSize="11" Foreground="#444444"
+                      Margin="12,0"
+                      VerticalAlignment="Center"/>
+           <Rectangle Grid.Column="2" Height="1" Fill="#1e1e1e" VerticalAlignment="Center"/>
+       </Grid>
+
+       <!-- Already installed option -->
+       <Button HorizontalAlignment="Center"
                Padding="8,4" CornerRadius="0"
-               FontSize="13"
-               Foreground="#888888" Background="Transparent"
-               BorderThickness="0"
-               Click="OnAlreadyInstalledClicked"/>
+               Background="Transparent" BorderThickness="0"
+               Click="OnAlreadyInstalledClicked">
+           <TextBlock Text="У меня уже установлена Дота"
+                      FontSize="13" Foreground="#888888"
+                      TextDecorations="Underline"/>
+       </Button>
+
+       <!-- Installed path row (shown after folder is picked) -->
+       <Grid IsVisible="{Binding SelectedInstalledPath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+             ColumnDefinitions="*,Auto">
+           <Border Grid.Column="0"
+                   Background="#121315"
+                   BorderBrush="#2d3842" BorderThickness="1,1,0,1"
+                   Padding="12,8">
+               <TextBlock Text="{Binding SelectedInstalledPath}"
+                          FontSize="12" Foreground="#AAAAAA"
+                          TextTrimming="CharacterEllipsis"
+                          VerticalAlignment="Center"/>
+           </Border>
+           <Button Grid.Column="1"
+                   Content="Изменить"
+                   Background="#1e2530"
+                   BorderBrush="#2d3842" BorderThickness="1"
+                   Foreground="#888888"
+                   FontSize="12" Padding="14,8" CornerRadius="0"
+                   Click="OnChangeInstalledClicked"/>
+       </Grid>
 
    </StackPanel>
 

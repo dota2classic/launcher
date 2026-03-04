@@ -160,39 +160,6 @@
                </Border>
            </Panel>
 
-           <!-- Defender exclusion prompt -->
-           <Panel IsVisible="{Binding IsDefenderPromptOpen}" ZIndex="200"
-                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#80000000">
-               <Border HorizontalAlignment="Center" VerticalAlignment="Center"
-                       Padding="24" CornerRadius="0" MaxWidth="460"
-                       Background="#121315" BorderBrush="#2d3842" BorderThickness="1"
-                       BoxShadow="0 12 28 0 #80000000">
-                   <StackPanel Spacing="16">
-                       <TextBlock Text="Исключение Windows Defender"
-                                  FontSize="16" FontWeight="SemiBold" Foreground="#D9D9D9"/>
-                       <TextBlock TextWrapping="Wrap" Foreground="#AAAAAA" FontSize="13"
-                                  Text="Добавить папку игры в исключения Windows Defender? Это ускорит проверку файлов и запуск игры."/>
-                       <TextBlock TextWrapping="Wrap" Foreground="#666666" FontSize="12"
-                                  Text="Потребуется подтверждение прав администратора."/>
-                       <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
-                           <Button Content="Пропустить" Click="OnDismissDefenderPrompt"
-                                   Background="Transparent" Foreground="#888888"
-                                   Padding="16,8" CornerRadius="0" BorderBrush="#333333" BorderThickness="1"/>
-                           <Button Content="Добавить исключение" Click="OnAddDefenderExclusion"
-                                   Foreground="White" FontWeight="SemiBold"
-                                   Padding="16,8" CornerRadius="0" BorderThickness="0">
-                               <Button.Background>
-                                   <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                       <GradientStop Color="#1a5aaa" Offset="0"/>
-                                       <GradientStop Color="#3a90d6" Offset="1"/>
-                                   </LinearGradientBrush>
-                               </Button.Background>
-                           </Button>
-                       </StackPanel>
-                   </StackPanel>
-               </Border>
-           </Panel>
-
            <!-- Settings overlay -->
            <Panel x:Name="SettingsOverlay" IsVisible="{Binding IsSettingsOpen}" ZIndex="100"
                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#80000000"
