@@ -37,11 +37,15 @@
                    Foreground="#D9D9D9"
                    LetterSpacing="2"/>
 
-        <TextBlock Text="Для запуска лаунчера необходим запущенный и авторизованный Steam"
-                   FontSize="14" HorizontalAlignment="Center"
+        <TextBlock FontSize="14" HorizontalAlignment="Center"
                    Foreground="#AAAAAA"
                    TextWrapping="Wrap"
-                   TextAlignment="Center"/>
+                   TextAlignment="Center">
+            <TextBlock.Inlines>
+                <Run Text="Для запуска лаунчера необходим&#10;запущенный и авторизованный "/>
+                <Run Text="Steam" Foreground="#6c9bcf" FontWeight="SemiBold"/>
+            </TextBlock.Inlines>
+        </TextBlock>
 
         <Rectangle Height="1" Fill="#1e1e1e" HorizontalAlignment="Stretch"/>
 
