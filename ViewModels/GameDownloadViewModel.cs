@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -117,6 +118,8 @@ public partial class GameDownloadViewModel : ViewModelBase
 
             // Phase 3: Compute diff
             var toDownload = _manifestDiffService.ComputeFilesToDownload(remote, local);
+            int totalRemoteFiles = remote.Files.Count;
+            int alreadyOkFiles = totalRemoteFiles - toDownload.Count;
 
             if (toDownload.Count == 0)
             {
@@ -129,17 +132,24 @@ public partial class GameDownloadViewModel : ViewModelBase
             }
 
             // Phase 4: Download
+            // Progress bar reflects global state: already-ok bytes + downloaded this session / total remote bytes.
+            // This way a restart mid-download shows a non-empty bar instead of starting from 0.
+            var totalRemoteBytes = remote.Files.Sum(f => f.Size);
             var totalBytes = 0L;
             foreach (var f in toDownload) totalBytes += f.Size;
+            var alreadyOkBytes = totalRemoteBytes - totalBytes;
+
             StatusText = $"Загрузка ({toDownload.Count} файлов)...";
-            ProgressValue = 0;
+            ProgressValue = totalRemoteBytes > 0 ? alreadyOkBytes * 100.0 / totalRemoteBytes : 0;
             DetailsText = FormatSize(totalBytes) + " всего";
 
             var downloadProgress = new Progress<DownloadProgress>(p =>
             {
                 Dispatcher.UIThread.Post(() =>
                 {
-                    ProgressValue = p.TotalBytes > 0 ? p.BytesDownloaded * 100.0 / p.TotalBytes : 0;
+                    ProgressValue = totalRemoteBytes > 0
+                        ? (alreadyOkBytes + p.BytesDownloaded) * 100.0 / totalRemoteBytes
+                        : 0;
 
                     var speed = FormatSpeed(p.SpeedBytesPerSec);
                     var remaining = p.TotalBytes - p.BytesDownloaded;
@@ -147,7 +157,7 @@ public partial class GameDownloadViewModel : ViewModelBase
                         ? FormatEta(remaining / p.SpeedBytesPerSec)
                         : "";
 
-                    StatusText = $"Загрузка ({p.FilesDownloaded}/{p.TotalFiles} файлов)";
+                    StatusText = $"Загрузка ({alreadyOkFiles + p.FilesDownloaded}/{totalRemoteFiles} файлов)";
                     CurrentFileText = p.CurrentFile;
                     DetailsText = $"{FormatSize(p.BytesDownloaded)} / {FormatSize(p.TotalBytes)}  {speed}{(etaStr.Length > 0 ? "  ~" + etaStr : "")}";
                 });
