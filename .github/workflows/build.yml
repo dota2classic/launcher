@@ -60,7 +60,7 @@ jobs:
             --packVersion $version `
             --packDir publish/ `
             --mainExe d2c-launcher.exe `
-            --packTitle "D2C Launcher" `
+            --packTitle "dotaclassic" `
             --icon Assets/icon.ico
 
       - name: Create GitHub Release
@@ -70,6 +70,6 @@ jobs:
           vpk upload github `
             --repoUrl https://github.com/dota2classic/launcher `
             --publish `
-            --releaseName "D2C Launcher ${{ github.ref_name }}" `
+            --releaseName "dotaclassic ${{ github.ref_name }}" `
             --tag "${{ github.ref_name }}" `
             --token "${{ secrets.GITHUB_TOKEN }}"

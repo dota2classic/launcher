@@ -124,10 +124,10 @@ public static class FaroTelemetryService
     private static object BuildMeta() => new
     {
         sdk = new { name = "d2c-faro-dotnet", version = "1.0.0", integrations = Array.Empty<object>() },
-        app = new { name = "d2c-launcher", version = _appVersion, environment = "production" },
+        app = new { name = "dotaclassic", version = _appVersion, environment = "production" },
         session = new { id = SessionId, attributes = _hwAttributes },
         user = (object?)(_steamId != null ? new { id = _steamId } : null),
-        browser = new { name = "d2c-launcher", version = _appVersion, os = _osName, mobile = false },
+        browser = new { name = "dotaclassic", version = _appVersion, os = _osName, mobile = false },
         page = new { url = "d2c://launcher" },
     };
 

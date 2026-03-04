@@ -42,7 +42,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public bool IsSteamRunning => SteamStatus is SteamStatus.Running or SteamStatus.Offline;
 
     public string WindowTitle { get; } =
-        $"D2C Launcher v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "?"}";
+        $"dotaclassic v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "?"}";
 
     public MainWindowViewModel(
         SteamManager steamManager,
