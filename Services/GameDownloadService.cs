@@ -14,6 +14,7 @@ public class GameDownloadService : IGameDownloadService
     private const string BaseUrl = "https://launcher.dotaclassic.ru/files/";
     private const int ChunkSize = 262144; // 256 KB
     private const int MaxConcurrency = 16;
+    private const int MaxFileAttempts = 5;
     private static readonly TimeSpan SpeedWindow = TimeSpan.FromSeconds(3);
 
     private readonly HttpClient _http = new() { Timeout = TimeSpan.FromMinutes(10) };
@@ -86,29 +87,58 @@ public class GameDownloadService : IGameDownloadService
                 if (dir != null)
                     Directory.CreateDirectory(dir);
 
-                using var response = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, fileCt);
-                response.EnsureSuccessStatusCode();
-
-                await using var networkStream = await response.Content.ReadAsStreamAsync(fileCt);
-                await using var fileStream = new FileStream(
-                    destPath, FileMode.Create, FileAccess.Write, FileShare.None, ChunkSize, useAsync: true);
-
-                var buffer = new byte[ChunkSize];
-                int read;
-                while ((read = await networkStream.ReadAsync(buffer, fileCt)) > 0)
+                Exception? lastEx = null;
+                for (int attempt = 1; attempt <= MaxFileAttempts; attempt++)
                 {
-                    await fileStream.WriteAsync(buffer.AsMemory(0, read), fileCt);
-                    var downloaded = Interlocked.Add(ref bytesDownloaded, read);
-                    AddSample(read);
+                    long fileBytesThisAttempt = 0;
+                    try
+                    {
+                        using var response = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, fileCt);
+                        response.EnsureSuccessStatusCode();
 
-                    TryReport(new DownloadProgress(
-                        BytesDownloaded: downloaded,
-                        TotalBytes: totalBytes,
-                        SpeedBytesPerSec: GetSpeedBytesPerSec(),
-                        CurrentFile: file.Path,
-                        FilesDownloaded: Volatile.Read(ref filesDownloaded),
-                        TotalFiles: files.Count));
+                        await using var networkStream = await response.Content.ReadAsStreamAsync(fileCt);
+                        await using var fileStream = new FileStream(
+                            destPath, FileMode.Create, FileAccess.Write, FileShare.None, ChunkSize, useAsync: true);
+
+                        var buffer = new byte[ChunkSize];
+                        int read;
+                        while ((read = await networkStream.ReadAsync(buffer, fileCt)) > 0)
+                        {
+                            await fileStream.WriteAsync(buffer.AsMemory(0, read), fileCt);
+                            fileBytesThisAttempt += read;
+                            var downloaded = Interlocked.Add(ref bytesDownloaded, read);
+                            AddSample(read);
+
+                            TryReport(new DownloadProgress(
+                                BytesDownloaded: downloaded,
+                                TotalBytes: totalBytes,
+                                SpeedBytesPerSec: GetSpeedBytesPerSec(),
+                                CurrentFile: file.Path,
+                                FilesDownloaded: Volatile.Read(ref filesDownloaded),
+                                TotalFiles: files.Count));
+                        }
+
+                        lastEx = null;
+                        break; // success
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        throw;
+                    }
+                    catch (Exception ex)
+                    {
+                        lastEx = ex;
+                        // Roll back partial bytes so the progress bar stays accurate
+                        if (fileBytesThisAttempt > 0)
+                            Interlocked.Add(ref bytesDownloaded, -fileBytesThisAttempt);
+
+                        if (attempt < MaxFileAttempts)
+                            await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt - 1)), fileCt);
+                    }
                 }
+
+                if (lastEx != null)
+                    throw lastEx;
 
                 Interlocked.Increment(ref filesDownloaded);
             });

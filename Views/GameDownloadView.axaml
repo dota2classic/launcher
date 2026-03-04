@@ -15,7 +15,7 @@
     </UserControl.Background>
 
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                Spacing="16" MaxWidth="480">
+                Spacing="16" Width="480">
 
         <TextBlock Text="Dota 2 Classic"
                    FontFamily="{StaticResource TrajanPro3}"
@@ -34,10 +34,17 @@
                      Foreground="#3a90d6"
                      Background="#2a2a2a"/>
 
-        <TextBlock Text="{Binding DetailsText}"
+        <TextBlock Text="{Binding CurrentFileText}"
+                   IsVisible="{Binding CurrentFileText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                    FontSize="12" HorizontalAlignment="Center"
                    Foreground="#888888"
-                   TextWrapping="Wrap"
+                   TextTrimming="CharacterEllipsis"
+                   TextAlignment="Center"/>
+
+        <TextBlock Text="{Binding DetailsText}"
+                   IsVisible="{Binding DetailsText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                   FontSize="12" HorizontalAlignment="Center"
+                   Foreground="#888888"
                    TextAlignment="Center"/>
 
         <!-- Error panel -->

@@ -31,6 +31,7 @@ public partial class GameDownloadViewModel : ViewModelBase
 
     [ObservableProperty] private string _statusText = "";
     [ObservableProperty] private string _detailsText = "";
+    [ObservableProperty] private string _currentFileText = "";
     [ObservableProperty] private double _progressValue;
     [ObservableProperty] private bool _isIndeterminate = true;
     [ObservableProperty] private bool _hasError;
@@ -57,6 +58,7 @@ public partial class GameDownloadViewModel : ViewModelBase
         IsIndeterminate = true;
         ProgressValue = 0;
         DetailsText = "";
+        CurrentFileText = "";
         StartAsync();
     }
 
@@ -146,7 +148,8 @@ public partial class GameDownloadViewModel : ViewModelBase
                         : "";
 
                     StatusText = $"Загрузка ({p.FilesDownloaded}/{p.TotalFiles} файлов)";
-                    DetailsText = $"{p.CurrentFile}\n{FormatSize(p.BytesDownloaded)} / {FormatSize(p.TotalBytes)}  {speed}{(etaStr.Length > 0 ? "  ~" + etaStr : "")}";
+                    CurrentFileText = p.CurrentFile;
+                    DetailsText = $"{FormatSize(p.BytesDownloaded)} / {FormatSize(p.TotalBytes)}  {speed}{(etaStr.Length > 0 ? "  ~" + etaStr : "")}";
                 });
             });
 
@@ -154,6 +157,7 @@ public partial class GameDownloadViewModel : ViewModelBase
 
             StatusText = "Готово!";
             DetailsText = "";
+            CurrentFileText = "";
             ProgressValue = 100;
             await Task.Delay(500);
             Dispatcher.UIThread.Post(() => OnCompleted?.Invoke());
