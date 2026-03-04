@@ -43,6 +43,9 @@
         </Style>
         <dialogHost:DialogHostStyles />
         <materialIcons:MaterialIconStyles/>
+        <Style Selector="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
         <Style Selector="CheckBox">
             <Setter Property="Foreground" Value="#D9D9D9"/>
             <Setter Property="Template">

@@ -1,5 +1,5 @@
 using System;
-using System.Diagnostics;
+using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -12,6 +12,7 @@ internal static class Program
     private static readonly TimeSpan AuthTicketTimeout = TimeSpan.FromSeconds(8);
     private const string DefaultWebApiIdentity = "dotaclassic.ru";
     private const string WebApiIdentityEnvVar = "D2C_STEAM_WEBAPI_IDENTITY";
+    private const string BackendBaseUrl = "https://api.dotaclassic.ru/";
     private static Callback<GetTicketForWebApiResponse_t>? _getTicketResponse;
     private static ManualResetEventSlim? _ticketReady;
     private static string? _ticketHex;
@@ -47,8 +48,12 @@ internal static class Program
                 var steamId = steamIdObj.m_SteamID;
                 var personaName = SteamFriends.GetPersonaName();
                 TryGetAvatar(steamIdObj, out var avatarRgba, out var avatarWidth, out var avatarHeight);
-                var authTicket = TryGetAuthTicket();
-                WriteSnapshot(new Snapshot("Running", steamId, personaName, avatarRgba, avatarWidth, avatarHeight, authTicket));
+
+                // Get ticket and immediately exchange it with the backend while SteamAPI is still running.
+                var ticketHex = TryGetAuthTicket();
+                var backendToken = ticketHex != null ? ExchangeForBackendToken(ticketHex) : null;
+
+                WriteSnapshot(new Snapshot("Running", steamId, personaName, avatarRgba, avatarWidth, avatarHeight, backendToken));
                 return 0;
             }
             finally
@@ -60,6 +65,30 @@ internal static class Program
         {
             WriteSnapshot(new Snapshot("Offline"));
             return 0;
+        }
+    }
+
+    private static string? ExchangeForBackendToken(string ticketHex)
+    {
+        try
+        {
+            using var http = new HttpClient { BaseAddress = new Uri(BackendBaseUrl), Timeout = TimeSpan.FromSeconds(10) };
+            var url = "v1/auth/steam/steam_session_ticket?ticket=" + Uri.EscapeDataString(ticketHex);
+            using var request = new HttpRequestMessage(HttpMethod.Post, url);
+            using var response = http.Send(request);
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var body = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+            if (string.IsNullOrWhiteSpace(body))
+                return null;
+
+            try { return JsonSerializer.Deserialize<string>(body); }
+            catch { return body.Trim().Trim('"'); }
+        }
+        catch
+        {
+            return null;
         }
     }
 
@@ -131,32 +160,23 @@ internal static class Program
         _ticketHex = null;
         _ticketHandle = HAuthTicket.Invalid;
 
-        
         var identity = DefaultWebApiIdentity;
 
         var handle = SteamUser.GetAuthTicketForWebApi(identity);
-        
         if (handle == HAuthTicket.Invalid)
             return null;
 
         _ticketHandle = handle;
-        try
+        var deadline = DateTime.UtcNow + AuthTicketTimeout;
+        while (DateTime.UtcNow < deadline && !_ticketReady.IsSet)
         {
-            var deadline = DateTime.UtcNow + AuthTicketTimeout;
-            while (DateTime.UtcNow < deadline && !_ticketReady.IsSet)
-            {
-                SteamAPI.RunCallbacks();
-                Thread.Sleep(10);
-            }
+            SteamAPI.RunCallbacks();
+            Thread.Sleep(10);
+        }
 
-            return _ticketHex;
-        }
-        finally
-        {
-            SteamUser.CancelAuthTicket(handle);
-            _ticketReady?.Dispose();
-            _ticketReady = null;
-        }
+        _ticketReady?.Dispose();
+        _ticketReady = null;
+        return _ticketHex;
     }
 
     private static void OnAuthTicketResponse(GetTicketForWebApiResponse_t response)
@@ -189,7 +209,7 @@ internal sealed record Snapshot(
     byte[]? AvatarRgba = null,
     int AvatarWidth = 0,
     int AvatarHeight = 0,
-    string? AuthTicket = null);
+    string? BackendToken = null);
 
 [JsonSerializable(typeof(Snapshot))]
 internal partial class SnapshotJsonContext : JsonSerializerContext { }

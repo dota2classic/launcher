@@ -145,16 +145,16 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
             oldBitmap?.Dispose();
             OnPropertyChanged(nameof(LoggedInAsText));
         });
-        _steamManager.OnSteamAuthorizationChanged += ticket => Dispatcher.UIThread.Post(() =>
+        _steamManager.OnSteamAuthorizationChanged += token => Dispatcher.UIThread.Post(() =>
         {
-            _ = ExchangeSteamTicketAsync(ticket);
+            _ = ApplyBackendTokenAsync(token);
         });
 
-        // If the ticket was already acquired before this VM was created (e.g. the user was on
-        // SelectGameView when the SteamManager fired OnSteamAuthorizationChanged), exchange it now.
-        var currentTicket = _steamManager.CurrentAuthTicket;
-        if (!string.IsNullOrWhiteSpace(currentTicket))
-            _ = ExchangeSteamTicketAsync(currentTicket);
+        // If the token was already acquired before this VM was created (e.g. the user was on
+        // SelectGameView when the SteamManager fired OnSteamAuthorizationChanged), apply it now.
+        var currentToken = _steamManager.CurrentAuthTicket;
+        if (!string.IsNullOrWhiteSpace(currentToken))
+            _ = ApplyBackendTokenAsync(currentToken);
         else if (!string.IsNullOrWhiteSpace(_backendAccessToken))
             _ = EnsureQueueConnectionAsync(_backendAccessToken, CancellationToken.None);
 
@@ -198,17 +198,16 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
     // ── Auth flow ─────────────────────────────────────────────────────────────
 
-    private async Task ExchangeSteamTicketAsync(string? ticket)
+    private async Task ApplyBackendTokenAsync(string? token)
     {
         _ticketExchangeCts?.Cancel();
         _ticketExchangeCts?.Dispose();
         _ticketExchangeCts = new CancellationTokenSource();
         var ct = _ticketExchangeCts.Token;
-        AppLog.Info("Trying to exchange steam ticket");
 
-        if (string.IsNullOrWhiteSpace(ticket))
+        if (string.IsNullOrWhiteSpace(token))
         {
-            AppLog.Info("Steam ticket cleared; backend token reset.");
+            AppLog.Info("Backend token cleared.");
             BackendAccessToken = null;
             PersistBackendToken(null);
             await EnsureQueueConnectionAsync(null, ct);
@@ -218,10 +217,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
         try
         {
-            var token = await _steamAuthApi.ExchangeSteamSessionTicketAsync(ticket, ct);
-            if (ct.IsCancellationRequested)
-                return;
-
+            AppLog.Info("Backend token received from bridge.");
             BackendAccessToken = token;
             PersistBackendToken(token);
             await EnsureQueueConnectionAsync(token, ct);
@@ -229,14 +225,14 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         }
         catch (OperationCanceledException)
         {
-            AppLog.Info("Steam ticket exchange canceled.");
+            AppLog.Info("Backend token application canceled.");
         }
         catch (Exception ex)
         {
             if (ct.IsCancellationRequested)
                 return;
 
-            AppLog.Error("Steam ticket exchange path failed.", ex);
+            AppLog.Error("Backend token application failed.", ex);
             BackendAccessToken = null;
             PersistBackendToken(null);
             await EnsureQueueConnectionAsync(null, ct);

@@ -122,7 +122,6 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         }
 
         var result = map.Values.ToList();
-        AppLog.Info($"Party fetch success. Members: {result.Count}");
         return new PartySnapshot(result, enterQueueAt);
     }
 

@@ -202,16 +202,13 @@ public sealed class QueueSocketService : IQueueSocketService
 
     private static void RaiseParsed<T>(string eventName, SocketIOResponse response, Action<T>? handler)
     {
-        AppLog.Info($"Socket event received: {eventName}");
         if (handler == null)
         {
-            AppLog.Info($"Socket event ignored (no handler): {eventName}");
             return;
         }
 
         if (TryGetPayload(response, out T? payload) && payload != null)
         {
-            AppLog.Info($"Socket event parsed: {eventName}");
             handler(payload);
         }
         else
@@ -226,21 +223,17 @@ public sealed class QueueSocketService : IQueueSocketService
     /// </summary>
     private static void RaiseParsedNullable<T>(string eventName, SocketIOResponse response, Action<T?>? handler) where T : class
     {
-        AppLog.Info($"Socket event received: {eventName}");
         if (handler == null)
         {
-            AppLog.Info($"Socket event ignored (no handler): {eventName}");
             return;
         }
 
         if (TryGetPayload(response, out T? payload))
         {
-            AppLog.Info($"Socket event parsed: {eventName} payload={(payload == null ? "null" : "non-null")}");
             handler(payload);
         }
         else
         {
-            AppLog.Info($"Socket event parse failed, invoking handler with null: {eventName}");
             handler(null);
         }
     }

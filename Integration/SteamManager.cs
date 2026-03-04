@@ -78,19 +78,19 @@ public class SteamManager : IDisposable
                             snapshot.AvatarHeight ?? 0);
                         SetUser(user);
 
-                        if (snapshot.AuthTicket != null)
+                        if (snapshot.BackendToken != null)
                         {
                             // Full success: advance user marker so we stop re-querying.
                             _lastActiveUser = activeUser;
-                            SetAuthTicket(snapshot.AuthTicket);
-                            AppLog.Info($"[SteamManager] Auth ticket acquired for user {activeUser}.");
+                            SetAuthTicket(snapshot.BackendToken);
+                            AppLog.Info($"[SteamManager] Backend token acquired for user {activeUser}.");
                         }
                         else
                         {
-                            // User info OK but auth ticket timed out in bridge — show the user
+                            // User info OK but token exchange failed in bridge — show the user
                             // in the UI but retry the full bridge query next tick.
                             // Do NOT clear any existing auth ticket.
-                            AppLog.Info("[SteamManager] Bridge returned user info but no auth ticket — will retry next tick.");
+                            AppLog.Info("[SteamManager] Bridge returned user info but no backend token — will retry next tick.");
                         }
                     }
                     else
@@ -324,6 +324,6 @@ public class SteamManager : IDisposable
         public byte[]? AvatarRgba { get; set; }
         public int? AvatarWidth { get; set; }
         public int? AvatarHeight { get; set; }
-        public string? AuthTicket { get; set; }
+        public string? BackendToken { get; set; }
     }
 }
