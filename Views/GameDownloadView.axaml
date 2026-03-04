@@ -34,7 +34,7 @@
         <TextBlock Text="{Binding DetailsText}"
                    FontSize="12" HorizontalAlignment="Center"
                    Foreground="#888888"
-                   TextWrapping="Wrap"
+                   TextTrimming="CharacterEllipsis"
                    TextAlignment="Center"/>
 
         <!-- Error panel -->

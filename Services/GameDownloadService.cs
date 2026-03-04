@@ -13,6 +13,7 @@ public class GameDownloadService : IGameDownloadService
 {
     private const string BaseUrl = "https://launcher.dotaclassic.ru/files/";
     private const int ChunkSize = 262144; // 256 KB
+    private const int MaxConcurrency = 16;
     private static readonly TimeSpan SpeedWindow = TimeSpan.FromSeconds(3);
 
     private readonly HttpClient _http = new() { Timeout = TimeSpan.FromMinutes(10) };
@@ -27,76 +28,98 @@ public class GameDownloadService : IGameDownloadService
         foreach (var f in files)
             totalBytes += f.Size;
 
-        var bytesDownloaded = 0L;
-        var filesDownloaded = 0;
+        long bytesDownloaded = 0;
+        int filesDownloaded = 0;
 
-        // Rolling speed window: list of (timestamp, bytes) samples
+        // Rolling speed window — guarded by speedLock for thread safety
         var speedSamples = new Queue<(long Ticks, long Bytes)>();
         var speedWindowBytes = 0L;
+        var speedLock = new object();
         var sw = Stopwatch.StartNew();
 
         void AddSample(long bytes)
         {
-            var now = sw.ElapsedTicks;
-            speedSamples.Enqueue((now, bytes));
-            speedWindowBytes += bytes;
+            lock (speedLock)
+            {
+                var now = sw.ElapsedTicks;
+                speedSamples.Enqueue((now, bytes));
+                speedWindowBytes += bytes;
 
-            // Evict old samples outside the window
-            var cutoff = now - (long)(SpeedWindow.TotalSeconds * Stopwatch.Frequency);
-            while (speedSamples.Count > 0 && speedSamples.Peek().Ticks < cutoff)
-                speedWindowBytes -= speedSamples.Dequeue().Bytes;
+                var cutoff = now - (long)(SpeedWindow.TotalSeconds * Stopwatch.Frequency);
+                while (speedSamples.Count > 0 && speedSamples.Peek().Ticks < cutoff)
+                    speedWindowBytes -= speedSamples.Dequeue().Bytes;
+            }
         }
 
         double GetSpeedBytesPerSec()
         {
-            if (speedSamples.Count < 2) return 0;
-            var oldest = speedSamples.Peek().Ticks;
-            var elapsed = (sw.ElapsedTicks - oldest) / (double)Stopwatch.Frequency;
-            return elapsed > 0 ? speedWindowBytes / elapsed : 0;
-        }
-
-        foreach (var file in files)
-        {
-            ct.ThrowIfCancellationRequested();
-
-            var url = BaseUrl + file.Path;
-            var destPath = Path.Combine(gameDirectory, file.Path.Replace('/', Path.DirectorySeparatorChar));
-            var dir = Path.GetDirectoryName(destPath);
-            if (dir != null)
-                Directory.CreateDirectory(dir);
-
-            using var response = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, ct);
-            response.EnsureSuccessStatusCode();
-
-            await using var networkStream = await response.Content.ReadAsStreamAsync(ct);
-            await using var fileStream = new FileStream(
-                destPath, FileMode.Create, FileAccess.Write, FileShare.None, ChunkSize, useAsync: true);
-
-            var buffer = new byte[ChunkSize];
-            int read;
-            while ((read = await networkStream.ReadAsync(buffer, ct)) > 0)
+            lock (speedLock)
             {
-                await fileStream.WriteAsync(buffer.AsMemory(0, read), ct);
-                bytesDownloaded += read;
-                AddSample(read);
-
-                progress?.Report(new DownloadProgress(
-                    BytesDownloaded: bytesDownloaded,
-                    TotalBytes: totalBytes,
-                    SpeedBytesPerSec: GetSpeedBytesPerSec(),
-                    CurrentFile: file.Path,
-                    FilesDownloaded: filesDownloaded,
-                    TotalFiles: files.Count));
+                if (speedSamples.Count < 2) return 0;
+                var oldest = speedSamples.Peek().Ticks;
+                var elapsed = (sw.ElapsedTicks - oldest) / (double)Stopwatch.Frequency;
+                return elapsed > 0 ? speedWindowBytes / elapsed : 0;
             }
-
-            filesDownloaded++;
-            progress?.Report(new DownloadProgress(
-                BytesDownloaded: bytesDownloaded,
-                TotalBytes: totalBytes,
-                SpeedBytesPerSec: GetSpeedBytesPerSec(),
-                CurrentFile: file.Path,
-                FilesDownloaded: filesDownloaded,
-                TotalFiles: files.Count));
         }
+
+        // Throttle UI reports to ~20/sec — avoid flooding the UI thread with 30k+ posts
+        long lastReportTick = 0;
+        var reportInterval = Stopwatch.Frequency / 20; // 50 ms
+
+        void TryReport(DownloadProgress p)
+        {
+            var now = sw.ElapsedTicks;
+            var last = Interlocked.Read(ref lastReportTick);
+            if (now - last < reportInterval) return;
+            if (Interlocked.CompareExchange(ref lastReportTick, now, last) != last) return;
+            progress?.Report(p);
+        }
+
+        await Parallel.ForEachAsync(
+            files,
+            new ParallelOptions { MaxDegreeOfParallelism = MaxConcurrency, CancellationToken = ct },
+            async (file, fileCt) =>
+            {
+                var url = BaseUrl + file.Path;
+                var destPath = Path.Combine(gameDirectory, file.Path.Replace('/', Path.DirectorySeparatorChar));
+                var dir = Path.GetDirectoryName(destPath);
+                if (dir != null)
+                    Directory.CreateDirectory(dir);
+
+                using var response = await _http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, fileCt);
+                response.EnsureSuccessStatusCode();
+
+                await using var networkStream = await response.Content.ReadAsStreamAsync(fileCt);
+                await using var fileStream = new FileStream(
+                    destPath, FileMode.Create, FileAccess.Write, FileShare.None, ChunkSize, useAsync: true);
+
+                var buffer = new byte[ChunkSize];
+                int read;
+                while ((read = await networkStream.ReadAsync(buffer, fileCt)) > 0)
+                {
+                    await fileStream.WriteAsync(buffer.AsMemory(0, read), fileCt);
+                    var downloaded = Interlocked.Add(ref bytesDownloaded, read);
+                    AddSample(read);
+
+                    TryReport(new DownloadProgress(
+                        BytesDownloaded: downloaded,
+                        TotalBytes: totalBytes,
+                        SpeedBytesPerSec: GetSpeedBytesPerSec(),
+                        CurrentFile: file.Path,
+                        FilesDownloaded: Volatile.Read(ref filesDownloaded),
+                        TotalFiles: files.Count));
+                }
+
+                Interlocked.Increment(ref filesDownloaded);
+            });
+
+        // Final report — guaranteed after all files complete
+        progress?.Report(new DownloadProgress(
+            BytesDownloaded: bytesDownloaded,
+            TotalBytes: totalBytes,
+            SpeedBytesPerSec: 0,
+            CurrentFile: "",
+            FilesDownloaded: filesDownloaded,
+            TotalFiles: files.Count));
     }
 }
