@@ -14,6 +14,9 @@
     </Application.Resources>
 
    <Application.DataTemplates>
+        <DataTemplate DataType="vm:LoadingViewModel">
+            <v:LoadingView/>
+        </DataTemplate>
         <DataTemplate DataType="vm:LaunchSteamFirstViewModel">
             <v:LaunchSteamFirstView/>
         </DataTemplate>

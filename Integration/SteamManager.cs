@@ -25,7 +25,7 @@ public class SteamManager : IDisposable
     public event Action<string?>? OnSteamAuthorizationChanged;
 
     public User? CurrentUser { get; private set; }
-    public SteamStatus SteamStatus { get; private set; } = SteamStatus.NotRunning;
+    public SteamStatus SteamStatus { get; private set; } = SteamStatus.Checking;
     public string? CurrentAuthTicket => _steamAuthTicket;
 
     public SteamManager()

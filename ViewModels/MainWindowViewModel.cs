@@ -1,4 +1,6 @@
+using System.Net.Http;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -22,6 +24,10 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly ILocalManifestService _localManifestService;
     private readonly IManifestDiffService _manifestDiffService;
     private readonly IGameDownloadService _gameDownloadService;
+
+    // Pre-started manifest fetch — kicked off during the Steam loading phase so that
+    // GameDownloadViewModel can skip the "Подключение к серверу..." step.
+    private Task<GameManifest?>? _manifestPrefetch;
 
     [ObservableProperty]
     private SteamStatus _steamStatus;
@@ -62,6 +68,12 @@ public partial class MainWindowViewModel : ViewModelBase
         _manifestDiffService = manifestDiffService;
         _gameDownloadService = gameDownloadService;
         _steamStatus = steamManager.SteamStatus;
+
+        // Kick off the manifest fetch immediately if the game dir is already known,
+        // so it runs in parallel with Steam auth and avoids the "Connecting to server" screen.
+        if (!string.IsNullOrWhiteSpace(_settingsStorage.Get().GameDirectory))
+            _manifestPrefetch = FetchManifestAsync();
+
         UpdateContentViewModel();
 
         _steamManager.OnSteamStatusUpdated += status =>
@@ -106,14 +118,40 @@ public partial class MainWindowViewModel : ViewModelBase
         var vm = new GameDownloadViewModel(_localManifestService, _manifestDiffService, _gameDownloadService)
         {
             GameDirectory = gameDir,
-            OnCompleted = () => Dispatcher.UIThread.Post(ShowMainLauncher)
+            OnCompleted = () => Dispatcher.UIThread.Post(ShowMainLauncher),
+            PrefetchedRemoteManifest = _manifestPrefetch
         };
+        _manifestPrefetch = null; // consumed; don't share with a future VM
         CurrentContentViewModel = vm;
         vm.StartAsync();
     }
 
+    private static async Task<GameManifest?> FetchManifestAsync()
+    {
+        try
+        {
+            using var http = new HttpClient();
+            var json = await http.GetStringAsync(GameDownloadViewModel.ManifestUrl);
+            return JsonSerializer.Deserialize<GameManifest>(json);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     private void UpdateContentViewModel()
     {
+        // Show spinner while we don't yet know Steam's state, or while Steam is
+        // running but the bridge hasn't finished querying the user yet.
+        if (SteamStatus == SteamStatus.Checking ||
+            (SteamStatus == SteamStatus.Running && _steamManager.CurrentUser == null))
+        {
+            if (CurrentContentViewModel is not LoadingViewModel)
+                CurrentContentViewModel = new LoadingViewModel();
+            return;
+        }
+
         var steamOk = SteamStatus == SteamStatus.Running && _steamManager.CurrentUser != null;
 
         if (steamOk)

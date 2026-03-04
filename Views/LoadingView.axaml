@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:d2c_launcher.ViewModels"
+             x:Class="d2c_launcher.Views.LoadingView"
+             x:DataType="vm:LoadingViewModel">
+
+    <UserControl.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#0c0c0c" Offset="0"/>
+            <GradientStop Color="#141820" Offset="0.35"/>
+            <GradientStop Color="#1c2024" Offset="0.5"/>
+            <GradientStop Color="#141820" Offset="0.65"/>
+            <GradientStop Color="#0c0c0c" Offset="1"/>
+        </LinearGradientBrush>
+    </UserControl.Background>
+
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                Spacing="16" MaxWidth="420">
+
+        <TextBlock Text="Dota 2 Classic"
+                   FontFamily="{StaticResource TrajanPro3}"
+                   FontSize="22" FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   Foreground="#D9D9D9"
+                   LetterSpacing="2"/>
+
+        <ProgressBar IsIndeterminate="True"
+                     Width="200" Height="4"
+                     CornerRadius="0"
+                     Foreground="#3a90d6"
+                     Background="#2a2a2a"/>
+
+        <TextBlock Text="Подключение к Steam..."
+                   FontSize="13" HorizontalAlignment="Center"
+                   Foreground="#888888"/>
+
+    </StackPanel>
+
+</UserControl>

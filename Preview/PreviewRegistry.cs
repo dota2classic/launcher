@@ -45,6 +45,8 @@ public static class PreviewRegistry
                 var vm = new NotificationAreaViewModel(new StubBackendApiService(), new StubQueueSocketService());
                 return (new NotificationArea(), vm);
             },
+            ["Loading"] = () =>
+                (new LoadingView(), new LoadingViewModel()),
             ["LaunchSteamFirst"] = () =>
                 (new LaunchSteamFirstView(), new LaunchSteamFirstViewModel()),
             ["SelectGame"] = () =>

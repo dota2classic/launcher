@@ -12,6 +12,8 @@ namespace d2c_launcher.ViewModels;
 
 public partial class GameDownloadViewModel : ViewModelBase
 {
+    internal const string ManifestUrl = "https://launcher.dotaclassic.ru/files/manifest.json";
+
     private readonly ILocalManifestService _localManifestService;
     private readonly IManifestDiffService _manifestDiffService;
     private readonly IGameDownloadService _gameDownloadService;
@@ -19,7 +21,15 @@ public partial class GameDownloadViewModel : ViewModelBase
     public string GameDirectory { get; set; } = "";
     public Action? OnCompleted { get; set; }
 
-    [ObservableProperty] private string _statusText = "Подключение к серверу...";
+    /// <summary>
+    /// Optional pre-started task for the remote manifest fetch. When set,
+    /// <see cref="RunAsync"/> awaits it instead of making its own HTTP request,
+    /// eliminating the "Подключение к серверу..." phase.
+    /// Consumed on first use; retry always fetches fresh.
+    /// </summary>
+    public Task<GameManifest?>? PrefetchedRemoteManifest { get; set; }
+
+    [ObservableProperty] private string _statusText = "";
     [ObservableProperty] private string _detailsText = "";
     [ObservableProperty] private double _progressValue;
     [ObservableProperty] private bool _isIndeterminate = true;
@@ -43,7 +53,7 @@ public partial class GameDownloadViewModel : ViewModelBase
     {
         HasError = false;
         ErrorText = "";
-        StatusText = "Подключение к серверу...";
+        StatusText = "";
         IsIndeterminate = true;
         ProgressValue = 0;
         DetailsText = "";
@@ -54,14 +64,39 @@ public partial class GameDownloadViewModel : ViewModelBase
     {
         try
         {
-            // Phase 1: Fetch remote manifest
-            StatusText = "Подключение к серверу...";
+            // Phase 1: Fetch remote manifest (use pre-started task if available)
             IsIndeterminate = true;
             DetailsText = "";
 
-            using var http = new HttpClient();
-            var json = await http.GetStringAsync("https://launcher.dotaclassic.ru/files/manifest.json");
-            var remote = JsonSerializer.Deserialize<GameManifest>(json)!;
+            GameManifest remote;
+            var prefetchTask = PrefetchedRemoteManifest;
+            PrefetchedRemoteManifest = null; // consume; retry will fetch fresh
+
+            if (prefetchTask != null)
+            {
+                GameManifest? prefetched = null;
+                try { prefetched = await prefetchTask; } catch { }
+
+                if (prefetched != null)
+                {
+                    remote = prefetched;
+                }
+                else
+                {
+                    // Prefetch failed — fall back to a fresh request
+                    StatusText = "Подключение к серверу...";
+                    using var http = new HttpClient();
+                    var json = await http.GetStringAsync(ManifestUrl);
+                    remote = JsonSerializer.Deserialize<GameManifest>(json)!;
+                }
+            }
+            else
+            {
+                StatusText = "Подключение к серверу...";
+                using var http = new HttpClient();
+                var json = await http.GetStringAsync(ManifestUrl);
+                remote = JsonSerializer.Deserialize<GameManifest>(json)!;
+            }
 
             // Phase 2: Scan local files
             IsIndeterminate = false;
