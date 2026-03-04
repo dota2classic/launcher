@@ -1,0 +1,149 @@
+using System;
+using System.Net.Http;
+using System.Text.Json;
+using System.Threading.Tasks;
+using Avalonia.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
+using d2c_launcher.Models;
+using d2c_launcher.Services;
+
+namespace d2c_launcher.ViewModels;
+
+public partial class GameDownloadViewModel : ViewModelBase
+{
+    private readonly ILocalManifestService _localManifestService;
+    private readonly IManifestDiffService _manifestDiffService;
+    private readonly IGameDownloadService _gameDownloadService;
+
+    public string GameDirectory { get; set; } = "";
+    public Action? OnCompleted { get; set; }
+
+    [ObservableProperty] private string _statusText = "Подключение к серверу...";
+    [ObservableProperty] private string _detailsText = "";
+    [ObservableProperty] private double _progressValue;
+    [ObservableProperty] private bool _isIndeterminate = true;
+    [ObservableProperty] private bool _hasError;
+    [ObservableProperty] private string _errorText = "";
+
+    public GameDownloadViewModel(
+        ILocalManifestService localManifestService,
+        IManifestDiffService manifestDiffService,
+        IGameDownloadService gameDownloadService)
+    {
+        _localManifestService = localManifestService;
+        _manifestDiffService = manifestDiffService;
+        _gameDownloadService = gameDownloadService;
+    }
+
+    public void StartAsync() => _ = RunAsync();
+
+    private async Task RunAsync()
+    {
+        try
+        {
+            // Phase 1: Fetch remote manifest
+            StatusText = "Подключение к серверу...";
+            IsIndeterminate = true;
+            DetailsText = "";
+
+            using var http = new HttpClient();
+            var json = await http.GetStringAsync("https://launcher.dotaclassic.ru/files/manifest.json");
+            var remote = JsonSerializer.Deserialize<GameManifest>(json)!;
+
+            // Phase 2: Scan local files
+            IsIndeterminate = false;
+            StatusText = "Проверка файлов...";
+
+            var scanProgress = new Progress<(int done, int total)>(p =>
+            {
+                Dispatcher.UIThread.Post(() =>
+                {
+                    ProgressValue = p.total > 0 ? p.done * 100.0 / p.total : 0;
+                    StatusText = $"Проверка файлов... ({p.done}/{p.total})";
+                });
+            });
+
+            var local = await _localManifestService.BuildAsync(GameDirectory, scanProgress);
+
+            // Phase 3: Compute diff
+            var toDownload = _manifestDiffService.ComputeFilesToDownload(remote, local);
+
+            if (toDownload.Count == 0)
+            {
+                StatusText = "Игра обновлена";
+                DetailsText = "";
+                ProgressValue = 100;
+                await Task.Delay(500); // brief pause so user sees "up to date"
+                Dispatcher.UIThread.Post(() => OnCompleted?.Invoke());
+                return;
+            }
+
+            // Phase 4: Download
+            var totalBytes = 0L;
+            foreach (var f in toDownload) totalBytes += f.Size;
+            StatusText = $"Загрузка ({toDownload.Count} файлов)...";
+            ProgressValue = 0;
+            DetailsText = FormatSize(totalBytes) + " всего";
+
+            var downloadProgress = new Progress<DownloadProgress>(p =>
+            {
+                Dispatcher.UIThread.Post(() =>
+                {
+                    ProgressValue = p.TotalBytes > 0 ? p.BytesDownloaded * 100.0 / p.TotalBytes : 0;
+
+                    var speed = FormatSpeed(p.SpeedBytesPerSec);
+                    var remaining = p.TotalBytes - p.BytesDownloaded;
+                    var etaStr = p.SpeedBytesPerSec > 0
+                        ? FormatEta(remaining / p.SpeedBytesPerSec)
+                        : "";
+
+                    StatusText = $"Загрузка ({p.FilesDownloaded}/{p.TotalFiles} файлов)";
+                    DetailsText = $"{p.CurrentFile}\n{FormatSize(p.BytesDownloaded)} / {FormatSize(p.TotalBytes)}  {speed}{(etaStr.Length > 0 ? "  ~" + etaStr : "")}";
+                });
+            });
+
+            await _gameDownloadService.DownloadFilesAsync(toDownload, GameDirectory, downloadProgress);
+
+            StatusText = "Готово!";
+            DetailsText = "";
+            ProgressValue = 100;
+            await Task.Delay(500);
+            Dispatcher.UIThread.Post(() => OnCompleted?.Invoke());
+        }
+        catch (Exception ex)
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                HasError = true;
+                StatusText = "Ошибка загрузки";
+                ErrorText = ex.Message;
+                IsIndeterminate = false;
+            });
+        }
+    }
+
+    private static string FormatSize(long bytes)
+    {
+        if (bytes >= 1_073_741_824) return $"{bytes / 1_073_741_824.0:F1} ГБ";
+        if (bytes >= 1_048_576) return $"{bytes / 1_048_576.0:F1} МБ";
+        if (bytes >= 1024) return $"{bytes / 1024.0:F1} КБ";
+        return $"{bytes} Б";
+    }
+
+    private static string FormatSpeed(double bytesPerSec)
+    {
+        if (bytesPerSec <= 0) return "";
+        if (bytesPerSec >= 1_048_576) return $"{bytesPerSec / 1_048_576.0:F1} МБ/с";
+        if (bytesPerSec >= 1024) return $"{bytesPerSec / 1024.0:F1} КБ/с";
+        return $"{bytesPerSec:F0} Б/с";
+    }
+
+    private static string FormatEta(double seconds)
+    {
+        if (seconds <= 0) return "";
+        var ts = TimeSpan.FromSeconds(seconds);
+        if (ts.TotalHours >= 1) return $"{(int)ts.TotalHours}ч {ts.Minutes}м";
+        if (ts.TotalMinutes >= 1) return $"{(int)ts.TotalMinutes}м {ts.Seconds}с";
+        return $"{ts.Seconds}с";
+    }
+}

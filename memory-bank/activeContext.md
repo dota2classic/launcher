@@ -2,7 +2,29 @@
 
 ## Current Focus
 
-**Adding `HardwareInfoService`** — WMI-based hardware enumeration for diagnostics and HWID generation.
+**Game download / verification flow** — new `GameDownloadView` that runs on every launch between selecting the game folder and showing the main UI.
+
+### What Was Built
+- `Models/DownloadProgress.cs` — progress record (bytes, speed, ETA, file count)
+- `Services/IGameDownloadService.cs` + `GameDownloadService.cs` — HTTP download with 256 KB streaming, rolling speed window
+- `ViewModels/GameDownloadViewModel.cs` — phases: fetching manifest → scanning local → downloading → complete/error
+- `Views/GameDownloadView.axaml` — progress bar, status text, speed/ETA, current file
+- `Views/SelectGameView.axaml` — redesigned with "Скачать игру" (primary) + "У меня уже установлена дота" (secondary text link); both open folder picker
+- `MainWindowViewModel` — now always routes through `GameDownloadView` before `MainLauncherView` when game dir is set; removed old background `RunManifestDiffAsync`
+- Download URL: `https://launcher.dotaclassic.ru/files/{path}`
+- Added `GameDownload` preview entry to `PreviewRegistry`
+
+### New State Machine
+```
+Steam not running → LaunchSteamFirstView
+Game dir not set → SelectGameView (folder picker)
+Game dir set → GameDownloadView (always: fetch manifest, scan local, diff, download)
+Download complete → MainLauncherView
+```
+
+---
+
+## Previous Work: HardwareInfoService
 
 ### What It Does
 - Queries WMI classes: `Win32_Processor`, `Win32_BaseBoard`, `Win32_DiskDrive`, `Win32_NetworkAdapterConfiguration`, `Win32_PhysicalMemory`, `Win32_VideoController`, `Win32_OperatingSystem`

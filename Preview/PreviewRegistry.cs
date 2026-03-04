@@ -49,6 +49,21 @@ public static class PreviewRegistry
                 (new LaunchSteamFirstView(), new LaunchSteamFirstViewModel()),
             ["SelectGame"] = () =>
                 (new SelectGameView(), new SelectGameViewModel()),
+            ["GameDownload"] = () =>
+            {
+                var vm = new GameDownloadViewModel(
+                    new StubLocalManifestService(),
+                    new StubManifestDiffService(),
+                    new StubGameDownloadService())
+                {
+                    GameDirectory = @"C:\fake\dota2classic",
+                    StatusText = "Загрузка (142/2381 файлов)",
+                    DetailsText = "dota/bin/win64/engine.dll\n12.3 МБ / 24.1 ГБ  1.8 МБ/с  ~3ч 42м",
+                    ProgressValue = 42,
+                    IsIndeterminate = false,
+                };
+                return (new GameDownloadView(), vm);
+            },
             ["SettingsPanel"] = () =>
             {
                 var launchStorage = new StubGameLaunchSettingsStorage();

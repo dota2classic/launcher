@@ -49,6 +49,9 @@ public partial class App : Application
             services.AddSingleton<IBackendApiService, BackendApiService>();
             services.AddSingleton<IQueueSocketService, QueueSocketService>();
             services.AddSingleton<UpdateService>();
+            services.AddSingleton<ILocalManifestService, LocalManifestService>();
+            services.AddSingleton<IManifestDiffService, ManifestDiffService>();
+            services.AddSingleton<IGameDownloadService, GameDownloadService>();
             services.AddSingleton<MainWindowViewModel>();
 
             _services = services.BuildServiceProvider();

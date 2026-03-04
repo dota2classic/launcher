@@ -1,0 +1,50 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:d2c_launcher.ViewModels"
+             x:Class="d2c_launcher.Views.GameDownloadView"
+             x:DataType="vm:GameDownloadViewModel">
+
+    <UserControl.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#0c0c0c" Offset="0"/>
+            <GradientStop Color="#1c2024" Offset="0.55"/>
+            <GradientStop Color="#0c0c0c" Offset="1"/>
+        </LinearGradientBrush>
+    </UserControl.Background>
+
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                Spacing="16" MaxWidth="480">
+
+        <TextBlock Text="Dota 2 Classic"
+                   FontSize="28" FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   Foreground="#D9D9D9"/>
+
+        <TextBlock Text="{Binding StatusText}"
+                   FontSize="14" HorizontalAlignment="Center"
+                   Foreground="#AAAAAA"/>
+
+        <ProgressBar Value="{Binding ProgressValue}"
+                     IsIndeterminate="{Binding IsIndeterminate}"
+                     Minimum="0" Maximum="100"
+                     Height="6" CornerRadius="3"
+                     Foreground="#3a90d6"
+                     Background="#2a2a2a"/>
+
+        <TextBlock Text="{Binding DetailsText}"
+                   FontSize="12" HorizontalAlignment="Center"
+                   Foreground="#888888"
+                   TextWrapping="Wrap"
+                   TextAlignment="Center"/>
+
+        <!-- Error panel -->
+        <StackPanel IsVisible="{Binding HasError}" Spacing="8" HorizontalAlignment="Center">
+            <TextBlock Text="{Binding ErrorText}"
+                       FontSize="12" Foreground="#e05555"
+                       TextWrapping="Wrap" TextAlignment="Center"
+                       MaxWidth="420"/>
+        </StackPanel>
+
+    </StackPanel>
+
+</UserControl>

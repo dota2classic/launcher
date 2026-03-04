@@ -19,6 +19,9 @@
         <DataTemplate DataType="vm:SelectGameViewModel">
             <v:SelectGameView/>
         </DataTemplate>
+        <DataTemplate DataType="vm:GameDownloadViewModel">
+            <v:GameDownloadView/>
+        </DataTemplate>
         <DataTemplate DataType="vm:MainLauncherViewModel">
             <v:MainLauncherView/>
         </DataTemplate>

@@ -97,3 +97,21 @@ internal sealed class StubSteamAuthApi : ISteamAuthApi
     public Task<string?> ExchangeSteamSessionTicketAsync(string ticket, CancellationToken cancellationToken = default)
         => Task.FromResult<string?>(null);
 }
+
+internal sealed class StubLocalManifestService : ILocalManifestService
+{
+    public Task<GameManifest> BuildAsync(string gameDirectory, IProgress<(int done, int total)>? progress = null, CancellationToken ct = default)
+        => Task.FromResult(new GameManifest());
+}
+
+internal sealed class StubManifestDiffService : IManifestDiffService
+{
+    public IReadOnlyList<GameManifestFile> ComputeFilesToDownload(GameManifest remote, GameManifest local)
+        => [];
+}
+
+internal sealed class StubGameDownloadService : IGameDownloadService
+{
+    public Task DownloadFilesAsync(IReadOnlyList<GameManifestFile> files, string gameDirectory, IProgress<DownloadProgress>? progress = null, CancellationToken ct = default)
+        => Task.CompletedTask;
+}

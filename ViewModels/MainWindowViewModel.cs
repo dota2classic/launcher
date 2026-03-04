@@ -1,8 +1,4 @@
-using System;
-using System.Linq;
-using System.Net.Http;
 using System.Reflection;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -25,7 +21,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly UpdateService _updateService;
     private readonly ILocalManifestService _localManifestService;
     private readonly IManifestDiffService _manifestDiffService;
-    private bool _manifestDiffStarted;
+    private readonly IGameDownloadService _gameDownloadService;
 
     [ObservableProperty]
     private SteamStatus _steamStatus;
@@ -51,7 +47,8 @@ public partial class MainWindowViewModel : ViewModelBase
         ICvarSettingsProvider cvarProvider,
         UpdateService updateService,
         ILocalManifestService localManifestService,
-        IManifestDiffService manifestDiffService)
+        IManifestDiffService manifestDiffService,
+        IGameDownloadService gameDownloadService)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -63,6 +60,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _updateService = updateService;
         _localManifestService = localManifestService;
         _manifestDiffService = manifestDiffService;
+        _gameDownloadService = gameDownloadService;
         _steamStatus = steamManager.SteamStatus;
         UpdateContentViewModel();
 
@@ -94,37 +92,24 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void ApplyUpdate() => _updateService.ApplyAndRestart();
 
-    private async Task RunManifestDiffAsync(string gameDir)
+    private void ShowMainLauncher()
     {
-        try
-        {
-            Console.WriteLine("[Manifest] Fetching remote manifest...");
-            using var http = new HttpClient();
-            var json = await http.GetStringAsync("https://launcher.dotaclassic.ru/files/manifest.json");
-            var remote = JsonSerializer.Deserialize<GameManifest>(json)!;
-            Console.WriteLine($"[Manifest] Remote: {remote.Files.Count} files");
+        (CurrentContentViewModel as System.IDisposable)?.Dispose();
+        CurrentContentViewModel = new MainLauncherViewModel(
+            _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider,
+            _steamAuthApi, _backendApiService, _queueSocketService);
+    }
 
-            Console.WriteLine("[Manifest] Building local manifest (this may take a while)...");
-            var progress = new Progress<(int done, int total)>(p =>
-            {
-                if (p.done % 2000 == 0 || p.done == p.total)
-                    Console.WriteLine($"[Manifest] Scanned {p.done}/{p.total}");
-            });
-            var local = await _localManifestService.BuildAsync(gameDir, progress);
-            Console.WriteLine($"[Manifest] Local: {local.Files.Count} files");
-
-            var toDownload = _manifestDiffService.ComputeFilesToDownload(remote, local);
-            var totalBytes = toDownload.Sum(f => f.Size);
-            Console.WriteLine($"[Manifest] To download: {toDownload.Count} files, {totalBytes / 1024.0 / 1024.0:F1} MB");
-            foreach (var file in toDownload.Take(20))
-                Console.WriteLine($"  {file.Mode.PadRight(8)} {file.Path} ({file.Size / 1024.0:F1} KB)");
-            if (toDownload.Count > 20)
-                Console.WriteLine($"  ... and {toDownload.Count - 20} more");
-        }
-        catch (Exception ex)
+    private void ShowGameDownload(string gameDir)
+    {
+        (CurrentContentViewModel as System.IDisposable)?.Dispose();
+        var vm = new GameDownloadViewModel(_localManifestService, _manifestDiffService, _gameDownloadService)
         {
-            Console.WriteLine($"[Manifest] Error: {ex}");
-        }
+            GameDirectory = gameDir,
+            OnCompleted = () => Dispatcher.UIThread.Post(ShowMainLauncher)
+        };
+        CurrentContentViewModel = vm;
+        vm.StartAsync();
     }
 
     private void UpdateContentViewModel()
@@ -141,7 +126,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 if (CurrentContentViewModel is SelectGameViewModel)
                     return;
 
-                (CurrentContentViewModel as IDisposable)?.Dispose();
+                (CurrentContentViewModel as System.IDisposable)?.Dispose();
 
                 var selectVm = new SelectGameViewModel();
                 selectVm.GameDirectorySelected = path =>
@@ -149,29 +134,22 @@ public partial class MainWindowViewModel : ViewModelBase
                     var settings = _settingsStorage.Get();
                     settings.GameDirectory = path;
                     _settingsStorage.Save(settings);
-                    Dispatcher.UIThread.Post(UpdateContentViewModel);
+                    Dispatcher.UIThread.Post(() => ShowGameDownload(path));
                 };
                 CurrentContentViewModel = selectVm;
                 return;
             }
 
-            // Game directory is set — show (or keep) the main launcher.
-            if (CurrentContentViewModel is MainLauncherViewModel)
+            // Game directory is set — go through download/verify before showing the main launcher.
+            // Guard: don't restart the download if already in progress or on main screen.
+            if (CurrentContentViewModel is GameDownloadViewModel or MainLauncherViewModel)
                 return;
 
-            (CurrentContentViewModel as IDisposable)?.Dispose();
-            CurrentContentViewModel = new MainLauncherViewModel(
-                _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider, _steamAuthApi, _backendApiService, _queueSocketService);
-
-            if (!_manifestDiffStarted)
-            {
-                _manifestDiffStarted = true;
-                _ = RunManifestDiffAsync(gameDir);
-            }
+            ShowGameDownload(gameDir);
             return;
         }
 
-        (CurrentContentViewModel as IDisposable)?.Dispose();
+        (CurrentContentViewModel as System.IDisposable)?.Dispose();
 
         CurrentContentViewModel = SteamStatus switch
         {

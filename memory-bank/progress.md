@@ -34,6 +34,7 @@
 | Feature                           | Status | Notes                              |
 | --------------------------------- | ------ | ---------------------------------- |
 | Game directory validation         | ✅ Done |                                    |
+| Game download / verify on launch  | ✅ Done | `GameDownloadView`, manifest diff, HTTP download |
 | Game launch with Source 1 args    | ✅ Done |                                    |
 | Runtime console command injection | ✅ Done | WM_COPYDATA via P/Invoke           |
 | Bi-directional config.cfg sync    | ✅ Done | Two-phase: host_writeconfig + read |

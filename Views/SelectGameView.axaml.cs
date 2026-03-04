@@ -1,4 +1,3 @@
-using System.IO;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
@@ -13,29 +12,29 @@ public partial class SelectGameView : UserControl
         InitializeComponent();
     }
 
-    private async void OnBrowseClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private async void OnDownloadClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        => await PickFolderAsync();
+
+    private async void OnAlreadyInstalledClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+        => await PickFolderAsync();
+
+    private async System.Threading.Tasks.Task PickFolderAsync()
     {
         var topLevel = this.GetVisualRoot() as TopLevel;
         if (topLevel?.StorageProvider == null || DataContext is not SelectGameViewModel vm)
             return;
 
-        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
-            Title = "Select dota.exe",
-            AllowMultiple = false,
-            FileTypeFilter = new[]
-            {
-                new FilePickerFileType("Executable") { Patterns = new[] { "*.exe" } },
-                FilePickerFileTypes.All
-            }
+            Title = "Выберите папку Dota 2 Classic",
+            AllowMultiple = false
         });
 
-        if (files.Count > 0)
+        if (folders.Count > 0)
         {
-            var path = files[0].TryGetLocalPath();
-            var dir = string.IsNullOrEmpty(path) ? null : Path.GetDirectoryName(path);
-            if (!string.IsNullOrEmpty(dir))
-                vm.NotifyGameDirectorySelected(dir);
+            var path = folders[0].TryGetLocalPath();
+            if (!string.IsNullOrEmpty(path))
+                vm.NotifyGameDirectorySelected(path);
         }
     }
 }

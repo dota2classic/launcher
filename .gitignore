@@ -33,6 +33,9 @@ steam_api.dll
 # Component preview screenshots
 tools/screenshots/
 
+# Local dev utilities (not for repo)
+tools/reset-settings.ps1
+
 # Optional: ignore sanitized OpenAPI artifacts if regenerated
 # api-openapi.sanitized.json
 .claude/
