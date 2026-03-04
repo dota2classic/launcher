@@ -1,3 +1,4 @@
+using System.IO;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
@@ -71,7 +72,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
         // Kick off the manifest fetch immediately if the game dir is already known,
         // so it runs in parallel with Steam auth and avoids the "Connecting to server" screen.
-        if (!string.IsNullOrWhiteSpace(_settingsStorage.Get().GameDirectory))
+        var initialGameDir = _settingsStorage.Get().GameDirectory;
+        if (!string.IsNullOrWhiteSpace(initialGameDir) && Directory.Exists(initialGameDir))
             _manifestPrefetch = FetchManifestAsync();
 
         UpdateContentViewModel();
@@ -158,8 +160,16 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             var gameDir = _settingsStorage.Get().GameDirectory;
 
-            if (string.IsNullOrWhiteSpace(gameDir))
+            if (string.IsNullOrWhiteSpace(gameDir) || !Directory.Exists(gameDir))
             {
+                // Stale path — directory was deleted; clear it so it won't be reused.
+                if (!string.IsNullOrWhiteSpace(gameDir))
+                {
+                    var s = _settingsStorage.Get();
+                    s.GameDirectory = null;
+                    _settingsStorage.Save(s);
+                }
+
                 // Already showing the picker — don't recreate it.
                 if (CurrentContentViewModel is SelectGameViewModel)
                     return;
