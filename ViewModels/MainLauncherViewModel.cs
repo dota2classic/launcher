@@ -45,6 +45,9 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     private bool _isSettingsOpen;
 
     [ObservableProperty]
+    private bool _isDefenderPromptOpen;
+
+    [ObservableProperty]
     private int _onlineInGame;
 
     [ObservableProperty]
@@ -163,6 +166,10 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
         _ = Party.RefreshPartyAsync();
         _ = Queue.RefreshMatchmakingModesAsync();
+
+        // Show Defender exclusion prompt once, if game dir is set and we haven't asked yet
+        if (!settings.DefenderExclusionAsked && !string.IsNullOrWhiteSpace(settings.GameDirectory))
+            IsDefenderPromptOpen = true;
     }
 
     private void OnCvarChanged()
@@ -192,6 +199,26 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
     public void OpenSettings() => IsSettingsOpen = true;
     public void CloseSettings() => IsSettingsOpen = false;
+
+    // ── Defender exclusion prompt ─────────────────────────────────────────────
+
+    public async Task AddDefenderExclusionAsync()
+    {
+        var gameDir = _settingsStorage.Get().GameDirectory;
+        if (!string.IsNullOrWhiteSpace(gameDir))
+            await DefenderExclusionService.AddExclusionAsync(gameDir);
+        MarkDefenderPromptDone();
+    }
+
+    public void DismissDefenderPrompt() => MarkDefenderPromptDone();
+
+    private void MarkDefenderPromptDone()
+    {
+        IsDefenderPromptOpen = false;
+        var settings = _settingsStorage.Get();
+        settings.DefenderExclusionAsked = true;
+        _settingsStorage.Save(settings);
+    }
 
     public void SetGameDirectory(string? path) => Launch.SetGameDirectory(path);
 

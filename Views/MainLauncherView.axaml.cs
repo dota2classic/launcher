@@ -123,6 +123,18 @@ public partial class MainLauncherView : UserControl
         e.Handled = true;
     }
 
+    private async void OnAddDefenderExclusion(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is MainLauncherViewModel vm)
+            await vm.AddDefenderExclusionAsync();
+    }
+
+    private void OnDismissDefenderPrompt(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is MainLauncherViewModel vm)
+            vm.DismissDefenderPrompt();
+    }
+
     private async void OnSearchGameClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         if (DataContext is MainLauncherViewModel vm)

@@ -1,5 +1,8 @@
 using System;
+using System.Linq;
+using System.Net.Http;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -20,6 +23,9 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IQueueSocketService _queueSocketService;
     private readonly ICvarSettingsProvider _cvarProvider;
     private readonly UpdateService _updateService;
+    private readonly ILocalManifestService _localManifestService;
+    private readonly IManifestDiffService _manifestDiffService;
+    private bool _manifestDiffStarted;
 
     [ObservableProperty]
     private SteamStatus _steamStatus;
@@ -43,7 +49,9 @@ public partial class MainWindowViewModel : ViewModelBase
         IBackendApiService backendApiService,
         IQueueSocketService queueSocketService,
         ICvarSettingsProvider cvarProvider,
-        UpdateService updateService)
+        UpdateService updateService,
+        ILocalManifestService localManifestService,
+        IManifestDiffService manifestDiffService)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -53,6 +61,8 @@ public partial class MainWindowViewModel : ViewModelBase
         _queueSocketService = queueSocketService;
         _cvarProvider = cvarProvider;
         _updateService = updateService;
+        _localManifestService = localManifestService;
+        _manifestDiffService = manifestDiffService;
         _steamStatus = steamManager.SteamStatus;
         UpdateContentViewModel();
 
@@ -83,6 +93,39 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [RelayCommand]
     private void ApplyUpdate() => _updateService.ApplyAndRestart();
+
+    private async Task RunManifestDiffAsync(string gameDir)
+    {
+        try
+        {
+            Console.WriteLine("[Manifest] Fetching remote manifest...");
+            using var http = new HttpClient();
+            var json = await http.GetStringAsync("https://launcher.dotaclassic.ru/files/manifest.json");
+            var remote = JsonSerializer.Deserialize<GameManifest>(json)!;
+            Console.WriteLine($"[Manifest] Remote: {remote.Files.Count} files");
+
+            Console.WriteLine("[Manifest] Building local manifest (this may take a while)...");
+            var progress = new Progress<(int done, int total)>(p =>
+            {
+                if (p.done % 2000 == 0 || p.done == p.total)
+                    Console.WriteLine($"[Manifest] Scanned {p.done}/{p.total}");
+            });
+            var local = await _localManifestService.BuildAsync(gameDir, progress);
+            Console.WriteLine($"[Manifest] Local: {local.Files.Count} files");
+
+            var toDownload = _manifestDiffService.ComputeFilesToDownload(remote, local);
+            var totalBytes = toDownload.Sum(f => f.Size);
+            Console.WriteLine($"[Manifest] To download: {toDownload.Count} files, {totalBytes / 1024.0 / 1024.0:F1} MB");
+            foreach (var file in toDownload.Take(20))
+                Console.WriteLine($"  {file.Mode.PadRight(8)} {file.Path} ({file.Size / 1024.0:F1} KB)");
+            if (toDownload.Count > 20)
+                Console.WriteLine($"  ... and {toDownload.Count - 20} more");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Manifest] Error: {ex}");
+        }
+    }
 
     private void UpdateContentViewModel()
     {
@@ -119,6 +162,12 @@ public partial class MainWindowViewModel : ViewModelBase
             (CurrentContentViewModel as IDisposable)?.Dispose();
             CurrentContentViewModel = new MainLauncherViewModel(
                 _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider, _steamAuthApi, _backendApiService, _queueSocketService);
+
+            if (!_manifestDiffStarted)
+            {
+                _manifestDiffStarted = true;
+                _ = RunManifestDiffAsync(gameDir);
+            }
             return;
         }
 
