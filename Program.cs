@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using System;
+using System.Reflection;
 using d2c_launcher.Services;
 using Velopack;
 
@@ -14,8 +15,11 @@ sealed class Program
     public static void Main(string[] args)
     {
         VelopackApp.Build().Run();
-        HardwareInfoService.LogAll();
+        var hw = HardwareInfoService.Collect();
+        var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "0.0.0";
+        FaroTelemetryService.Init(version, hw);
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+        FaroTelemetryService.ShutdownAsync().GetAwaiter().GetResult();
     }
 
     // Avalonia configuration, don't remove; also used by visual designer.

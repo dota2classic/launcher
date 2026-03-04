@@ -40,6 +40,13 @@ public partial class App : Application
                 return;
             }
 
+            AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+            {
+                if (e.ExceptionObject is Exception ex)
+                    FaroTelemetryService.TrackException(ex);
+                FaroTelemetryService.ShutdownAsync().GetAwaiter().GetResult();
+            };
+
             var services = new ServiceCollection();
             services.AddSingleton<SteamManager>();
             services.AddSingleton<ISettingsStorage, SettingsStorage>();

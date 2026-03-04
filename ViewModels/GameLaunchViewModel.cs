@@ -126,6 +126,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
                 WorkingDirectory = GameDirectory,
                 UseShellExecute = false,
             });
+            d2c_launcher.Services.FaroTelemetryService.TrackEvent("game_launched");
 
             // After first launch, enable -novid to skip the intro on subsequent launches
             if (!launchSettings.NoVid)
@@ -254,6 +255,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
             // On game exit: read config.cfg to capture any in-game changes
             if (previousState == GameRunState.OurGameRunning && newState != GameRunState.OurGameRunning)
             {
+                d2c_launcher.Services.FaroTelemetryService.TrackEvent("game_exited");
                 if (!string.IsNullOrWhiteSpace(GameDirectory))
                     _cvarProvider.LoadFromConfigCfg(GameDirectory);
             }

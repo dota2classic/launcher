@@ -8,9 +8,20 @@ using d2c_launcher.Util;
 
 namespace d2c_launcher.Services;
 
+public record HardwareSnapshot(
+    string Hwid,
+    string CpuName,
+    string CpuCores,
+    string CpuThreads,
+    long RamMb,
+    string OsCaption,
+    string OsBuild,
+    string Mobo,
+    List<string> Gpus);
+
 public static class HardwareInfoService
 {
-    public static void LogAll()
+    public static HardwareSnapshot Collect()
     {
         try
         {
@@ -48,30 +59,30 @@ public static class HardwareInfoService
 
             var hwid = ComputeHwid(cpuId, moboSerial, diskSerials, macs);
 
-            AppLog.Info($"[HW] HWID: {hwid}");
-            AppLog.Info($"[HW] OS: {osCaption.Trim()} (Build {osBuild}), {osArch}");
-            AppLog.Info($"[HW] CPU: {cpuName.Trim()} | {cpuCores}C/{cpuThreads}T | {cpuMhz} MHz | ID: {cpuId.Trim()}");
-
-            foreach (var gpu in gpus)
-            {
-                var name = gpu.GetValueOrDefault("Name", "Unknown").Trim();
-                var driver = gpu.GetValueOrDefault("DriverVersion", "?").Trim();
-                var vramBytes = long.TryParse(gpu.GetValueOrDefault("AdapterRAM", "0"), out var v) ? v : 0L;
-                var vramMb = vramBytes / (1024 * 1024);
-                AppLog.Info($"[HW] GPU: {name} | Driver: {driver} | VRAM: {vramMb} MB");
-            }
-
-            AppLog.Info($"[HW] RAM: {ramMb} MB total");
-
-            foreach (var (model, i) in diskModels.Select((m, i) => (m, i)))
-                AppLog.Info($"[HW] Disk: {model.Trim()}");
-
             var moboLabel = string.IsNullOrWhiteSpace(moboMfr) ? moboProduct : $"{moboMfr} {moboProduct}";
-            AppLog.Info($"[HW] Board: {moboLabel.Trim()} (S/N: {moboSerial.Trim()})");
+            var gpuNames = gpus.Select(g =>
+            {
+                var name = g.GetValueOrDefault("Name", "Unknown").Trim();
+                var driver = g.GetValueOrDefault("DriverVersion", "?").Trim();
+                var vramMb = (long.TryParse(g.GetValueOrDefault("AdapterRAM", "0"), out var v) ? v : 0L) / (1024 * 1024);
+                return $"{name} | Driver: {driver} | VRAM: {vramMb} MB";
+            }).ToList();
+
+            return new HardwareSnapshot(
+                Hwid: hwid,
+                CpuName: cpuName.Trim(),
+                CpuCores: cpuCores,
+                CpuThreads: cpuThreads,
+                RamMb: ramMb,
+                OsCaption: osCaption.Trim(),
+                OsBuild: osBuild,
+                Mobo: moboLabel.Trim(),
+                Gpus: gpuNames);
         }
         catch (Exception ex)
         {
             AppLog.Error("[HW] Failed to collect hardware info", ex);
+            return new HardwareSnapshot("unknown", "Unknown", "?", "?", 0, "Windows", "?", "Unknown", []);
         }
     }
 
