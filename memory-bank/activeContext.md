@@ -45,6 +45,12 @@ Download complete → MainLauncherView
 
 ---
 
+## Developer Tools Added
+
+- `tools/screenshot-html.ps1` — renders any HTML file via headless Chrome and saves a PNG to `tools/screenshots/`. Args: `HtmlFile` (required), `-Width` (default 1000), `-Height` (default 800). No build step, no Steam needed.
+
+---
+
 ## Recent Completed Work (from git log)
 
 | Commit | Change |

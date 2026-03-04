@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<title>D2C Launcher — View Mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #111;
+    font-family: 'Noto Sans', sans-serif;
+    padding: 40px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    align-items: center;
+  }
+
+  .section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #555;
+    text-align: center;
+    margin-bottom: -36px;
+    font-family: 'Noto Sans', sans-serif;
+  }
+
+  /* ── WINDOW SHELL ── */
+  .window {
+    width: 800px;
+    height: 450px;
+    background: #0c0c0c;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.8), 0 0 0 1px #1a1a1a;
+    flex-shrink: 0;
+  }
+
+  /* diagonal gradient bg */
+  .window-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(135deg,
+        #0c0c0c 0%,
+        #141820 35%,
+        #1c2024 50%,
+        #141820 65%,
+        #0c0c0c 100%
+      );
+  }
+
+  /* native-style title bar */
+  .titlebar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 32px;
+    background: #0a0a0a;
+    border-bottom: 1px solid #1a1a1a;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    z-index: 10;
+    gap: 8px;
+    user-select: none;
+  }
+  .titlebar-icon {
+    width: 16px; height: 16px;
+    opacity: 0.7;
+    font-size: 13px;
+  }
+  .titlebar-title {
+    font-size: 12px;
+    color: #888;
+    font-family: 'Noto Sans', sans-serif;
+    font-weight: 400;
+  }
+  .titlebar-controls {
+    margin-left: auto;
+    display: flex;
+    gap: 0;
+  }
+  .titlebar-btn {
+    width: 46px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    color: #888;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .titlebar-btn:hover { background: #2a2a2a; color: #ccc; }
+  .titlebar-btn.close:hover { background: #c42b1c; color: #fff; }
+
+  /* window content area (below titlebar) */
+  .window-content {
+    position: absolute;
+    top: 32px; left: 0; right: 0; bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+  }
+
+  /* ── TYPOGRAPHY ── */
+  .title-main {
+    font-family: 'Cinzel', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #D9D9D9;
+    letter-spacing: 1px;
+    text-align: center;
+  }
+  .subtitle {
+    font-size: 14px;
+    color: #AAAAAA;
+    text-align: center;
+    line-height: 1.5;
+  }
+  .detail-text {
+    font-size: 12px;
+    color: #888;
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  /* ── BUTTONS ── */
+  .btn-primary {
+    background: linear-gradient(180deg, #3a90d6 0%, #1a5aaa 100%);
+    border: none;
+    color: #fff;
+    font-family: 'Noto Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 10px 32px;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    width: 100%;
+    transition: filter .15s;
+    border-radius: 0;
+  }
+  .btn-primary:hover { filter: brightness(1.12); }
+  .btn-primary:active { filter: brightness(0.9); }
+
+  .btn-link {
+    background: transparent;
+    border: none;
+    color: #888;
+    font-family: 'Noto Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: center;
+    padding: 4px 0;
+    transition: color .15s;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: #444;
+  }
+  .btn-link:hover { color: #bbb; text-decoration-color: #888; }
+
+  .btn-retry {
+    background: transparent;
+    border: 1px solid #e05555;
+    color: #e05555;
+    font-family: 'Noto Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 24px;
+    cursor: pointer;
+    border-radius: 0;
+    transition: background .15s, color .15s;
+    letter-spacing: 0.5px;
+  }
+  .btn-retry:hover { background: rgba(224,85,85,0.12); }
+
+  /* ── PROGRESS BAR ── */
+  .progress-track {
+    width: 100%;
+    height: 6px;
+    background: #2a2a2a;
+    border-radius: 0;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    background: #3a90d6;
+    border-radius: 0;
+    transition: width .3s ease;
+  }
+  .progress-fill.indeterminate {
+    width: 35%;
+    animation: indeterminate 1.4s ease-in-out infinite;
+  }
+  @keyframes indeterminate {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(385%); }
+  }
+
+  /* error text */
+  .error-text {
+    color: #e05555;
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.5;
+    max-width: 420px;
+  }
+
+  /* steam icon placeholder */
+  .steam-icon {
+    width: 64px; height: 64px;
+    border-radius: 0;
+    background: #1a2030;
+    border: 1px solid #2d3842;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+    opacity: 0.6;
+  }
+
+  /* ── CENTERED STACK ── */
+  .centered-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    max-width: 420px;
+    width: 100%;
+    padding: 0 24px;
+  }
+  .centered-stack.wide { max-width: 480px; }
+
+  /* view nav tabs */
+  .view-tabs {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: -36px;
+  }
+  .view-tab {
+    padding: 6px 16px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #555;
+    cursor: pointer;
+    border: 1px solid #2a2a2a;
+    background: #111;
+    font-family: 'Noto Sans', sans-serif;
+    transition: all .15s;
+    border-radius: 0;
+  }
+  .view-tab.active { color: #3a90d6; border-color: #3a90d6; background: rgba(58,144,214,0.06); }
+  .view-tab:hover:not(.active) { color: #888; border-color: #444; }
+
+  /* state switcher for download screen */
+  .state-tabs {
+    display: flex; gap: 4px; margin-bottom: 8px; width: 100%;
+  }
+  .state-tab {
+    flex: 1;
+    padding: 5px 8px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #555;
+    cursor: pointer;
+    border: 1px solid #2a2a2a;
+    background: transparent;
+    font-family: 'Noto Sans', sans-serif;
+    text-align: center;
+    transition: all .15s;
+    border-radius: 0;
+  }
+  .state-tab.active { color: #3a90d6; border-color: #1a5aaa; background: rgba(58,144,214,0.08); }
+  .state-tab:hover:not(.active) { color: #888; }
+
+  /* path field */
+  .path-row {
+    width: 100%;
+    display: flex;
+    gap: 0;
+  }
+  .path-display {
+    flex: 1;
+    background: #121315;
+    border: 1px solid #2d3842;
+    border-right: none;
+    color: #aaa;
+    font-size: 12px;
+    padding: 8px 12px;
+    font-family: 'Noto Sans', sans-serif;
+  }
+  .path-btn {
+    background: #1e2530;
+    border: 1px solid #2d3842;
+    color: #888;
+    font-size: 12px;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-family: 'Noto Sans', sans-serif;
+    white-space: nowrap;
+    transition: background .15s, color .15s;
+    border-radius: 0;
+  }
+  .path-btn:hover { background: #2a3545; color: #ccc; }
+
+  hr.sep {
+    width: 100%;
+    border: none;
+    border-top: 1px solid #1e1e1e;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     VIEW TABS NAVIGATION
+═══════════════════════════════════════ -->
+<div class="view-tabs">
+  <div class="view-tab active" onclick="showView('steam')">1 — LaunchSteamFirst</div>
+  <div class="view-tab" onclick="showView('select')">2 — SelectGame</div>
+  <div class="view-tab" onclick="showView('download')">3 — GameDownload</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     VIEW 1 — LaunchSteamFirstView
+═══════════════════════════════════════ -->
+<div class="window" id="view-steam">
+  <div class="window-bg"></div>
+  <div class="titlebar">
+    <span class="titlebar-icon">⚔</span>
+    <span class="titlebar-title">D2C Launcher v1.0.0</span>
+    <div class="titlebar-controls">
+      <div class="titlebar-btn">─</div>
+      <div class="titlebar-btn">□</div>
+      <div class="titlebar-btn close">✕</div>
+    </div>
+  </div>
+  <div class="window-content">
+    <div class="centered-stack">
+      <!-- Steam icon -->
+      <div class="steam-icon">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="#6c9bcf" opacity="0.8">
+          <path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.004.105.004.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 11.999-5.373 11.999-12S18.606 0 11.979 0zM7.54 18.21l-1.473-.61c.262.543.714.999 1.314 1.25 1.297.539 2.793-.076 3.332-1.375.263-.63.264-1.319.005-1.949s-.75-1.121-1.377-1.383c-.624-.26-1.29-.249-1.878-.03l1.523.63c.956.4 1.409 1.5 1.009 2.455-.397.957-1.497 1.41-2.454 1.012H7.54zm11.415-9.303c0-1.662-1.353-3.015-3.015-3.015-1.665 0-3.015 1.353-3.015 3.015 0 1.665 1.35 3.015 3.015 3.015 1.663 0 3.015-1.35 3.015-3.015zm-5.273-.005c0-1.252 1.013-2.266 2.265-2.266 1.249 0 2.266 1.014 2.266 2.266 0 1.251-1.017 2.265-2.266 2.265-1.252 0-2.265-1.014-2.265-2.265z"/>
+        </svg>
+      </div>
+
+      <div class="title-main" style="font-size:22px; letter-spacing:2px;">Dota 2 Classic</div>
+
+      <div class="subtitle">Для запуска лаунчера необходим<br>запущенный и авторизованный <strong style="color:#6c9bcf;">Steam</strong></div>
+
+      <hr class="sep"/>
+
+      <div class="detail-text" style="line-height:1.7;">
+        Убедитесь, что Steam запущен и вы вошли в аккаунт.<br>
+        Окно обновится автоматически.
+      </div>
+
+      <button class="btn-primary" style="margin-top:4px;" onclick="this.textContent='Проверка...'">
+        Открыть Steam
+      </button>
+
+      <button class="btn-link">Попробовать снова</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     VIEW 2 — SelectGameView
+═══════════════════════════════════════ -->
+<div class="window" id="view-select" style="display:none;">
+  <div class="window-bg"></div>
+  <div class="titlebar">
+    <span class="titlebar-icon">⚔</span>
+    <span class="titlebar-title">D2C Launcher v1.0.0</span>
+    <div class="titlebar-controls">
+      <div class="titlebar-btn">─</div>
+      <div class="titlebar-btn">□</div>
+      <div class="titlebar-btn close">✕</div>
+    </div>
+  </div>
+  <div class="window-content">
+    <div class="centered-stack">
+      <div class="title-main">Dota 2 Classic</div>
+      <div class="subtitle">Выберите папку для установки игры</div>
+
+      <div style="height:4px;"></div>
+
+      <!-- Primary: Download -->
+      <button class="btn-primary" onclick="handleSelectPath(this, 'download')">
+        Скачать игру
+      </button>
+
+      <!-- Selected path display (hidden until picked) -->
+      <div class="path-row" id="dl-path-row" style="display:none;">
+        <div class="path-display" id="dl-path-text">C:\Games\Dota2Classic\</div>
+        <button class="path-btn" onclick="handleSelectPath(null, 'download')">Изменить</button>
+      </div>
+
+      <!-- Divider -->
+      <div style="display:flex;align-items:center;gap:12px;width:100%;">
+        <hr class="sep" style="flex:1;"/>
+        <span style="color:#444;font-size:11px;letter-spacing:1px;text-transform:uppercase;">или</span>
+        <hr class="sep" style="flex:1;"/>
+      </div>
+
+      <!-- Secondary: Already installed -->
+      <button class="btn-link" onclick="handleSelectPath(null, 'installed')">
+        У меня уже установлена Дота
+      </button>
+
+      <!-- Selected path display for installed (hidden until picked) -->
+      <div class="path-row" id="inst-path-row" style="display:none;">
+        <div class="path-display" id="inst-path-text">D:\SteamLibrary\steamapps\common\dota 2 beta\</div>
+        <button class="path-btn">Изменить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     VIEW 3 — GameDownloadView
+═══════════════════════════════════════ -->
+<div class="window" id="view-download" style="display:none;">
+  <div class="window-bg"></div>
+  <div class="titlebar">
+    <span class="titlebar-icon">⚔</span>
+    <span class="titlebar-title">D2C Launcher v1.0.0</span>
+    <div class="titlebar-controls">
+      <div class="titlebar-btn">─</div>
+      <div class="titlebar-btn">□</div>
+      <div class="titlebar-btn close">✕</div>
+    </div>
+  </div>
+  <div class="window-content">
+    <div class="centered-stack wide">
+
+      <!-- State switcher (UI mockup only) -->
+      <div class="state-tabs">
+        <div class="state-tab active" onclick="setDlState('connecting',this)">Подключение</div>
+        <div class="state-tab" onclick="setDlState('checking',this)">Проверка</div>
+        <div class="state-tab" onclick="setDlState('downloading',this)">Загрузка</div>
+        <div class="state-tab" onclick="setDlState('done',this)">Готово</div>
+        <div class="state-tab" onclick="setDlState('error',this)">Ошибка</div>
+      </div>
+
+      <div class="title-main">Dota 2 Classic</div>
+
+      <!-- Status text -->
+      <div class="subtitle" id="dl-status">Подключение к серверу...</div>
+
+      <!-- Progress bar -->
+      <div class="progress-track" style="width:100%;" id="dl-progress-wrap">
+        <div class="progress-fill indeterminate" id="dl-progress-fill"></div>
+      </div>
+
+      <!-- Detail text -->
+      <div class="detail-text" id="dl-detail" style="min-height:36px;"></div>
+
+      <!-- Error panel (hidden) -->
+      <div id="dl-error-panel" style="display:none; flex-direction:column; align-items:center; gap:12px; width:100%;">
+        <div class="error-text" id="dl-error-text">
+          Ошибка подключения к серверу обновлений.<br>
+          Проверьте интернет-соединение и попробуйте снова.
+        </div>
+        <button class="btn-retry" onclick="setDlState('connecting', document.querySelector('.state-tab'))">
+          Повторить
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── VIEW SWITCHER ──
+  function showView(name) {
+    ['steam','select','download'].forEach(v => {
+      document.getElementById('view-'+v).style.display = v === name ? 'block' : 'none';
+    });
+    document.querySelectorAll('.view-tab').forEach((t,i) => {
+      t.classList.toggle('active', ['steam','select','download'][i] === name);
+    });
+  }
+
+  // ── SELECT VIEW ──
+  function handleSelectPath(btn, type) {
+    if (type === 'download') {
+      document.getElementById('dl-path-row').style.display = 'flex';
+      if (btn) btn.textContent = '✓  C:\\Games\\Dota2Classic\\';
+    } else {
+      document.getElementById('inst-path-row').style.display = 'flex';
+    }
+  }
+
+  // ── DOWNLOAD VIEW STATES ──
+  const dlStates = {
+    connecting: {
+      status: 'Подключение к серверу...',
+      progress: 'indeterminate',
+      detail: '',
+      error: false,
+    },
+    checking: {
+      status: 'Проверка файлов... (1 247 / 8 412)',
+      progress: 32,
+      detail: 'game/dota/bin/engine.dll',
+      error: false,
+    },
+    downloading: {
+      status: 'Загрузка (3 из 8 412 файлов)',
+      progress: 61,
+      detail: 'game/dota/pak01_dir.vpk\n1.2 МБ / 8.4 ГБ   •   3.1 МБ/с   •   ~42м 10с',
+      error: false,
+    },
+    done: {
+      status: 'Игра обновлена. Готово!',
+      progress: 100,
+      detail: 'Все файлы проверены. Запуск...',
+      error: false,
+    },
+    error: {
+      status: 'Ошибка загрузки',
+      progress: 47,
+      detail: '',
+      error: true,
+    },
+  };
+
+  function setDlState(key, clickedTab) {
+    const s = dlStates[key];
+    document.getElementById('dl-status').textContent = s.status;
+
+    const fill = document.getElementById('dl-progress-fill');
+    if (s.progress === 'indeterminate') {
+      fill.className = 'progress-fill indeterminate';
+      fill.style.width = '';
+    } else {
+      fill.className = 'progress-fill';
+      fill.style.width = s.progress + '%';
+    }
+
+    document.getElementById('dl-detail').innerHTML = s.detail.replace(/\n/g,'<br>');
+
+    const errPanel = document.getElementById('dl-error-panel');
+    errPanel.style.display = s.error ? 'flex' : 'none';
+
+    document.querySelectorAll('.state-tab').forEach(t => t.classList.remove('active'));
+    if (clickedTab) clickedTab.classList.add('active');
+  }
+</script>
+</body>
+</html>

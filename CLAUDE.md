@@ -62,6 +62,7 @@ As you work:
 - `Util/` — Logging, audio, P/Invoke, XAML converters
 - `Generated/` — NSwag-generated API client (**do not edit**)
 - `SteamBridge/` — Separate console app that queries Steam SDK and outputs JSON to stdout
+- `tools/mockups/` — HTML reference mockups for Avalonia UI design (rendered via `screenshot-html.ps1`)
 
 ---
 
@@ -176,6 +177,21 @@ Use the `Read` tool on the returned path to view the screenshot.
 - If Steam is not running the app will show the `LaunchSteamFirst` screen — that is expected and still useful for layout review.
 - Pass `-WaitSeconds 20` if startup is slow.
 - Output goes to the same `tools/screenshots/` directory as component previews.
+
+### HTML Screenshot
+
+To render an arbitrary HTML file and screenshot it (useful for mockups and design iteration):
+
+```powershell
+# From repo root (use powershell, not pwsh):
+powershell -ExecutionPolicy Bypass -File tools/screenshot-html.ps1 tools/mockups/d2c-launcher-views.html
+powershell -ExecutionPolicy Bypass -File tools/screenshot-html.ps1 tools/mockups/some-mockup.html -Width 1200 -Height 900
+# → C:\...\tools\screenshots\20260302_143201.png
+```
+
+Uses headless Chrome (`--headless`) — no window management, no Steam required. Width/Height default to 1000×800.
+
+HTML mockups live in `tools/mockups/` — reference designs for building Avalonia UI, rendered with this tool.
 
 ---
 
