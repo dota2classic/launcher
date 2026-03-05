@@ -199,6 +199,7 @@ public class SteamManager : IDisposable
         };
 
         process.Start();
+        _activeBridgeProcess = process;
 
         // Read both stdout and stderr asynchronously to prevent pipe-buffer deadlock.
         var outputTask = process.StandardOutput.ReadToEndAsync();
@@ -217,6 +218,10 @@ public class SteamManager : IDisposable
             AppLog.Error("[SteamManager] Bridge timed out after 12 s — killing process.");
             try { process.Kill(entireProcessTree: true); } catch { }
             return null;
+        }
+        finally
+        {
+            _activeBridgeProcess = null;
         }
 
         var output = await outputTask;
@@ -302,6 +307,7 @@ public class SteamManager : IDisposable
         return true;
     }
 
+    private volatile Process? _activeBridgeProcess;
     private bool _disposed;
 
     public void Dispose()
@@ -309,6 +315,8 @@ public class SteamManager : IDisposable
         if (_disposed) return;
         _disposed = true;
         _shutdown.Cancel();
+        // Kill any in-flight bridge process immediately so it doesn't linger as an orphan.
+        try { _activeBridgeProcess?.Kill(entireProcessTree: true); } catch { }
         try
         {
             _monitorTask.Wait(500);

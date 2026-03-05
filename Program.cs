@@ -20,6 +20,9 @@ sealed class Program
         FaroTelemetryService.Init(version, hw);
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         FaroTelemetryService.ShutdownAsync().GetAwaiter().GetResult();
+        // Force-exit in case any third-party library (e.g. SocketIOClient) left foreground
+        // threads running, which would otherwise keep the process alive indefinitely.
+        Environment.Exit(0);
     }
 
     // Avalonia configuration, don't remove; also used by visual designer.

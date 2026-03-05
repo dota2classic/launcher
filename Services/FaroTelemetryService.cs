@@ -69,7 +69,7 @@ public static class FaroTelemetryService
     {
         _timer?.Dispose();
         _timer = null;
-        await FlushAsync();
+        await FlushAsync().ConfigureAwait(false);
     }
 
     public static async Task FlushAsync()
@@ -94,7 +94,7 @@ public static class FaroTelemetryService
         {
             var json = JsonSerializer.Serialize(payload, JsonOpts);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
-            await Http.PostAsync(CollectorUrl, content);
+            await Http.PostAsync(CollectorUrl, content).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
