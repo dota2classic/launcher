@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
@@ -16,4 +17,5 @@ public interface IBackendApiService
     Task<Avalonia.Media.Imaging.Bitmap?> LoadAvatarFromUrlAsync(string? url, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ChatMessageData>> GetChatMessagesAsync(string threadId, int limit, string bearerToken, CancellationToken cancellationToken = default);
     Task PostChatMessageAsync(string threadId, string content, string bearerToken, CancellationToken cancellationToken = default);
+    IAsyncEnumerable<ChatMessageData> SubscribeChatAsync(string threadId, string bearerToken, CancellationToken cancellationToken = default);
 }

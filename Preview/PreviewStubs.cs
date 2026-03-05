@@ -78,6 +78,15 @@ internal sealed class StubBackendApiService : IBackendApiService
 
     public Task PostChatMessageAsync(string threadId, string content, string bearerToken, CancellationToken cancellationToken = default)
         => Task.CompletedTask;
+
+    public async IAsyncEnumerable<ChatMessageData> SubscribeChatAsync(
+        string threadId, string bearerToken,
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        // Stub: yield nothing (preview shows only the initially-loaded messages).
+        await Task.CompletedTask;
+        yield break;
+    }
 }
 
 internal sealed class StubGameLaunchSettingsStorage : IGameLaunchSettingsStorage

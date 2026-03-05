@@ -1,9 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
@@ -23,6 +27,12 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
     {
         BaseAddress = BaseUri,
         Timeout = TimeSpan.FromSeconds(10)
+    };
+    // Long-lived client for SSE streams — no timeout (cancelled via CancellationToken).
+    private readonly HttpClient _sseHttpClient = new HttpClient
+    {
+        BaseAddress = BaseUri,
+        Timeout = System.Threading.Timeout.InfiniteTimeSpan
     };
     // TODO: Merge into a single HttpClient. Setting DefaultRequestHeaders per-call is not
     // thread-safe under concurrent requests. Prefer passing the bearer token via a delegating
@@ -322,10 +332,84 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
             cancellationToken).ConfigureAwait(false);
     }
 
+    public async IAsyncEnumerable<ChatMessageData> SubscribeChatAsync(
+        string threadId, string bearerToken,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        var url = $"v1/forum/thread/{Uri.EscapeDataString(threadId)}/forum/sse";
+        using var request = new HttpRequestMessage(HttpMethod.Get, url);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
+        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/event-stream"));
+
+        using var response = await _sseHttpClient.SendAsync(
+            request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+        response.EnsureSuccessStatusCode();
+
+        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+        using var reader = new StreamReader(stream);
+
+        var dataBuffer = new StringBuilder();
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            var line = await reader.ReadLineAsync(cancellationToken).ConfigureAwait(false);
+            if (line == null) break; // stream ended
+
+            if (line.StartsWith("data:", StringComparison.Ordinal))
+            {
+                var payload = line.Length > 5 ? line.Substring(5).TrimStart() : "";
+                dataBuffer.Append(payload);
+            }
+            else if (line.Length == 0 && dataBuffer.Length > 0)
+            {
+                // Blank line = end of SSE event
+                var json = dataBuffer.ToString();
+                dataBuffer.Clear();
+                var msg = ParseSseChatMessage(json);
+                if (msg != null)
+                    yield return msg;
+            }
+        }
+    }
+
+    private static ChatMessageData? ParseSseChatMessage(string json)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+
+            var messageId = root.TryGetProperty("messageId", out var mid) ? mid.GetString() ?? "" : "";
+            var deleted = root.TryGetProperty("deleted", out var del) && del.GetBoolean();
+
+            if (deleted)
+                return new ChatMessageData(messageId, "", "", "", "", "", null, true);
+
+            var author = root.TryGetProperty("author", out var authorEl) ? authorEl : default;
+            return new ChatMessageData(
+                MessageId: messageId,
+                ThreadId: root.TryGetProperty("threadId", out var tid) ? tid.GetString() ?? "" : "",
+                Content: root.TryGetProperty("content", out var content) ? content.GetString() ?? "" : "",
+                CreatedAt: root.TryGetProperty("createdAt", out var created) ? created.GetString() ?? "" : "",
+                AuthorSteamId: author.ValueKind != JsonValueKind.Undefined
+                    && author.TryGetProperty("steamId", out var sid) ? sid.GetString() ?? "" : "",
+                AuthorName: author.ValueKind != JsonValueKind.Undefined
+                    && author.TryGetProperty("name", out var name) ? name.GetString() ?? "" : "",
+                AuthorAvatarUrl: author.ValueKind != JsonValueKind.Undefined
+                    && author.TryGetProperty("avatarSmall", out var avatar) ? avatar.GetString() : null,
+                Deleted: false);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error($"Chat SSE parse failed: {ex.Message}", ex);
+            return null;
+        }
+    }
+
     public void Dispose()
     {
         _httpClient.Dispose();
         _authHttpClient.Dispose();
+        _sseHttpClient.Dispose();
     }
 
     private static string GetInitials(string name)

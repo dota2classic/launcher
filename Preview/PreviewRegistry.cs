@@ -99,7 +99,7 @@ public static class PreviewRegistry
                 var stub = new StubBackendApiService();
                 var vm = new ChatViewModel(stub);
                 vm.GetBackendToken = () => "stub-token";
-                _ = vm.RefreshAsync();
+                _ = vm.StartAsync();
                 var host = new Avalonia.Controls.Panel
                 {
                     Width = 620,

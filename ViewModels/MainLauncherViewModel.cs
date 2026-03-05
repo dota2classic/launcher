@@ -100,7 +100,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Settings.PushCvar = PushCvarIfGameRunning;
         Chat = new ChatViewModel(backendApiService);
         Chat.GetBackendToken = () => BackendAccessToken;
-        _ = Chat.RefreshAsync();
+        _ = Chat.StartAsync();
 
         // Wire delegates into children that need auth state
         Room.GetCurrentUser = () => CurrentUser;
@@ -174,7 +174,6 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
         _ = Party.RefreshPartyAsync();
         _ = Queue.RefreshMatchmakingModesAsync();
-        _ = Chat.RefreshAsync();
 
     }
 
@@ -255,7 +254,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
             PersistBackendToken(token);
             await EnsureQueueConnectionAsync(token, ct);
             await Party.RefreshPartyAsync();
-            _ = Chat.RefreshAsync();
+            Chat.RestartSse();
         }
         catch (OperationCanceledException)
         {

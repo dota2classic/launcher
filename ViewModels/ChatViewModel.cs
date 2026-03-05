@@ -21,10 +21,11 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     private const int MergeWindowSeconds = 60;
 
     private readonly IBackendApiService _backendApiService;
-    private readonly DispatcherTimer _refreshTimer;
     private readonly Dictionary<string, string> _avatarUrlByAuthor = new(StringComparer.Ordinal);
     private CancellationTokenSource? _loadCts;
-    private int _refreshRunning;
+    private CancellationTokenSource? _sseCts;
+    // Tracks the last appended message for SSE header-grouping decisions.
+    private (string AuthorSteamId, string CreatedAt)? _lastMessageRaw;
 
     public Func<string?> GetBackendToken { get; set; } = () => null;
 
@@ -39,22 +40,103 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     public ChatViewModel(IBackendApiService backendApiService)
     {
         _backendApiService = backendApiService;
+    }
 
-        _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(10) };
-        _refreshTimer.Tick += (_, _) => { _ = RefreshAsync(); };
-        _refreshTimer.Start();
+    /// <summary>Loads initial messages then starts the SSE live-update stream.</summary>
+    public async Task StartAsync()
+    {
+        await RefreshAsync().ConfigureAwait(false);
+        StartSseLoop();
+    }
+
+    /// <summary>Cancels the current SSE connection and reconnects. Call when the auth token changes.</summary>
+    public void RestartSse() => StartSseLoop();
+
+    private void StartSseLoop()
+    {
+        _sseCts?.Cancel();
+        _sseCts?.Dispose();
+        _sseCts = new CancellationTokenSource();
+        _ = RunSseLoopAsync(_sseCts.Token);
+    }
+
+    private async Task RunSseLoopAsync(CancellationToken ct)
+    {
+        while (!ct.IsCancellationRequested)
+        {
+            var token = GetBackendToken();
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                try { await Task.Delay(5000, ct).ConfigureAwait(false); }
+                catch (OperationCanceledException) { break; }
+                continue;
+            }
+
+            try
+            {
+                await foreach (var msg in _backendApiService.SubscribeChatAsync(ThreadId, token, ct))
+                    ConsumeIncomingMessage(msg);
+            }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested)
+            {
+                break;
+            }
+            catch (Exception ex)
+            {
+                AppLog.Error($"Chat SSE disconnected: {ex.Message}", ex);
+                try { await Task.Delay(3000, ct).ConfigureAwait(false); }
+                catch (OperationCanceledException) { break; }
+            }
+        }
+    }
+
+    private void ConsumeIncomingMessage(Models.ChatMessageData msg)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (msg.Deleted)
+            {
+                var existing = Messages.FirstOrDefault(m => m.MessageId == msg.MessageId);
+                if (existing != null)
+                    Messages.Remove(existing);
+                return;
+            }
+
+            // Already present (e.g. loaded by initial fetch) — skip to avoid duplicates.
+            if (Messages.Any(m => m.MessageId == msg.MessageId))
+                return;
+
+            var showHeader = _lastMessageRaw == null
+                || _lastMessageRaw.Value.AuthorSteamId != msg.AuthorSteamId
+                || Math.Abs((ParseDate(msg.CreatedAt) - ParseDate(_lastMessageRaw.Value.CreatedAt)).TotalSeconds)
+                   > MergeWindowSeconds;
+
+            if (!string.IsNullOrWhiteSpace(msg.AuthorAvatarUrl))
+                _avatarUrlByAuthor[msg.AuthorSteamId] = msg.AuthorAvatarUrl!;
+
+            var view = new ChatMessageView(
+                msg.MessageId,
+                msg.Content,
+                msg.AuthorName,
+                msg.AuthorSteamId,
+                showHeader,
+                FormatTime(ParseDate(msg.CreatedAt)));
+
+            Messages.Add(view);
+            _lastMessageRaw = (msg.AuthorSteamId, msg.CreatedAt);
+            MessagesUpdated?.Invoke();
+
+            if (showHeader)
+                _ = LoadSingleAvatarAsync(view, CancellationToken.None);
+        });
     }
 
     public async Task RefreshAsync()
     {
-        if (Interlocked.Exchange(ref _refreshRunning, 1) != 0)
-            return;
-
         var token = GetBackendToken();
         if (string.IsNullOrWhiteSpace(token))
         {
             AppLog.Info("Chat: skipping refresh, no token.");
-            Interlocked.Exchange(ref _refreshRunning, 0);
             return;
         }
 
@@ -91,10 +173,6 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
             AppLog.Error($"Chat refresh failed: {ex.Message}", ex);
             Dispatcher.UIThread.Post(() => IsLoading = false);
         }
-        finally
-        {
-            Interlocked.Exchange(ref _refreshRunning, 0);
-        }
     }
 
     [RelayCommand]
@@ -113,7 +191,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
             InputText = "";
             await _backendApiService.PostChatMessageAsync(ThreadId, text, token)
                 .ConfigureAwait(false);
-            await RefreshAsync().ConfigureAwait(false);
+            // SSE will deliver the sent message — no manual refresh needed.
         }
         catch (Exception ex)
         {
@@ -155,6 +233,14 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 showHeader,
                 FormatTime(ParseDate(msg.CreatedAt))));
         }
+
+        // Remember last message so ConsumeIncomingMessage can compute headers for SSE events.
+        if (sorted.Count > 0)
+        {
+            var last = sorted[^1];
+            _lastMessageRaw = (last.AuthorSteamId, last.CreatedAt);
+        }
+
         return result;
     }
 
@@ -176,19 +262,22 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         {
             if (!msg.ShowHeader) continue;
             if (!seen.Add(msg.AuthorSteamId)) continue;
-            if (!_avatarUrlByAuthor.TryGetValue(msg.AuthorSteamId, out var url)) continue;
-
             if (ct.IsCancellationRequested) return;
-            var bitmap = await _backendApiService.LoadAvatarFromUrlAsync(url, ct)
-                .ConfigureAwait(false);
-            if (bitmap == null || ct.IsCancellationRequested) continue;
-
-            Dispatcher.UIThread.Post(() =>
-            {
-                foreach (var m in Messages.Where(m => m.AuthorSteamId == msg.AuthorSteamId))
-                    m.AvatarImage = bitmap;
-            });
+            await LoadSingleAvatarAsync(msg, ct).ConfigureAwait(false);
         }
+    }
+
+    private async Task LoadSingleAvatarAsync(ChatMessageView view, CancellationToken ct)
+    {
+        if (!_avatarUrlByAuthor.TryGetValue(view.AuthorSteamId, out var url)) return;
+        var bitmap = await _backendApiService.LoadAvatarFromUrlAsync(url, ct).ConfigureAwait(false);
+        if (bitmap == null || ct.IsCancellationRequested) return;
+
+        Dispatcher.UIThread.Post(() =>
+        {
+            foreach (var m in Messages.Where(m => m.AuthorSteamId == view.AuthorSteamId))
+                m.AvatarImage = bitmap;
+        });
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -219,7 +308,8 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
     public void Dispose()
     {
-        _refreshTimer.Stop();
+        _sseCts?.Cancel();
+        _sseCts?.Dispose();
         _loadCts?.Cancel();
         _loadCts?.Dispose();
     }
