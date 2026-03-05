@@ -117,9 +117,21 @@ public partial class MainWindowViewModel : ViewModelBase
     private void ShowGameDownload(string gameDir)
     {
         (CurrentContentViewModel as System.IDisposable)?.Dispose();
+
+        var settings = _settingsStorage.Get();
+        bool needModal = settings.DefenderExclusionPath != gameDir;
+
         var vm = new GameDownloadViewModel(_localManifestService, _manifestDiffService, _gameDownloadService)
         {
             GameDirectory = gameDir,
+            NeedDefenderModal = needModal,
+            OnDefenderDecisionMade = () =>
+            {
+                // Persist the decision so we don't ask again for this directory
+                var s = _settingsStorage.Get();
+                s.DefenderExclusionPath = gameDir;
+                _settingsStorage.Save(s);
+            },
             OnCompleted = () => Dispatcher.UIThread.Post(ShowMainLauncher),
             PrefetchedRemoteManifest = _manifestPrefetch
         };

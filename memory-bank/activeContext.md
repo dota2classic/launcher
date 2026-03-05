@@ -55,6 +55,7 @@ Download complete → MainLauncherView
 
 | Commit | Change |
 |--------|--------|
+| issue #2 | Windows Defender exclusion for game folder — `WindowsDefenderService.TryAddExclusionAsync`, `DefenderExclusionPath` in `LauncherSettings`, wired in `MainWindowViewModel.ShowGameDownload()` |
 | `e87b6e3` | Fix issue #1: double-dispose guard in `SteamManager` — add `_disposed` bool to prevent `ObjectDisposedException` on shutdown |
 | `dc61ce4` | Add test step to CI workflow |
 | `212c9ca` | Remove .claude from git, add to .gitignore |

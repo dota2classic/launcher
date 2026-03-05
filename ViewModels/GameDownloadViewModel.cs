@@ -23,6 +23,18 @@ public partial class GameDownloadViewModel : ViewModelBase
     public Action? OnCompleted { get; set; }
 
     /// <summary>
+    /// When true, <see cref="RunAsync"/> will pause and show the Windows Defender
+    /// exclusion confirmation modal before starting the scan/download.
+    /// </summary>
+    public bool NeedDefenderModal { get; set; }
+
+    /// <summary>
+    /// Called after the user responds to the Defender modal (accept or skip).
+    /// Used by the parent ViewModel to persist the decision to settings.
+    /// </summary>
+    public Action? OnDefenderDecisionMade { get; set; }
+
+    /// <summary>
     /// Optional pre-started task for the remote manifest fetch. When set,
     /// <see cref="RunAsync"/> awaits it instead of making its own HTTP request,
     /// eliminating the "Подключение к серверу..." phase.
@@ -30,6 +42,9 @@ public partial class GameDownloadViewModel : ViewModelBase
     /// </summary>
     public Task<GameManifest?>? PrefetchedRemoteManifest { get; set; }
 
+    private TaskCompletionSource? _defenderTcs;
+
+    [ObservableProperty] private bool _showDefenderModal;
     [ObservableProperty] private string _statusText = "";
     [ObservableProperty] private string _detailsText = "";
     [ObservableProperty] private string _currentFileText = "";
@@ -51,6 +66,23 @@ public partial class GameDownloadViewModel : ViewModelBase
     public void StartAsync() => _ = RunAsync();
 
     [RelayCommand]
+    private async Task AcceptDefenderAsync()
+    {
+        ShowDefenderModal = false;
+        OnDefenderDecisionMade?.Invoke();
+        await WindowsDefenderService.TryAddExclusionAsync(GameDirectory);
+        _defenderTcs?.TrySetResult();
+    }
+
+    [RelayCommand]
+    private void SkipDefender()
+    {
+        ShowDefenderModal = false;
+        OnDefenderDecisionMade?.Invoke();
+        _defenderTcs?.TrySetResult();
+    }
+
+    [RelayCommand]
     private void Retry()
     {
         HasError = false;
@@ -67,6 +99,14 @@ public partial class GameDownloadViewModel : ViewModelBase
     {
         try
         {
+            // Phase 0: Ask the user about Windows Defender exclusion (first time only)
+            if (NeedDefenderModal)
+            {
+                _defenderTcs = new TaskCompletionSource();
+                ShowDefenderModal = true;
+                await _defenderTcs.Task;
+            }
+
             // Phase 1: Fetch remote manifest (use pre-started task if available)
             IsIndeterminate = true;
             DetailsText = "";

@@ -14,57 +14,104 @@
         </LinearGradientBrush>
     </UserControl.Background>
 
-    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                Spacing="16" Width="480">
+    <Panel>
+        <!-- Main content -->
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Spacing="16" Width="480">
 
-        <TextBlock Text="Dota 2 Classic"
-                   FontFamily="{StaticResource TrajanPro3}"
-                   FontSize="28" FontWeight="Bold"
-                   HorizontalAlignment="Center"
-                   Foreground="#D9D9D9"/>
+            <TextBlock Text="Dota 2 Classic"
+                       FontFamily="{StaticResource TrajanPro3}"
+                       FontSize="28" FontWeight="Bold"
+                       HorizontalAlignment="Center"
+                       Foreground="#D9D9D9"/>
 
-        <TextBlock Text="{Binding StatusText}"
-                   FontSize="14" HorizontalAlignment="Center"
-                   Foreground="#AAAAAA"/>
+            <TextBlock Text="{Binding StatusText}"
+                       FontSize="14" HorizontalAlignment="Center"
+                       Foreground="#AAAAAA"/>
 
-        <ProgressBar Value="{Binding ProgressValue}"
-                     IsIndeterminate="{Binding IsIndeterminate}"
-                     Minimum="0" Maximum="100"
-                     Height="6" CornerRadius="0"
-                     Foreground="#3a90d6"
-                     Background="#2a2a2a"/>
+            <ProgressBar Value="{Binding ProgressValue}"
+                         IsIndeterminate="{Binding IsIndeterminate}"
+                         Minimum="0" Maximum="100"
+                         Height="6" CornerRadius="0"
+                         Foreground="#3a90d6"
+                         Background="#2a2a2a"/>
 
-        <TextBlock Text="{Binding CurrentFileText}"
-                   IsVisible="{Binding CurrentFileText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                   FontSize="12" HorizontalAlignment="Center"
-                   Foreground="#888888"
-                   TextTrimming="CharacterEllipsis"
-                   TextAlignment="Center"/>
+            <TextBlock Text="{Binding CurrentFileText}"
+                       IsVisible="{Binding CurrentFileText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                       FontSize="12" HorizontalAlignment="Center"
+                       Foreground="#888888"
+                       TextTrimming="CharacterEllipsis"
+                       TextAlignment="Center"/>
 
-        <TextBlock Text="{Binding DetailsText}"
-                   IsVisible="{Binding DetailsText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                   FontSize="12" HorizontalAlignment="Center"
-                   Foreground="#888888"
-                   TextAlignment="Center"/>
+            <TextBlock Text="{Binding DetailsText}"
+                       IsVisible="{Binding DetailsText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                       FontSize="12" HorizontalAlignment="Center"
+                       Foreground="#888888"
+                       TextAlignment="Center"/>
 
-        <!-- Error panel -->
-        <StackPanel IsVisible="{Binding HasError}" Spacing="12" HorizontalAlignment="Center">
-            <TextBlock Text="{Binding ErrorText}"
-                       FontSize="13" Foreground="#e05555"
-                       TextWrapping="Wrap" TextAlignment="Center"
-                       MaxWidth="420"/>
-            <Button Command="{Binding RetryCommand}"
-                    HorizontalAlignment="Center"
-                    Padding="24,7" CornerRadius="0"
-                    Background="Transparent"
-                    BorderBrush="#e05555" BorderThickness="1"
-                    Foreground="#e05555"
-                    FontSize="13" FontWeight="SemiBold">
-                <TextBlock Text="Повторить"
-                           FontSize="13" FontWeight="SemiBold" Foreground="#e05555"/>
-            </Button>
+            <!-- Error panel -->
+            <StackPanel IsVisible="{Binding HasError}" Spacing="12" HorizontalAlignment="Center">
+                <TextBlock Text="{Binding ErrorText}"
+                           FontSize="13" Foreground="#e05555"
+                           TextWrapping="Wrap" TextAlignment="Center"
+                           MaxWidth="420"/>
+                <Button Command="{Binding RetryCommand}"
+                        HorizontalAlignment="Center"
+                        Padding="24,7" CornerRadius="0"
+                        Background="Transparent"
+                        BorderBrush="#e05555" BorderThickness="1"
+                        Foreground="#e05555"
+                        FontSize="13" FontWeight="SemiBold">
+                    <TextBlock Text="Повторить"
+                               FontSize="13" FontWeight="SemiBold" Foreground="#e05555"/>
+                </Button>
+            </StackPanel>
+
         </StackPanel>
 
-    </StackPanel>
+        <!-- Windows Defender exclusion confirmation modal -->
+        <Panel IsVisible="{Binding ShowDefenderModal}" ZIndex="200"
+               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+               Background="#90000000">
+            <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Padding="28" CornerRadius="0" MinWidth="400" MaxWidth="520"
+                    Background="#121315" BorderBrush="#2d3842" BorderThickness="1"
+                    BoxShadow="0 12 28 0 #80000000">
+                <StackPanel Spacing="20">
+                    <TextBlock Text="Исключение Windows Defender"
+                               FontSize="17" FontWeight="SemiBold"
+                               Foreground="#D9D9D9"/>
+                    <TextBlock TextWrapping="Wrap" Foreground="#AAAAAA" FontSize="13" LineHeight="20">
+                        <Run Text="Добавить папку с игрой в исключения Windows Defender?"/>
+                        <Run Text="&#10;&#10;"/>
+                        <Run Text="Без исключения антивирус проверяет каждый файл при скачивании и проверке игры, что замедляет процесс и нагружает диск и процессор."/>
+                        <Run Text="&#10;&#10;"/>
+                        <Run Text="Потребуется подтверждение администратора (UAC)."/>
+                    </TextBlock>
+                    <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Right">
+                        <Button Command="{Binding SkipDefenderCommand}"
+                                Padding="20,8" CornerRadius="0"
+                                Background="Transparent"
+                                BorderBrush="#444" BorderThickness="1"
+                                Foreground="#AAAAAA" FontSize="13">
+                            Пропустить
+                        </Button>
+                        <Button Command="{Binding AcceptDefenderCommand}"
+                                Padding="20,8" CornerRadius="0"
+                                BorderThickness="0" Foreground="White"
+                                FontSize="13" FontWeight="SemiBold">
+                            <Button.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#1a5aaa" Offset="0"/>
+                                    <GradientStop Color="#3a90d6" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Button.Background>
+                            Добавить исключение
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Panel>
+    </Panel>
 
 </UserControl>
