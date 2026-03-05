@@ -10,4 +10,7 @@ public class LauncherSettings
     /// requested. Null means no exclusion has been attempted yet.
     /// </summary>
     public string? DefenderExclusionPath { get; set; }
+
+    /// <summary>Whether to automatically apply launcher updates on startup.</summary>
+    public bool AutoUpdate { get; set; } = true;
 }

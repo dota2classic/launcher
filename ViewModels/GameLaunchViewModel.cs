@@ -16,6 +16,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
     private readonly ISettingsStorage _settingsStorage;
     private readonly IGameLaunchSettingsStorage _launchSettingsStorage;
     private readonly ICvarSettingsProvider _cvarProvider;
+    private readonly IVideoSettingsProvider _videoProvider;
     private readonly DispatcherTimer _runStateTimer;
 
     [ObservableProperty]
@@ -61,11 +62,13 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         ISettingsStorage settingsStorage,
         IGameLaunchSettingsStorage launchSettingsStorage,
         ICvarSettingsProvider cvarProvider,
+        IVideoSettingsProvider videoProvider,
         IQueueSocketService queueSocketService)
     {
         _settingsStorage = settingsStorage;
         _launchSettingsStorage = launchSettingsStorage;
         _cvarProvider = cvarProvider;
+        _videoProvider = videoProvider;
         var settings = settingsStorage.Get();
         _gameDirectory = settings.GameDirectory;
         _runState = GameRunState.None;
@@ -91,9 +94,12 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         settings.GameDirectory = path;
         _settingsStorage.Save(settings);
 
-        // Load cvar values from the new game directory's config.cfg
+        // Load settings from the new game directory's config files
         if (!string.IsNullOrWhiteSpace(path))
+        {
             _cvarProvider.LoadFromConfigCfg(path);
+            _videoProvider.LoadFromVideoTxt(path);
+        }
 
         RefreshRunState();
     }
@@ -252,12 +258,15 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
             // Track game running state so CvarSettingsProvider knows whether to write config.cfg
             _cvarProvider.IsGameRunning = newState == GameRunState.OurGameRunning;
 
-            // On game exit: read config.cfg to capture any in-game changes
+            // On game exit: re-read config files to capture any in-game changes
             if (previousState == GameRunState.OurGameRunning && newState != GameRunState.OurGameRunning)
             {
                 d2c_launcher.Services.FaroTelemetryService.TrackEvent("game_exited");
                 if (!string.IsNullOrWhiteSpace(GameDirectory))
+                {
                     _cvarProvider.LoadFromConfigCfg(GameDirectory);
+                    _videoProvider.LoadFromVideoTxt(GameDirectory);
+                }
             }
         }
         finally

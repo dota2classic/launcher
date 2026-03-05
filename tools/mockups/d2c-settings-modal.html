@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<title>D2C — Settings Modal</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:         #0e1012;
+    --bg-panel:   #12151a;
+    --bg-panel2:  #161b21;
+    --bg-input:   #0c0e12;
+    --bg-hover:   #1a2028;
+    --border:     #222830;
+    --border-lit: #2d3842;
+    --gold:       #c8a84b;
+    --gold-dim:   #6a5520;
+    --blue:       #3a90d6;
+    --blue-dark:  #1a5aaa;
+    --text:       #c0c4c8;
+    --text-dim:   #50585f;
+    --text-head:  #d9dde0;
+    --red:        #e05555;
+    --green:      #3a8c32;
+    --green-lit:  #4aaa40;
+  }
+
+  body {
+    background: #090b0d;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Noto Sans', sans-serif;
+  }
+
+  /* blurred launcher bg hint */
+  .backdrop {
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse at 30% 60%, rgba(58,144,214,0.04) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 20%, rgba(200,168,75,0.03) 0%, transparent 50%),
+      #090b0d;
+  }
+
+  /* ── MODAL ── */
+  .modal {
+    position: relative;
+    width: 460px;
+    height: 520px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-lit);
+    box-shadow:
+      0 40px 120px rgba(0,0,0,0.85),
+      0 0 0 1px rgba(255,255,255,0.02),
+      inset 0 1px 0 rgba(255,255,255,0.03);
+    display: flex;
+    flex-direction: column;
+    animation: modalIn .2s ease both;
+    overflow: hidden;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* top accent line */
+  .modal::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--gold-dim) 40%, var(--gold-dim) 60%, transparent 100%);
+  }
+
+  /* ── MODAL HEADER ── */
+  .modal-header {
+    height: 48px;
+    background: #0c0f13;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    flex-shrink: 0;
+    gap: 10px;
+  }
+  .modal-title {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-head);
+    flex: 1;
+  }
+  .modal-close {
+    width: 28px; height: 28px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    transition: all .15s;
+    border-radius: 0;
+  }
+  .modal-close:hover { border-color: var(--red); color: var(--red); background: rgba(224,85,85,0.08); }
+
+  /* ── DIRECTORY BLOCK ── */
+  .dir-block {
+    padding: 16px 18px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+  .dir-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    font-family: 'Cinzel', serif;
+  }
+  .dir-path-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 10px;
+  }
+  .dir-icon {
+    width: 32px; height: 32px;
+    background: var(--bg-panel2);
+    border: 1px solid var(--border-lit);
+    border-right: none;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--gold-dim);
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .dir-path {
+    flex: 1;
+    height: 32px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-lit);
+    border-right: none;
+    color: var(--blue);
+    font-size: 12px;
+    padding: 0 10px;
+    font-family: 'Noto Sans', sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex; align-items: center;
+  }
+  .btn-change-dir {
+    height: 32px;
+    padding: 0 14px;
+    background: var(--bg-panel2);
+    border: 1px solid var(--border-lit);
+    color: var(--text);
+    font-family: 'Noto Sans', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 0;
+    white-space: nowrap;
+    transition: background .15s, color .15s, border-color .15s;
+    flex-shrink: 0;
+  }
+  .btn-change-dir:hover { background: var(--bg-hover); border-color: #3a4858; color: var(--text-head); }
+
+  /* disk usage mini bar */
+  .dir-disk {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .disk-bar {
+    flex: 1;
+    height: 3px;
+    background: #1a1e24;
+    border-radius: 0;
+    overflow: hidden;
+  }
+  .disk-fill {
+    height: 100%;
+    width: 34%;
+    background: linear-gradient(90deg, var(--blue-dark), var(--blue));
+  }
+  .disk-info {
+    font-size: 10px;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .disk-info span { color: var(--text); }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: #0c0f13;
+    flex-shrink: 0;
+  }
+  .tab {
+    padding: 0 20px;
+    height: 38px;
+    display: flex; align-items: center;
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color .15s, border-color .15s;
+    user-select: none;
+    position: relative;
+    top: 1px;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+  /* ── TAB CONTENT ── */
+  .tab-pane { display: none; flex-direction: column; flex: 1; min-height: 0; }
+  .tab-pane.active { display: flex; }
+
+  /* setting rows */
+  .settings-list {
+    padding: 6px 0;
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #2a3040 transparent;
+    min-height: 0;
+  }
+  .settings-list::-webkit-scrollbar { width: 4px; }
+  .settings-list::-webkit-scrollbar-track { background: transparent; }
+  .settings-list::-webkit-scrollbar-thumb { background: #2a3040; border-radius: 2px; }
+
+  .setting-row {
+    display: flex;
+    align-items: center;
+    padding: 13px 18px;
+    border-bottom: 1px solid #181c22;
+    gap: 16px;
+    transition: background .15s;
+  }
+  .setting-row:last-child { border-bottom: none; }
+  .setting-row:hover { background: rgba(255,255,255,0.015); }
+
+  .setting-label {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .setting-label small {
+    display: block;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* SELECT dropdown */
+  .setting-select {
+    appearance: none;
+    background: var(--bg-input);
+    border: 1px solid var(--border-lit);
+    color: var(--text);
+    font-family: 'Noto Sans', sans-serif;
+    font-size: 12px;
+    padding: 6px 28px 6px 10px;
+    cursor: pointer;
+    border-radius: 0;
+    outline: none;
+    min-width: 120px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2350585f' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    transition: border-color .15s;
+  }
+  .setting-select:hover { border-color: #3a4858; }
+  .setting-select:focus { border-color: var(--blue); }
+  .setting-select option { background: #1a1f28; }
+
+  /* TOGGLE switch */
+  .toggle {
+    position: relative;
+    width: 42px; height: 22px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .toggle input { display: none; }
+  .toggle-track {
+    position: absolute; inset: 0;
+    background: #1e242e;
+    border: 1px solid var(--border-lit);
+    border-radius: 11px;
+    transition: background .2s, border-color .2s;
+  }
+  .toggle input:checked ~ .toggle-track {
+    background: rgba(58,144,214,0.25);
+    border-color: var(--blue);
+  }
+  .toggle-thumb {
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    transition: transform .2s, background .2s;
+  }
+  .toggle input:checked ~ .toggle-track .toggle-thumb {
+    transform: translateX(20px);
+    background: var(--blue);
+  }
+
+  /* number input */
+  .setting-number {
+    width: 70px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-lit);
+    color: var(--text);
+    font-family: 'Noto Sans', sans-serif;
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 0;
+    outline: none;
+    text-align: center;
+    transition: border-color .15s;
+  }
+  .setting-number:focus { border-color: var(--blue); }
+
+  /* section subheader inside tab */
+  .settings-subhead {
+    padding: 10px 18px 4px;
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    border-bottom: 1px solid #181c22;
+  }
+
+  /* ── MODAL FOOTER ── */
+  .modal-footer {
+    height: 52px;
+    background: #0c0f13;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 18px;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .btn-cancel {
+    height: 32px;
+    padding: 0 18px;
+    background: transparent;
+    border: 1px solid var(--border-lit);
+    color: var(--text-dim);
+    font-family: 'Noto Sans', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 0;
+    letter-spacing: 0.5px;
+    transition: all .15s;
+  }
+  .btn-cancel:hover { border-color: #3a4858; color: var(--text); background: var(--bg-hover); }
+
+  .btn-save {
+    height: 32px;
+    padding: 0 22px;
+    background: linear-gradient(180deg, #3a90d6 0%, #1a5aaa 100%);
+    border: none;
+    border-top: 1px solid #4aa0e6;
+    color: #fff;
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 0;
+    transition: filter .15s;
+    box-shadow: 0 2px 10px rgba(58,144,214,0.25);
+  }
+  .btn-save:hover { filter: brightness(1.15); }
+</style>
+</head>
+<body>
+
+<div class="backdrop"></div>
+
+<div class="modal">
+
+  <!-- HEADER -->
+  <div class="modal-header">
+    <span class="modal-title">Настройки</span>
+    <button class="modal-close" title="Закрыть">✕</button>
+  </div>
+
+  <!-- DIRECTORY -->
+  <div class="dir-block">
+    <div class="dir-label">Директория игры</div>
+    <div class="dir-path-row">
+      <div class="dir-icon">📁</div>
+      <div class="dir-path">C:\Users\enchantinggg4\Games\Dota 6.84</div>
+      <button class="btn-change-dir">Изменить</button>
+    </div>
+    <div class="dir-disk">
+      <div class="disk-bar"><div class="disk-fill"></div></div>
+      <div class="disk-info"><span>142.6 ГБ</span> свободно на C:\</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('visual', this)">Визуальные</div>
+    <div class="tab" onclick="switchTab('gameplay', this)">Геймплей</div>
+    <div class="tab" onclick="switchTab('network', this)">Сеть</div>
+  </div>
+
+  <!-- TAB: VISUAL -->
+  <div class="tab-pane active" id="tab-visual">
+    <div class="settings-list">
+      <div class="setting-row">
+        <div class="setting-label">
+          Язык игры
+          <small>Язык интерфейса и озвучки</small>
+        </div>
+        <select class="setting-select">
+          <option selected>russian</option>
+          <option>english</option>
+          <option>ukrainian</option>
+          <option>polish</option>
+        </select>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-label">
+          Пропускать интро
+          <small>Пропускать заставку при запуске</small>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" checked/>
+          <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        </label>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-label">
+          Полноэкранный режим
+          <small>Запускать игру в полном экране</small>
+        </div>
+        <label class="toggle">
+          <input type="checkbox"/>
+          <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        </label>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-label">
+          Разрешение
+        </div>
+        <select class="setting-select">
+          <option>1920×1080</option>
+          <option selected>1280×720</option>
+          <option>2560×1440</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: GAMEPLAY -->
+  <div class="tab-pane" id="tab-gameplay">
+    <div class="settings-list">
+      <div class="settings-subhead">Управление</div>
+      <div class="setting-row">
+        <div class="setting-label">
+          Автоатака
+          <small>Включить автоатаку героя</small>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" checked/>
+          <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-label">
+          Быстрый каст
+          <small>Применять способности без подтверждения</small>
+        </div>
+        <label class="toggle">
+          <input type="checkbox"/>
+          <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        </label>
+      </div>
+
+      <div class="settings-subhead">Чат</div>
+      <div class="setting-row">
+        <div class="setting-label">
+          Фильтр нецензурной лексики
+        </div>
+        <label class="toggle">
+          <input type="checkbox"/>
+          <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: NETWORK -->
+  <div class="tab-pane" id="tab-network">
+    <div class="settings-list">
+      <div class="setting-row">
+        <div class="setting-label">
+          Ограничить скорость загрузки
+          <small>МБ/с, 0 — без ограничений</small>
+        </div>
+        <input class="setting-number" type="number" value="0" min="0" max="999"/>
+      </div>
+      <div class="setting-row">
+        <div class="setting-label">
+          Регион серверов
+        </div>
+        <select class="setting-select">
+          <option selected>Авто</option>
+          <option>EU West</option>
+          <option>EU East</option>
+          <option>Russia</option>
+          <option>US East</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-label">
+          Автообновление лаунчера
+          <small>Проверять обновления при запуске</small>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" checked/>
+          <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="modal-footer">
+    <button class="btn-cancel">Отмена</button>
+    <button class="btn-save">Сохранить</button>
+  </div>
+
+</div>
+
+<script>
+  function switchTab(name, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+  }
+</script>
+</body>
+</html>

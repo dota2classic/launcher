@@ -2,6 +2,25 @@
 
 ## Current Focus
 
+**Settings modal redesign** — issue #3 complete. Replaced the old 2-tab unstyled settings panel with a redesigned 3-tab modal.
+
+### What Was Changed (issue #3)
+- `Models/GameLaunchSettings.cs` — Added `Fullscreen`, `ResolutionWidth`, `ResolutionHeight`
+- `Models/LauncherSettings.cs` — Added `MaxDownloadSpeedKbps`, `AutoUpdate`
+- `Models/CvarSettings.cs` — Added `QuickCast`, `ChatFilter`
+- `Services/CfgGenerator.cs` — Added fullscreen/resolution to CLI args
+- `Services/CvarMapping.cs` — Added `dota_quick_select_setting`, `chat_filter_enabled`
+- `ViewModels/SettingsViewModel.cs` — Injected `ISettingsStorage`; added `GameDirectory`, `FolderSizeText`, `RefreshGameDirectory()`, `Fullscreen`, `SelectedResolutionIndex`, `QuickCast`, `ChatFilter`, `AutoUpdate`, `DownloadSpeedLimitText`
+- `ViewModels/MainLauncherViewModel.cs` — Pass `settingsStorage` to `SettingsViewModel`
+- `Views/Components/SettingsPanel.axaml` — Complete redesign: fixed 460×520px, dark themed, 3 tabs (ВИЗУАЛЬНЫЕ/ГЕЙМПЛЕЙ/СЕТЬ), directory block, scrollable content, no Save/Cancel footer
+- `Views/Components/SettingsPanel.axaml.cs` — Removed `SetGameDirectory` (now ViewModel-bound)
+- `Views/MainLauncherView.axaml.cs` — Call `vm.Settings.RefreshGameDirectory()` instead of `SetGameDirectory`
+- `Preview/PreviewRegistry.cs` — Added `StubSettingsStorage` to SettingsPanel preview
+
+---
+
+## Previous Focus: Game download / verification flow
+
 **Game download / verification flow** — new `GameDownloadView` that runs on every launch between selecting the game folder and showing the main UI.
 
 ### What Was Built

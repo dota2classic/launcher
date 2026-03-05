@@ -21,6 +21,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IBackendApiService _backendApiService;
     private readonly IQueueSocketService _queueSocketService;
     private readonly ICvarSettingsProvider _cvarProvider;
+    private readonly IVideoSettingsProvider _videoProvider;
     private readonly UpdateService _updateService;
     private readonly ILocalManifestService _localManifestService;
     private readonly IManifestDiffService _manifestDiffService;
@@ -52,6 +53,7 @@ public partial class MainWindowViewModel : ViewModelBase
         IBackendApiService backendApiService,
         IQueueSocketService queueSocketService,
         ICvarSettingsProvider cvarProvider,
+        IVideoSettingsProvider videoProvider,
         UpdateService updateService,
         ILocalManifestService localManifestService,
         IManifestDiffService manifestDiffService,
@@ -64,6 +66,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _backendApiService = backendApiService;
         _queueSocketService = queueSocketService;
         _cvarProvider = cvarProvider;
+        _videoProvider = videoProvider;
         _updateService = updateService;
         _localManifestService = localManifestService;
         _manifestDiffService = manifestDiffService;
@@ -109,9 +112,11 @@ public partial class MainWindowViewModel : ViewModelBase
     private void ShowMainLauncher()
     {
         (CurrentContentViewModel as System.IDisposable)?.Dispose();
-        CurrentContentViewModel = new MainLauncherViewModel(
-            _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider,
+        var vm = new MainLauncherViewModel(
+            _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider, _videoProvider,
             _steamAuthApi, _backendApiService, _queueSocketService);
+        vm.OnGameDirectoryChanged = path => Dispatcher.UIThread.Post(() => ShowGameDownload(path));
+        CurrentContentViewModel = vm;
     }
 
     private void ShowGameDownload(string gameDir)

@@ -20,6 +20,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     private readonly IQueueSocketService _queueSocketService;
     private readonly IBackendApiService _backendApiService;
     private readonly ICvarSettingsProvider _cvarProvider;
+    private readonly IVideoSettingsProvider _videoProvider;
     private readonly DispatcherTimer _onlineStatsTimer;
     private CancellationTokenSource? _ticketExchangeCts;
 
@@ -61,6 +62,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         ISettingsStorage settingsStorage,
         IGameLaunchSettingsStorage launchSettingsStorage,
         ICvarSettingsProvider cvarProvider,
+        IVideoSettingsProvider videoProvider,
         ISteamAuthApi steamAuthApi,
         IBackendApiService backendApiService,
         IQueueSocketService queueSocketService)
@@ -68,6 +70,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
         _cvarProvider = cvarProvider;
+        _videoProvider = videoProvider;
         _steamAuthApi = steamAuthApi;
         _queueSocketService = queueSocketService;
         _backendApiService = backendApiService;
@@ -77,18 +80,22 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         _currentUser = steamManager.CurrentUser;
         _avatarImage = SteamAvatarHelper.FromUser(_currentUser);
 
-        // Seed cvar state from config.cfg on startup
+        // Seed settings from game config files on startup
         var gameDir = settings.GameDirectory;
+        AppLog.Info($"Saved game folder: {(string.IsNullOrWhiteSpace(gameDir) ? "(not set)" : gameDir)}");
         if (!string.IsNullOrWhiteSpace(gameDir))
+        {
             cvarProvider.LoadFromConfigCfg(gameDir);
+            videoProvider.LoadFromVideoTxt(gameDir);
+        }
 
         // Create child ViewModels
-        Launch = new GameLaunchViewModel(settingsStorage, launchSettingsStorage, cvarProvider, queueSocketService);
+        Launch = new GameLaunchViewModel(settingsStorage, launchSettingsStorage, cvarProvider, videoProvider, queueSocketService);
         Queue = new QueueViewModel(queueSocketService, backendApiService);
         Room = new RoomViewModel(queueSocketService, backendApiService);
         Party = new PartyViewModel(queueSocketService, backendApiService);
         NotificationArea = new NotificationAreaViewModel(backendApiService, queueSocketService);
-        Settings = new SettingsViewModel(launchSettingsStorage, cvarProvider);
+        Settings = new SettingsViewModel(launchSettingsStorage, cvarProvider, settingsStorage, videoProvider);
         Settings.PushCvar = PushCvarIfGameRunning;
 
         // Wire delegates into children that need auth state
@@ -191,10 +198,31 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
     // ── Settings ──────────────────────────────────────────────────────────────
 
-    public void OpenSettings() => IsSettingsOpen = true;
+    public void OpenSettings()
+    {
+        var gameDir = Launch.GameDirectory;
+        if (!string.IsNullOrWhiteSpace(gameDir))
+        {
+            _videoProvider.LoadFromVideoTxt(gameDir);
+            Settings.RefreshFromVideoProvider();
+        }
+        IsSettingsOpen = true;
+    }
+
     public void CloseSettings() => IsSettingsOpen = false;
 
-    public void SetGameDirectory(string? path) => Launch.SetGameDirectory(path);
+    /// <summary>
+    /// Called by <see cref="MainWindowViewModel"/> so that a directory change from
+    /// the settings panel triggers the manifest scan / download flow.
+    /// </summary>
+    public Action<string>? OnGameDirectoryChanged { get; set; }
+
+    public void SetGameDirectory(string? path)
+    {
+        Launch.SetGameDirectory(path);
+        if (!string.IsNullOrEmpty(path))
+            OnGameDirectoryChanged?.Invoke(path);
+    }
 
     // ── Auth flow ─────────────────────────────────────────────────────────────
 

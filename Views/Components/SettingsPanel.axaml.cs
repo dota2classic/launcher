@@ -7,7 +7,7 @@ namespace d2c_launcher.Views.Components;
 public partial class SettingsPanel : UserControl
 {
     /// <summary>
-    /// Routed event fired when the user clicks "Изменить директорию".
+    /// Routed event fired when the user clicks "Изменить".
     /// The parent view handles the file picker dialog.
     /// </summary>
     public static readonly RoutedEvent<RoutedEventArgs> SelectDirectoryRequestedEvent =
@@ -15,7 +15,7 @@ public partial class SettingsPanel : UserControl
             nameof(SelectDirectoryRequested), RoutingStrategies.Bubble);
 
     /// <summary>
-    /// Routed event fired when the user clicks "Закрыть".
+    /// Routed event fired when the user clicks "✕".
     /// </summary>
     public static readonly RoutedEvent<RoutedEventArgs> CloseRequestedEvent =
         RoutedEvent.Register<SettingsPanel, RoutedEventArgs>(
@@ -36,14 +36,6 @@ public partial class SettingsPanel : UserControl
     public SettingsPanel()
     {
         InitializeComponent();
-    }
-
-    /// <summary>
-    /// Sets the displayed game directory path. Called by the parent view.
-    /// </summary>
-    public void SetGameDirectory(string? path)
-    {
-        GameDirectoryText.Text = path ?? "Не указано";
     }
 
     private void OnSelectDirectoryClicked(object? sender, RoutedEventArgs e)

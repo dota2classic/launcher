@@ -40,6 +40,12 @@ public static class CvarMapping
             s => s.ResetCameraOnSpawn ? "1" : "0",
             (s, v) => s.ResetCameraOnSpawn = v is "1",
             IsEmpty: _ => false),
+
+        new("dota_quick_select_setting",
+            s => s.QuickCast ? "1" : "0",
+            (s, v) => s.QuickCast = v is "1",
+            IsEmpty: _ => false),
+
     ];
 }
 

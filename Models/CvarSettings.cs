@@ -13,4 +13,5 @@ public class CvarSettings
     public AutoAttackMode AutoAttack { get; set; } = AutoAttackMode.AfterSpell;
     public bool RightMouseAutoRepeat { get; set; }
     public bool ResetCameraOnSpawn { get; set; } = true;
+    public bool QuickCast { get; set; }
 }

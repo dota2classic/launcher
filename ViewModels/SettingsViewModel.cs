@@ -1,4 +1,7 @@
 using System;
+using System.IO;
+using System.Threading.Tasks;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
@@ -9,11 +12,56 @@ public partial class SettingsViewModel : ViewModelBase
 {
     private readonly IGameLaunchSettingsStorage _launchStorage;
     private readonly ICvarSettingsProvider _cvarProvider;
+    private readonly ISettingsStorage _settingsStorage;
+    private readonly IVideoSettingsProvider _videoProvider;
 
     /// <summary>Delegate to push a cvar change to a running game. Set by parent VM.</summary>
     public Action<string, string>? PushCvar { get; set; }
 
-    // ── Launch parameters ──────────────────────────────────────────────────
+    // ── Game directory ────────────────────────────────────────────────────────
+
+    [ObservableProperty] private string _gameDirectory = "Не указано";
+    [ObservableProperty] private string _folderSizeText = "";
+
+    public void RefreshGameDirectory()
+    {
+        var dir = _settingsStorage.Get().GameDirectory;
+        GameDirectory = dir ?? "Не указано";
+        FolderSizeText = "";
+
+        if (!string.IsNullOrEmpty(dir) && Directory.Exists(dir))
+        {
+            _ = Task.Run(() =>
+            {
+                try
+                {
+                    var bytes = ComputeFolderSize(dir);
+                    var gb = bytes / (1024.0 * 1024 * 1024);
+                    var text = gb >= 1
+                        ? $"{gb:F1} ГБ"
+                        : $"{bytes / (1024.0 * 1024):F0} МБ";
+                    Avalonia.Threading.Dispatcher.UIThread.Post(() => FolderSizeText = text);
+                }
+                catch
+                {
+                    // ignore — folder may be inaccessible
+                }
+            });
+        }
+    }
+
+    private static long ComputeFolderSize(string dir)
+    {
+        long total = 0;
+        foreach (var file in Directory.EnumerateFiles(dir, "*", SearchOption.AllDirectories))
+        {
+            try { total += new FileInfo(file).Length; }
+            catch { /* skip locked/inaccessible files */ }
+        }
+        return total;
+    }
+
+    // ── Launch parameters ──────────────────────────────────────────────────────
 
     public static string[] AvailableLanguages { get; } = ["russian", "english"];
 
@@ -43,7 +91,62 @@ public partial class SettingsViewModel : ViewModelBase
         }
     }
 
-    // ── Gameplay (cvars backed by config.cfg) ─────────────────────────────
+    public bool Fullscreen
+    {
+        get => _videoProvider.Get().Fullscreen;
+        set
+        {
+            var s = _videoProvider.Get();
+            if (s.Fullscreen == value) return;
+            s.Fullscreen = value;
+            _videoProvider.Update(s);
+            OnPropertyChanged();
+        }
+    }
+
+    public bool NoWindowBorder
+    {
+        get => _videoProvider.Get().NoWindowBorder;
+        set
+        {
+            var s = _videoProvider.Get();
+            if (s.NoWindowBorder == value) return;
+            s.NoWindowBorder = value;
+            _videoProvider.Update(s);
+            OnPropertyChanged();
+        }
+    }
+
+    public static string[] AvailableResolutions { get; } =
+        ["1280×720", "1366×768", "1280×1024", "1600×900", "1920×1080", "2560×1440"];
+
+    private static readonly (int W, int H)[] ResolutionValues =
+        [(1280, 720), (1366, 768), (1280, 1024), (1600, 900), (1920, 1080), (2560, 1440)];
+
+    public int SelectedResolutionIndex
+    {
+        get
+        {
+            var s = _videoProvider.Get();
+            for (var i = 0; i < ResolutionValues.Length; i++)
+                if (ResolutionValues[i].W == s.Width && ResolutionValues[i].H == s.Height)
+                    return i;
+            return 4; // default 1920×1080
+        }
+        set
+        {
+            if (value < 0 || value >= ResolutionValues.Length) return;
+            var s = _videoProvider.Get();
+            var (w, h) = ResolutionValues[value];
+            if (s.Width == w && s.Height == h) return;
+            s.Width = w;
+            s.Height = h;
+            _videoProvider.Update(s);
+            OnPropertyChanged();
+        }
+    }
+
+    // ── Gameplay (cvars backed by config.cfg) ─────────────────────────────────
 
     public bool DisableCameraZoom
     {
@@ -101,7 +204,21 @@ public partial class SettingsViewModel : ViewModelBase
         }
     }
 
-    // ── Auto-attack mode ───────────────────────────────────────────────────
+    public bool QuickCast
+    {
+        get => _cvarProvider.Get().QuickCast;
+        set
+        {
+            var s = _cvarProvider.Get();
+            if (s.QuickCast == value) return;
+            s.QuickCast = value;
+            _cvarProvider.Update(s);
+            OnPropertyChanged();
+            PushCvar?.Invoke("dota_quick_select_setting", value ? "1" : "0");
+        }
+    }
+
+    // ── Auto-attack mode ───────────────────────────────────────────────────────
 
     public static string[] AutoAttackOptions { get; } = ["Выключена", "После заклинания", "Всегда"];
 
@@ -124,12 +241,68 @@ public partial class SettingsViewModel : ViewModelBase
         }
     }
 
-    // ── Constructor ────────────────────────────────────────────────────────
+    // ── Launcher settings ─────────────────────────────────────────────────────
 
-    public SettingsViewModel(IGameLaunchSettingsStorage launchStorage, ICvarSettingsProvider cvarProvider)
+    public bool AutoUpdate
+    {
+        get => _settingsStorage.Get().AutoUpdate;
+        set
+        {
+            var s = _settingsStorage.Get();
+            if (s.AutoUpdate == value) return;
+            s.AutoUpdate = value;
+            _settingsStorage.Save(s);
+            OnPropertyChanged();
+        }
+    }
+
+    public bool DefenderExclusionEnabled
+    {
+        get
+        {
+            var s = _settingsStorage.Get();
+            return !string.IsNullOrEmpty(s.GameDirectory)
+                && s.DefenderExclusionPath == s.GameDirectory;
+        }
+        set => _ = SetDefenderExclusionAsync(value);
+    }
+
+    private async Task SetDefenderExclusionAsync(bool enabled)
+    {
+        var s = _settingsStorage.Get();
+        var dir = s.GameDirectory;
+        if (string.IsNullOrEmpty(dir)) return;
+
+        if (enabled)
+        {
+            await WindowsDefenderService.TryAddExclusionAsync(dir);
+            s = _settingsStorage.Get();
+            s.DefenderExclusionPath = dir;
+            _settingsStorage.Save(s);
+        }
+        else
+        {
+            await WindowsDefenderService.TryRemoveExclusionAsync(dir);
+            s = _settingsStorage.Get();
+            s.DefenderExclusionPath = null;
+            _settingsStorage.Save(s);
+        }
+
+        Dispatcher.UIThread.Post(() => OnPropertyChanged(nameof(DefenderExclusionEnabled)));
+    }
+
+    // ── Constructor ────────────────────────────────────────────────────────────
+
+    public SettingsViewModel(
+        IGameLaunchSettingsStorage launchStorage,
+        ICvarSettingsProvider cvarProvider,
+        ISettingsStorage settingsStorage,
+        IVideoSettingsProvider videoProvider)
     {
         _launchStorage = launchStorage;
         _cvarProvider = cvarProvider;
+        _settingsStorage = settingsStorage;
+        _videoProvider = videoProvider;
     }
 
     /// <summary>
@@ -143,5 +316,17 @@ public partial class SettingsViewModel : ViewModelBase
         OnPropertyChanged(nameof(RightMouseAutoRepeat));
         OnPropertyChanged(nameof(ResetCameraOnSpawn));
         OnPropertyChanged(nameof(AutoAttackSelectedIndex));
+        OnPropertyChanged(nameof(QuickCast));
+    }
+
+    /// <summary>
+    /// Refreshes all UI-bound video properties.
+    /// Called when video.txt is re-read (e.g. after game exit).
+    /// </summary>
+    public void RefreshFromVideoProvider()
+    {
+        OnPropertyChanged(nameof(Fullscreen));
+        OnPropertyChanged(nameof(NoWindowBorder));
+        OnPropertyChanged(nameof(SelectedResolutionIndex));
     }
 }

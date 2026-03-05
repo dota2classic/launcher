@@ -76,6 +76,14 @@ internal sealed class StubGameLaunchSettingsStorage : IGameLaunchSettingsStorage
     public void Save(GameLaunchSettings settings) { _settings = settings; SettingsChanged?.Invoke(); }
 }
 
+internal sealed class StubVideoSettingsProvider : IVideoSettingsProvider
+{
+    private VideoSettings _settings = new();
+    public VideoSettings Get() => _settings;
+    public void Update(VideoSettings settings) { _settings = settings; }
+    public void LoadFromVideoTxt(string gameDirectory) { }
+}
+
 internal sealed class StubCvarSettingsProvider : ICvarSettingsProvider
 {
     private CvarSettings _settings = new();

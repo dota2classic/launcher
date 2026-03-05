@@ -40,6 +40,7 @@ public static class CfgGenerator
 
     /// <summary>
     /// Builds the CLI argument string from settings (flags only, no +commands).
+    /// Display settings (fullscreen, resolution) are managed via video.txt, not CLI args.
     /// </summary>
     public static string BuildCliArgs(GameLaunchSettings settings)
     {

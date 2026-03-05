@@ -52,6 +52,7 @@ public partial class App : Application
             services.AddSingleton<ISettingsStorage, SettingsStorage>();
             services.AddSingleton<IGameLaunchSettingsStorage, GameLaunchSettingsStorage>();
             services.AddSingleton<ICvarSettingsProvider, CvarSettingsProvider>();
+            services.AddSingleton<IVideoSettingsProvider, VideoSettingsProvider>();
             services.AddSingleton<ISteamAuthApi, SteamAuthApi>();
             services.AddSingleton<IBackendApiService, BackendApiService>();
             services.AddSingleton<IQueueSocketService, QueueSocketService>();

@@ -5,33 +5,47 @@
              x:DataType="vm:SettingsViewModel">
 
     <UserControl.Styles>
-        <Style Selector="TextBlock.section-title">
-            <Setter Property="Foreground" Value="#D9D9D9"/>
+
+        <!-- ── Section label (uppercase, dim gold) ── -->
+        <Style Selector="TextBlock.section-label">
+            <Setter Property="Foreground" Value="#888b8f"/>
+            <Setter Property="FontSize" Value="10"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="LetterSpacing" Value="2"/>
         </Style>
 
-        <!-- TabControl: transparent, no outer border -->
+        <!-- ── Setting row label ── -->
+        <Style Selector="TextBlock.setting-label">
+            <Setter Property="Foreground" Value="#d0d4d8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <!-- ── Setting row sub-description ── -->
+        <Style Selector="TextBlock.setting-desc">
+            <Setter Property="Foreground" Value="#505860"/>
+            <Setter Property="FontSize" Value="11"/>
+        </Style>
+
+        <!-- ── TabControl: transparent, no outer border ── -->
         <Style Selector="TabControl">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="0"/>
         </Style>
-
-        <!-- Remove separator line and content area border from TabControl template -->
         <Style Selector="TabControl /template/ Border">
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Padding" Value="0"/>
         </Style>
 
-        <!-- Flat underline tab item -->
+        <!-- ── Tab items ── -->
         <Style Selector="TabItem">
-            <Setter Property="Foreground" Value="#707070"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#505860"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="0,0,20,0"/>
+            <Setter Property="Margin" Value="0,0,24,0"/>
             <Setter Property="Padding" Value="0,10"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="Template">
@@ -48,102 +62,280 @@
                 </ControlTemplate>
             </Setter>
         </Style>
-
         <Style Selector="TabItem:selected">
-            <Setter Property="Foreground" Value="#FFFFFF"/>
-            <Setter Property="BorderBrush" Value="#3B82F6"/>
+            <Setter Property="Foreground" Value="#c8a84b"/>
+            <Setter Property="BorderBrush" Value="#c8a84b"/>
         </Style>
-
         <Style Selector="TabItem:pointerover">
-            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="Foreground" Value="#9a9ea4"/>
+        </Style>
+        <Style Selector="TabItem:selected:pointerover">
+            <Setter Property="Foreground" Value="#c8a84b"/>
         </Style>
 
-        <Style Selector="TabItem:selected:pointerover">
-            <Setter Property="Foreground" Value="#FFFFFF"/>
+        <!-- ── ComboBox dark style ── -->
+        <Style Selector="ComboBox">
+            <Setter Property="Background" Value="#0c0e12"/>
+            <Setter Property="BorderBrush" Value="#2d3842"/>
+            <Setter Property="Foreground" Value="#c0c4c8"/>
+            <Setter Property="MinWidth" Value="0"/>
+            <Setter Property="Padding" Value="8,4"/>
         </Style>
+        <Style Selector="ComboBox:pointerover /template/ Border#Background">
+            <Setter Property="BorderBrush" Value="#3a90d6"/>
+        </Style>
+
+        <!-- ── ToggleSwitch compact ── -->
+        <Style Selector="ToggleSwitch">
+            <Setter Property="OnContent" Value=""/>
+            <Setter Property="OffContent" Value=""/>
+        </Style>
+
+        <!-- ── TextBox dark ── -->
+        <Style Selector="TextBox">
+            <Setter Property="Background" Value="#0c0e12"/>
+            <Setter Property="BorderBrush" Value="#2d3842"/>
+            <Setter Property="Foreground" Value="#c0c4c8"/>
+            <Setter Property="Padding" Value="8,4"/>
+        </Style>
+        <Style Selector="TextBox:focus /template/ Border">
+            <Setter Property="BorderBrush" Value="#3a90d6"/>
+        </Style>
+
+        <!-- ── Изменить button ── -->
+        <Style Selector="Button.dir-btn">
+            <Setter Property="Background" Value="#1a2840"/>
+            <Setter Property="Foreground" Value="#3a90d6"/>
+            <Setter Property="BorderBrush" Value="#243446"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,5"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.dir-btn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#243850"/>
+        </Style>
+
     </UserControl.Styles>
 
-    <StackPanel Width="500">
-        <!-- Header -->
-        <Border Background="#0A0B0D" Padding="18,10">
-            <Grid ColumnDefinitions="*,Auto">
-                <TextBlock Text="Настройки"
-                           FontSize="16" FontWeight="SemiBold" Foreground="#D9D9D9"
-                           VerticalAlignment="Center"/>
-                <Button Grid.Column="1" Click="OnCloseClicked"
-                        Background="Transparent" BorderThickness="0"
-                        Padding="2,0" Cursor="Hand" VerticalAlignment="Center">
-                    <TextBlock Text="✕" FontSize="16" Foreground="#AAAAAA" VerticalAlignment="Center"/>
-                </Button>
-            </Grid>
-        </Border>
+    <!-- Fixed size modal card -->
+    <Grid Width="460" Height="520">
+        <Grid RowDefinitions="48,Auto,*">
 
-        <StackPanel Spacing="12" Margin="18,12,18,18">
-        <!-- ═══ Game directory (always visible above tabs) ═══ -->
-        <StackPanel Spacing="4">
-            <TextBlock Text="Директория игры:" Classes="section-title"/>
-            <TextBlock x:Name="GameDirectoryText" Text="Не указано"
-                       TextWrapping="Wrap" TextTrimming="CharacterEllipsis"/>
-            <Button Content="Изменить директорию" Click="OnSelectDirectoryClicked"/>
-        </StackPanel>
+            <!-- ═══ Header ═══ -->
+            <Border Grid.Row="0" Background="#0c0f13" BorderBrush="#222830" BorderThickness="0,0,0,1">
+                <Grid ColumnDefinitions="*,Auto" Margin="18,0">
+                    <TextBlock Text="НАСТРОЙКИ"
+                               FontSize="12" FontWeight="Bold" LetterSpacing="3"
+                               Foreground="#d9dde0" VerticalAlignment="Center"/>
+                    <Button Grid.Column="1" Click="OnCloseClicked"
+                            Background="Transparent" BorderThickness="0"
+                            Padding="4,0" Cursor="Hand" VerticalAlignment="Center">
+                        <TextBlock Text="✕" FontSize="14" Foreground="#606870" VerticalAlignment="Center"/>
+                    </Button>
+                </Grid>
+            </Border>
 
-        <TabControl MinHeight="260">
-            <!-- ═══ Tab 1: Visual ═══ -->
-            <TabItem Header="Визуальные">
-                <StackPanel Spacing="16" Margin="0,12,0,0">
-                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="10">
-                        <TextBlock Text="Язык игры" VerticalAlignment="Center"/>
-                        <ComboBox Grid.Column="1" MinWidth="120"
-                                  ItemsSource="{Binding AvailableLanguages}"
-                                  SelectedItem="{Binding SelectedLanguage}"/>
+            <!-- ═══ Directory block ═══ -->
+            <StackPanel Grid.Row="1" Spacing="8" Margin="18,14,18,0">
+                <TextBlock Text="ДИРЕКТОРИЯ ИГРЫ" Classes="section-label"/>
 
-                        <TextBlock Grid.Row="1" Text="Пропускать интро" VerticalAlignment="Center"/>
-                        <ToggleSwitch Grid.Row="1" Grid.Column="1"
-                                      IsChecked="{Binding NoVid}"
-                                      OnContent="" OffContent=""
-                                      HorizontalAlignment="Right"/>
-                    </Grid>
-                </StackPanel>
-            </TabItem>
+                <!-- Path row: folder icon + path + Изменить -->
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                    <Border Grid.Column="0" Background="#0c0e12" BorderBrush="#2d3842" BorderThickness="1"
+                            Padding="6,5" VerticalAlignment="Stretch">
+                        <TextBlock Text="📁" FontSize="14" VerticalAlignment="Center" Opacity="0.7"/>
+                    </Border>
+                    <Border Grid.Column="1" Background="#0c0e12" BorderBrush="#2d3842" BorderThickness="1"
+                            Padding="8,5">
+                        <TextBlock Text="{Binding GameDirectory}"
+                                   Foreground="#c0c4c8" FontSize="12"
+                                   TextTrimming="CharacterEllipsis"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <Button Grid.Column="2" Classes="dir-btn" Click="OnSelectDirectoryClicked"
+                            Content="Изменить"/>
+                </Grid>
 
-            <!-- ═══ Tab 2: Gameplay ═══ -->
-            <TabItem Header="Геймплей">
-                <StackPanel Spacing="16" Margin="0,12,0,0">
-                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="10">
-                        <TextBlock Text="Автоатака" VerticalAlignment="Center"/>
-                        <ComboBox Grid.Column="1" MinWidth="180"
-                                  ItemsSource="{Binding AutoAttackOptions}"
-                                  SelectedIndex="{Binding AutoAttackSelectedIndex}"/>
+                <!-- Folder size -->
+                <TextBlock Text="{Binding FolderSizeText}"
+                           Classes="setting-desc"
+                           HorizontalAlignment="Right"
+                           IsVisible="{Binding FolderSizeText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+            </StackPanel>
 
-                        <TextBlock Grid.Row="1" Text="Атака правой кнопкой" VerticalAlignment="Center"/>
-                        <ToggleSwitch Grid.Row="1" Grid.Column="1"
-                                      IsChecked="{Binding ForceRightClickAttack}"
-                                      OnContent="" OffContent=""
-                                      HorizontalAlignment="Right"/>
+            <!-- ═══ Tabs ═══ -->
+            <TabControl Grid.Row="2" Margin="18,10,18,0">
 
-                        <TextBlock Grid.Row="2" Text="Запретить зум камеры" VerticalAlignment="Center"/>
-                        <ToggleSwitch Grid.Row="2" Grid.Column="1"
-                                      IsChecked="{Binding DisableCameraZoom}"
-                                      OnContent="" OffContent=""
-                                      HorizontalAlignment="Right"/>
+                <!-- ─── Tab 1: Визуальные ─── -->
+                <TabItem Header="ВИЗУАЛЬНЫЕ">
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                  VerticalScrollBarVisibility="Auto">
+                        <StackPanel Spacing="0" Margin="0,12,0,12">
 
-                        <TextBlock Grid.Row="3" Text="Автоповтор правой кнопки" VerticalAlignment="Center"/>
-                        <ToggleSwitch Grid.Row="3" Grid.Column="1"
-                                      IsChecked="{Binding RightMouseAutoRepeat}"
-                                      OnContent="" OffContent=""
-                                      HorizontalAlignment="Right"/>
+                            <!-- Language -->
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
+                                    <TextBlock Text="Язык игры" Classes="setting-label"/>
+                                    <TextBlock Text="Язык интерфейса и озвучки" Classes="setting-desc"/>
+                                </StackPanel>
+                                <ComboBox Grid.Column="1" Width="140"
+                                          ItemsSource="{Binding AvailableLanguages}"
+                                          SelectedItem="{Binding SelectedLanguage}"
+                                          VerticalAlignment="Center"/>
+                            </Grid>
 
-                        <TextBlock Grid.Row="4" Text="Камера на героя при спавне" VerticalAlignment="Center"/>
-                        <ToggleSwitch Grid.Row="4" Grid.Column="1"
-                                      IsChecked="{Binding ResetCameraOnSpawn}"
-                                      OnContent="" OffContent=""
-                                      HorizontalAlignment="Right"/>
-                    </Grid>
-                </StackPanel>
-            </TabItem>
-        </TabControl>
+                            <!-- Skip intro -->
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
+                                    <TextBlock Text="Пропускать интро" Classes="setting-label"/>
+                                    <TextBlock Text="Пропускать заставку при запуске" Classes="setting-desc"/>
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding NoVid}"
+                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                            </Grid>
 
-        </StackPanel><!-- /inner content -->
-    </StackPanel><!-- /root -->
+                            <!-- Fullscreen -->
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
+                                    <TextBlock Text="Полноэкранный режим" Classes="setting-label"/>
+                                    <TextBlock Text="Запускать игру в полном экране" Classes="setting-desc"/>
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding Fullscreen}"
+                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                            </Grid>
+
+                            <!-- Borderless window -->
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
+                                    <TextBlock Text="Безрамочный режим" Classes="setting-label"/>
+                                    <TextBlock Text="Запускать игру без рамки окна" Classes="setting-desc"/>
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding NoWindowBorder}"
+                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                            </Grid>
+
+                            <!-- Resolution -->
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,0">
+                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
+                                    <TextBlock Text="Разрешение" Classes="setting-label"/>
+                                    <TextBlock Text="Разрешение экрана игры" Classes="setting-desc"/>
+                                </StackPanel>
+                                <ComboBox Grid.Column="1" Width="140"
+                                          ItemsSource="{Binding AvailableResolutions}"
+                                          SelectedIndex="{Binding SelectedResolutionIndex}"
+                                          VerticalAlignment="Center"/>
+                            </Grid>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- ─── Tab 2: Геймплей ─── -->
+                <TabItem Header="ГЕЙМПЛЕЙ">
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                  VerticalScrollBarVisibility="Auto">
+                        <StackPanel Spacing="0" Margin="0,12,0,12">
+
+                            <!-- Auto-attack -->
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
+                                    <TextBlock Text="Автоатака" Classes="setting-label"/>
+                                    <TextBlock Text="Режим автоматической атаки" Classes="setting-desc"/>
+                                </StackPanel>
+                                <ComboBox Grid.Column="1" Width="180"
+                                          ItemsSource="{Binding AutoAttackOptions}"
+                                          SelectedIndex="{Binding AutoAttackSelectedIndex}"
+                                          VerticalAlignment="Center"/>
+                            </Grid>
+
+                            <!-- Right-click attack -->
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
+                                    <TextBlock Text="Атака правой кнопкой" Classes="setting-label"/>
+                                    <TextBlock Text="Атаковать врагов правой кнопкой мыши" Classes="setting-desc"/>
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding ForceRightClickAttack}"
+                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                            </Grid>
+
+                            <!-- Quick cast -->
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
+                                    <TextBlock Text="Быстрое применение" Classes="setting-label"/>
+                                    <TextBlock Text="Применять заклинания без подтверждения" Classes="setting-desc"/>
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding QuickCast}"
+                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                            </Grid>
+
+                            <!-- Disable camera zoom -->
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
+                                    <TextBlock Text="Отключить приближение колесиком" Classes="setting-label"/>
+                                    <TextBlock Text="Нельзя будет изменять масштаб камеры колесом мыши" Classes="setting-desc"/>
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding DisableCameraZoom}"
+                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                            </Grid>
+
+                            <!-- Right mouse auto-repeat -->
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
+                                    <TextBlock Text="Автоповтор правой кнопки" Classes="setting-label"/>
+                                    <TextBlock Text="Удерживание ПКМ повторяет команду" Classes="setting-desc"/>
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding RightMouseAutoRepeat}"
+                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                            </Grid>
+
+                            <!-- Reset camera on spawn -->
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,0">
+                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
+                                    <TextBlock Text="Камера на героя при спавне" Classes="setting-label"/>
+                                    <TextBlock Text="Переводить камеру к герою при возрождении" Classes="setting-desc"/>
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding ResetCameraOnSpawn}"
+                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                            </Grid>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- ─── Tab 3: Лаунчер ─── -->
+                <TabItem Header="ЛАУНЧЕР">
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                  VerticalScrollBarVisibility="Auto">
+                        <StackPanel Spacing="0" Margin="0,12,0,12">
+
+                            <!-- Auto-update -->
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
+                                    <TextBlock Text="Автообновление лаунчера" Classes="setting-label"/>
+                                    <TextBlock Text="Устанавливать обновления при запуске" Classes="setting-desc"/>
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoUpdate}"
+                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                            </Grid>
+
+                            <!-- Defender exclusion -->
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,0">
+                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
+                                    <TextBlock Text="Исключение Windows Defender" Classes="setting-label"/>
+                                    <TextBlock Text="Папка с игрой добавлена в исключения Defender" Classes="setting-desc"/>
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding DefenderExclusionEnabled}"
+                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                            </Grid>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+            </TabControl>
+
+        </Grid>
+    </Grid>
 
 </UserControl>

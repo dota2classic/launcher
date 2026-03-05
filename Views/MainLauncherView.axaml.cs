@@ -28,7 +28,7 @@ public partial class MainLauncherView : UserControl
     private void UpdateSettingsGameDirectory()
     {
         if (DataContext is MainLauncherViewModel vm)
-            SettingsPanelControl.SetGameDirectory(vm.Launch.GameDirectory);
+            vm.Settings.RefreshGameDirectory();
     }
 
     private async void OnSelectDotaExeClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -52,10 +52,7 @@ public partial class MainLauncherView : UserControl
         {
             var path = files[0].TryGetLocalPath();
             if (!string.IsNullOrEmpty(path))
-            {
                 vm.SetGameDirectory(Path.GetDirectoryName(path));
-                UpdateSettingsGameDirectory();
-            }
         }
     }
 
