@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Avalonia.Media.Imaging;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
 using d2c_launcher.Util;
@@ -22,6 +23,8 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
     private readonly IBackendApiService _backendApiService;
     private readonly Dictionary<string, string> _avatarUrlByAuthor = new(StringComparer.Ordinal);
+    // Emoticon images keyed by code (populated once at startup).
+    private Dictionary<string, Bitmap> _emoticonImages = new(StringComparer.Ordinal);
     private CancellationTokenSource? _loadCts;
     private CancellationTokenSource? _sseCts;
     // Tracks the last appended message for SSE header-grouping decisions.
@@ -45,8 +48,33 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     /// <summary>Loads initial messages then starts the SSE live-update stream.</summary>
     public async Task StartAsync()
     {
+        // Load emoticons in the background — don't block message loading.
+        // Initial messages will render without emoticon images; SSE messages
+        // arriving after emoticons finish will have them.
+        _ = LoadEmoticonsAsync();
         await RefreshAsync().ConfigureAwait(false);
         StartSseLoop();
+    }
+
+    private async Task LoadEmoticonsAsync()
+    {
+        try
+        {
+            var list = await _backendApiService.GetEmoticonsAsync().ConfigureAwait(false);
+            var images = new Dictionary<string, Bitmap>(list.Count, StringComparer.Ordinal);
+            foreach (var e in list)
+            {
+                var bmp = await _backendApiService.LoadAvatarFromUrlAsync(e.Src).ConfigureAwait(false);
+                if (bmp != null)
+                    images[e.Code] = bmp;
+            }
+            _emoticonImages = images;
+            AppLog.Info($"Chat: loaded {images.Count} emoticon images.");
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error($"Chat: failed to load emoticons: {ex.Message}", ex);
+        }
     }
 
     /// <summary>Cancels the current SSE connection and reconnects. Call when the auth token changes.</summary>
@@ -117,6 +145,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
             var view = new ChatMessageView(
                 msg.MessageId,
                 msg.Content,
+                RichMessageParser.Parse(msg.Content, _emoticonImages),
                 msg.AuthorName,
                 msg.AuthorSteamId,
                 showHeader,
@@ -228,6 +257,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
             result.Add(new ChatMessageView(
                 msg.MessageId,
                 msg.Content,
+                RichMessageParser.Parse(msg.Content, _emoticonImages),
                 msg.AuthorName,
                 msg.AuthorSteamId,
                 showHeader,

@@ -3,6 +3,7 @@
              xmlns:vm="using:d2c_launcher.ViewModels"
              xmlns:m="using:d2c_launcher.Models"
              xmlns:util="using:d2c_launcher.Util"
+             xmlns:components="using:d2c_launcher.Views.Components"
              xmlns:materialIcons="using:Material.Icons.Avalonia"
              x:Class="d2c_launcher.Views.Components.ChatPanel"
              x:DataType="vm:ChatViewModel">
@@ -83,10 +84,9 @@
                                                            VerticalAlignment="Bottom"
                                                            Margin="8,0,0,0"/>
                                             </Grid>
-                                            <!-- Message text -->
-                                            <TextBlock Text="{Binding Content}"
-                                                       FontSize="12" Foreground="#b8bcc0"
-                                                       TextWrapping="Wrap"/>
+                                            <!-- Message text (rich: emoticons, rarity tags, URLs) -->
+                                            <components:RichMessageBlock
+                                                Segments="{Binding RichContent}"/>
                                         </StackPanel>
 
                                     </Grid>

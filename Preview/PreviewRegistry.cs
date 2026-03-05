@@ -6,6 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
 using d2c_launcher.Models;
+using d2c_launcher.Util;
 using d2c_launcher.ViewModels;
 using d2c_launcher.Views;
 using d2c_launcher.Views.Components;
@@ -108,6 +109,37 @@ public static class PreviewRegistry
                 };
                 var view = new ChatPanel { DataContext = vm };
                 host.Children.Add(view);
+                return (host, null);
+            },
+            ["RichMessage"] = () =>
+            {
+                var lines = new[]
+                {
+                    "простой текст",
+                    "играю сносно https://dotaclassic.ru/players/198768255 але",
+                    "текст перед https://dotaclassic.ru/players/198768255",
+                    "https://dotaclassic.ru/players/198768255 текст после",
+                    "две ссылки https://dotaclassic.ru/ и https://dotaclassic.ru/players/198768255 конец",
+                };
+                var stack = new StackPanel
+                {
+                    Spacing = 6,
+                    Margin = new Thickness(16),
+                    Background = new SolidColorBrush(Color.Parse("#060708")),
+                };
+                foreach (var line in lines)
+                {
+                    stack.Children.Add(new RichMessageBlock
+                    {
+                        Segments = RichMessageParser.Parse(line),
+                    });
+                }
+                var host = new Border
+                {
+                    Width = 500,
+                    Background = new SolidColorBrush(Color.Parse("#060708")),
+                    Child = stack,
+                };
                 return (host, null);
             },
             ["InviteModal"] = () =>

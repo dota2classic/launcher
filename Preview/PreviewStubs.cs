@@ -74,10 +74,14 @@ internal sealed class StubBackendApiService : IBackendApiService
             new ChatMessageData("3", threadId, "Когда сервер поднимут?", "2025-03-05T20:05:00Z", "222", "лоутаб секьюрити", null, false),
             new ChatMessageData("4", threadId, "если он есть", "2025-03-05T20:05:20Z", "222", "лоутаб секьюрити", null, false),
             new ChatMessageData("5", threadId, "геге, мормышка победил", "2025-03-05T20:10:00Z", "111", "MaxiKo", null, false),
+            new ChatMessageData("6", threadId, "играю сносно https://dotaclassic.ru/players/198768255 але", "2025-03-05T20:11:00Z", "222", "лоутаб секьюрити", null, false),
         ]);
 
     public Task PostChatMessageAsync(string threadId, string content, string bearerToken, CancellationToken cancellationToken = default)
         => Task.CompletedTask;
+
+    public Task<IReadOnlyList<EmoticonData>> GetEmoticonsAsync(CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<EmoticonData>>([]);
 
     public async IAsyncEnumerable<ChatMessageData> SubscribeChatAsync(
         string threadId, string bearerToken,

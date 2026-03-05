@@ -407,6 +407,30 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         }
     }
 
+    public async Task<IReadOnlyList<EmoticonData>> GetEmoticonsAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var api = new DotaclassicApiClient(_httpClient);
+            var emoticons = await api.ForumController_emoticonsAsync(null, cancellationToken).ConfigureAwait(false);
+            if (emoticons == null)
+                return Array.Empty<EmoticonData>();
+
+            var result = new List<EmoticonData>(emoticons.Count);
+            foreach (var e in emoticons)
+            {
+                if (e != null && !string.IsNullOrWhiteSpace(e.Code) && !string.IsNullOrWhiteSpace(e.Src))
+                    result.Add(new EmoticonData(e.Code, e.Src));
+            }
+            return result;
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error($"Failed to load emoticons: {ex.Message}", ex);
+            return Array.Empty<EmoticonData>();
+        }
+    }
+
     public void Dispose()
     {
         _httpClient.Dispose();

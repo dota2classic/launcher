@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 
@@ -12,6 +13,7 @@ public sealed partial class ChatMessageView : ObservableObject
     public string Initials { get; }
     public bool ShowHeader { get; }
     public string TimeText { get; }
+    public IReadOnlyList<RichSegment> RichContent { get; }
 
     [ObservableProperty]
     private Bitmap? _avatarImage;
@@ -19,6 +21,7 @@ public sealed partial class ChatMessageView : ObservableObject
     public ChatMessageView(
         string messageId,
         string content,
+        IReadOnlyList<RichSegment> richContent,
         string authorName,
         string authorSteamId,
         bool showHeader,
@@ -27,6 +30,7 @@ public sealed partial class ChatMessageView : ObservableObject
     {
         MessageId = messageId;
         Content = content;
+        RichContent = richContent;
         AuthorName = authorName;
         AuthorSteamId = authorSteamId;
         ShowHeader = showHeader;

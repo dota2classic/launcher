@@ -18,4 +18,5 @@ public interface IBackendApiService
     Task<IReadOnlyList<ChatMessageData>> GetChatMessagesAsync(string threadId, int limit, string bearerToken, CancellationToken cancellationToken = default);
     Task PostChatMessageAsync(string threadId, string content, string bearerToken, CancellationToken cancellationToken = default);
     IAsyncEnumerable<ChatMessageData> SubscribeChatAsync(string threadId, string bearerToken, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<EmoticonData>> GetEmoticonsAsync(CancellationToken cancellationToken = default);
 }

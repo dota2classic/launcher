@@ -2,6 +2,34 @@
 
 ## Current Focus
 
+**Issue #15: Rich message rendering in chat**
+
+Chat messages now parsed into typed segments and rendered as mixed inline content:
+
+- `Models/RichSegment.cs` — `TextSegment`, `RaritySegment`, `UrlSegment`, `EmoticonSegment`
+- `Models/EmoticonData.cs` — `record EmoticonData(string Code, string Src)`
+- `Util/RichMessageParser.cs` — rule-based parser (rarity tags → colored, `:code:` → emoticon, URLs → clickable); mirrors React client logic
+- `Services/IBackendApiService.cs` / `BackendApiService.cs` — added `GetEmoticonsAsync()` calling `v1/forum/emoticons`
+- `ViewModels/ChatViewModel.cs` — `LoadEmoticonsAsync()` at startup (loads list + bitmap per emoticon); passes `_emoticonImages` dict to parser
+- `Models/ChatMessageView.cs` — added `IReadOnlyList<RichSegment> RichContent` property
+- `Views/Components/RichMessageBlock.cs` — custom `UserControl` wrapping `TextBlock.Inlines`; `Run` for text/rarity, `InlineUIContainer(Image)` for emoticons, `InlineUIContainer(TextBlock)` for URLs (click → `Process.Start`)
+- `Views/Components/ChatPanel.axaml` — replaced plain `TextBlock Text="{Binding Content}"` with `<components:RichMessageBlock Segments="{Binding RichContent}"/>`
+- `Preview/PreviewStubs.cs` — added stub `GetEmoticonsAsync` returning empty list
+
+---
+
+## Previous Focus
+
+**Issue #14: Fix chat message sending (500 "muted" error)**
+
+The POST body for `v1/forum/thread/message` requires `threadId` as `"forum_<uuid>"` (prefixed), while the GET endpoints use the bare UUID + separate `threadType` param. `BackendApiService.PostChatMessageAsync` was passing the bare UUID, causing a 500 "muted" error. Fixed by prepending `"forum_"` in the DTO construction.
+
+- `Services/BackendApiService.cs` — changed `ThreadId = threadId` to `ThreadId = $"forum_{threadId}"` in `PostChatMessageAsync`
+
+---
+
+## Previous Focus
+
 **Issue #12: Replace chat polling with SSE live updates**
 
 Replaced the 10-second `DispatcherTimer` poll in `ChatViewModel` with a persistent Server-Sent Events (SSE) connection:
