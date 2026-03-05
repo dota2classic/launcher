@@ -3,6 +3,7 @@
              xmlns:vm="using:d2c_launcher.ViewModels"
              xmlns:m="using:d2c_launcher.Models"
              xmlns:util="using:d2c_launcher.Util"
+             xmlns:materialIcons="using:Material.Icons.Avalonia"
              x:Class="d2c_launcher.Views.Components.ChatPanel"
              x:DataType="vm:ChatViewModel">
 
@@ -97,43 +98,79 @@
             </ScrollViewer>
 
             <!-- Input -->
-            <Border Grid.Row="2" Background="#12151a"
+            <Border Grid.Row="2"
                     BorderBrush="#1e2530" BorderThickness="0,1,0,0"
-                    Padding="14,8">
-                <Grid ColumnDefinitions="*,Auto">
-                    <TextBox Grid.Column="0"
-                             x:Name="MessageInput"
-                             Text="{Binding InputText}"
-                             Watermark="Введите сообщение..."
-                             FontSize="13"
-                             Background="Transparent"
-                             BorderThickness="0"
-                             Padding="0"
-                             VerticalAlignment="Center"
-                             KeyDown="OnInputKeyDown"/>
-                    <Button Grid.Column="1"
-                            Command="{Binding SendMessageCommand}"
-                            IsEnabled="{Binding IsSending, Converter={x:Static BoolConverters.Not}}"
-                            Width="28" Height="28"
-                            Background="Transparent"
-                            BorderBrush="#1e2530" BorderThickness="1"
-                            Padding="0"
-                            VerticalAlignment="Center"
-                            Margin="8,0,0,0">
-                        <Button.Styles>
-                            <Style Selector="Button:pointerover /template/ ContentPresenter">
-                                <Setter Property="Background" Value="#0a1620"/>
-                            </Style>
-                        </Button.Styles>
-                        <!-- Send icon (paper plane) -->
-                        <Canvas Width="12" Height="12" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <Line StartPoint="11,1" EndPoint="5.5,6.5"
-                                  Stroke="#48525a" StrokeThickness="1.5"/>
-                            <Polygon Points="11,1 4,11 5.5,6.5 1,4.5"
-                                     Fill="#48525a"/>
-                        </Canvas>
-                    </Button>
-                </Grid>
+                    Padding="10,8">
+                <Border Background="#1a1d23"
+                        CornerRadius="6"
+                        Padding="10,0,4,0">
+                    <Grid ColumnDefinitions="*,Auto,Auto" MinHeight="34">
+
+                        <TextBox Grid.Column="0"
+                                 x:Name="MessageInput"
+                                 Text="{Binding InputText}"
+                                 Watermark="Введите сообщение"
+                                 FontSize="13"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Padding="0"
+                                 FocusAdorner="{x:Null}"
+                                 VerticalAlignment="Center"
+                                 KeyDown="OnInputKeyDown">
+                            <TextBox.Styles>
+                                <Style Selector="TextBox /template/ Border#PART_BorderElement">
+                                    <Setter Property="BorderBrush" Value="Transparent"/>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                </Style>
+                                <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+                                    <Setter Property="BorderBrush" Value="Transparent"/>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                </Style>
+                                <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
+                                    <Setter Property="BorderBrush" Value="Transparent"/>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                </Style>
+                            </TextBox.Styles>
+                        </TextBox>
+
+                        <!-- Emoji button -->
+                        <Button Grid.Column="1"
+                                Width="30" Height="30"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Padding="0"
+                                VerticalAlignment="Center">
+                            <Button.Styles>
+                                <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                </Style>
+                            </Button.Styles>
+                            <materialIcons:MaterialIcon Kind="EmoticonHappyOutline"
+                                                        Width="18" Height="18"
+                                                        Foreground="#48525a"/>
+                        </Button>
+
+                        <!-- Send button -->
+                        <Button Grid.Column="2"
+                                Command="{Binding SendMessageCommand}"
+                                IsEnabled="{Binding IsSending, Converter={x:Static BoolConverters.Not}}"
+                                Width="30" Height="30"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Padding="0"
+                                VerticalAlignment="Center">
+                            <Button.Styles>
+                                <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                </Style>
+                            </Button.Styles>
+                            <materialIcons:MaterialIcon Kind="Send"
+                                                        Width="18" Height="18"
+                                                        Foreground="#48525a"/>
+                        </Button>
+
+                    </Grid>
+                </Border>
             </Border>
 
         </Grid>

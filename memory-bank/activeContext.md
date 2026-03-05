@@ -2,6 +2,20 @@
 
 ## Current Focus
 
+**Issue #12: Replace chat polling with SSE live updates**
+
+Replaced the 10-second `DispatcherTimer` poll in `ChatViewModel` with a persistent Server-Sent Events (SSE) connection:
+
+- `Services/IBackendApiService.cs` — added `SubscribeChatAsync(threadId, bearerToken, ct)` returning `IAsyncEnumerable<ChatMessageData>`
+- `Services/BackendApiService.cs` — implemented SSE reader: opens `GET v1/forum/thread/{id}/forum/sse` with `HttpCompletionOption.ResponseHeadersRead`, reads lines, parses `data:` payload as `ThreadMessageDTO` JSON; dedicated `_sseHttpClient` with `Timeout.InfiniteTimeSpan`
+- `ViewModels/ChatViewModel.cs` — removed `DispatcherTimer`; added `StartAsync()` (initial load + SSE loop), `RestartSse()` (reconnect with new token), `RunSseLoopAsync()` with 3s reconnect backoff, `ConsumeIncomingMessage()` for upsert/delete of individual messages
+- `ViewModels/MainLauncherViewModel.cs` — changed `Chat.RefreshAsync()` → `Chat.StartAsync()` at init; `Chat.RestartSse()` when backend token changes
+- `Preview/PreviewStubs.cs` + `PreviewRegistry.cs` — added no-op `SubscribeChatAsync` stub, updated preview to call `StartAsync()`
+
+---
+
+## Previous Focus
+
 **Issue #11: Implement chat window**
 
 Replaced the "Чат пока не реализован" placeholder in `MainLauncherView.axaml` with a fully functional chat component:

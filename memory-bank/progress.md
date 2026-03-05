@@ -69,6 +69,14 @@
 | Colorblind mode          | (composite)                                      | ✅ Done |
 
 
+### Chat
+
+| Feature | Status | Notes |
+| ------- | ------ | ----- |
+| Chat panel UI | ✅ Done | `ChatPanel.axaml`, `ChatViewModel` |
+| Chat SSE live updates (issue #12) | ✅ Done | `SubscribeChatAsync` via `IAsyncEnumerable`; `_sseHttpClient` with `Timeout.InfiniteTimeSpan`; 3s reconnect backoff |
+
+
 ### Testing
 
 
