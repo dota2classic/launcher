@@ -327,8 +327,10 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         _authHttpClient.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", bearerToken);
         var api = new DotaclassicApiClient(_authHttpClient);
+        // The POST body expects the full prefixed threadId (e.g. "forum_<uuid>"),
+        // while the GET endpoints use the bare UUID + a separate threadType param.
         await api.ForumController_postMessageAsync(
-            new Api.CreateMessageDTO { ThreadId = threadId, Content = content },
+            new Api.CreateMessageDTO { ThreadId = $"forum_{threadId}", Content = content },
             cancellationToken).ConfigureAwait(false);
     }
 
