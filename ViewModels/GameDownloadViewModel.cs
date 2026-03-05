@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
@@ -189,7 +190,17 @@ public partial class GameDownloadViewModel : ViewModelBase
             });
         });
 
-        return await _localManifestService.BuildAsync(GameDirectory, scanProgress);
+        var sw = Stopwatch.StartNew();
+        var manifest = await _localManifestService.BuildAsync(GameDirectory, scanProgress);
+        sw.Stop();
+
+        FaroTelemetryService.TrackEvent("scan_completed", new Dictionary<string, string>
+        {
+            ["duration_ms"] = sw.ElapsedMilliseconds.ToString(),
+            ["file_count"] = manifest.Files.Count.ToString(),
+        });
+
+        return manifest;
     }
 
     private IReadOnlyList<GameManifestFile> ComputeDiff(

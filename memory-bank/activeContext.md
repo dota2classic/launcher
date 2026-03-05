@@ -2,6 +2,38 @@
 
 ## Current Focus
 
+**Issue #10 fix: push scan duration metric to Faro**
+
+In `GameDownloadViewModel.ScanLocalFilesAsync()`, wrapped `_localManifestService.BuildAsync()` with a `Stopwatch` and called `FaroTelemetryService.TrackEvent("scan_completed", ...)` after the scan with:
+- `duration_ms` — elapsed milliseconds
+- `file_count` — number of files in the local manifest
+
+---
+
+## Previous Focus
+
+**Issue #6 fix: install redistributable packages after game verification**
+
+New phase added to `GameDownloadViewModel.RunAsync()` after download/verification:
+1. `Services/RedistInstallService.cs` (new) — scans `{gameDir}\_CommonRedist` for `DirectX/DXSETUP.exe` and `vcredist/**/vcredist_x64/x86.exe`, runs each silently (`/silent`, `/install /quiet /norestart`).
+2. `Models/LauncherSettings.cs` — added `RedistInstalledForPath` (string?) to avoid re-running on every launch.
+3. `ViewModels/GameDownloadViewModel.cs` — added `NeedRedistInstall` + `OnRedistCompleted` props; new `RunRedistIfNeededAsync()` method called after verification/download phase, shows "Установка компонентов..." status.
+4. `ViewModels/MainWindowViewModel.cs` — injects `RedistInstallService`, computes `NeedRedistInstall` from settings, persists `RedistInstalledForPath` via `OnRedistCompleted`.
+5. `App.axaml.cs` — registered `RedistInstallService` as singleton.
+6. `Preview/PreviewRegistry.cs` — updated `GameDownload` preview stubs to pass `new RedistInstallService()`.
+
+---
+
+## Previous Focus
+
+**Issue #9 fix: slow game file scanning on HDD** — two-part optimization:
+1. `Services/LocalManifestCache.cs` (new) — persists `(size, mtime, MD5)` per file to `%LocalAppData%\d2c-launcher\local_manifest_cache.json`. On subsequent scans, files whose size and last-write timestamp match the cache skip MD5 computation entirely.
+2. `Services/LocalManifestService.cs` (modified) — uses the cache + `GetOptimalParallelism()` via WMI: `Win32_LogicalDisk → Win32_DiskPartition → Win32_DiskDrive → MSFT_PhysicalDisk.MediaType`. MediaType 4 (SSD) → parallel reads; HDD/unknown → sequential (parallelism=1) to avoid disk-head thrashing.
+
+---
+
+## Previous Focus
+
 **Issue #4 fix: launcher process doesn't exit cleanly** — three-part fix:
 1. `Integration/SteamManager.cs` — track `_activeBridgeProcess` field; kill it immediately in `Dispose()` before waiting on the monitor task, and clear it in a `finally` block after the bridge exits or is killed.
 2. `Program.cs` — added `Environment.Exit(0)` after `FaroTelemetryService.ShutdownAsync()` to force-kill any lingering foreground threads (e.g. from SocketIOClient).

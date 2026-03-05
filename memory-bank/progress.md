@@ -36,6 +36,9 @@
 | --------------------------------- | ------ | ---------------------------------- |
 | Game directory validation         | ✅ Done |                                    |
 | Game download / verify on launch  | ✅ Done | `GameDownloadView`, manifest diff, HTTP download |
+| HDD scan optimization (issue #9)  | ✅ Done | mtime+size hash cache + WMI SSD detection for parallelism |
+| Scan duration metric to Faro (issue #10) | ✅ Done | `TrackEvent("scan_completed")` with `duration_ms` + `file_count` |
+| Redist install after verify (issue #6) | ✅ Done | `RedistInstallService` — runs `_CommonRedist` DirectX + vcredist silently once per game dir |
 | Game launch with Source 1 args    | ✅ Done |                                    |
 | Runtime console command injection | ✅ Done | WM_COPYDATA via P/Invoke           |
 | Bi-directional config.cfg sync    | ✅ Done | Two-phase: host_writeconfig + read |
