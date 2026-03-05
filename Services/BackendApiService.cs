@@ -276,6 +276,52 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         }
     }
 
+    public async Task<IReadOnlyList<ChatMessageData>> GetChatMessagesAsync(
+        string threadId, int limit, string bearerToken, CancellationToken cancellationToken = default)
+    {
+        _authHttpClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", bearerToken);
+        var api = new DotaclassicApiClient(_authHttpClient);
+        var messages = await api.ForumController_getMessagesAsync(
+            threadId,
+            threadType: Api.ThreadType.Forum,
+            cursor: null,
+            limit: limit,
+            order: Api.SortOrder.DESC,
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        if (messages == null)
+            return Array.Empty<ChatMessageData>();
+
+        var result = new List<ChatMessageData>(messages.Count);
+        foreach (var msg in messages)
+        {
+            if (msg == null || msg.Deleted)
+                continue;
+            result.Add(new ChatMessageData(
+                msg.MessageId,
+                msg.ThreadId,
+                msg.Content,
+                msg.CreatedAt,
+                msg.Author?.SteamId ?? "",
+                msg.Author?.Name ?? "",
+                msg.Author?.AvatarSmall ?? msg.Author?.Avatar,
+                msg.Deleted));
+        }
+        return result;
+    }
+
+    public async Task PostChatMessageAsync(
+        string threadId, string content, string bearerToken, CancellationToken cancellationToken = default)
+    {
+        _authHttpClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", bearerToken);
+        var api = new DotaclassicApiClient(_authHttpClient);
+        await api.ForumController_postMessageAsync(
+            new Api.CreateMessageDTO { ThreadId = threadId, Content = content },
+            cancellationToken).ConfigureAwait(false);
+    }
+
     public void Dispose()
     {
         _httpClient.Dispose();

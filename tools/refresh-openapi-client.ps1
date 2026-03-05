@@ -49,6 +49,22 @@ function Fix-Node {
 }
 
 Fix-Node -Node $doc -IsSchemaProperty $false
+
+# Path parameters must always be required per OpenAPI spec.
+# The backend spec incorrectly marks some as required:false, which causes NSwag to generate
+# broken optional-path-param code with literal {param} placeholders in the URL builder.
+foreach ($path in $doc.paths.PSObject.Properties) {
+    foreach ($op in $path.Value.PSObject.Properties) {
+        $params = $op.Value.parameters
+        if ($null -eq $params) { continue }
+        foreach ($param in $params) {
+            if ($param.in -eq "path" -and $param.required -ne $true) {
+                $param.required = $true
+            }
+        }
+    }
+}
+
 $doc | ConvertTo-Json -Depth 100 -Compress | Set-Content -Path $SanitizedSpecPath
 
 Write-Host "Generating C# client..."

@@ -1,0 +1,142 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:d2c_launcher.ViewModels"
+             xmlns:m="using:d2c_launcher.Models"
+             xmlns:util="using:d2c_launcher.Util"
+             x:Class="d2c_launcher.Views.Components.ChatPanel"
+             x:DataType="vm:ChatViewModel">
+
+    <UserControl.Resources>
+        <util:NullToBoolConverter x:Key="NullToBool"/>
+        <util:NullToInverseBoolConverter x:Key="NullToInverseBool"/>
+    </UserControl.Resources>
+
+    <Border Background="#0e1012" BorderBrush="#1e2530" BorderThickness="1">
+        <Grid RowDefinitions="34,*,Auto">
+
+            <!-- Header -->
+            <Border Grid.Row="0" Background="#0a0d10"
+                    BorderBrush="#1e2530" BorderThickness="0,0,0,1"
+                    Padding="14,0">
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Text="ЧАТ"
+                               FontSize="10" FontWeight="SemiBold" LetterSpacing="2"
+                               Foreground="#48525a" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+
+            <!-- Messages -->
+            <ScrollViewer Grid.Row="1" x:Name="MessagesScroll"
+                          HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
+                <Panel>
+                    <!-- Loading placeholder -->
+                    <TextBlock Text="Загрузка..."
+                               IsVisible="{Binding IsLoading}"
+                               Foreground="#48525a" FontSize="12"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Margin="0,20"/>
+
+                    <!-- Message list -->
+                    <ItemsControl ItemsSource="{Binding Messages}"
+                                  IsVisible="{Binding IsLoading, Converter={x:Static BoolConverters.Not}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="m:ChatMessageView">
+                                <Border Padding="14,5">
+                                    <Grid ColumnDefinitions="30,10,*">
+
+                                        <!-- Avatar (header only) -->
+                                        <Panel Grid.Column="0"
+                                               Width="30" Height="30"
+                                               VerticalAlignment="Top"
+                                               IsVisible="{Binding ShowHeader}">
+                                            <!-- Fallback initials circle -->
+                                            <Border Width="30" Height="30" CornerRadius="15"
+                                                    Background="#1e2a3a"
+                                                    BorderBrush="#2d3842" BorderThickness="1">
+                                                <TextBlock Text="{Binding Initials}"
+                                                           FontSize="10" Foreground="#3a90d6"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"/>
+                                            </Border>
+                                            <!-- Actual avatar (overlays initials when loaded) -->
+                                            <Border Width="30" Height="30" CornerRadius="15"
+                                                    ClipToBounds="True"
+                                                    IsVisible="{Binding AvatarImage, Converter={StaticResource NullToBool}}">
+                                                <Image Source="{Binding AvatarImage}" Stretch="UniformToFill"/>
+                                            </Border>
+                                        </Panel>
+
+                                        <!-- Body -->
+                                        <StackPanel Grid.Column="2" Spacing="2">
+                                            <!-- Name + time (header only) -->
+                                            <Grid ColumnDefinitions="*,Auto"
+                                                  IsVisible="{Binding ShowHeader}">
+                                                <TextBlock Text="{Binding AuthorName}"
+                                                           FontSize="12" FontWeight="SemiBold"
+                                                           Foreground="#d9dde0"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding TimeText}"
+                                                           FontSize="10" Foreground="#48525a"
+                                                           VerticalAlignment="Bottom"
+                                                           Margin="8,0,0,0"/>
+                                            </Grid>
+                                            <!-- Message text -->
+                                            <TextBlock Text="{Binding Content}"
+                                                       FontSize="12" Foreground="#b8bcc0"
+                                                       TextWrapping="Wrap"/>
+                                        </StackPanel>
+
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Panel>
+            </ScrollViewer>
+
+            <!-- Input -->
+            <Border Grid.Row="2" Background="#12151a"
+                    BorderBrush="#1e2530" BorderThickness="0,1,0,0"
+                    Padding="14,8">
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBox Grid.Column="0"
+                             x:Name="MessageInput"
+                             Text="{Binding InputText}"
+                             Watermark="Введите сообщение..."
+                             FontSize="13"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             Padding="0"
+                             VerticalAlignment="Center"
+                             KeyDown="OnInputKeyDown"/>
+                    <Button Grid.Column="1"
+                            Command="{Binding SendMessageCommand}"
+                            IsEnabled="{Binding IsSending, Converter={x:Static BoolConverters.Not}}"
+                            Width="28" Height="28"
+                            Background="Transparent"
+                            BorderBrush="#1e2530" BorderThickness="1"
+                            Padding="0"
+                            VerticalAlignment="Center"
+                            Margin="8,0,0,0">
+                        <Button.Styles>
+                            <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                <Setter Property="Background" Value="#0a1620"/>
+                            </Style>
+                        </Button.Styles>
+                        <!-- Send icon (paper plane) -->
+                        <Canvas Width="12" Height="12" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Line StartPoint="11,1" EndPoint="5.5,6.5"
+                                  Stroke="#48525a" StrokeThickness="1.5"/>
+                            <Polygon Points="11,1 4,11 5.5,6.5 1,4.5"
+                                     Fill="#48525a"/>
+                        </Canvas>
+                    </Button>
+                </Grid>
+            </Border>
+
+        </Grid>
+    </Border>
+
+</UserControl>

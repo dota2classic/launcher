@@ -2,6 +2,22 @@
 
 ## Current Focus
 
+**Issue #11: Implement chat window**
+
+Replaced the "Чат пока не реализован" placeholder in `MainLauncherView.axaml` with a fully functional chat component:
+
+- `Models/ChatMessageData.cs` — plain record DTO from service layer
+- `Models/ChatMessageView.cs` — observable UI row (Initials, ShowHeader, AvatarImage)
+- `IBackendApiService` / `BackendApiService` — added `GetChatMessagesAsync` + `PostChatMessageAsync`; thread ID `17aa3530-d152-462e-a032-909ae69019ed`, type `Forum`
+- `ViewModels/ChatViewModel.cs` — groups messages (same author + <60s gap → no header), polls every 10s, loads avatars in background, sends via `PostChatMessageAsync`
+- `Views/Components/ChatPanel.axaml/.cs` — avatar circle + name + time (header rows); text-only (follow-up rows); input + send button; auto-scrolls to bottom
+- `MainLauncherViewModel` — added `Chat` child VM; disposed in `Dispose()`
+- Preview: `ChatPanel` entry in `PreviewRegistry`, stubs in `PreviewStubs`
+
+---
+
+## Previous Focus
+
 **Issue #10 fix: push scan duration metric to Faro**
 
 In `GameDownloadViewModel.ScanLocalFilesAsync()`, wrapped `_localManifestService.BuildAsync()` with a `Stopwatch` and called `FaroTelemetryService.TrackEvent("scan_completed", ...)` after the scan with:

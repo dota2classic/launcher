@@ -134,10 +134,6 @@ namespace d2c_launcher.Api
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<GameServerDto>> ServerController_serverPoolAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task ServerController_stopServerAsync(StopServerDto body, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -334,7 +330,7 @@ namespace d2c_launcher.Api
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task TournamentController_resetGameDataAsync(double id, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
+        System.Threading.Tasks.Task TournamentController_resetGameDataAsync(double id, ResetGameDataDto body, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -351,6 +347,10 @@ namespace d2c_launcher.Api
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<System.Collections.Generic.ICollection<PlayerDailyRecord>> RecordController_dailyRecordsAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task ItemDropController_dropItemOfTierAsync(CreateDropDto body, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -454,10 +454,6 @@ namespace d2c_launcher.Api
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<string>> StatsController_getServersAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
         System.Threading.Tasks.Task<AggregatedStatsDto> StatsController_getAggStatsAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -472,15 +468,15 @@ namespace d2c_launcher.Api
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ThreadMessageDTO>> ForumController_getMessagesAsync(string id, ThreadType? threadType = null, string cursor = null, double? limit = null, SortOrder? order = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ThreadMessageDTO>> ForumController_getMessagesAsync(string id, ThreadType threadType, string cursor = null, double? limit = null, SortOrder? order = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ThreadMessagePageDTO> ForumController_getLatestPageAsync(string id, ThreadType? threadType = null, double? perPage = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
+        System.Threading.Tasks.Task<ThreadMessagePageDTO> ForumController_getLatestPageAsync(string id, ThreadType threadType, double? perPage = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ThreadMessagePageDTO> ForumController_messagesPageAsync(string id, double page, ThreadType? threadType = null, string cursor = null, double? per_page = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
+        System.Threading.Tasks.Task<ThreadMessagePageDTO> ForumController_messagesPageAsync(string id, ThreadType threadType, double page, string cursor = null, double? per_page = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -488,11 +484,11 @@ namespace d2c_launcher.Api
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ThreadDTO> ForumController_getThreadAsync(string id, ThreadType? threadType = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
+        System.Threading.Tasks.Task<ThreadDTO> ForumController_getThreadAsync(string id, ThreadType threadType, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<ThreadMessageSseDto> ForumController_threadAsync(string id, ThreadType? threadType = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
+        System.Threading.Tasks.Task<ThreadMessageSseDto> ForumController_threadAsync(string id, ThreadType threadType, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
@@ -2709,76 +2705,6 @@ namespace d2c_launcher.Api
                         if (status_ == 200)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<QueueEntryDTO>>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<GameServerDto>> ServerController_serverPoolAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
-        {
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "v1/servers/server_pool"
-                    urlBuilder_.Append("v1/servers/server_pool");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<GameServerDto>>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -6487,10 +6413,13 @@ namespace d2c_launcher.Api
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task TournamentController_resetGameDataAsync(double id, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task TournamentController_resetGameDataAsync(double id, ResetGameDataDto body, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
+
+            if (body == null)
+                throw new System.ArgumentNullException("body");
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -6498,7 +6427,10 @@ namespace d2c_launcher.Api
             {
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
-                    request_.Content = new System.Net.Http.StringContent(string.Empty, System.Text.Encoding.UTF8, "application/json");
+                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
+                    var content_ = new System.Net.Http.ByteArrayContent(json_);
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    request_.Content = content_;
                     request_.Method = new System.Net.Http.HttpMethod("POST");
 
                     var urlBuilder_ = new System.Text.StringBuilder();
@@ -6822,6 +6754,77 @@ namespace d2c_launcher.Api
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
                             return objectResponse_.Object;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <exception cref="ApiException">A server side error occurred.</exception>
+        public virtual async System.Threading.Tasks.Task ItemDropController_dropItemOfTierAsync(CreateDropDto body, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        {
+            if (body == null)
+                throw new System.ArgumentNullException("body");
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    var json_ = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body, JsonSerializerSettings);
+                    var content_ = new System.Net.Http.ByteArrayContent(json_);
+                    content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
+                    request_.Content = content_;
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
+
+                    var urlBuilder_ = new System.Text.StringBuilder();
+                
+                    // Operation Path: "v1/drops/drop_for_player"
+                    urlBuilder_.Append("v1/drops/drop_for_player");
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
+                        foreach (var item_ in response_.Headers)
+                            headers_[item_.Key] = item_.Value;
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 201)
+                        {
+                            return;
                         }
                         else
                         {
@@ -8629,76 +8632,6 @@ namespace d2c_launcher.Api
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<string>> StatsController_getServersAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
-        {
-            var client_ = _httpClient;
-            var disposeClient_ = false;
-            try
-            {
-                using (var request_ = new System.Net.Http.HttpRequestMessage())
-                {
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
-                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
-
-                    var urlBuilder_ = new System.Text.StringBuilder();
-                
-                    // Operation Path: "v1/stats/servers"
-                    urlBuilder_.Append("v1/stats/servers");
-
-                    PrepareRequest(client_, request_, urlBuilder_);
-
-                    var url_ = urlBuilder_.ToString();
-                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
-
-                    PrepareRequest(client_, request_, url_);
-
-                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-                    var disposeResponse_ = true;
-                    try
-                    {
-                        var headers_ = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.IEnumerable<string>>();
-                        foreach (var item_ in response_.Headers)
-                            headers_[item_.Key] = item_.Value;
-                        if (response_.Content != null && response_.Content.Headers != null)
-                        {
-                            foreach (var item_ in response_.Content.Headers)
-                                headers_[item_.Key] = item_.Value;
-                        }
-
-                        ProcessResponse(client_, response_);
-
-                        var status_ = (int)response_.StatusCode;
-                        if (status_ == 200)
-                        {
-                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<string>>(response_, headers_, cancellationToken).ConfigureAwait(false);
-                            if (objectResponse_.Object == null)
-                            {
-                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
-                            }
-                            return objectResponse_.Object;
-                        }
-                        else
-                        {
-                            var responseData_ = response_.Content == null ? null : await ReadAsStringAsync(response_.Content, cancellationToken).ConfigureAwait(false);
-                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
-                        }
-                    }
-                    finally
-                    {
-                        if (disposeResponse_)
-                            response_.Dispose();
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeClient_)
-                    client_.Dispose();
-            }
-        }
-
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
         public virtual async System.Threading.Tasks.Task<AggregatedStatsDto> StatsController_getAggStatsAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var client_ = _httpClient;
@@ -8931,10 +8864,13 @@ namespace d2c_launcher.Api
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ThreadMessageDTO>> ForumController_getMessagesAsync(string id, ThreadType? threadType = null, string cursor = null, double? limit = null, SortOrder? order = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<ThreadMessageDTO>> ForumController_getMessagesAsync(string id, ThreadType threadType, string cursor = null, double? limit = null, SortOrder? order = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
+
+            if (threadType == null)
+                throw new System.ArgumentNullException("threadType");
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -8951,13 +8887,7 @@ namespace d2c_launcher.Api
                     urlBuilder_.Append("v1/forum/thread/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append('/');
-                    if (threadType != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(threadType, System.Globalization.CultureInfo.InvariantCulture)));
-                    }
-                    else
-                        if (urlBuilder_.Length > 0) urlBuilder_.Length--;
-                    urlBuilder_.Append("{threadType}");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(threadType, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/messages");
                     urlBuilder_.Append('?');
                     if (cursor != null)
@@ -9028,10 +8958,13 @@ namespace d2c_launcher.Api
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ThreadMessagePageDTO> ForumController_getLatestPageAsync(string id, ThreadType? threadType = null, double? perPage = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<ThreadMessagePageDTO> ForumController_getLatestPageAsync(string id, ThreadType threadType, double? perPage = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
+
+            if (threadType == null)
+                throw new System.ArgumentNullException("threadType");
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -9048,13 +8981,7 @@ namespace d2c_launcher.Api
                     urlBuilder_.Append("v1/forum/thread/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append('/');
-                    if (threadType != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(threadType, System.Globalization.CultureInfo.InvariantCulture)));
-                    }
-                    else
-                        if (urlBuilder_.Length > 0) urlBuilder_.Length--;
-                    urlBuilder_.Append("{threadType}");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(threadType, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/latestPage");
                     urlBuilder_.Append('?');
                     if (perPage != null)
@@ -9117,10 +9044,13 @@ namespace d2c_launcher.Api
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ThreadMessagePageDTO> ForumController_messagesPageAsync(string id, double page, ThreadType? threadType = null, string cursor = null, double? per_page = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<ThreadMessagePageDTO> ForumController_messagesPageAsync(string id, ThreadType threadType, double page, string cursor = null, double? per_page = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
+
+            if (threadType == null)
+                throw new System.ArgumentNullException("threadType");
 
             if (page == null)
                 throw new System.ArgumentNullException("page");
@@ -9140,13 +9070,7 @@ namespace d2c_launcher.Api
                     urlBuilder_.Append("v1/forum/thread/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append('/');
-                    if (threadType != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(threadType, System.Globalization.CultureInfo.InvariantCulture)));
-                    }
-                    else
-                        if (urlBuilder_.Length > 0) urlBuilder_.Length--;
-                    urlBuilder_.Append("{threadType}");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(threadType, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/page");
                     urlBuilder_.Append('?');
                     urlBuilder_.Append(System.Uri.EscapeDataString("page")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(page, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
@@ -9302,10 +9226,13 @@ namespace d2c_launcher.Api
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ThreadDTO> ForumController_getThreadAsync(string id, ThreadType? threadType = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<ThreadDTO> ForumController_getThreadAsync(string id, ThreadType threadType, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
+
+            if (threadType == null)
+                throw new System.ArgumentNullException("threadType");
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -9322,13 +9249,7 @@ namespace d2c_launcher.Api
                     urlBuilder_.Append("v1/forum/thread/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append('/');
-                    if (threadType != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(threadType, System.Globalization.CultureInfo.InvariantCulture)));
-                    }
-                    else
-                        if (urlBuilder_.Length > 0) urlBuilder_.Length--;
-                    urlBuilder_.Append("{threadType}");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(threadType, System.Globalization.CultureInfo.InvariantCulture)));
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -9384,10 +9305,13 @@ namespace d2c_launcher.Api
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<ThreadMessageSseDto> ForumController_threadAsync(string id, ThreadType? threadType = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<ThreadMessageSseDto> ForumController_threadAsync(string id, ThreadType threadType, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (id == null)
                 throw new System.ArgumentNullException("id");
+
+            if (threadType == null)
+                throw new System.ArgumentNullException("threadType");
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -9404,13 +9328,7 @@ namespace d2c_launcher.Api
                     urlBuilder_.Append("v1/forum/thread/");
                     urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(id, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append('/');
-                    if (threadType != null)
-                    {
-                        urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(threadType, System.Globalization.CultureInfo.InvariantCulture)));
-                    }
-                    else
-                        if (urlBuilder_.Length > 0) urlBuilder_.Length--;
-                    urlBuilder_.Append("{threadType}");
+                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(threadType, System.Globalization.CultureInfo.InvariantCulture)));
                     urlBuilder_.Append("/sse");
 
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -15979,42 +15897,6 @@ namespace d2c_launcher.Api
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.2.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public enum Dota2Version
-    {
-
-        [System.Runtime.Serialization.EnumMember(Value = @"Dota_681")]
-        Dota_681 = 0,
-
-        [System.Runtime.Serialization.EnumMember(Value = @"Dota_684")]
-        Dota_684 = 1,
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.2.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class GameServerDto
-    {
-
-        [System.Text.Json.Serialization.JsonPropertyName("version")]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter<Dota2Version>))]
-        public Dota2Version Version { get; set; }
-
-        [System.Text.Json.Serialization.JsonPropertyName("url")]
-        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
-        public string Url { get; set; }
-
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
-
-        [System.Text.Json.Serialization.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
-        {
-            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
-            set { _additionalProperties = value; }
-        }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.2.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class StopServerDto
     {
 
@@ -16071,6 +15953,18 @@ namespace d2c_launcher.Api
             get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
             set { _additionalProperties = value; }
         }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.2.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum Dota2Version
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Dota_681")]
+        Dota_681 = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Dota_684")]
+        Dota_684 = 1,
 
     }
 
@@ -16661,6 +16555,18 @@ namespace d2c_launcher.Api
         [System.Text.Json.Serialization.JsonPropertyName("enableCheats")]
         public bool EnableCheats { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("noRunes")]
+        public bool NoRunes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("enableBanStage")]
+        public bool EnableBanStage { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("midTowerToWin")]
+        public bool MidTowerToWin { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("midTowerKillsToWin")]
+        public double MidTowerKillsToWin { get; set; }
+
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
@@ -16765,6 +16671,18 @@ namespace d2c_launcher.Api
 
         [System.Text.Json.Serialization.JsonPropertyName("enableCheats")]
         public bool EnableCheats { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("enableBanStage")]
+        public bool EnableBanStage { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("noRunes")]
+        public bool NoRunes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("midTowerToWin")]
+        public bool MidTowerToWin { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("midTowerKillsToWin")]
+        public double MidTowerKillsToWin { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 
@@ -17023,6 +16941,18 @@ namespace d2c_launcher.Api
         [System.Text.Json.Serialization.JsonPropertyName("scheduleStrategy")]
         [System.ComponentModel.DataAnnotations.Required]
         public ScheduleStrategy ScheduleStrategy { get; set; } = new ScheduleStrategy();
+
+        [System.Text.Json.Serialization.JsonPropertyName("disableRunes")]
+        public bool DisableRunes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("midTowerToWin")]
+        public bool MidTowerToWin { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("enableBanStage")]
+        public bool EnableBanStage { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("killsToWin")]
+        public double KillsToWin { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 
@@ -17516,6 +17446,18 @@ namespace d2c_launcher.Api
         [System.Text.Json.Serialization.JsonPropertyName("gameBreakDurationSeconds")]
         public double GameBreakDurationSeconds { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("disableRunes")]
+        public bool DisableRunes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("midTowerToWin")]
+        public bool MidTowerToWin { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("enableBanStage")]
+        public bool EnableBanStage { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("killsToWin")]
+        public double KillsToWin { get; set; }
+
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 
         [System.Text.Json.Serialization.JsonExtensionData]
@@ -17570,6 +17512,18 @@ namespace d2c_launcher.Api
 
         [System.Text.Json.Serialization.JsonPropertyName("gameBreakDurationSeconds")]
         public double GameBreakDurationSeconds { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("disableRunes")]
+        public bool DisableRunes { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("midTowerToWin")]
+        public bool MidTowerToWin { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("enableBanStage")]
+        public bool EnableBanStage { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("killsToWin")]
+        public double KillsToWin { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 
@@ -17645,6 +17599,25 @@ namespace d2c_launcher.Api
         [System.Text.Json.Serialization.JsonPropertyName("scheduledDate")]
         [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
         public string ScheduledDate { get; set; }
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.2.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class ResetGameDataDto
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("gameId")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string GameId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 
@@ -17837,6 +17810,28 @@ namespace d2c_launcher.Api
 
         [System.Text.Json.Serialization.JsonPropertyName("loss")]
         public double Loss { get; set; }
+
+        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
+        {
+            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
+            set { _additionalProperties = value; }
+        }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.6.2.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class CreateDropDto
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("playerId")]
+        [System.ComponentModel.DataAnnotations.Required(AllowEmptyStrings = true)]
+        public string PlayerId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("tierId")]
+        public double TierId { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 
@@ -18671,6 +18666,12 @@ namespace d2c_launcher.Api
         [System.Text.Json.Serialization.JsonPropertyName("reacted")]
         [System.ComponentModel.DataAnnotations.Required]
         public System.Collections.Generic.ICollection<UserDTO> Reacted { get; set; } = new System.Collections.ObjectModel.Collection<UserDTO>();
+
+        [System.Text.Json.Serialization.JsonPropertyName("reactedCount")]
+        public double ReactedCount { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("myReaction")]
+        public bool MyReaction { get; set; }
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 

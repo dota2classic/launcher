@@ -66,6 +66,18 @@ internal sealed class StubBackendApiService : IBackendApiService
 
     public Task<Bitmap?> LoadAvatarFromUrlAsync(string? url, CancellationToken cancellationToken = default)
         => Task.FromResult<Bitmap?>(null);
+
+    public Task<IReadOnlyList<ChatMessageData>> GetChatMessagesAsync(string threadId, int limit, string bearerToken, CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<ChatMessageData>>([
+            new ChatMessageData("1", threadId, "Давай сыграем!", "2025-03-05T20:00:00Z", "111", "MaxiKo", null, false),
+            new ChatMessageData("2", threadId, "трамвай потеет)", "2025-03-05T20:00:30Z", "111", "MaxiKo", null, false),
+            new ChatMessageData("3", threadId, "Когда сервер поднимут?", "2025-03-05T20:05:00Z", "222", "лоутаб секьюрити", null, false),
+            new ChatMessageData("4", threadId, "если он есть", "2025-03-05T20:05:20Z", "222", "лоутаб секьюрити", null, false),
+            new ChatMessageData("5", threadId, "геге, мормышка победил", "2025-03-05T20:10:00Z", "111", "MaxiKo", null, false),
+        ]);
+
+    public Task PostChatMessageAsync(string threadId, string content, string bearerToken, CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
 }
 
 internal sealed class StubGameLaunchSettingsStorage : IGameLaunchSettingsStorage

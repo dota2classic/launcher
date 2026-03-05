@@ -94,6 +94,22 @@ public static class PreviewRegistry
                 vm.RefreshGameDirectory();
                 return (new SettingsPanelPreviewControl(), vm);
             },
+            ["ChatPanel"] = () =>
+            {
+                var stub = new StubBackendApiService();
+                var vm = new ChatViewModel(stub);
+                vm.GetBackendToken = () => "stub-token";
+                _ = vm.RefreshAsync();
+                var host = new Avalonia.Controls.Panel
+                {
+                    Width = 620,
+                    Height = 520,
+                    Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#060708")),
+                };
+                var view = new ChatPanel { DataContext = vm };
+                host.Children.Add(view);
+                return (host, null);
+            },
             ["InviteModal"] = () =>
             {
                 var stub = new StubQueueSocketService();

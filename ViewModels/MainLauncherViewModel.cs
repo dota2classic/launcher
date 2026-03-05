@@ -31,6 +31,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public PartyViewModel Party { get; }
     public NotificationAreaViewModel NotificationArea { get; }
     public SettingsViewModel Settings { get; }
+    public ChatViewModel Chat { get; }
 
     // ── Auth / user state ─────────────────────────────────────────────────────
     [ObservableProperty]
@@ -97,6 +98,9 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         NotificationArea = new NotificationAreaViewModel(backendApiService, queueSocketService);
         Settings = new SettingsViewModel(launchSettingsStorage, cvarProvider, settingsStorage, videoProvider);
         Settings.PushCvar = PushCvarIfGameRunning;
+        Chat = new ChatViewModel(backendApiService);
+        Chat.GetBackendToken = () => BackendAccessToken;
+        _ = Chat.RefreshAsync();
 
         // Wire delegates into children that need auth state
         Room.GetCurrentUser = () => CurrentUser;
@@ -170,6 +174,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
         _ = Party.RefreshPartyAsync();
         _ = Queue.RefreshMatchmakingModesAsync();
+        _ = Chat.RefreshAsync();
 
     }
 
@@ -250,6 +255,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
             PersistBackendToken(token);
             await EnsureQueueConnectionAsync(token, ct);
             await Party.RefreshPartyAsync();
+            _ = Chat.RefreshAsync();
         }
         catch (OperationCanceledException)
         {
@@ -306,5 +312,6 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Launch.Dispose();
         Queue.Dispose();
         Party.Dispose();
+        Chat.Dispose();
     }
 }
