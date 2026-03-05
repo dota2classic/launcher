@@ -56,7 +56,8 @@ public static class PreviewRegistry
                 var vm = new GameDownloadViewModel(
                     new StubLocalManifestService(),
                     new StubManifestDiffService(),
-                    new StubGameDownloadService())
+                    new StubGameDownloadService(),
+                    new d2c_launcher.Services.RedistInstallService())
                 {
                     GameDirectory = @"C:\fake\dota2classic",
                     StatusText = "Загрузка (142/2381 файлов)",
@@ -71,7 +72,8 @@ public static class PreviewRegistry
                 var vm = new GameDownloadViewModel(
                     new StubLocalManifestService(),
                     new StubManifestDiffService(),
-                    new StubGameDownloadService())
+                    new StubGameDownloadService(),
+                    new d2c_launcher.Services.RedistInstallService())
                 {
                     GameDirectory = @"C:\fake\dota2classic",
                     StatusText = "Ошибка загрузки",

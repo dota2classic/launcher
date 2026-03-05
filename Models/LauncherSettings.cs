@@ -13,4 +13,6 @@ public class LauncherSettings
 
     /// <summary>Whether to automatically apply launcher updates on startup.</summary>
     public bool AutoUpdate { get; set; } = true;
+
+
 }

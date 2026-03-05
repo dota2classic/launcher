@@ -26,6 +26,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly ILocalManifestService _localManifestService;
     private readonly IManifestDiffService _manifestDiffService;
     private readonly IGameDownloadService _gameDownloadService;
+    private readonly RedistInstallService _redistInstallService;
 
     // Pre-started manifest fetch — kicked off during the Steam loading phase so that
     // GameDownloadViewModel can skip the "Подключение к серверу..." step.
@@ -57,7 +58,8 @@ public partial class MainWindowViewModel : ViewModelBase
         UpdateService updateService,
         ILocalManifestService localManifestService,
         IManifestDiffService manifestDiffService,
-        IGameDownloadService gameDownloadService)
+        IGameDownloadService gameDownloadService,
+        RedistInstallService redistInstallService)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -71,6 +73,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _localManifestService = localManifestService;
         _manifestDiffService = manifestDiffService;
         _gameDownloadService = gameDownloadService;
+        _redistInstallService = redistInstallService;
         _steamStatus = steamManager.SteamStatus;
 
         // Kick off the manifest fetch immediately if the game dir is already known,
@@ -126,7 +129,7 @@ public partial class MainWindowViewModel : ViewModelBase
         var settings = _settingsStorage.Get();
         bool needModal = settings.DefenderExclusionPath != gameDir;
 
-        var vm = new GameDownloadViewModel(_localManifestService, _manifestDiffService, _gameDownloadService)
+        var vm = new GameDownloadViewModel(_localManifestService, _manifestDiffService, _gameDownloadService, _redistInstallService)
         {
             GameDirectory = gameDir,
             NeedDefenderModal = needModal,

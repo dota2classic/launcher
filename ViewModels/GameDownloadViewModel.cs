@@ -18,6 +18,7 @@ public partial class GameDownloadViewModel : ViewModelBase
     private readonly ILocalManifestService _localManifestService;
     private readonly IManifestDiffService _manifestDiffService;
     private readonly IGameDownloadService _gameDownloadService;
+    private readonly RedistInstallService _redistInstallService;
 
     public string GameDirectory { get; set; } = "";
     public Action? OnCompleted { get; set; }
@@ -56,11 +57,13 @@ public partial class GameDownloadViewModel : ViewModelBase
     public GameDownloadViewModel(
         ILocalManifestService localManifestService,
         IManifestDiffService manifestDiffService,
-        IGameDownloadService gameDownloadService)
+        IGameDownloadService gameDownloadService,
+        RedistInstallService redistInstallService)
     {
         _localManifestService = localManifestService;
         _manifestDiffService = manifestDiffService;
         _gameDownloadService = gameDownloadService;
+        _redistInstallService = redistInstallService;
     }
 
     public void StartAsync() => _ = RunAsync();
@@ -167,6 +170,7 @@ public partial class GameDownloadViewModel : ViewModelBase
                 DetailsText = "";
                 ProgressValue = 100;
                 await Task.Delay(500); // brief pause so user sees "up to date"
+                await RunRedistIfNeededAsync();
                 Dispatcher.UIThread.Post(() => OnCompleted?.Invoke());
                 return;
             }
@@ -210,6 +214,7 @@ public partial class GameDownloadViewModel : ViewModelBase
             CurrentFileText = "";
             ProgressValue = 100;
             await Task.Delay(500);
+            await RunRedistIfNeededAsync();
             Dispatcher.UIThread.Post(() => OnCompleted?.Invoke());
         }
         catch (Exception ex)
@@ -222,6 +227,31 @@ public partial class GameDownloadViewModel : ViewModelBase
                 IsIndeterminate = false;
             });
         }
+    }
+
+    private async Task RunRedistIfNeededAsync()
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            StatusText = "Установка компонентов...";
+            IsIndeterminate = true;
+            DetailsText = "";
+            CurrentFileText = "";
+        });
+
+        var redistProgress = new Progress<string>(name =>
+        {
+            Dispatcher.UIThread.Post(() => CurrentFileText = name);
+        });
+
+        await _redistInstallService.InstallAsync(GameDirectory, redistProgress);
+
+        Dispatcher.UIThread.Post(() =>
+        {
+            IsIndeterminate = false;
+            CurrentFileText = "";
+            DetailsText = "";
+        });
     }
 
     private static string FormatSize(long bytes)
