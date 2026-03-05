@@ -112,10 +112,10 @@ public class RichMessageBlock : UserControl
                     charPos += rs.Text.Length;
                     break;
 
-                case EmoticonSegment es when es.Image != null:
+                case EmoticonSegment es:
                     var img = new Image
                     {
-                        Source = es.Image,
+                        Source = es.Image, // null → reserved empty space until image loads
                         Width = 18,
                         Height = 18,
                         Stretch = Stretch.Uniform
@@ -124,18 +124,11 @@ public class RichMessageBlock : UserControl
                     charPos += 1; // InlineUIContainer occupies one character (U+FFFC)
                     break;
 
-                case EmoticonSegment es:
-                    var emoticonText = $":{es.Code}:";
-                    _textBlock.Inlines.Add(new Run(emoticonText));
-                    charPos += emoticonText.Length;
-                    break;
-
                 case PlayerLinkSegment pls:
                     var plsStart = charPos;
                     _textBlock.Inlines.Add(new Run(pls.DisplayName)
                     {
                         Foreground = new SolidColorBrush(Color.Parse("#3a90d6")),
-                        TextDecorations = TextDecorations.Underline,
                     });
                     _urlRanges.Add((plsStart, plsStart + pls.DisplayName.Length, pls.Url));
                     charPos += pls.DisplayName.Length;
@@ -146,7 +139,6 @@ public class RichMessageBlock : UserControl
                     _textBlock.Inlines.Add(new Run(us.Url)
                     {
                         Foreground = new SolidColorBrush(Color.Parse("#3a90d6")),
-                        TextDecorations = TextDecorations.Underline,
                     });
                     _urlRanges.Add((start, start + us.Url.Length, us.Url));
                     charPos += us.Url.Length;

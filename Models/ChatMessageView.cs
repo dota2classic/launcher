@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Avalonia;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 
@@ -12,6 +13,7 @@ public sealed partial class ChatMessageView : ObservableObject
     public string AuthorSteamId { get; }
     public string Initials { get; }
     public bool ShowHeader { get; }
+    public Thickness GroupMargin => ShowHeader ? new Thickness(0, 6, 0, 0) : default;
     public string TimeText { get; }
 
     [ObservableProperty]

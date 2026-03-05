@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Threading;
 using d2c_launcher.ViewModels;
 
 namespace d2c_launcher.Views.Components;
@@ -31,6 +32,8 @@ public partial class ChatPanel : UserControl
 
     private void ScrollToBottom()
     {
-        MessagesScroll.ScrollToEnd();
+        var distanceFromBottom = MessagesScroll.Extent.Height - MessagesScroll.Viewport.Height - MessagesScroll.Offset.Y;
+        if (distanceFromBottom <= 100)
+            Dispatcher.UIThread.Post(() => MessagesScroll.ScrollToEnd(), DispatcherPriority.Loaded);
     }
 }

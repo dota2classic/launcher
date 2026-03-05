@@ -44,7 +44,7 @@
                                   IsVisible="{Binding IsLoading, Converter={x:Static BoolConverters.Not}}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="m:ChatMessageView">
-                                <Border Padding="14,5">
+                                <Border Padding="14,2" Margin="{Binding GroupMargin}">
                                     <Grid ColumnDefinitions="30,10,*">
 
                                         <!-- Avatar (header only) -->
