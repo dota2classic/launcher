@@ -52,7 +52,7 @@ public partial class GameDownloadViewModel : ViewModelBase
     [ObservableProperty] private string _detailsText = "";
     [ObservableProperty] private string _currentFileText = "";
     [ObservableProperty] private double _progressValue;
-    [ObservableProperty] private bool _isIndeterminate = true;
+    [ObservableProperty] private bool _isIndeterminate = false;
     [ObservableProperty] private bool _hasError;
     [ObservableProperty] private string _errorText = "";
 
@@ -178,7 +178,7 @@ public partial class GameDownloadViewModel : ViewModelBase
 
     private async Task<GameManifest> ScanLocalFilesAsync()
     {
-        SetPhase(VerificationPhase.ScanningFiles, "Проверка файлов...", indeterminate: false);
+        SetPhase(VerificationPhase.ScanningFiles, "Проверка файлов...", progress: 0, indeterminate: false);
 
         var scanProgress = new Progress<(int done, int total)>(p =>
         {

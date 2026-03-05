@@ -34,7 +34,15 @@
                          Minimum="0" Maximum="100"
                          Height="6" CornerRadius="0"
                          Foreground="#3a90d6"
-                         Background="#2a2a2a"/>
+                         Background="#2a2a2a">
+                <ProgressBar.Styles>
+                    <!-- Kill the internal indicator transitions so switching IsIndeterminate
+                         doesn't produce a flash from the animation's current position to 0. -->
+                    <Style Selector="ProgressBar /template/ Border#PART_Indicator">
+                        <Setter Property="Transitions" Value="{x:Null}"/>
+                    </Style>
+                </ProgressBar.Styles>
+            </ProgressBar>
 
             <TextBlock Text="{Binding CurrentFileText}"
                        IsVisible="{Binding CurrentFileText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
