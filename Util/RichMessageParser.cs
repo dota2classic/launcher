@@ -22,11 +22,15 @@ public static class RichMessageParser
         @"<(common|uncommon|rare|mythical|immortal|legendary|arcana|ancient)>(.*?)<\/\1>",
         RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
     private static readonly Regex s_emoticon = new(@":([a-zA-Z0-9_+\-]+):", RegexOptions.Compiled);
+    private static readonly Regex s_playerLink = new(
+        @"https://dotaclassic\.ru/players/(\d+)",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex s_url      = new(@"https?://[^\s]+", RegexOptions.Compiled);
 
     public static IReadOnlyList<RichSegment> Parse(
         string rawMessage,
-        IReadOnlyDictionary<string, Bitmap>? emoticons = null)
+        IReadOnlyDictionary<string, Bitmap>? emoticons = null,
+        IReadOnlyDictionary<string, string>? userNames = null)
     {
         // Pre-process
         var msg = s_markdownLink.Replace(rawMessage, m => m.Groups[2].Value);
@@ -50,6 +54,16 @@ public static class RichMessageParser
             Bitmap? bitmap = null;
             emoticons?.TryGetValue(code, out bitmap);
             return new EmoticonSegment(code, bitmap);
+        });
+
+        // Apply player link rule (before generic URL rule)
+        ApplyRule(tokens, s_playerLink, m =>
+        {
+            var steamId = m.Groups[1].Value;
+            var displayName = (userNames != null && userNames.TryGetValue(steamId, out var n))
+                ? $"@{n}"
+                : "Загрузка...";
+            return new PlayerLinkSegment(steamId, m.Value, displayName);
         });
 
         // Apply URL rule

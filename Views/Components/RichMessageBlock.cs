@@ -130,6 +130,17 @@ public class RichMessageBlock : UserControl
                     charPos += emoticonText.Length;
                     break;
 
+                case PlayerLinkSegment pls:
+                    var plsStart = charPos;
+                    _textBlock.Inlines.Add(new Run(pls.DisplayName)
+                    {
+                        Foreground = new SolidColorBrush(Color.Parse("#3a90d6")),
+                        TextDecorations = TextDecorations.Underline,
+                    });
+                    _urlRanges.Add((plsStart, plsStart + pls.DisplayName.Length, pls.Url));
+                    charPos += pls.DisplayName.Length;
+                    break;
+
                 case UrlSegment us:
                     var start = charPos;
                     _textBlock.Inlines.Add(new Run(us.Url)

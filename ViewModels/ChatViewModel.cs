@@ -25,6 +25,8 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     private readonly Dictionary<string, string> _avatarUrlByAuthor = new(StringComparer.Ordinal);
     // Emoticon images keyed by code (populated once at startup).
     private Dictionary<string, Bitmap> _emoticonImages = new(StringComparer.Ordinal);
+    // User name cache: steamId → resolved name (null = fetch in-flight).
+    private readonly Dictionary<string, string?> _userNameCache = new(StringComparer.Ordinal);
     private CancellationTokenSource? _loadCts;
     private CancellationTokenSource? _sseCts;
     // Tracks the last appended message for SSE header-grouping decisions.
@@ -91,7 +93,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     private void ReparseAllMessages()
     {
         foreach (var msg in Messages)
-            msg.RichContent = RichMessageParser.Parse(msg.Content, _emoticonImages);
+            msg.RichContent = RichMessageParser.Parse(msg.Content, _emoticonImages, _userNameCache);
     }
 
     /// <summary>Cancels the current SSE connection and reconnects. Call when the auth token changes.</summary>
@@ -159,10 +161,12 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
             if (!string.IsNullOrWhiteSpace(msg.AuthorAvatarUrl))
                 _avatarUrlByAuthor[msg.AuthorSteamId] = msg.AuthorAvatarUrl!;
 
+            var richContent = RichMessageParser.Parse(msg.Content, _emoticonImages, _userNameCache);
+            ScheduleUserLoads(richContent);
             var view = new ChatMessageView(
                 msg.MessageId,
                 msg.Content,
-                RichMessageParser.Parse(msg.Content, _emoticonImages),
+                richContent,
                 msg.AuthorName,
                 msg.AuthorSteamId,
                 showHeader,
@@ -271,10 +275,12 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
             if (!string.IsNullOrWhiteSpace(msg.AuthorAvatarUrl))
                 _avatarUrlByAuthor[msg.AuthorSteamId] = msg.AuthorAvatarUrl!;
 
+            var richContent = RichMessageParser.Parse(msg.Content, _emoticonImages, _userNameCache);
+            ScheduleUserLoads(richContent);
             result.Add(new ChatMessageView(
                 msg.MessageId,
                 msg.Content,
-                RichMessageParser.Parse(msg.Content, _emoticonImages),
+                richContent,
                 msg.AuthorName,
                 msg.AuthorSteamId,
                 showHeader,
@@ -324,6 +330,38 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         {
             foreach (var m in Messages.Where(m => m.AuthorSteamId == view.AuthorSteamId))
                 m.AvatarImage = bitmap;
+        });
+    }
+
+    // ── Player name resolution ────────────────────────────────────────────────
+
+    private void ScheduleUserLoads(IReadOnlyList<RichSegment> segments)
+    {
+        foreach (var seg in segments.OfType<PlayerLinkSegment>())
+        {
+            if (_userNameCache.ContainsKey(seg.SteamId)) continue;
+            _userNameCache[seg.SteamId] = null; // mark as in-flight
+            _ = LoadUserAsync(seg.SteamId);
+        }
+    }
+
+    private async Task LoadUserAsync(string steamId)
+    {
+        var token = GetBackendToken();
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            // No token yet — remove from cache so it retries next time.
+            _userNameCache.Remove(steamId);
+            return;
+        }
+
+        var info = await _backendApiService.GetUserInfoAsync(steamId, token).ConfigureAwait(false);
+        var name = info?.Name ?? steamId;
+
+        Dispatcher.UIThread.Post(() =>
+        {
+            _userNameCache[steamId] = name;
+            ReparseAllMessages();
         });
     }
 
