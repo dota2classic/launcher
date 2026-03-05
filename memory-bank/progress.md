@@ -8,6 +8,7 @@
 | Feature                                    | Status         | Notes                                           |
 | ------------------------------------------ | -------------- | ----------------------------------------------- |
 | Steam auth via SteamBridge subprocess      | ✅ Done         | 12s timeout, exponential backoff                |
+| Clean shutdown (issue #4)                  | ✅ Done         | Bridge kill on Dispose, Environment.Exit(0), ConfigureAwait fixes |
 | App state routing (Steam → GameDir → Main) | ✅ Done         | `MainWindowViewModel`                           |
 | DI container setup                         | ✅ Done         | `App.axaml.cs`                                  |
 | Settings persistence (launcher JSON)       | ✅ Done         | `%AppData%\d2c-launcher\launcher_settings.json` |

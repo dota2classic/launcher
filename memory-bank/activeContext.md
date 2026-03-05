@@ -2,6 +2,15 @@
 
 ## Current Focus
 
+**Issue #4 fix: launcher process doesn't exit cleanly** — three-part fix:
+1. `Integration/SteamManager.cs` — track `_activeBridgeProcess` field; kill it immediately in `Dispose()` before waiting on the monitor task, and clear it in a `finally` block after the bridge exits or is killed.
+2. `Program.cs` — added `Environment.Exit(0)` after `FaroTelemetryService.ShutdownAsync()` to force-kill any lingering foreground threads (e.g. from SocketIOClient).
+3. `Services/FaroTelemetryService.cs` — added `ConfigureAwait(false)` to `FlushAsync()` and `ShutdownAsync()` to prevent a potential deadlock when called from `Main()` after the Avalonia SynchronizationContext is torn down.
+
+---
+
+## Previous Focus: Settings modal redesign
+
 **Settings modal redesign** — issue #3 complete. Replaced the old 2-tab unstyled settings panel with a redesigned 3-tab modal.
 
 ### What Was Changed (issue #3)
