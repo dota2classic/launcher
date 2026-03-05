@@ -13,7 +13,9 @@ public sealed partial class ChatMessageView : ObservableObject
     public string Initials { get; }
     public bool ShowHeader { get; }
     public string TimeText { get; }
-    public IReadOnlyList<RichSegment> RichContent { get; }
+
+    [ObservableProperty]
+    private IReadOnlyList<RichSegment> _richContent;
 
     [ObservableProperty]
     private Bitmap? _avatarImage;
@@ -30,7 +32,7 @@ public sealed partial class ChatMessageView : ObservableObject
     {
         MessageId = messageId;
         Content = content;
-        RichContent = richContent;
+        _richContent = richContent;
         AuthorName = authorName;
         AuthorSteamId = authorSteamId;
         ShowHeader = showHeader;

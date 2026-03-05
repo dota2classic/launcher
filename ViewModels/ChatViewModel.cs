@@ -61,20 +61,37 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         try
         {
             var list = await _backendApiService.GetEmoticonsAsync().ConfigureAwait(false);
-            var images = new Dictionary<string, Bitmap>(list.Count, StringComparer.Ordinal);
-            foreach (var e in list)
+
+            // Download all emoticon images in parallel.
+            var tasks = list.Select(async e =>
             {
                 var bmp = await _backendApiService.LoadAvatarFromUrlAsync(e.Src).ConfigureAwait(false);
+                return (e.Code, bmp);
+            });
+            var results = await Task.WhenAll(tasks).ConfigureAwait(false);
+
+            var images = new Dictionary<string, Bitmap>(results.Length, StringComparer.Ordinal);
+            foreach (var (code, bmp) in results)
+            {
                 if (bmp != null)
-                    images[e.Code] = bmp;
+                    images[code] = bmp;
             }
             _emoticonImages = images;
             AppLog.Info($"Chat: loaded {images.Count} emoticon images.");
+
+            // Re-parse any messages that were rendered before emoticons finished loading.
+            Dispatcher.UIThread.Post(ReparseAllMessages);
         }
         catch (Exception ex)
         {
             AppLog.Error($"Chat: failed to load emoticons: {ex.Message}", ex);
         }
+    }
+
+    private void ReparseAllMessages()
+    {
+        foreach (var msg in Messages)
+            msg.RichContent = RichMessageParser.Parse(msg.Content, _emoticonImages);
     }
 
     /// <summary>Cancels the current SSE connection and reconnects. Call when the auth token changes.</summary>
