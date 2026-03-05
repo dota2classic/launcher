@@ -13,7 +13,7 @@
 | DI container setup                         | ✅ Done         | `App.axaml.cs`                                  |
 | Settings persistence (launcher JSON)       | ✅ Done         | `%AppData%\d2c-launcher\launcher_settings.json` |
 | Application auto-updates                   | ✅ Done         | Velopack + GitHub Releases                      |
-| Hardware info logging + HWID               | 🔄 In progress | `HardwareInfoService`, not yet committed        |
+| Hardware info logging + HWID               | ✅ Done         | `HardwareInfoService` committed; HWID not yet sent to backend (backlog) |
 
 
 ### Matchmaking

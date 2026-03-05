@@ -2,6 +2,19 @@
 
 ## Current Focus
 
+**Pre-release cleanup / no active feature work.**
+
+All major features are complete. Known technical debt identified but deferred post-release:
+- `QueueSocketService.Dispose()` blocks UI thread up to 2s (`Task.Run+.Wait`)
+- Chat thread ID hardcoded in `ChatViewModel` (`"17aa3530-d152-462e-a032-909ae69019ed"`)
+- `BackendApiService` base URL not configurable via env var (unlike socket service)
+- Silent settings corruption fallback in `SettingsStorage.Load()`
+- HWID collected by `HardwareInfoService` but not yet sent to backend
+
+---
+
+## Previous Focus
+
 **Issue #15: Rich message rendering in chat**
 
 Chat messages now parsed into typed segments and rendered as mixed inline content:
