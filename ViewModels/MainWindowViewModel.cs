@@ -33,7 +33,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private Task<GameManifest?>? _manifestPrefetch;
 
     [ObservableProperty]
-    private SteamStatus _steamStatus;
+    private AppState _appState;
 
     [ObservableProperty]
     private object? _currentContentViewModel;
@@ -41,7 +41,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private bool _updateAvailable;
 
-    public bool IsSteamRunning => SteamStatus is SteamStatus.Running or SteamStatus.Offline;
+    public bool IsSteamRunning => _steamManager.SteamStatus is SteamStatus.Running or SteamStatus.Offline;
 
     public string WindowTitle { get; } =
         $"dotaclassic v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "?"}";
@@ -74,7 +74,6 @@ public partial class MainWindowViewModel : ViewModelBase
         _manifestDiffService = manifestDiffService;
         _gameDownloadService = gameDownloadService;
         _redistInstallService = redistInstallService;
-        _steamStatus = steamManager.SteamStatus;
 
         // Kick off the manifest fetch immediately if the game dir is already known,
         // so it runs in parallel with Steam auth and avoids the "Connecting to server" screen.
@@ -82,21 +81,26 @@ public partial class MainWindowViewModel : ViewModelBase
         if (!string.IsNullOrWhiteSpace(initialGameDir) && Directory.Exists(initialGameDir))
             _manifestPrefetch = FetchManifestAsync();
 
-        UpdateContentViewModel();
+        // Compute and enter initial state
+        var initialState = AppStateMachine.OnSteamUpdate(
+            AppState.CheckingSteam,
+            steamManager.SteamStatus,
+            steamManager.CurrentUser != null,
+            HasValidGameDir());
+        EnterState(initialState);
 
-        _steamManager.OnSteamStatusUpdated += status =>
+        _steamManager.OnSteamStatusUpdated += _ =>
         {
             Dispatcher.UIThread.Post(() =>
             {
-                SteamStatus = status;
                 OnPropertyChanged(nameof(IsSteamRunning));
-                UpdateContentViewModel();
+                TransitionOnSteamUpdate();
             });
         };
 
         _steamManager.OnUserUpdated += _ =>
         {
-            Dispatcher.UIThread.Post(UpdateContentViewModel);
+            Dispatcher.UIThread.Post(TransitionOnSteamUpdate);
         };
 
         _ = CheckForUpdatesAsync();
@@ -112,40 +116,154 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void ApplyUpdate() => _updateService.ApplyAndRestart();
 
-    private void ShowMainLauncher()
+    // ── State transitions ────────────────────────────────────────────────────
+
+    /// <summary>Fired by SteamManager events — recomputes state from current Steam conditions.</summary>
+    private void TransitionOnSteamUpdate()
     {
-        (CurrentContentViewModel as System.IDisposable)?.Dispose();
-        var vm = new MainLauncherViewModel(
-            _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider, _videoProvider,
-            _steamAuthApi, _backendApiService, _queueSocketService);
-        vm.OnGameDirectoryChanged = path => Dispatcher.UIThread.Post(() => ShowGameDownload(path));
-        CurrentContentViewModel = vm;
+        var next = AppStateMachine.OnSteamUpdate(
+            AppState,
+            _steamManager.SteamStatus,
+            _steamManager.CurrentUser != null,
+            HasValidGameDir());
+        EnterState(next);
     }
 
-    private void ShowGameDownload(string gameDir)
+    /// <summary>
+    /// Enters a new <see cref="AppState"/>, disposing the previous content VM and
+    /// creating the appropriate new one. No-ops if the state hasn't changed.
+    /// </summary>
+    private void EnterState(AppState newState)
     {
-        (CurrentContentViewModel as System.IDisposable)?.Dispose();
+        if (AppState == newState && CurrentContentViewModel != null)
+            return;
+
+        AppState = newState;
+
+        switch (newState)
+        {
+            case AppState.CheckingSteam:
+                DisposeCurrentVm();
+                CurrentContentViewModel = new LoadingViewModel();
+                break;
+
+            case AppState.SteamNotRunning:
+            case AppState.SteamOffline:
+                DisposeCurrentVm();
+                CurrentContentViewModel = new LaunchSteamFirstViewModel
+                {
+                    TryAgainCallback = TransitionOnSteamUpdate
+                };
+                break;
+
+            case AppState.SelectGameDirectory:
+                // Guard: already showing — don't recreate
+                if (CurrentContentViewModel is SelectGameViewModel)
+                    return;
+                DisposeCurrentVm();
+                var selectVm = new SelectGameViewModel();
+                selectVm.GameDirectorySelected = path =>
+                {
+                    var settings = _settingsStorage.Get();
+                    settings.GameDirectory = path;
+                    _settingsStorage.Save(settings);
+                    Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirSelected(AppState)));
+                };
+                CurrentContentViewModel = selectVm;
+                break;
+
+            case AppState.VerifyingGame:
+                // Guard: already verifying — don't restart
+                if (CurrentContentViewModel is GameDownloadViewModel)
+                    return;
+                EnterVerifyingGame();
+                break;
+
+            case AppState.Launcher:
+                // Guard: already on main screen — don't recreate
+                if (CurrentContentViewModel is MainLauncherViewModel)
+                    return;
+                EnterLauncher();
+                break;
+        }
+    }
+
+    private void EnterVerifyingGame()
+    {
+        var gameDir = ResolveGameDir();
+        if (gameDir == null)
+        {
+            // Directory was deleted between state computation and here — recheck without a game dir
+            EnterState(AppStateMachine.OnSteamUpdate(AppState, _steamManager.SteamStatus, _steamManager.CurrentUser != null, false));
+            return;
+        }
+
+        DisposeCurrentVm();
 
         var settings = _settingsStorage.Get();
-        bool needModal = settings.DefenderExclusionPath != gameDir;
+        bool needDefenderModal = settings.DefenderExclusionPath != gameDir;
 
         var vm = new GameDownloadViewModel(_localManifestService, _manifestDiffService, _gameDownloadService, _redistInstallService)
         {
             GameDirectory = gameDir,
-            NeedDefenderModal = needModal,
+            NeedDefenderModal = needDefenderModal,
             OnDefenderDecisionMade = () =>
             {
-                // Persist the decision so we don't ask again for this directory
                 var s = _settingsStorage.Get();
                 s.DefenderExclusionPath = gameDir;
                 _settingsStorage.Save(s);
             },
-            OnCompleted = () => Dispatcher.UIThread.Post(ShowMainLauncher),
+            OnCompleted = () => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnVerificationCompleted(AppState))),
             PrefetchedRemoteManifest = _manifestPrefetch
         };
         _manifestPrefetch = null; // consumed; don't share with a future VM
         CurrentContentViewModel = vm;
         vm.StartAsync();
+    }
+
+    private void EnterLauncher()
+    {
+        DisposeCurrentVm();
+        var vm = new MainLauncherViewModel(
+            _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider, _videoProvider,
+            _steamAuthApi, _backendApiService, _queueSocketService);
+        vm.OnGameDirectoryChanged = _ => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirChanged(AppState)));
+        CurrentContentViewModel = vm;
+    }
+
+    private void DisposeCurrentVm()
+    {
+        (CurrentContentViewModel as System.IDisposable)?.Dispose();
+        CurrentContentViewModel = null;
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
+    /// <summary>Returns true if the settings game directory exists on disk.</summary>
+    private bool HasValidGameDir()
+    {
+        var dir = _settingsStorage.Get().GameDirectory;
+        return !string.IsNullOrWhiteSpace(dir) && Directory.Exists(dir);
+    }
+
+    /// <summary>
+    /// Returns the configured game directory, or null if it's missing/stale.
+    /// Clears a stale path from settings so it won't be reused.
+    /// </summary>
+    private string? ResolveGameDir()
+    {
+        var settings = _settingsStorage.Get();
+        var dir = settings.GameDirectory;
+        if (!string.IsNullOrWhiteSpace(dir) && Directory.Exists(dir))
+            return dir;
+
+        if (!string.IsNullOrWhiteSpace(dir))
+        {
+            settings.GameDirectory = null;
+            _settingsStorage.Save(settings);
+        }
+
+        return null;
     }
 
     private static async Task<GameManifest?> FetchManifestAsync()
@@ -160,68 +278,5 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             return null;
         }
-    }
-
-    private void UpdateContentViewModel()
-    {
-        // Show spinner while we don't yet know Steam's state, or while Steam is
-        // running but the bridge hasn't finished querying the user yet.
-        if (SteamStatus == SteamStatus.Checking ||
-            (SteamStatus == SteamStatus.Running && _steamManager.CurrentUser == null))
-        {
-            if (CurrentContentViewModel is not LoadingViewModel)
-                CurrentContentViewModel = new LoadingViewModel();
-            return;
-        }
-
-        var steamOk = SteamStatus == SteamStatus.Running && _steamManager.CurrentUser != null;
-
-        if (steamOk)
-        {
-            var gameDir = _settingsStorage.Get().GameDirectory;
-
-            if (string.IsNullOrWhiteSpace(gameDir) || !Directory.Exists(gameDir))
-            {
-                // Stale path — directory was deleted; clear it so it won't be reused.
-                if (!string.IsNullOrWhiteSpace(gameDir))
-                {
-                    var s = _settingsStorage.Get();
-                    s.GameDirectory = null;
-                    _settingsStorage.Save(s);
-                }
-
-                // Already showing the picker — don't recreate it.
-                if (CurrentContentViewModel is SelectGameViewModel)
-                    return;
-
-                (CurrentContentViewModel as System.IDisposable)?.Dispose();
-
-                var selectVm = new SelectGameViewModel();
-                selectVm.GameDirectorySelected = path =>
-                {
-                    var settings = _settingsStorage.Get();
-                    settings.GameDirectory = path;
-                    _settingsStorage.Save(settings);
-                    Dispatcher.UIThread.Post(() => ShowGameDownload(path));
-                };
-                CurrentContentViewModel = selectVm;
-                return;
-            }
-
-            // Game directory is set — go through download/verify before showing the main launcher.
-            // Guard: don't restart the download if already in progress or on main screen.
-            if (CurrentContentViewModel is GameDownloadViewModel or MainLauncherViewModel)
-                return;
-
-            ShowGameDownload(gameDir);
-            return;
-        }
-
-        (CurrentContentViewModel as System.IDisposable)?.Dispose();
-
-        CurrentContentViewModel = new LaunchSteamFirstViewModel
-        {
-            TryAgainCallback = UpdateContentViewModel
-        };
     }
 }

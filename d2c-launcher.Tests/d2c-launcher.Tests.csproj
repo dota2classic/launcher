@@ -13,6 +13,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="System.Management" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,5 +33,17 @@
     <Compile Include="..\Models\GameManifest.cs" Link="Models\GameManifest.cs" />
     <Compile Include="..\Services\IManifestDiffService.cs" Link="Services\IManifestDiffService.cs" />
     <Compile Include="..\Services\ManifestDiffService.cs" Link="Services\ManifestDiffService.cs" />
+    <!-- State machine (no Avalonia/Steamworks dependencies) -->
+    <Compile Include="..\Models\SteamStatus.cs" Link="Models\SteamStatus.cs" />
+    <Compile Include="..\Models\AppState.cs" Link="Models\AppState.cs" />
+    <Compile Include="..\ViewModels\AppStateMachine.cs" Link="ViewModels\AppStateMachine.cs" />
+    <!-- Telemetry (needed by AppLog) -->
+    <Compile Include="..\Services\HardwareInfoService.cs" Link="Services\HardwareInfoService.cs" />
+    <Compile Include="..\Services\FaroTelemetryService.cs" Link="Services\FaroTelemetryService.cs" />
+    <!-- Video settings and cfg writer (tested by DotaVideoTxtTests, DotaCfgWriterTests) -->
+    <Compile Include="..\Models\VideoSettings.cs" Link="Models\VideoSettings.cs" />
+    <Compile Include="..\Services\DotaVideoTxtReader.cs" Link="Services\DotaVideoTxtReader.cs" />
+    <Compile Include="..\Services\DotaVideoTxtWriter.cs" Link="Services\DotaVideoTxtWriter.cs" />
+    <Compile Include="..\Services\DotaCfgWriter.cs" Link="Services\DotaCfgWriter.cs" />
   </ItemGroup>
 </Project>
