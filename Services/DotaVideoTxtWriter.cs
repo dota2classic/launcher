@@ -123,7 +123,7 @@ public static class DotaVideoTxtWriter
     /// Returns the Source engine aspect ratio mode for a given resolution:
     /// 0 = 4:3, 1 = 16:9, 2 = 16:10.
     /// </summary>
-    private static int AspectRatioMode(int width, int height)
+    internal static int AspectRatioMode(int width, int height)
     {
         if (height == 0) return 1;
         var ratio = (double)width / height;
