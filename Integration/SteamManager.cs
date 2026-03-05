@@ -302,8 +302,12 @@ public class SteamManager : IDisposable
         return true;
     }
 
+    private bool _disposed;
+
     public void Dispose()
     {
+        if (_disposed) return;
+        _disposed = true;
         _shutdown.Cancel();
         try
         {

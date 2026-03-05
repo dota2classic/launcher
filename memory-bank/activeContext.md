@@ -55,6 +55,7 @@ Download complete → MainLauncherView
 
 | Commit | Change |
 |--------|--------|
+| `e87b6e3` | Fix issue #1: double-dispose guard in `SteamManager` — add `_disposed` bool to prevent `ObjectDisposedException` on shutdown |
 | `dc61ce4` | Add test step to CI workflow |
 | `212c9ca` | Remove .claude from git, add to .gitignore |
 | `e1f4024` | Add xUnit test project (CfgGenerator, DotaCfgReader, CvarMappings) |
