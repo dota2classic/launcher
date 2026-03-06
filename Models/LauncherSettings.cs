@@ -13,6 +13,13 @@ public class LauncherSettings
     /// </summary>
     public string? DefenderExclusionPath { get; set; }
 
+    /// <summary>
+    /// True once the user has responded to the Windows Defender exclusion prompt
+    /// (either accepted or skipped). When true the prompt is never shown again,
+    /// regardless of whether an exclusion is actually present.
+    /// </summary>
+    public bool DefenderPromptAnswered { get; set; }
+
     /// <summary>Whether to automatically apply launcher updates on startup.</summary>
     public bool AutoUpdate { get; set; } = true;
 

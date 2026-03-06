@@ -54,10 +54,11 @@ public partial class GameDownloadViewModel : ViewModelBase
     public bool NeedDefenderModal { get; set; }
 
     /// <summary>
-    /// Called after the user responds to the Defender modal (accept or skip).
-    /// Used by the parent ViewModel to persist the decision to settings.
+    /// Called after the user responds to the Defender modal.
+    /// The bool argument is true if the user accepted (exclusion was requested),
+    /// false if the user skipped (no exclusion added).
     /// </summary>
-    public Action? OnDefenderDecisionMade { get; set; }
+    public Action<bool>? OnDefenderDecisionMade { get; set; }
 
     private TaskCompletionSource? _defenderTcs;
 
@@ -91,7 +92,7 @@ public partial class GameDownloadViewModel : ViewModelBase
     private async Task AcceptDefenderAsync()
     {
         ShowDefenderModal = false;
-        OnDefenderDecisionMade?.Invoke();
+        OnDefenderDecisionMade?.Invoke(true);
         await WindowsDefenderService.TryAddExclusionAsync(GameDirectory);
         _defenderTcs?.TrySetResult();
     }
@@ -100,7 +101,7 @@ public partial class GameDownloadViewModel : ViewModelBase
     private void SkipDefender()
     {
         ShowDefenderModal = false;
-        OnDefenderDecisionMade?.Invoke();
+        OnDefenderDecisionMade?.Invoke(false);
         _defenderTcs?.TrySetResult();
     }
 

@@ -208,7 +208,10 @@ public partial class MainWindowViewModel : ViewModelBase
         DisposeCurrentVm();
 
         var settings = _settingsStorage.Get();
-        bool needDefenderModal = settings.DefenderExclusionPath != gameDir;
+        // Show the prompt only if the user has never responded to it before.
+        // DefenderExclusionPath (non-null) is also treated as "already answered" for
+        // users who accepted before DefenderPromptAnswered was introduced (backwards compat).
+        bool needDefenderModal = !settings.DefenderPromptAnswered && settings.DefenderExclusionPath == null;
 
         var vm = new GameDownloadViewModel(_registryService, _localManifestService, _manifestDiffService, _gameDownloadService, _redistInstallService)
         {
@@ -216,10 +219,11 @@ public partial class MainWindowViewModel : ViewModelBase
             SelectedDlcIds = settings.SelectedDlcIds ?? [],
             NeedDefenderModal = needDefenderModal,
             PackageIdsToRemove = packageIdsToRemove,
-            OnDefenderDecisionMade = () =>
+            OnDefenderDecisionMade = accepted =>
             {
                 var s = _settingsStorage.Get();
-                s.DefenderExclusionPath = gameDir;
+                if (accepted) s.DefenderExclusionPath = gameDir;
+                s.DefenderPromptAnswered = true;
                 _settingsStorage.Save(s);
             },
             OnPackagesInstalled = ids =>
