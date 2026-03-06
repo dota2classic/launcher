@@ -134,18 +134,29 @@ public partial class RoomViewModel : ViewModelBase
                         info?.AvatarImage?.Dispose();
                         return;
                     }
-                    RoomPlayers.Add(new RoomPlayerView(
-                        entry.SteamId,
-                        info?.Name ?? entry.SteamId,
-                        info?.AvatarImage,
-                        entry.State));
+                    // Re-check after await: a concurrent update may have already added this player
+                    var existingAfterFetch = RoomPlayers.FirstOrDefault(p => p.SteamId == entry.SteamId);
+                    if (existingAfterFetch != null)
+                    {
+                        existingAfterFetch.State = entry.State;
+                        info?.AvatarImage?.Dispose();
+                    }
+                    else
+                    {
+                        RoomPlayers.Add(new RoomPlayerView(
+                            entry.SteamId,
+                            info?.Name ?? entry.SteamId,
+                            info?.AvatarImage,
+                            entry.State));
+                    }
                 }
                 catch (Exception ex)
                 {
                     AppLog.Error($"Failed to fetch user info for {entry.SteamId}", ex);
                     if (CurrentRoomId != msg.RoomId)
                         return;
-                    RoomPlayers.Add(new RoomPlayerView(entry.SteamId, entry.SteamId, null, entry.State));
+                    if (!RoomPlayers.Any(p => p.SteamId == entry.SteamId))
+                        RoomPlayers.Add(new RoomPlayerView(entry.SteamId, entry.SteamId, null, entry.State));
                 }
             }
         }
