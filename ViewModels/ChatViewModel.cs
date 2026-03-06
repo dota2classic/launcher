@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Avalonia.Media.Imaging;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
 using d2c_launcher.Util;
@@ -22,9 +21,10 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     private const int MergeWindowSeconds = 60;
 
     private readonly IBackendApiService _backendApiService;
+    private readonly IHttpImageService _imageService;
     private readonly Dictionary<string, string> _avatarUrlByAuthor = new(StringComparer.Ordinal);
-    // Emoticon images keyed by code (populated once at startup).
-    private Dictionary<string, Bitmap> _emoticonImages = new(StringComparer.Ordinal);
+    // Emoticon GIF bytes keyed by code (populated once at startup).
+    private Dictionary<string, byte[]> _emoticonImages = new(StringComparer.Ordinal);
     // User name cache: steamId → resolved name (null = fetch in-flight).
     private readonly Dictionary<string, string?> _userNameCache = new(StringComparer.Ordinal);
     private CancellationTokenSource? _loadCts;
@@ -42,9 +42,10 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
     public event Action? MessagesUpdated;
 
-    public ChatViewModel(IBackendApiService backendApiService)
+    public ChatViewModel(IBackendApiService backendApiService, IHttpImageService imageService)
     {
         _backendApiService = backendApiService;
+        _imageService = imageService;
     }
 
     /// <summary>Loads initial messages then starts the SSE live-update stream.</summary>
@@ -64,19 +65,19 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         {
             var list = await _backendApiService.GetEmoticonsAsync().ConfigureAwait(false);
 
-            // Download all emoticon images in parallel.
+            // Download all emoticon GIF bytes in parallel.
             var tasks = list.Select(async e =>
             {
-                var bmp = await _backendApiService.LoadAvatarFromUrlAsync(e.Src).ConfigureAwait(false);
-                return (e.Code, bmp);
+                var bytes = await _imageService.LoadBytesAsync(e.Src).ConfigureAwait(false);
+                return (e.Code, bytes);
             });
             var results = await Task.WhenAll(tasks).ConfigureAwait(false);
 
-            var images = new Dictionary<string, Bitmap>(results.Length, StringComparer.Ordinal);
-            foreach (var (code, bmp) in results)
+            var images = new Dictionary<string, byte[]>(results.Length, StringComparer.Ordinal);
+            foreach (var (code, bytes) in results)
             {
-                if (bmp != null)
-                    images[code] = bmp;
+                if (bytes != null)
+                    images[code] = bytes;
             }
             _emoticonImages = images;
             AppLog.Info($"Chat: loaded {images.Count} emoticon images.");
@@ -323,7 +324,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     private async Task LoadSingleAvatarAsync(ChatMessageView view, CancellationToken ct)
     {
         if (!_avatarUrlByAuthor.TryGetValue(view.AuthorSteamId, out var url)) return;
-        var bitmap = await _backendApiService.LoadAvatarFromUrlAsync(url, ct).ConfigureAwait(false);
+        var bitmap = await _imageService.LoadBitmapAsync(url, ct).ConfigureAwait(false);
         if (bitmap == null || ct.IsCancellationRequested) return;
 
         Dispatcher.UIThread.Post(() =>

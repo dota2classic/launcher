@@ -20,6 +20,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     private readonly ISteamAuthApi _steamAuthApi;
     private readonly IQueueSocketService _queueSocketService;
     private readonly IBackendApiService _backendApiService;
+    private readonly IHttpImageService _imageService;
     private readonly ICvarSettingsProvider _cvarProvider;
     private readonly IVideoSettingsProvider _videoProvider;
     private readonly IContentRegistryService _registryService;
@@ -74,6 +75,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         IVideoSettingsProvider videoProvider,
         ISteamAuthApi steamAuthApi,
         IBackendApiService backendApiService,
+        IHttpImageService imageService,
         IQueueSocketService queueSocketService,
         IContentRegistryService registryService)
     {
@@ -84,6 +86,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         _steamAuthApi = steamAuthApi;
         _queueSocketService = queueSocketService;
         _backendApiService = backendApiService;
+        _imageService = imageService;
         _registryService = registryService;
 
         var settings = settingsStorage.Get();
@@ -105,11 +108,11 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Queue = new QueueViewModel(queueSocketService, backendApiService);
         Room = new RoomViewModel(queueSocketService, backendApiService);
         Party = new PartyViewModel(queueSocketService, backendApiService);
-        NotificationArea = new NotificationAreaViewModel(backendApiService, queueSocketService);
+        NotificationArea = new NotificationAreaViewModel(imageService, queueSocketService);
         Settings = new SettingsViewModel(launchSettingsStorage, cvarProvider, settingsStorage, videoProvider, registryService);
         Settings.PushCvar = PushCvarIfGameRunning;
         Settings.OnDlcChanged = removedIds => OnDlcChanged?.Invoke(removedIds);
-        Chat = new ChatViewModel(backendApiService);
+        Chat = new ChatViewModel(backendApiService, imageService);
         Chat.GetBackendToken = () => BackendAccessToken;
         _ = Chat.StartAsync();
 

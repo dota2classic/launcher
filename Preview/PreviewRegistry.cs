@@ -43,7 +43,7 @@ public static class PreviewRegistry
             },
             ["NotificationArea"] = () =>
             {
-                var vm = new NotificationAreaViewModel(new StubBackendApiService(), new StubQueueSocketService());
+                var vm = new NotificationAreaViewModel(new StubHttpImageService(), new StubQueueSocketService());
                 return (new NotificationArea(), vm);
             },
             ["Loading"] = () =>
@@ -100,7 +100,7 @@ public static class PreviewRegistry
             ["ChatPanel"] = () =>
             {
                 var stub = new StubBackendApiService();
-                var vm = new ChatViewModel(stub);
+                var vm = new ChatViewModel(stub, new StubHttpImageService());
                 vm.GetBackendToken = () => "stub-token";
                 _ = vm.StartAsync();
                 var host = new Avalonia.Controls.Panel

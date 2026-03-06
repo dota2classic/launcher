@@ -253,9 +253,6 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         }
     }
 
-    public Task<Bitmap?> LoadAvatarFromUrlAsync(string? url, CancellationToken cancellationToken = default)
-        => TryLoadAvatarAsync(_httpClient, url, cancellationToken);
-
     public async Task<(int InGame, int OnSite)> GetOnlineStatsAsync(CancellationToken cancellationToken = default)
     {
         try

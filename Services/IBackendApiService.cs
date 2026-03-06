@@ -14,7 +14,6 @@ public interface IBackendApiService
     Task<IReadOnlyList<InviteCandidateView>> SearchPlayersAsync(string name, int count = 25, CancellationToken cancellationToken = default);
     Task<(string? Name, Bitmap? AvatarImage)?> GetUserInfoAsync(string steamId, string bearerToken, CancellationToken cancellationToken = default);
     Task<(int InGame, int OnSite)> GetOnlineStatsAsync(CancellationToken cancellationToken = default);
-    Task<Avalonia.Media.Imaging.Bitmap?> LoadAvatarFromUrlAsync(string? url, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ChatMessageData>> GetChatMessagesAsync(string threadId, int limit, string bearerToken, CancellationToken cancellationToken = default);
     Task PostChatMessageAsync(string threadId, string content, string bearerToken, CancellationToken cancellationToken = default);
     IAsyncEnumerable<ChatMessageData> SubscribeChatAsync(string threadId, string bearerToken, CancellationToken cancellationToken = default);

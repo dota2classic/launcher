@@ -2,6 +2,33 @@
 
 ## Current Focus
 
+**Issue #17: Emoticons render as static images, not as GIFs**
+
+Root cause: emoticons downloaded with `new Bitmap(stream)` which decodes only the first frame.
+
+Fix: replaced `Bitmap`-based emoticon rendering with `Avalonia.Labs.Gif.GifImage` (v11.3.1), feeding a `MemoryStream` of raw bytes directly to `GifImage.Source`. Image loading extracted from `BackendApiService` into dedicated `IHttpImageService`/`HttpImageService`.
+
+Files changed:
+- `d2c-launcher.csproj` — added `Avalonia.Labs.Gif` v11.3.1
+- `Services/IHttpImageService.cs` + `HttpImageService.cs` — new: `LoadBitmapAsync`, `LoadBytesAsync`
+- `Services/IBackendApiService.cs` / `BackendApiService.cs` — removed image-loading methods; internal `TryLoadAvatarAsync` stays private
+- `Models/RichSegment.cs` — `EmoticonSegment.Image: Bitmap?` → `Bytes: byte[]?`
+- `Util/RichMessageParser.cs` — emoticons dict type `Bitmap` → `byte[]`
+- `ViewModels/ChatViewModel.cs` — injects `IHttpImageService`; uses it for emoticon bytes and avatar bitmaps
+- `ViewModels/NotificationAreaViewModel.cs` — injects `IHttpImageService` (was `IBackendApiService`)
+- `ViewModels/MainLauncherViewModel.cs` — added `IHttpImageService` param; passes down
+- `ViewModels/MainWindowViewModel.cs` — added `IHttpImageService` field; passes to launcher
+- `Views/Components/RichMessageBlock.cs` — emoticon rendered as `GifImage { Source = new MemoryStream(bytes) }`
+- `App.axaml.cs` — registered `IHttpImageService → HttpImageService`
+- `Preview/PreviewStubs.cs` — added `StubHttpImageService`
+- `Preview/PreviewRegistry.cs` — passes `StubHttpImageService` to affected VMs
+
+Note: `Avalonia.Labs.Gif` v11.3.1 only has `GifImage` (no `GifStreamSource`). `GifImage.Source` accepts `Stream`, `Uri`, or `string`.
+
+---
+
+## Previous Focus
+
 **Issue #27: Fix build warnings**
 
 Achieved 0 warnings / 0 errors. Changes made:

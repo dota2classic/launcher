@@ -55,6 +55,7 @@ public partial class App : Application
             services.AddSingleton<IVideoSettingsProvider, VideoSettingsProvider>();
             services.AddSingleton<ISteamAuthApi, SteamAuthApi>();
             services.AddSingleton<IBackendApiService, BackendApiService>();
+            services.AddSingleton<IHttpImageService, HttpImageService>();
             services.AddSingleton<IQueueSocketService, QueueSocketService>();
             services.AddSingleton<UpdateService>();
             services.AddSingleton<ILocalManifestService, LocalManifestService>();

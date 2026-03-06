@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Avalonia.Media.Imaging;
 using d2c_launcher.Models;
 
 namespace d2c_launcher.Util;
@@ -29,7 +28,7 @@ public static class RichMessageParser
 
     public static IReadOnlyList<RichSegment> Parse(
         string rawMessage,
-        IReadOnlyDictionary<string, Bitmap>? emoticons = null,
+        IReadOnlyDictionary<string, byte[]>? emoticons = null,
         IReadOnlyDictionary<string, string?>? userNames = null)
     {
         // Pre-process
@@ -51,9 +50,9 @@ public static class RichMessageParser
         ApplyRule(tokens, s_emoticon, m =>
         {
             var code = m.Groups[1].Value;
-            Bitmap? bitmap = null;
-            emoticons?.TryGetValue(code, out bitmap);
-            return new EmoticonSegment(code, bitmap);
+            byte[]? bytes = null;
+            emoticons?.TryGetValue(code, out bytes);
+            return new EmoticonSegment(code, bytes);
         });
 
         // Apply player link rule (before generic URL rule)

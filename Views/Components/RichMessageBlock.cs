@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Input;
+using Avalonia.Labs.Gif;
 using Avalonia.Media;
-using Avalonia.Media.Imaging;
 using d2c_launcher.Models;
 
 namespace d2c_launcher.Views.Components;
@@ -113,14 +114,22 @@ public class RichMessageBlock : UserControl
                     break;
 
                 case EmoticonSegment es:
-                    var img = new Image
+                    Control emoticonCtrl;
+                    if (es.Bytes != null)
                     {
-                        Source = es.Image, // null → reserved empty space until image loads
-                        Width = 18,
-                        Height = 18,
-                        Stretch = Stretch.Uniform
-                    };
-                    _textBlock.Inlines.Add(new InlineUIContainer(img));
+                        emoticonCtrl = new Avalonia.Labs.Gif.GifImage
+                        {
+                            Source = new MemoryStream(es.Bytes),
+                            Width = 18,
+                            Height = 18,
+                            Stretch = Stretch.Uniform
+                        };
+                    }
+                    else
+                    {
+                        emoticonCtrl = new Image { Width = 18, Height = 18 };
+                    }
+                    _textBlock.Inlines.Add(new InlineUIContainer(emoticonCtrl));
                     charPos += 1; // InlineUIContainer occupies one character (U+FFFC)
                     break;
 

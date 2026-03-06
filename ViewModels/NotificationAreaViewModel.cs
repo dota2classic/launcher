@@ -7,14 +7,14 @@ namespace d2c_launcher.ViewModels;
 
 public sealed class NotificationAreaViewModel
 {
-    private readonly IBackendApiService _backendApiService;
+    private readonly IHttpImageService _imageService;
     private readonly IQueueSocketService _queueSocketService;
 
     public ObservableCollection<PartyInviteNotificationViewModel> Invites { get; } = new();
 
-    public NotificationAreaViewModel(IBackendApiService backendApiService, IQueueSocketService queueSocketService)
+    public NotificationAreaViewModel(IHttpImageService imageService, IQueueSocketService queueSocketService)
     {
-        _backendApiService = backendApiService;
+        _imageService = imageService;
         _queueSocketService = queueSocketService;
     }
 
@@ -35,7 +35,7 @@ public sealed class NotificationAreaViewModel
 
         var avatarUrl = msg.Inviter?.AvatarSmall ?? msg.Inviter?.Avatar;
         if (!string.IsNullOrEmpty(avatarUrl))
-            vm.LoadAvatar(() => _backendApiService.LoadAvatarFromUrlAsync(avatarUrl));
+            vm.LoadAvatar(() => _imageService.LoadBitmapAsync(avatarUrl));
     }
 
     public void RemoveByInviteId(string inviteId)

@@ -66,9 +66,6 @@ internal sealed class StubBackendApiService : IBackendApiService
     public Task<(int InGame, int OnSite)> GetOnlineStatsAsync(CancellationToken cancellationToken = default)
         => Task.FromResult((0, 0));
 
-    public Task<Bitmap?> LoadAvatarFromUrlAsync(string? url, CancellationToken cancellationToken = default)
-        => Task.FromResult<Bitmap?>(null);
-
     public Task<IReadOnlyList<ChatMessageData>> GetChatMessagesAsync(string threadId, int limit, string bearerToken, CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<ChatMessageData>>([
             new ChatMessageData("1", threadId, "Давай сыграем!", "2025-03-05T20:00:00Z", "111", "MaxiKo", null, false),
@@ -93,6 +90,14 @@ internal sealed class StubBackendApiService : IBackendApiService
         await Task.CompletedTask;
         yield break;
     }
+}
+
+internal sealed class StubHttpImageService : IHttpImageService
+{
+    public Task<Bitmap?> LoadBitmapAsync(string? url, CancellationToken cancellationToken = default)
+        => Task.FromResult<Bitmap?>(null);
+    public Task<byte[]?> LoadBytesAsync(string? url, CancellationToken cancellationToken = default)
+        => Task.FromResult<byte[]?>(null);
 }
 
 internal sealed class StubGameLaunchSettingsStorage : IGameLaunchSettingsStorage

@@ -1,5 +1,3 @@
-using Avalonia.Media.Imaging;
-
 namespace d2c_launcher.Models;
 
 public abstract class RichSegment { }
@@ -26,8 +24,8 @@ public sealed class UrlSegment : RichSegment
 public sealed class EmoticonSegment : RichSegment
 {
     public string Code { get; }
-    public Bitmap? Image { get; }
-    public EmoticonSegment(string code, Bitmap? image) { Code = code; Image = image; }
+    public byte[]? Bytes { get; }
+    public EmoticonSegment(string code, byte[]? bytes) { Code = code; Bytes = bytes; }
 }
 
 public sealed class PlayerLinkSegment : RichSegment
