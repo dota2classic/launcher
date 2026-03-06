@@ -7,11 +7,11 @@ public partial class DlcPackageItem : ObservableObject
     public string Id { get; init; } = "";
     public string Name { get; init; } = "";
 
-    /// <summary>
-    /// False for required packages and already-installed optional ones.
-    /// The checkbox is shown but non-interactive.
-    /// </summary>
-    public bool IsEnabled { get; init; } = true;
+    /// <summary>True for required (non-optional) packages — checkbox locked checked.</summary>
+    public bool IsRequired { get; init; }
+
+    /// <summary>Whether the user can toggle this package. False for required packages.</summary>
+    public bool IsEnabled => !IsRequired;
 
     [ObservableProperty]
     private bool _isSelected;

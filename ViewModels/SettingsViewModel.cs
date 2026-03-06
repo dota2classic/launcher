@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
 using d2c_launcher.Util;
@@ -23,14 +24,20 @@ public partial class SettingsViewModel : ViewModelBase
     public Action<string, string>? PushCvar { get; set; }
 
     /// <summary>
-    /// Called when the user selects a new optional DLC to install.
-    /// The parent VM uses this to trigger re-verification.
+    /// Called when the user applies DLC changes. Receives the list of package IDs
+    /// to remove (were installed, now unchecked). Parent VM uses this to trigger
+    /// re-verification with file deletion.
     /// </summary>
-    public Action? OnDlcChanged { get; set; }
+    public Action<List<string>>? OnDlcChanged { get; set; }
 
     // ── DLC management ────────────────────────────────────────────────────────
 
     public IReadOnlyList<DlcPackageItem> DlcPackages { get; private set; } = [];
+
+    /// <summary>Snapshot of id → installed state at the time DLC packages were loaded.</summary>
+    private Dictionary<string, bool> _originalDlcSelection = new();
+
+    [ObservableProperty] private bool _hasDlcChanges;
 
     public async Task LoadDlcPackagesAsync()
     {
@@ -44,32 +51,34 @@ public partial class SettingsViewModel : ViewModelBase
         AppLog.Info($"[DLC] Registry has {registry.Packages?.Count ?? 0} package(s)");
 
         var settings = _settingsStorage.Get();
-        // InstalledPackageIds is the source of truth after first download.
-        // Fall back to legacy logic (required=always installed, optional=SelectedDlcIds) for old installs.
         var installedIds = settings.InstalledPackageIds;
         var selectedDlcIds = settings.SelectedDlcIds ?? [];
 
         var items = new List<DlcPackageItem>();
+        _originalDlcSelection = new Dictionary<string, bool>();
 
         foreach (var pkg in registry.Packages)
         {
             bool installed = installedIds != null
                 ? installedIds.Contains(pkg.Id)
                 : !pkg.Optional || selectedDlcIds.Contains(pkg.Id);
+
             var item = new DlcPackageItem
             {
                 Id = pkg.Id,
                 Name = pkg.Name,
-                IsEnabled = pkg.Optional && !installed,
+                IsRequired = !pkg.Optional,
                 IsSelected = installed
             };
 
-            if (item.IsEnabled)
+            _originalDlcSelection[pkg.Id] = installed;
+
+            if (pkg.Optional)
             {
                 item.PropertyChanged += (_, e) =>
                 {
-                    if (e.PropertyName == nameof(DlcPackageItem.IsSelected) && item.IsSelected)
-                        OnOptionalDlcSelected(item.Id);
+                    if (e.PropertyName == nameof(DlcPackageItem.IsSelected))
+                        UpdateHasDlcChanges();
                 };
             }
 
@@ -78,19 +87,64 @@ public partial class SettingsViewModel : ViewModelBase
 
         AppLog.Info($"[DLC] Built {items.Count} DlcPackageItem(s) for display");
         DlcPackages = items;
+        HasDlcChanges = false;
         OnPropertyChanged(nameof(DlcPackages));
     }
 
-    private void OnOptionalDlcSelected(string id)
+    private void UpdateHasDlcChanges()
     {
-        var settings = _settingsStorage.Get();
-        settings.SelectedDlcIds ??= [];
-        if (!settings.SelectedDlcIds.Contains(id))
+        foreach (var item in DlcPackages)
         {
-            settings.SelectedDlcIds.Add(id);
-            _settingsStorage.Save(settings);
+            if (_originalDlcSelection.TryGetValue(item.Id, out var original) && original != item.IsSelected)
+            {
+                HasDlcChanges = true;
+                return;
+            }
         }
-        OnDlcChanged?.Invoke();
+        HasDlcChanges = false;
+    }
+
+    [RelayCommand]
+    private void ApplyDlcChanges()
+    {
+        var removedIds = DlcPackages
+            .Where(p => _originalDlcSelection.TryGetValue(p.Id, out var wasInstalled) && wasInstalled && !p.IsSelected)
+            .Select(p => p.Id)
+            .ToList();
+
+        var addedIds = DlcPackages
+            .Where(p => _originalDlcSelection.TryGetValue(p.Id, out var wasInstalled) && !wasInstalled && p.IsSelected)
+            .Select(p => p.Id)
+            .ToList();
+
+        var settings = _settingsStorage.Get();
+
+        // Update InstalledPackageIds
+        if (settings.InstalledPackageIds != null)
+        {
+            foreach (var id in removedIds)
+                settings.InstalledPackageIds.Remove(id);
+            foreach (var id in addedIds)
+                if (!settings.InstalledPackageIds.Contains(id))
+                    settings.InstalledPackageIds.Add(id);
+        }
+
+        // Update SelectedDlcIds
+        settings.SelectedDlcIds ??= [];
+        foreach (var id in removedIds)
+            settings.SelectedDlcIds.Remove(id);
+        foreach (var id in addedIds)
+            if (!settings.SelectedDlcIds.Contains(id))
+                settings.SelectedDlcIds.Add(id);
+
+        _settingsStorage.Save(settings);
+
+        // Update snapshot so HasDlcChanges resets
+        foreach (var item in DlcPackages)
+            _originalDlcSelection[item.Id] = item.IsSelected;
+        HasDlcChanges = false;
+
+        OnDlcChanged?.Invoke(removedIds);
     }
 
     // ── Game directory ────────────────────────────────────────────────────────

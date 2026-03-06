@@ -116,6 +116,45 @@
             <Setter Property="Background" Value="#243850"/>
         </Style>
 
+        <!-- ── DLC CheckBox states ── -->
+        <Style Selector="CheckBox">
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="CheckBox:disabled">
+            <Setter Property="Cursor" Value="Arrow"/>
+            <Setter Property="Opacity" Value="1"/>
+        </Style>
+        <Style Selector="CheckBox:disabled /template/ ContentPresenter">
+            <Setter Property="Opacity" Value="1"/>
+        </Style>
+        <Style Selector="CheckBox:disabled TextBlock">
+            <Setter Property="Foreground" Value="#404850"/>
+        </Style>
+        <Style Selector="CheckBox:disabled /template/ Border#NormalRectangle">
+            <Setter Property="BorderBrush" Value="#2a3040"/>
+            <Setter Property="Background" Value="#1a1e26"/>
+        </Style>
+
+        <!-- ── Применить DLC button ── -->
+        <Style Selector="Button.apply-btn">
+            <Setter Property="Background" Value="#1a3020"/>
+            <Setter Property="Foreground" Value="#4caf80"/>
+            <Setter Property="BorderBrush" Value="#2a4830"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="16,6"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+        </Style>
+        <Style Selector="Button.apply-btn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#243c2a"/>
+        </Style>
+        <Style Selector="Button.apply-btn:disabled /template/ ContentPresenter">
+            <Setter Property="Background" Value="#0d1810"/>
+            <Setter Property="Opacity" Value="0.4"/>
+        </Style>
+
     </UserControl.Styles>
 
     <!-- Fixed size modal card -->
@@ -347,13 +386,18 @@
                                         <CheckBox IsChecked="{Binding IsSelected}"
                                                   IsEnabled="{Binding IsEnabled}"
                                                   Margin="0,0,0,8"
-                                                  Foreground="#D0D4D8"
                                                   FontSize="13">
-                                            <TextBlock Text="{Binding Name}" FontSize="13" Foreground="#D0D4D8"/>
+                                            <TextBlock Text="{Binding Name}" FontSize="13"/>
                                         </CheckBox>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
+
+                            <Button Classes="apply-btn"
+                                    Content="Применить"
+                                    Margin="0,12,0,0"
+                                    IsEnabled="{Binding HasDlcChanges}"
+                                    Command="{Binding ApplyDlcChangesCommand}"/>
 
                         </StackPanel>
                     </ScrollViewer>

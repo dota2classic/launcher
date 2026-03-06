@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,10 +25,10 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     private readonly IContentRegistryService _registryService;
 
     /// <summary>
-    /// Called when the user selects a new optional DLC in Settings.
-    /// The parent ViewModel uses this to re-enter the VerifyingGame state.
+    /// Called when the user applies DLC changes in Settings. Receives the list of
+    /// package IDs to remove. The parent ViewModel uses this to re-enter VerifyingGame.
     /// </summary>
-    public Action? OnDlcChanged { get; set; }
+    public Action<List<string>>? OnDlcChanged { get; set; }
     private readonly DispatcherTimer _onlineStatsTimer;
     private CancellationTokenSource? _ticketExchangeCts;
 
@@ -107,7 +108,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         NotificationArea = new NotificationAreaViewModel(backendApiService, queueSocketService);
         Settings = new SettingsViewModel(launchSettingsStorage, cvarProvider, settingsStorage, videoProvider, registryService);
         Settings.PushCvar = PushCvarIfGameRunning;
-        Settings.OnDlcChanged = () => OnDlcChanged?.Invoke();
+        Settings.OnDlcChanged = removedIds => OnDlcChanged?.Invoke(removedIds);
         Chat = new ChatViewModel(backendApiService);
         Chat.GetBackendToken = () => BackendAccessToken;
         _ = Chat.StartAsync();

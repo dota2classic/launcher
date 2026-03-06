@@ -31,6 +31,12 @@ public partial class GameDownloadViewModel : ViewModelBase
     /// </summary>
     public List<string>? SelectedDlcIds { get; set; }
 
+    /// <summary>
+    /// IDs of packages whose local files should be deleted before verification.
+    /// Set when the user unchecks a DLC in Settings.
+    /// </summary>
+    public List<string>? PackageIdsToRemove { get; set; }
+
     public Action? OnCompleted { get; set; }
 
     /// <summary>
@@ -116,6 +122,7 @@ public partial class GameDownloadViewModel : ViewModelBase
         try
         {
             await RunDefenderPhaseAsync();
+            await DeleteRemovedPackagesAsync();
             var packages = await FetchAllPackageManifestsAsync();
             var local = await ScanLocalFilesAsync();
 
@@ -168,6 +175,51 @@ public partial class GameDownloadViewModel : ViewModelBase
         });
         _defenderTcs = new TaskCompletionSource();
         await _defenderTcs.Task;
+    }
+
+    private async Task DeleteRemovedPackagesAsync()
+    {
+        if (PackageIdsToRemove == null || PackageIdsToRemove.Count == 0)
+            return;
+
+        SetPhase(VerificationPhase.FetchingManifest, "Удаление файлов DLC...", indeterminate: true);
+
+        var registry = await _registryService.GetAsync();
+        if (registry == null) return;
+
+        using var http = new HttpClient();
+
+        foreach (var id in PackageIdsToRemove)
+        {
+            var pkg = registry.Packages.FirstOrDefault(p => p.Id == id);
+            if (pkg == null) continue;
+
+            Dispatcher.UIThread.Post(() => CurrentFileText = pkg.Name);
+
+            var manifestUrl = $"{BaseManifestUrl}{pkg.Folder}/manifest.json";
+            string json;
+            try { json = await http.GetStringAsync(manifestUrl); }
+            catch { continue; }
+
+            var pkgManifest = JsonSerializer.Deserialize<GameManifest>(json);
+            if (pkgManifest == null) continue;
+
+            await Task.Run(() =>
+            {
+                foreach (var file in pkgManifest.Files)
+                {
+                    var localPath = System.IO.Path.Combine(GameDirectory, file.Path);
+                    try
+                    {
+                        if (System.IO.File.Exists(localPath))
+                            System.IO.File.Delete(localPath);
+                    }
+                    catch { /* skip locked/inaccessible files */ }
+                }
+            });
+        }
+
+        Dispatcher.UIThread.Post(() => CurrentFileText = "");
     }
 
     private async Task<List<(ContentPackage Package, GameManifest Manifest)>> FetchAllPackageManifestsAsync()

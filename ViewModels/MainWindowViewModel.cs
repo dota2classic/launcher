@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -194,7 +195,7 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    private void EnterVerifyingGame()
+    private void EnterVerifyingGame(List<string>? packageIdsToRemove = null)
     {
         var gameDir = ResolveGameDir();
         if (gameDir == null)
@@ -214,6 +215,7 @@ public partial class MainWindowViewModel : ViewModelBase
             GameDirectory = gameDir,
             SelectedDlcIds = settings.SelectedDlcIds ?? [],
             NeedDefenderModal = needDefenderModal,
+            PackageIdsToRemove = packageIdsToRemove,
             OnDefenderDecisionMade = () =>
             {
                 var s = _settingsStorage.Get();
@@ -239,11 +241,10 @@ public partial class MainWindowViewModel : ViewModelBase
             _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider, _videoProvider,
             _steamAuthApi, _backendApiService, _queueSocketService, _registryService);
         vm.OnGameDirectoryChanged = _ => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirChanged(AppState)));
-        vm.OnDlcChanged = () => Dispatcher.UIThread.Post(() =>
+        vm.OnDlcChanged = removedIds => Dispatcher.UIThread.Post(() =>
         {
-            // Force re-verification so the new DLC is downloaded immediately
             AppState = AppState.VerifyingGame;
-            EnterVerifyingGame();
+            EnterVerifyingGame(removedIds);
         });
         CurrentContentViewModel = vm;
     }

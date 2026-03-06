@@ -72,12 +72,12 @@ public partial class SelectGameViewModel : ViewModelBase
             if (!pkg.Optional)
             {
                 // Required: shown checked and disabled
-                items.Add(new DlcPackageItem { Id = pkg.Id, Name = pkg.Name, IsEnabled = false, IsSelected = true });
+                items.Add(new DlcPackageItem { Id = pkg.Id, Name = pkg.Name, IsRequired = true, IsSelected = true });
             }
             else
             {
                 var alreadySelected = ExistingDlcIds?.Contains(pkg.Id) ?? false;
-                items.Add(new DlcPackageItem { Id = pkg.Id, Name = pkg.Name, IsEnabled = true, IsSelected = alreadySelected });
+                items.Add(new DlcPackageItem { Id = pkg.Id, Name = pkg.Name, IsSelected = alreadySelected });
             }
         }
 
