@@ -120,6 +120,15 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
             var launchSettings = _launchSettingsStorage.Get();
             var cliArgs = CfgGenerator.BuildCliArgs(launchSettings);
             var execArg = CfgGenerator.Generate(launchSettings, GameDirectory);
+
+            // If any optional DLC is installed, the engine needs -override_vpk to load custom VPKs.
+            var appSettings = _settingsStorage.Get();
+            var hasOptionalDlcInstalled = appSettings.SelectedDlcIds?.Count > 0
+                && appSettings.InstalledPackageIds != null
+                && appSettings.SelectedDlcIds.Exists(id => appSettings.InstalledPackageIds.Contains(id));
+            if (hasOptionalDlcInstalled)
+                cliArgs = string.IsNullOrEmpty(cliArgs) ? "-override_vpk" : $"{cliArgs} -override_vpk";
+
             var arguments = execArg != null
                 ? $"{cliArgs} {execArg}".Trim()
                 : cliArgs;
