@@ -30,7 +30,7 @@ public static class RichMessageParser
     public static IReadOnlyList<RichSegment> Parse(
         string rawMessage,
         IReadOnlyDictionary<string, Bitmap>? emoticons = null,
-        IReadOnlyDictionary<string, string>? userNames = null)
+        IReadOnlyDictionary<string, string?>? userNames = null)
     {
         // Pre-process
         var msg = s_markdownLink.Replace(rawMessage, m => m.Groups[2].Value);
@@ -60,7 +60,7 @@ public static class RichMessageParser
         ApplyRule(tokens, s_playerLink, m =>
         {
             var steamId = m.Groups[1].Value;
-            var displayName = (userNames != null && userNames.TryGetValue(steamId, out var n))
+            var displayName = (userNames != null && userNames.TryGetValue(steamId, out var n) && n != null)
                 ? $"@{n}"
                 : "Загрузка...";
             return new PlayerLinkSegment(steamId, m.Value, displayName);

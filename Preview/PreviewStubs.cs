@@ -12,6 +12,7 @@ namespace d2c_launcher.Preview;
 internal sealed class StubQueueSocketService : IQueueSocketService
 {
     public GameCoordinatorState State => GameCoordinatorState.Disconnected;
+#pragma warning disable CS0067
     public event Action<GameCoordinatorState>? StateChanged;
     public event Action<PartyDto>? PartyUpdated;
     public event Action<PlayerQueueStateMessage>? PlayerQueueStateUpdated;
@@ -26,6 +27,7 @@ internal sealed class StubQueueSocketService : IQueueSocketService
     public event Action<PlayerPartyInvitationsMessage>? PartyInvitationsUpdated;
     public event Action<NotificationCreatedMessage>? NotificationCreated;
     public event Action<PleaseEnterQueueMessage>? PleaseEnterQueue;
+#pragma warning restore CS0067
 
     public Task ConnectAsync(string token, CancellationToken cancellationToken = default) => Task.CompletedTask;
     public Task DisconnectAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;

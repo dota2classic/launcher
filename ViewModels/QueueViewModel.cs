@@ -142,7 +142,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         {
             _queuedModeCount = msg.Modes?.Length ?? 0;
             var names = MatchmakingModes
-                .Where(m => msg.Modes.Any(x => (int)x == m.ModeId))
+                .Where(m => msg.Modes!.Any(x => (int)x == m.ModeId))
                 .Select(m => m.Name)
                 .ToArray();
             SearchingModesText = names.Length > 0

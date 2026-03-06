@@ -2,6 +2,35 @@
 
 ## Current Focus
 
+**Issue #27: Fix build warnings**
+
+Achieved 0 warnings / 0 errors. Changes made:
+- `d2c-launcher.csproj` — `net10.0` → `net10.0-windows` (eliminates CA1416 platform warnings); Velopack `0.0.1099` → `0.0.1251` (eliminates NU1603)
+- `Services/BackendApiService.cs` — `summary!.BanStatus` (CS8602: summary non-null when user non-null)
+- `ViewModels/SettingsViewModel.cs` — `registry.Packages ?? []` (CS8602)
+- `Util/RichMessageParser.cs` — `userNames` param type changed to `IReadOnlyDictionary<string, string?>?`; null guard on display name (CS8620)
+- `ViewModels/RoomViewModel.cs` — `(msg.Entries ?? [])` for two foreach/FirstOrDefault calls (CS8604)
+- `ViewModels/QueueViewModel.cs` — `msg.Modes!.Any(...)` (CS8604: Modes non-null when InQueue)
+- `Preview/PreviewStubs.cs` — `#pragma warning disable/restore CS0067` around stub events
+
+---
+
+## Previous Focus
+
+**Issue #28: Windows Defender prompt shows on each launch**
+
+Root cause: `needDefenderModal` was computed as `settings.DefenderExclusionPath != gameDir` — a path-string comparison that fails for some users (casing/trailing-slash differences), causing the prompt to reappear.
+
+Fix: Added `DefenderPromptAnswered` boolean to `LauncherSettings`. The guard is now `!settings.DefenderPromptAnswered && settings.DefenderExclusionPath == null`. The second condition handles backwards compatibility: users whose settings already have `DefenderExclusionPath` set (from the old code) won't see the prompt again. New users see it once; when they respond (accept or skip), both `DefenderPromptAnswered = true` and `DefenderExclusionPath = gameDir` are saved.
+
+Files changed:
+- `Models/LauncherSettings.cs` — added `bool DefenderPromptAnswered`
+- `ViewModels/MainWindowViewModel.cs` — updated guard and `OnDefenderDecisionMade` callback
+
+---
+
+## Previous Focus
+
 **Registry-based multi-package download system.**
 
 Replaced the single `manifest.json` with a registry-of-packages model:

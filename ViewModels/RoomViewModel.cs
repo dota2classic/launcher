@@ -105,7 +105,7 @@ public partial class RoomViewModel : ViewModelBase
         RoomMode = msg.Mode;
 
         // Remove players no longer in room
-        var steamIds = msg.Entries.Select(e => e.SteamId).ToHashSet(StringComparer.Ordinal);
+        var steamIds = (msg.Entries ?? []).Select(e => e.SteamId).ToHashSet(StringComparer.Ordinal);
         for (int i = RoomPlayers.Count - 1; i >= 0; i--)
         {
             if (!steamIds.Contains(RoomPlayers[i].SteamId))
@@ -116,7 +116,7 @@ public partial class RoomViewModel : ViewModelBase
         }
 
         // Update or add players
-        foreach (var entry in msg.Entries)
+        foreach (var entry in msg.Entries ?? [])
         {
             var existing = RoomPlayers.FirstOrDefault(p => p.SteamId == entry.SteamId);
             if (existing != null)
@@ -166,7 +166,7 @@ public partial class RoomViewModel : ViewModelBase
         var myId = currentUser != null
             ? ((uint)(currentUser.SteamId & 0xFFFFFFFF)).ToString()
             : null;
-        var myEntry = myId != null ? msg.Entries.FirstOrDefault(e => e.SteamId == myId) : null;
+        var myEntry = myId != null ? (msg.Entries ?? []).FirstOrDefault(e => e.SteamId == myId) : null;
         HasMyPlayerAccepted = myEntry?.State == ReadyState.Ready;
         HasMyPlayerResponded = myEntry != null && myEntry.State != ReadyState.Pending;
 

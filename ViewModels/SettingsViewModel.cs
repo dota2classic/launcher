@@ -57,7 +57,7 @@ public partial class SettingsViewModel : ViewModelBase
         var items = new List<DlcPackageItem>();
         _originalDlcSelection = new Dictionary<string, bool>();
 
-        foreach (var pkg in registry.Packages)
+        foreach (var pkg in registry.Packages ?? [])
         {
             bool installed = installedIds != null
                 ? installedIds.Contains(pkg.Id)

@@ -105,7 +105,7 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
                 var avatarUrl = user.AvatarSmall ?? user.Avatar;
                 var avatar = await TryLoadAvatarAsync(_httpClient, avatarUrl, cancellationToken);
 
-                var ban = summary.BanStatus;
+                var ban = summary!.BanStatus;
                 var access = summary.AccessMap;
                 map[user.SteamId] = new PartyMemberView(
                     user.SteamId,

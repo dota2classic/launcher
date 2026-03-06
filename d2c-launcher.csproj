@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType Condition="'$(Configuration)' == 'Debug'">Exe</OutputType>
     <OutputType Condition="'$(Configuration)' != 'Debug'">WinExe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
@@ -36,7 +36,7 @@
     <PackageReference Include="SocketIOClient" Version="3.1.1" />
     <PackageReference Include="Steamworks.NET" Version="2024.8.0" />
     <PackageReference Include="System.Management" Version="9.0.0" />
-    <PackageReference Include="Velopack" Version="0.0.1099" />
+    <PackageReference Include="Velopack" Version="0.0.1251" />
   </ItemGroup>
 
   <ItemGroup>
