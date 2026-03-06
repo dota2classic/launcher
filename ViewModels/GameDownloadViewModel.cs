@@ -116,27 +116,23 @@ public partial class GameDownloadViewModel : ViewModelBase
         try
         {
             await RunDefenderPhaseAsync();
-            var remote = await FetchAllPackageManifestsAsync();
+            var packages = await FetchAllPackageManifestsAsync();
             var local = await ScanLocalFilesAsync();
-            var toDownload = ComputeDiff(remote, local,
-                out int totalRemoteFiles, out long totalRemoteBytes, out long alreadyOkBytes);
 
-            if (toDownload.Count == 0)
+            bool anyDownloaded = false;
+            foreach (var (_, pkgManifest) in packages)
             {
-                SetPhase(VerificationPhase.Complete, "Игра обновлена", progress: 100);
-                await Task.Delay(500);
-                await InstallRedistAsync();
-                Dispatcher.UIThread.Post(() =>
-                {
-                    OnPackagesInstalled?.Invoke(_pendingInstalledPackageIds);
-                    OnCompleted?.Invoke();
-                });
-                return;
+                var toDownload = ComputeDiff(pkgManifest, local,
+                    out int totalRemoteFiles, out long totalRemoteBytes, out long alreadyOkBytes);
+
+                if (toDownload.Count == 0)
+                    continue;
+
+                anyDownloaded = true;
+                await DownloadFilesAsync(toDownload, totalRemoteFiles, totalRemoteBytes, alreadyOkBytes);
             }
 
-            await DownloadFilesAsync(toDownload, totalRemoteFiles, totalRemoteBytes, alreadyOkBytes);
-
-            SetPhase(VerificationPhase.Complete, "Готово!", progress: 100);
+            SetPhase(VerificationPhase.Complete, anyDownloaded ? "Готово!" : "Игра обновлена", progress: 100);
             await Task.Delay(500);
             await InstallRedistAsync();
             Dispatcher.UIThread.Post(() =>
@@ -174,7 +170,7 @@ public partial class GameDownloadViewModel : ViewModelBase
         await _defenderTcs.Task;
     }
 
-    private async Task<GameManifest> FetchAllPackageManifestsAsync()
+    private async Task<List<(ContentPackage Package, GameManifest Manifest)>> FetchAllPackageManifestsAsync()
     {
         SetPhase(VerificationPhase.FetchingManifest, "Подключение к серверу...", indeterminate: true);
 
@@ -193,7 +189,7 @@ public partial class GameDownloadViewModel : ViewModelBase
         SetPhase(VerificationPhase.FetchingPackageManifests,
             $"Загрузка манифестов ({packagesToInstall.Count} пакетов)...", indeterminate: true);
 
-        var merged = new GameManifest();
+        var result = new List<(ContentPackage, GameManifest)>();
         using var http = new HttpClient();
 
         foreach (var pkg in packagesToInstall)
@@ -207,14 +203,17 @@ public partial class GameDownloadViewModel : ViewModelBase
 
             // Annotate each file with its package folder for download URL construction
             foreach (var file in pkgManifest.Files)
+            {
                 file.PackageFolder = pkg.Folder;
+                file.PackageName = pkg.Name;
+            }
 
-            merged.Files.AddRange(pkgManifest.Files);
+            result.Add((pkg, pkgManifest));
         }
 
         Dispatcher.UIThread.Post(() => CurrentFileText = "");
 
-        return merged;
+        return result;
     }
 
     private async Task<GameManifest> ScanLocalFilesAsync()
@@ -270,17 +269,17 @@ public partial class GameDownloadViewModel : ViewModelBase
         long totalBytes = toDownload.Sum(f => f.Size);
 
         SetPhase(VerificationPhase.Downloading,
-            $"Загрузка ({toDownload.Count} файлов)...",
-            details: FormatSize(totalBytes) + " всего",
-            progress: totalRemoteBytes > 0 ? alreadyOkBytes * 100.0 / totalRemoteBytes : 0,
+            $"Загрузка (0/{toDownload.Count} файлов)...",
+            details: $"0 / {FormatSize(totalBytes)}",
+            progress: 0,
             indeterminate: false);
 
         var downloadProgress = new Progress<DownloadProgress>(p =>
         {
             Dispatcher.UIThread.Post(() =>
             {
-                ProgressValue = totalRemoteBytes > 0
-                    ? (alreadyOkBytes + p.BytesDownloaded) * 100.0 / totalRemoteBytes
+                ProgressValue = totalBytes > 0
+                    ? p.BytesDownloaded * 100.0 / totalBytes
                     : 0;
 
                 var speed = FormatSpeed(p.SpeedBytesPerSec);
@@ -289,7 +288,7 @@ public partial class GameDownloadViewModel : ViewModelBase
                     ? FormatEta(remaining / p.SpeedBytesPerSec)
                     : "";
 
-                StatusText = $"Загрузка ({alreadyOkFiles + p.FilesDownloaded}/{totalRemoteFiles} файлов)";
+                StatusText = $"Загрузка ({p.FilesDownloaded}/{toDownload.Count} файлов){(string.IsNullOrEmpty(p.CurrentPackageName) ? "" : $" — {p.CurrentPackageName}")}";
                 CurrentFileText = p.CurrentFile;
                 DetailsText = $"{FormatSize(p.BytesDownloaded)} / {FormatSize(p.TotalBytes)}  {speed}{(etaStr.Length > 0 ? "  ~" + etaStr : "")}";
             });
