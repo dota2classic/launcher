@@ -20,6 +20,13 @@ public class LauncherSettings
     /// </summary>
     public bool DefenderPromptAnswered { get; set; }
 
+    /// <summary>
+    /// True when the Windows Defender exclusion prompt should be shown.
+    /// Prompt is skipped if the user already responded, or if a legacy exclusion path is set
+    /// (backwards compat: users who accepted before <see cref="DefenderPromptAnswered"/> existed).
+    /// </summary>
+    public bool ShouldShowDefenderPrompt => !DefenderPromptAnswered && DefenderExclusionPath == null;
+
     /// <summary>Whether to automatically apply launcher updates on startup.</summary>
     public bool AutoUpdate { get; set; } = true;
 

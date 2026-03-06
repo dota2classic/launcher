@@ -208,10 +208,7 @@ public partial class MainWindowViewModel : ViewModelBase
         DisposeCurrentVm();
 
         var settings = _settingsStorage.Get();
-        // Show the prompt only if the user has never responded to it before.
-        // DefenderExclusionPath (non-null) is also treated as "already answered" for
-        // users who accepted before DefenderPromptAnswered was introduced (backwards compat).
-        bool needDefenderModal = !settings.DefenderPromptAnswered && settings.DefenderExclusionPath == null;
+        bool needDefenderModal = settings.ShouldShowDefenderPrompt;
 
         var vm = new GameDownloadViewModel(_registryService, _localManifestService, _manifestDiffService, _gameDownloadService, _redistInstallService)
         {
