@@ -1,7 +1,5 @@
 using System.IO;
-using System.Net.Http;
 using System.Reflection;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -27,10 +25,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IManifestDiffService _manifestDiffService;
     private readonly IGameDownloadService _gameDownloadService;
     private readonly RedistInstallService _redistInstallService;
-
-    // Pre-started manifest fetch — kicked off during the Steam loading phase so that
-    // GameDownloadViewModel can skip the "Подключение к серверу..." step.
-    private Task<GameManifest?>? _manifestPrefetch;
+    private readonly IContentRegistryService _registryService;
 
     [ObservableProperty]
     private AppState _appState;
@@ -59,7 +54,8 @@ public partial class MainWindowViewModel : ViewModelBase
         ILocalManifestService localManifestService,
         IManifestDiffService manifestDiffService,
         IGameDownloadService gameDownloadService,
-        RedistInstallService redistInstallService)
+        RedistInstallService redistInstallService,
+        IContentRegistryService registryService)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -74,12 +70,12 @@ public partial class MainWindowViewModel : ViewModelBase
         _manifestDiffService = manifestDiffService;
         _gameDownloadService = gameDownloadService;
         _redistInstallService = redistInstallService;
+        _registryService = registryService;
 
-        // Kick off the manifest fetch immediately if the game dir is already known,
-        // so it runs in parallel with Steam auth and avoids the "Connecting to server" screen.
+        // Eagerly prefetch the registry so it's cached by the time GameDownloadViewModel needs it.
         var initialGameDir = _settingsStorage.Get().GameDirectory;
         if (!string.IsNullOrWhiteSpace(initialGameDir) && Directory.Exists(initialGameDir))
-            _manifestPrefetch = FetchManifestAsync();
+            _ = _registryService.GetAsync();
 
         // Compute and enter initial state
         var initialState = AppStateMachine.OnSteamUpdate(
@@ -161,13 +157,23 @@ public partial class MainWindowViewModel : ViewModelBase
                 if (CurrentContentViewModel is SelectGameViewModel)
                     return;
                 DisposeCurrentVm();
-                var selectVm = new SelectGameViewModel();
-                selectVm.GameDirectorySelected = path =>
+                var settings = _settingsStorage.Get();
+                var selectVm = new SelectGameViewModel(_registryService)
                 {
-                    var settings = _settingsStorage.Get();
-                    settings.GameDirectory = path;
-                    _settingsStorage.Save(settings);
-                    Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirSelected(AppState)));
+                    ExistingDlcIds = settings.SelectedDlcIds,
+                    OnDlcSelectionSaved = ids =>
+                    {
+                        var s = _settingsStorage.Get();
+                        s.SelectedDlcIds = ids;
+                        _settingsStorage.Save(s);
+                    },
+                    GameDirectorySelected = path =>
+                    {
+                        var s = _settingsStorage.Get();
+                        s.GameDirectory = path;
+                        _settingsStorage.Save(s);
+                        Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirSelected(AppState)));
+                    }
                 };
                 CurrentContentViewModel = selectVm;
                 break;
@@ -203,9 +209,10 @@ public partial class MainWindowViewModel : ViewModelBase
         var settings = _settingsStorage.Get();
         bool needDefenderModal = settings.DefenderExclusionPath != gameDir;
 
-        var vm = new GameDownloadViewModel(_localManifestService, _manifestDiffService, _gameDownloadService, _redistInstallService)
+        var vm = new GameDownloadViewModel(_registryService, _localManifestService, _manifestDiffService, _gameDownloadService, _redistInstallService)
         {
             GameDirectory = gameDir,
+            SelectedDlcIds = settings.SelectedDlcIds ?? [],
             NeedDefenderModal = needDefenderModal,
             OnDefenderDecisionMade = () =>
             {
@@ -213,10 +220,14 @@ public partial class MainWindowViewModel : ViewModelBase
                 s.DefenderExclusionPath = gameDir;
                 _settingsStorage.Save(s);
             },
+            OnPackagesInstalled = ids =>
+            {
+                var s = _settingsStorage.Get();
+                s.InstalledPackageIds = ids;
+                _settingsStorage.Save(s);
+            },
             OnCompleted = () => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnVerificationCompleted(AppState))),
-            PrefetchedRemoteManifest = _manifestPrefetch
         };
-        _manifestPrefetch = null; // consumed; don't share with a future VM
         CurrentContentViewModel = vm;
         vm.StartAsync();
     }
@@ -226,8 +237,14 @@ public partial class MainWindowViewModel : ViewModelBase
         DisposeCurrentVm();
         var vm = new MainLauncherViewModel(
             _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider, _videoProvider,
-            _steamAuthApi, _backendApiService, _queueSocketService);
+            _steamAuthApi, _backendApiService, _queueSocketService, _registryService);
         vm.OnGameDirectoryChanged = _ => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirChanged(AppState)));
+        vm.OnDlcChanged = () => Dispatcher.UIThread.Post(() =>
+        {
+            // Force re-verification so the new DLC is downloaded immediately
+            AppState = AppState.VerifyingGame;
+            EnterVerifyingGame();
+        });
         CurrentContentViewModel = vm;
     }
 
@@ -264,19 +281,5 @@ public partial class MainWindowViewModel : ViewModelBase
         }
 
         return null;
-    }
-
-    private static async Task<GameManifest?> FetchManifestAsync()
-    {
-        try
-        {
-            using var http = new HttpClient();
-            var json = await http.GetStringAsync(GameDownloadViewModel.ManifestUrl);
-            return JsonSerializer.Deserialize<GameManifest>(json);
-        }
-        catch
-        {
-            return null;
-        }
     }
 }

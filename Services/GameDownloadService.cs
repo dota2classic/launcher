@@ -81,7 +81,9 @@ public class GameDownloadService : IGameDownloadService
             new ParallelOptions { MaxDegreeOfParallelism = MaxConcurrency, CancellationToken = ct },
             async (file, fileCt) =>
             {
-                var url = BaseUrl + file.Path;
+                var url = string.IsNullOrEmpty(file.PackageFolder)
+                    ? BaseUrl + file.Path
+                    : BaseUrl + file.PackageFolder + "/" + file.Path;
                 var destPath = Path.Combine(gameDirectory, file.Path.Replace('/', Path.DirectorySeparatorChar));
                 var dir = Path.GetDirectoryName(destPath);
                 if (dir != null)

@@ -5,8 +5,11 @@ public enum VerificationPhase
     /// <summary>Waiting for the user to respond to the Windows Defender exclusion modal.</summary>
     AwaitingDefender,
 
-    /// <summary>Fetching the remote game manifest over HTTP.</summary>
+    /// <summary>Fetching the content registry (package list) over HTTP.</summary>
     FetchingManifest,
+
+    /// <summary>Fetching per-package manifests and merging them into one file list.</summary>
+    FetchingPackageManifests,
 
     /// <summary>Scanning local files and computing checksums.</summary>
     ScanningFiles,

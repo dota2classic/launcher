@@ -15,15 +15,31 @@ namespace d2c_launcher.ViewModels;
 
 public partial class GameDownloadViewModel : ViewModelBase
 {
-    internal const string ManifestUrl = "https://launcher.dotaclassic.ru/files/manifest.json";
+    private const string BaseManifestUrl = "https://launcher.dotaclassic.ru/files/";
 
+    private readonly IContentRegistryService _registryService;
     private readonly ILocalManifestService _localManifestService;
     private readonly IManifestDiffService _manifestDiffService;
     private readonly IGameDownloadService _gameDownloadService;
     private readonly RedistInstallService _redistInstallService;
 
     public string GameDirectory { get; set; } = "";
+
+    /// <summary>
+    /// IDs of optional DLC packages the user has chosen to install.
+    /// Null or empty means only required packages are downloaded.
+    /// </summary>
+    public List<string>? SelectedDlcIds { get; set; }
+
     public Action? OnCompleted { get; set; }
+
+    /// <summary>
+    /// Called after a successful download with the IDs of all packages that were installed
+    /// (required + selected optional). Use this to persist install state to settings.
+    /// </summary>
+    public Action<List<string>>? OnPackagesInstalled { get; set; }
+
+    private List<string> _pendingInstalledPackageIds = [];
 
     /// <summary>
     /// When true, <see cref="RunAsync"/> will pause and show the Windows Defender
@@ -36,14 +52,6 @@ public partial class GameDownloadViewModel : ViewModelBase
     /// Used by the parent ViewModel to persist the decision to settings.
     /// </summary>
     public Action? OnDefenderDecisionMade { get; set; }
-
-    /// <summary>
-    /// Optional pre-started task for the remote manifest fetch. When set,
-    /// <see cref="RunAsync"/> awaits it instead of making its own HTTP request,
-    /// eliminating the "Подключение к серверу..." phase.
-    /// Consumed on first use; retry always fetches fresh.
-    /// </summary>
-    public Task<GameManifest?>? PrefetchedRemoteManifest { get; set; }
 
     private TaskCompletionSource? _defenderTcs;
 
@@ -58,11 +66,13 @@ public partial class GameDownloadViewModel : ViewModelBase
     [ObservableProperty] private string _errorText = "";
 
     public GameDownloadViewModel(
+        IContentRegistryService registryService,
         ILocalManifestService localManifestService,
         IManifestDiffService manifestDiffService,
         IGameDownloadService gameDownloadService,
         RedistInstallService redistInstallService)
     {
+        _registryService = registryService;
         _localManifestService = localManifestService;
         _manifestDiffService = manifestDiffService;
         _gameDownloadService = gameDownloadService;
@@ -106,7 +116,7 @@ public partial class GameDownloadViewModel : ViewModelBase
         try
         {
             await RunDefenderPhaseAsync();
-            var remote = await FetchManifestAsync();
+            var remote = await FetchAllPackageManifestsAsync();
             var local = await ScanLocalFilesAsync();
             var toDownload = ComputeDiff(remote, local,
                 out int totalRemoteFiles, out long totalRemoteBytes, out long alreadyOkBytes);
@@ -116,7 +126,11 @@ public partial class GameDownloadViewModel : ViewModelBase
                 SetPhase(VerificationPhase.Complete, "Игра обновлена", progress: 100);
                 await Task.Delay(500);
                 await InstallRedistAsync();
-                Dispatcher.UIThread.Post(() => OnCompleted?.Invoke());
+                Dispatcher.UIThread.Post(() =>
+                {
+                    OnPackagesInstalled?.Invoke(_pendingInstalledPackageIds);
+                    OnCompleted?.Invoke();
+                });
                 return;
             }
 
@@ -125,7 +139,11 @@ public partial class GameDownloadViewModel : ViewModelBase
             SetPhase(VerificationPhase.Complete, "Готово!", progress: 100);
             await Task.Delay(500);
             await InstallRedistAsync();
-            Dispatcher.UIThread.Post(() => OnCompleted?.Invoke());
+            Dispatcher.UIThread.Post(() =>
+            {
+                OnPackagesInstalled?.Invoke(_pendingInstalledPackageIds);
+                OnCompleted?.Invoke();
+            });
         }
         catch (Exception ex)
         {
@@ -156,25 +174,47 @@ public partial class GameDownloadViewModel : ViewModelBase
         await _defenderTcs.Task;
     }
 
-    private async Task<GameManifest> FetchManifestAsync()
+    private async Task<GameManifest> FetchAllPackageManifestsAsync()
     {
-        var prefetchTask = PrefetchedRemoteManifest;
-        PrefetchedRemoteManifest = null; // consume; retry will fetch fresh
+        SetPhase(VerificationPhase.FetchingManifest, "Подключение к серверу...", indeterminate: true);
 
-        if (prefetchTask != null)
+        var registry = await _registryService.GetAsync();
+
+        if (registry == null || registry.Packages.Count == 0)
+            throw new Exception("Не удалось загрузить список пакетов с сервера.");
+
+        // Determine which packages to download: all required + user-selected optional
+        var packagesToInstall = registry.Packages
+            .Where(p => !p.Optional || (SelectedDlcIds != null && SelectedDlcIds.Contains(p.Id)))
+            .ToList();
+
+        _pendingInstalledPackageIds = packagesToInstall.Select(p => p.Id).ToList();
+
+        SetPhase(VerificationPhase.FetchingPackageManifests,
+            $"Загрузка манифестов ({packagesToInstall.Count} пакетов)...", indeterminate: true);
+
+        var merged = new GameManifest();
+        using var http = new HttpClient();
+
+        foreach (var pkg in packagesToInstall)
         {
-            GameManifest? prefetched = null;
-            try { prefetched = await prefetchTask; } catch { }
+            Dispatcher.UIThread.Post(() => CurrentFileText = pkg.Name);
 
-            if (prefetched != null)
-                return prefetched;
+            var manifestUrl = $"{BaseManifestUrl}{pkg.Folder}/manifest.json";
+            var json = await http.GetStringAsync(manifestUrl);
+            var pkgManifest = JsonSerializer.Deserialize<GameManifest>(json)
+                ?? throw new Exception($"Манифест пакета {pkg.Name} пустой.");
+
+            // Annotate each file with its package folder for download URL construction
+            foreach (var file in pkgManifest.Files)
+                file.PackageFolder = pkg.Folder;
+
+            merged.Files.AddRange(pkgManifest.Files);
         }
 
-        // No prefetch or it failed — fetch fresh
-        SetPhase(VerificationPhase.FetchingManifest, "Подключение к серверу...");
-        using var http = new HttpClient();
-        var json = await http.GetStringAsync(ManifestUrl);
-        return JsonSerializer.Deserialize<GameManifest>(json)!;
+        Dispatcher.UIThread.Post(() => CurrentFileText = "");
+
+        return merged;
     }
 
     private async Task<GameManifest> ScanLocalFilesAsync()

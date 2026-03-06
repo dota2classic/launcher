@@ -51,10 +51,11 @@ public static class PreviewRegistry
             ["LaunchSteamFirst"] = () =>
                 (new LaunchSteamFirstView(), new LaunchSteamFirstViewModel()),
             ["SelectGame"] = () =>
-                (new SelectGameView(), new SelectGameViewModel()),
+                (new SelectGameView(), new SelectGameViewModel(new StubContentRegistryService())),
             ["GameDownload"] = () =>
             {
                 var vm = new GameDownloadViewModel(
+                    new StubContentRegistryService(),
                     new StubLocalManifestService(),
                     new StubManifestDiffService(),
                     new StubGameDownloadService(),
@@ -71,6 +72,7 @@ public static class PreviewRegistry
             ["GameDownloadError"] = () =>
             {
                 var vm = new GameDownloadViewModel(
+                    new StubContentRegistryService(),
                     new StubLocalManifestService(),
                     new StubManifestDiffService(),
                     new StubGameDownloadService(),
@@ -91,7 +93,7 @@ public static class PreviewRegistry
                 var cvarProvider = new StubCvarSettingsProvider();
                 var settingsStorage = new StubSettingsStorage();
                 var videoProvider = new StubVideoSettingsProvider();
-                var vm = new SettingsViewModel(launchStorage, cvarProvider, settingsStorage, videoProvider);
+                var vm = new SettingsViewModel(launchStorage, cvarProvider, settingsStorage, videoProvider, new StubContentRegistryService());
                 vm.RefreshGameDirectory();
                 return (new SettingsPanelPreviewControl(), vm);
             },

@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -14,9 +16,75 @@ public partial class SettingsViewModel : ViewModelBase
     private readonly ICvarSettingsProvider _cvarProvider;
     private readonly ISettingsStorage _settingsStorage;
     private readonly IVideoSettingsProvider _videoProvider;
+    private readonly IContentRegistryService _registryService;
 
     /// <summary>Delegate to push a cvar change to a running game. Set by parent VM.</summary>
     public Action<string, string>? PushCvar { get; set; }
+
+    /// <summary>
+    /// Called when the user selects a new optional DLC to install.
+    /// The parent VM uses this to trigger re-verification.
+    /// </summary>
+    public Action? OnDlcChanged { get; set; }
+
+    // ── DLC management ────────────────────────────────────────────────────────
+
+    public IReadOnlyList<DlcPackageItem> DlcPackages { get; private set; } = [];
+
+    public async Task LoadDlcPackagesAsync()
+    {
+        var registry = await _registryService.GetAsync();
+        if (registry == null)
+            return;
+
+        var settings = _settingsStorage.Get();
+        // InstalledPackageIds is the source of truth after first download.
+        // Fall back to legacy logic (required=always installed, optional=SelectedDlcIds) for old installs.
+        var installedIds = settings.InstalledPackageIds;
+        var selectedDlcIds = settings.SelectedDlcIds ?? [];
+
+        var items = new List<DlcPackageItem>();
+
+        foreach (var pkg in registry.Packages)
+        {
+            bool installed = installedIds != null
+                ? installedIds.Contains(pkg.Id)
+                : !pkg.Optional || selectedDlcIds.Contains(pkg.Id);
+            var item = new DlcPackageItem
+            {
+                Id = pkg.Id,
+                Name = pkg.Name,
+                IsEnabled = pkg.Optional && !installed,
+                IsSelected = installed
+            };
+
+            if (item.IsEnabled)
+            {
+                item.PropertyChanged += (_, e) =>
+                {
+                    if (e.PropertyName == nameof(DlcPackageItem.IsSelected) && item.IsSelected)
+                        OnOptionalDlcSelected(item.Id);
+                };
+            }
+
+            items.Add(item);
+        }
+
+        DlcPackages = items;
+        OnPropertyChanged(nameof(DlcPackages));
+    }
+
+    private void OnOptionalDlcSelected(string id)
+    {
+        var settings = _settingsStorage.Get();
+        settings.SelectedDlcIds ??= [];
+        if (!settings.SelectedDlcIds.Contains(id))
+        {
+            settings.SelectedDlcIds.Add(id);
+            _settingsStorage.Save(settings);
+        }
+        OnDlcChanged?.Invoke();
+    }
 
     // ── Game directory ────────────────────────────────────────────────────────
 
@@ -297,12 +365,14 @@ public partial class SettingsViewModel : ViewModelBase
         IGameLaunchSettingsStorage launchStorage,
         ICvarSettingsProvider cvarProvider,
         ISettingsStorage settingsStorage,
-        IVideoSettingsProvider videoProvider)
+        IVideoSettingsProvider videoProvider,
+        IContentRegistryService registryService)
     {
         _launchStorage = launchStorage;
         _cvarProvider = cvarProvider;
         _settingsStorage = settingsStorage;
         _videoProvider = videoProvider;
+        _registryService = registryService;
     }
 
     /// <summary>

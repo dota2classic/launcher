@@ -148,3 +148,19 @@ internal sealed class StubGameDownloadService : IGameDownloadService
     public Task DownloadFilesAsync(IReadOnlyList<GameManifestFile> files, string gameDirectory, IProgress<DownloadProgress>? progress = null, CancellationToken ct = default)
         => Task.CompletedTask;
 }
+
+internal sealed class StubContentRegistryService : IContentRegistryService
+{
+    private static readonly ContentRegistry StubRegistry = new()
+    {
+        Packages =
+        [
+            new() { Id = "base",   Folder = "base",   Name = "Dota 2 Classic",                        Optional = false },
+            new() { Id = "redist", Folder = "redist", Name = "Необходимые библиотеки",                Optional = false },
+            new() { Id = "ru_vo",  Folder = "ru_vo",  Name = "Русская озвучка от Strategic Music",    Optional = true  },
+        ]
+    };
+
+    public Task<ContentRegistry?> GetAsync() => Task.FromResult<ContentRegistry?>(StubRegistry);
+    public void Invalidate() { }
+}

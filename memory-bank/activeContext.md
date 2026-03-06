@@ -2,7 +2,26 @@
 
 ## Current Focus
 
-**Pre-release cleanup / no active feature work.**
+**Registry-based multi-package download system.**
+
+Replaced the single `manifest.json` with a registry-of-packages model:
+
+- `GET /files/registry.json` → `ContentRegistry` (list of packages with `id`, `folder`, `name`, `optional`)
+- Each package's manifest at `/files/{folder}/manifest.json`
+- Download URL per file: `/files/{folder}/{file.Path}`
+- Required packages always downloaded; optional DLC user-selectable
+
+Key new files:
+- `Models/ContentRegistry.cs` — `ContentRegistry` + `ContentPackage`
+- `Services/IContentRegistryService.cs` + `ContentRegistryService.cs` — singleton with in-memory cache
+- `ViewModels/DlcPackageItem.cs` — observable checkbox item for DLC UI
+
+DLC selection flows:
+1. **Fresh install**: After folder pick in `SelectGameView`, DLC selector panel appears (required = checked+disabled, optional = toggleable). Choice saved to `LauncherSettings.SelectedDlcIds`.
+2. **Settings**: Launcher tab shows available DLC. Checking a new optional DLC saves to settings and immediately triggers re-verification.
+3. **Subsequent launches**: `GameDownloadViewModel` uses `SelectedDlcIds` silently to pick packages.
+
+---
 
 All major features are complete. Known technical debt identified but deferred post-release:
 - `QueueSocketService.Dispose()` blocks UI thread up to 2s (`Task.Run+.Wait`)

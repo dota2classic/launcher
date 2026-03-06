@@ -14,102 +14,155 @@
        </LinearGradientBrush>
    </UserControl.Background>
 
-   <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-               Spacing="16" MaxWidth="420" Margin="24,0">
+   <Panel>
 
-       <TextBlock Text="Dota 2 Classic"
-                  FontFamily="{StaticResource TrajanPro3}"
-                  FontSize="28" FontWeight="Bold"
-                  HorizontalAlignment="Center"
-                  Foreground="#D9D9D9"/>
+       <!-- ═══ Main panel: pick folder ═══ -->
+       <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Spacing="16" MaxWidth="420" Margin="24,0"
+                   IsVisible="{Binding !IsChoosingDlc}">
 
-       <TextBlock Text="Выберите папку для установки игры"
-                  FontSize="14" HorizontalAlignment="Center"
-                  Foreground="#AAAAAA"/>
+           <TextBlock Text="Dota 2 Classic"
+                      FontFamily="{StaticResource TrajanPro3}"
+                      FontSize="28" FontWeight="Bold"
+                      HorizontalAlignment="Center"
+                      Foreground="#D9D9D9"/>
 
-       <Rectangle Height="4" Fill="Transparent"/>
+           <TextBlock Text="Выберите папку для установки игры"
+                      FontSize="14" HorizontalAlignment="Center"
+                      Foreground="#AAAAAA"/>
 
-       <!-- Download option -->
-       <Button HorizontalAlignment="Stretch"
-               Padding="32,10" CornerRadius="0"
-               FontSize="16" FontWeight="SemiBold"
-               Foreground="White" BorderThickness="0"
-               Click="OnDownloadClicked">
-           <Button.Background>
-               <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                   <GradientStop Color="#3a90d6" Offset="0"/>
-                   <GradientStop Color="#1a5aaa" Offset="1"/>
-               </LinearGradientBrush>
-           </Button.Background>
-           <TextBlock Text="Скачать игру"
-                      FontSize="16" FontWeight="SemiBold" Foreground="White"
-                      HorizontalAlignment="Center"/>
-       </Button>
+           <Rectangle Height="4" Fill="Transparent"/>
 
-       <!-- Download path row (shown after folder is picked) -->
-       <Grid IsVisible="{Binding SelectedDownloadPath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-             ColumnDefinitions="*,Auto">
-           <Border Grid.Column="0"
-                   Background="#121315"
-                   BorderBrush="#2d3842" BorderThickness="1,1,0,1"
-                   Padding="12,8">
-               <TextBlock Text="{Binding SelectedDownloadPath}"
-                          FontSize="12" Foreground="#AAAAAA"
-                          TextTrimming="CharacterEllipsis"
+           <!-- Download option -->
+           <Button HorizontalAlignment="Stretch"
+                   Padding="32,10" CornerRadius="0"
+                   FontSize="16" FontWeight="SemiBold"
+                   Foreground="White" BorderThickness="0"
+                   IsEnabled="{Binding !IsDlcLoading}"
+                   Click="OnDownloadClicked">
+               <Button.Background>
+                   <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                       <GradientStop Color="#3a90d6" Offset="0"/>
+                       <GradientStop Color="#1a5aaa" Offset="1"/>
+                   </LinearGradientBrush>
+               </Button.Background>
+               <TextBlock Text="Скачать игру"
+                          FontSize="16" FontWeight="SemiBold" Foreground="White"
+                          HorizontalAlignment="Center"/>
+           </Button>
+
+           <!-- Download path row (shown after folder is picked) -->
+           <Grid IsVisible="{Binding SelectedDownloadPath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                 ColumnDefinitions="*,Auto">
+               <Border Grid.Column="0"
+                       Background="#121315"
+                       BorderBrush="#2d3842" BorderThickness="1,1,0,1"
+                       Padding="12,8">
+                   <TextBlock Text="{Binding SelectedDownloadPath}"
+                              FontSize="12" Foreground="#AAAAAA"
+                              TextTrimming="CharacterEllipsis"
+                              VerticalAlignment="Center"/>
+               </Border>
+               <Button Grid.Column="1"
+                       Content="Изменить"
+                       Background="#1e2530"
+                       BorderBrush="#2d3842" BorderThickness="1"
+                       Foreground="#888888"
+                       FontSize="12" Padding="14,8" CornerRadius="0"
+                       Click="OnChangeDownloadClicked"/>
+           </Grid>
+
+           <!-- OR separator -->
+           <Grid ColumnDefinitions="*,Auto,*" VerticalAlignment="Center">
+               <Rectangle Grid.Column="0" Height="1" Fill="#1e1e1e" VerticalAlignment="Center"/>
+               <TextBlock Grid.Column="1"
+                          Text="ИЛИ"
+                          FontSize="11" Foreground="#444444"
+                          LetterSpacing="1"
+                          Margin="12,0"
                           VerticalAlignment="Center"/>
-           </Border>
-           <Button Grid.Column="1"
-                   Content="Изменить"
-                   Background="#1e2530"
-                   BorderBrush="#2d3842" BorderThickness="1"
-                   Foreground="#888888"
-                   FontSize="12" Padding="14,8" CornerRadius="0"
-                   Click="OnChangeDownloadClicked"/>
-       </Grid>
+               <Rectangle Grid.Column="2" Height="1" Fill="#1e1e1e" VerticalAlignment="Center"/>
+           </Grid>
 
-       <!-- OR separator -->
-       <Grid ColumnDefinitions="*,Auto,*" VerticalAlignment="Center">
-           <Rectangle Grid.Column="0" Height="1" Fill="#1e1e1e" VerticalAlignment="Center"/>
-           <TextBlock Grid.Column="1"
-                      Text="ИЛИ"
-                      FontSize="11" Foreground="#444444"
-                      LetterSpacing="1"
-                      Margin="12,0"
-                      VerticalAlignment="Center"/>
-           <Rectangle Grid.Column="2" Height="1" Fill="#1e1e1e" VerticalAlignment="Center"/>
-       </Grid>
+           <!-- Already installed option -->
+           <Button HorizontalAlignment="Center"
+                   Padding="8,4" CornerRadius="0"
+                   Background="Transparent" BorderThickness="0"
+                   Click="OnAlreadyInstalledClicked">
+               <TextBlock Text="У меня уже установлена Дота"
+                          FontSize="13" Foreground="#888888"
+                          TextDecorations="Underline"/>
+           </Button>
 
-       <!-- Already installed option -->
-       <Button HorizontalAlignment="Center"
-               Padding="8,4" CornerRadius="0"
-               Background="Transparent" BorderThickness="0"
-               Click="OnAlreadyInstalledClicked">
-           <TextBlock Text="У меня уже установлена Дота"
-                      FontSize="13" Foreground="#888888"
-                      TextDecorations="Underline"/>
-       </Button>
+           <!-- Installed path row (shown after folder is picked) -->
+           <Grid IsVisible="{Binding SelectedInstalledPath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                 ColumnDefinitions="*,Auto">
+               <Border Grid.Column="0"
+                       Background="#121315"
+                       BorderBrush="#2d3842" BorderThickness="1,1,0,1"
+                       Padding="12,8">
+                   <TextBlock Text="{Binding SelectedInstalledPath}"
+                              FontSize="12" Foreground="#AAAAAA"
+                              TextTrimming="CharacterEllipsis"
+                              VerticalAlignment="Center"/>
+               </Border>
+               <Button Grid.Column="1"
+                       Content="Изменить"
+                       Background="#1e2530"
+                       BorderBrush="#2d3842" BorderThickness="1"
+                       Foreground="#888888"
+                       FontSize="12" Padding="14,8" CornerRadius="0"
+                       Click="OnChangeInstalledClicked"/>
+           </Grid>
 
-       <!-- Installed path row (shown after folder is picked) -->
-       <Grid IsVisible="{Binding SelectedInstalledPath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-             ColumnDefinitions="*,Auto">
-           <Border Grid.Column="0"
-                   Background="#121315"
-                   BorderBrush="#2d3842" BorderThickness="1,1,0,1"
-                   Padding="12,8">
-               <TextBlock Text="{Binding SelectedInstalledPath}"
-                          FontSize="12" Foreground="#AAAAAA"
-                          TextTrimming="CharacterEllipsis"
-                          VerticalAlignment="Center"/>
-           </Border>
-           <Button Grid.Column="1"
-                   Content="Изменить"
-                   Background="#1e2530"
-                   BorderBrush="#2d3842" BorderThickness="1"
-                   Foreground="#888888"
-                   FontSize="12" Padding="14,8" CornerRadius="0"
-                   Click="OnChangeInstalledClicked"/>
-       </Grid>
+       </StackPanel>
 
-   </StackPanel>
+       <!-- ═══ DLC selection panel ═══ -->
+       <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+               IsVisible="{Binding IsChoosingDlc}"
+               Padding="28" MinWidth="420" MaxWidth="520"
+               Background="#121315" BorderBrush="#2d3842" BorderThickness="1"
+               BoxShadow="0 12 28 0 #80000000">
+           <StackPanel Spacing="20">
+
+               <TextBlock Text="Выберите контент для установки"
+                          FontSize="17" FontWeight="SemiBold"
+                          Foreground="#D9D9D9"/>
+
+               <TextBlock Text="Обязательные пакеты отмечены и будут установлены автоматически."
+                          FontSize="12" Foreground="#AAAAAA" TextWrapping="Wrap"/>
+
+               <ItemsControl ItemsSource="{Binding DlcPackages}">
+                   <ItemsControl.ItemTemplate>
+                       <DataTemplate x:DataType="vm:DlcPackageItem">
+                           <CheckBox IsChecked="{Binding IsSelected}"
+                                     IsEnabled="{Binding IsEnabled}"
+                                     Margin="0,6,0,0"
+                                     Foreground="#D0D4D8"
+                                     FontSize="13">
+                               <TextBlock Text="{Binding Name}" FontSize="13" Foreground="#D0D4D8"/>
+                           </CheckBox>
+                       </DataTemplate>
+                   </ItemsControl.ItemTemplate>
+               </ItemsControl>
+
+               <Button Command="{Binding ConfirmDlcSelectionCommand}"
+                       HorizontalAlignment="Right"
+                       Padding="24,8" CornerRadius="0"
+                       BorderThickness="0" Foreground="White"
+                       FontSize="13" FontWeight="SemiBold">
+                   <Button.Background>
+                       <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                           <GradientStop Color="#1a5aaa" Offset="0"/>
+                           <GradientStop Color="#3a90d6" Offset="1"/>
+                       </LinearGradientBrush>
+                   </Button.Background>
+                   Скачать
+               </Button>
+
+           </StackPanel>
+       </Border>
+
+   </Panel>
 
 </UserControl>

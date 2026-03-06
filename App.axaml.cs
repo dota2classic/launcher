@@ -61,6 +61,7 @@ public partial class App : Application
             services.AddSingleton<IManifestDiffService, ManifestDiffService>();
             services.AddSingleton<IGameDownloadService, GameDownloadService>();
             services.AddSingleton<RedistInstallService>();
+            services.AddSingleton<IContentRegistryService, ContentRegistryService>();
             services.AddSingleton<MainWindowViewModel>();
 
             _services = services.BuildServiceProvider();

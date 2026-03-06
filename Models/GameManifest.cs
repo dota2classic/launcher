@@ -22,6 +22,13 @@ public class GameManifestFile
     [JsonIgnore]
     public ManifestFileMode FileMode =>
         Mode == "existing" ? ManifestFileMode.Existing : ManifestFileMode.Exact;
+
+    /// <summary>
+    /// Set when loading from a package registry — the registry folder name used to
+    /// construct the CDN download URL: /files/{PackageFolder}/{Path}.
+    /// </summary>
+    [JsonIgnore]
+    public string PackageFolder { get; set; } = "";
 }
 
 public class GameManifest

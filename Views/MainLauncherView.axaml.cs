@@ -63,6 +63,7 @@ public partial class MainLauncherView : UserControl
         {
             vm.OpenSettings();
             UpdateSettingsGameDirectory();
+            _ = vm.Settings.LoadDlcPackagesAsync();
         }
     }
 

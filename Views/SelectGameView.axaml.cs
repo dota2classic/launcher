@@ -54,8 +54,7 @@ public partial class SelectGameView : UserControl
             return;
 
         vm.SelectedDownloadPath = path;
-        await Task.Delay(150); // brief visual confirmation before routing
-        vm.NotifyGameDirectorySelected(path);
+        await vm.StartDlcSelectionAsync(path);
     }
 
     private async Task PickInstalledExeAsync()

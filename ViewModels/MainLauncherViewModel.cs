@@ -21,6 +21,13 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     private readonly IBackendApiService _backendApiService;
     private readonly ICvarSettingsProvider _cvarProvider;
     private readonly IVideoSettingsProvider _videoProvider;
+    private readonly IContentRegistryService _registryService;
+
+    /// <summary>
+    /// Called when the user selects a new optional DLC in Settings.
+    /// The parent ViewModel uses this to re-enter the VerifyingGame state.
+    /// </summary>
+    public Action? OnDlcChanged { get; set; }
     private readonly DispatcherTimer _onlineStatsTimer;
     private CancellationTokenSource? _ticketExchangeCts;
 
@@ -66,7 +73,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         IVideoSettingsProvider videoProvider,
         ISteamAuthApi steamAuthApi,
         IBackendApiService backendApiService,
-        IQueueSocketService queueSocketService)
+        IQueueSocketService queueSocketService,
+        IContentRegistryService registryService)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -75,6 +83,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         _steamAuthApi = steamAuthApi;
         _queueSocketService = queueSocketService;
         _backendApiService = backendApiService;
+        _registryService = registryService;
 
         var settings = settingsStorage.Get();
         _backendAccessToken = settings.BackendAccessToken;
@@ -96,8 +105,9 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Room = new RoomViewModel(queueSocketService, backendApiService);
         Party = new PartyViewModel(queueSocketService, backendApiService);
         NotificationArea = new NotificationAreaViewModel(backendApiService, queueSocketService);
-        Settings = new SettingsViewModel(launchSettingsStorage, cvarProvider, settingsStorage, videoProvider);
+        Settings = new SettingsViewModel(launchSettingsStorage, cvarProvider, settingsStorage, videoProvider, registryService);
         Settings.PushCvar = PushCvarIfGameRunning;
+        Settings.OnDlcChanged = () => OnDlcChanged?.Invoke();
         Chat = new ChatViewModel(backendApiService);
         Chat.GetBackendToken = () => BackendAccessToken;
         _ = Chat.StartAsync();
