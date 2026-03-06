@@ -5,5 +5,6 @@ public record DownloadProgress(
     long TotalBytes,
     double SpeedBytesPerSec,
     string CurrentFile,
+    string CurrentPackageName,
     int FilesDownloaded,
     int TotalFiles);

@@ -29,6 +29,9 @@ public class GameManifestFile
     /// </summary>
     [JsonIgnore]
     public string PackageFolder { get; set; } = "";
+
+    [JsonIgnore]
+    public string PackageName { get; set; } = "";
 }
 
 public class GameManifest

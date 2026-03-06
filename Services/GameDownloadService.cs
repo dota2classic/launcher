@@ -116,6 +116,7 @@ public class GameDownloadService : IGameDownloadService
                                 TotalBytes: totalBytes,
                                 SpeedBytesPerSec: GetSpeedBytesPerSec(),
                                 CurrentFile: file.Path,
+                                CurrentPackageName: file.PackageName,
                                 FilesDownloaded: Volatile.Read(ref filesDownloaded),
                                 TotalFiles: files.Count));
                         }
@@ -151,6 +152,7 @@ public class GameDownloadService : IGameDownloadService
             TotalBytes: totalBytes,
             SpeedBytesPerSec: 0,
             CurrentFile: "",
+            CurrentPackageName: "",
             FilesDownloaded: filesDownloaded,
             TotalFiles: files.Count));
     }

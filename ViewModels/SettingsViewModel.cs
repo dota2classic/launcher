@@ -7,6 +7,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
+using d2c_launcher.Util;
 
 namespace d2c_launcher.ViewModels;
 
@@ -33,9 +34,14 @@ public partial class SettingsViewModel : ViewModelBase
 
     public async Task LoadDlcPackagesAsync()
     {
+        AppLog.Info("[DLC] LoadDlcPackagesAsync started");
         var registry = await _registryService.GetAsync();
         if (registry == null)
+        {
+            AppLog.Info("[DLC] Registry returned null — no packages to show");
             return;
+        }
+        AppLog.Info($"[DLC] Registry has {registry.Packages?.Count ?? 0} package(s)");
 
         var settings = _settingsStorage.Get();
         // InstalledPackageIds is the source of truth after first download.
@@ -70,6 +76,7 @@ public partial class SettingsViewModel : ViewModelBase
             items.Add(item);
         }
 
+        AppLog.Info($"[DLC] Built {items.Count} DlcPackageItem(s) for display");
         DlcPackages = items;
         OnPropertyChanged(nameof(DlcPackages));
     }

@@ -56,17 +56,6 @@ public partial class MainLauncherView : UserControl
         }
     }
 
-
-    private void OnSettingsClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        if (DataContext is MainLauncherViewModel vm)
-        {
-            vm.OpenSettings();
-            UpdateSettingsGameDirectory();
-            _ = vm.Settings.LoadDlcPackagesAsync();
-        }
-    }
-
     private void OnCloseSettingsClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         if (DataContext is MainLauncherViewModel vm)
