@@ -7,7 +7,9 @@ namespace d2c_launcher.Models;
 public sealed partial class ChatMessageView : ObservableObject
 {
     public string MessageId { get; }
-    public string Content { get; }
+
+    [ObservableProperty]
+    private string _content;
     public string AuthorName { get; }
     public string AuthorSteamId { get; }
     public string Initials { get; }
@@ -30,7 +32,7 @@ public sealed partial class ChatMessageView : ObservableObject
         string? avatarUrl = null)
     {
         MessageId = messageId;
-        Content = content;
+        _content = content;
         _richContent = richContent;
         AuthorName = authorName;
         AuthorSteamId = authorSteamId;

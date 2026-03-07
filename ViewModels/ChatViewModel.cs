@@ -149,9 +149,14 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 return;
             }
 
-            // Already present (e.g. loaded by initial fetch) — skip to avoid duplicates.
-            if (Messages.Any(m => m.MessageId == msg.MessageId))
+            // Already present — update content in case the message was edited.
+            var duplicate = Messages.FirstOrDefault(m => m.MessageId == msg.MessageId);
+            if (duplicate != null)
+            {
+                duplicate.Content = msg.Content;
+                duplicate.RichContent = RichMessageParser.Parse(msg.Content, _emoticonImages, _userNameCache);
                 return;
+            }
 
             var showHeader = _lastMessageRaw == null
                 || _lastMessageRaw.Value.AuthorSteamId != msg.AuthorSteamId
