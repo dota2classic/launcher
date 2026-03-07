@@ -20,7 +20,7 @@
                 <Grid ColumnDefinitions="*,Auto">
                     <TextBlock Text="ЧАТ"
                                FontSize="10" FontWeight="SemiBold" LetterSpacing="2"
-                               Foreground="#48525a" VerticalAlignment="Center"/>
+                               Foreground="#D9D9D9" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
 
