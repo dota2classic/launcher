@@ -10,7 +10,6 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Media.Imaging;
 using d2c_launcher.Api;
 using d2c_launcher.Models;
 using d2c_launcher.Util;
@@ -85,12 +84,10 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         if (party.Leader != null && !string.IsNullOrWhiteSpace(party.Leader.SteamId))
         {
             var leaderAvatarUrl = party.Leader.AvatarSmall ?? party.Leader.Avatar;
-            var leaderAvatar = await TryLoadAvatarAsync(_httpClient, leaderAvatarUrl, cancellationToken);
             map[party.Leader.SteamId] = new PartyMemberView(
                 party.Leader.SteamId,
                 party.Leader.Name ?? "",
-                leaderAvatarUrl,
-                leaderAvatar);
+                leaderAvatarUrl);
         }
 
         if (party.Players != null)
@@ -103,7 +100,6 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
                     continue;
 
                 var avatarUrl = user.AvatarSmall ?? user.Avatar;
-                var avatar = await TryLoadAvatarAsync(_httpClient, avatarUrl, cancellationToken);
 
                 var ban = summary!.BanStatus;
                 var access = summary.AccessMap;
@@ -111,7 +107,6 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
                     user.SteamId,
                     user.Name ?? "",
                     avatarUrl,
-                    avatar,
                     isBanned: ban?.IsBanned ?? false,
                     bannedUntil: ban?.BannedUntil,
                     canPlayHumanGames: access?.HumanGames ?? true,
@@ -183,15 +178,15 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
                 continue;
 
             var initials = GetInitials(displayName);
-            result.Add(new InviteCandidateView(user.SteamId, displayName, initials, false));
+            var avatarUrl = user.AvatarSmall ?? user.Avatar;
+            result.Add(new InviteCandidateView(user.SteamId, displayName, initials, false, avatarUrl));
         }
 
         AppLog.Info($"Search returned {result.Count} players.");
-        _ = LoadInviteAvatarsAsync(result, users, cancellationToken);
         return result;
     }
 
-    public async Task<(string? Name, Bitmap? AvatarImage)?> GetUserInfoAsync(string steamId, string bearerToken, CancellationToken cancellationToken = default)
+    public async Task<(string? Name, string? AvatarUrl)?> GetUserInfoAsync(string steamId, string bearerToken, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(steamId) || string.IsNullOrWhiteSpace(bearerToken))
             return null;
@@ -205,51 +200,11 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
                 return null;
 
             var avatarUrl = user.AvatarSmall ?? user.Avatar;
-            var avatar = await TryLoadAvatarAsync(_httpClient, avatarUrl, cancellationToken).ConfigureAwait(false);
-            return (user.Name, avatar);
+            return (user.Name, avatarUrl);
         }
         catch
         {
             return null;
-        }
-    }
-
-    private async Task LoadInviteAvatarsAsync(
-        IReadOnlyList<InviteCandidateView> views,
-        IEnumerable<UserDTO> users,
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            var viewList = views.ToList();
-            var userList = users.ToList();
-            var count = Math.Min(viewList.Count, userList.Count);
-
-            for (var i = 0; i < count; i++)
-            {
-                if (cancellationToken.IsCancellationRequested)
-                    return;
-
-                var user = userList[i];
-                var avatarUrl = user?.AvatarSmall ?? user?.Avatar;
-                if (string.IsNullOrWhiteSpace(avatarUrl))
-                    continue;
-
-                var avatar = await TryLoadAvatarAsync(_httpClient, avatarUrl, cancellationToken);
-                if (avatar == null)
-                    continue;
-
-                var view = viewList[i];
-                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
-                {
-                    view.AvatarImage?.Dispose();
-                    view.AvatarImage = avatar;
-                });
-            }
-        }
-        catch
-        {
-            // Ignore avatar load failures.
         }
     }
 
@@ -445,27 +400,4 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         return (parts[0][0].ToString() + parts[^1][0]).ToUpperInvariant();
     }
 
-    private static async Task<Bitmap?> TryLoadAvatarAsync(HttpClient httpClient, string? avatarUrl, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(avatarUrl))
-            return null;
-
-        try
-        {
-            var uri = new Uri(avatarUrl, UriKind.RelativeOrAbsolute);
-            if (!uri.IsAbsoluteUri)
-                uri = new Uri(BaseUri, uri);
-
-            using var response = await httpClient.GetAsync(uri, cancellationToken).ConfigureAwait(false);
-            if (!response.IsSuccessStatusCode)
-                return null;
-
-            await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-            return new Bitmap(stream);
-        }
-        catch
-        {
-            return null;
-        }
-    }
 }

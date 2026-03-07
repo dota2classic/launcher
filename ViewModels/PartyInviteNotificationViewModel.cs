@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -17,9 +16,7 @@ public partial class PartyInviteNotificationViewModel : ViewModelBase
 
     public string InviteId => _inviteId;
     public string InviterName { get; }
-
-    [ObservableProperty]
-    private Bitmap? _inviterAvatarImage;
+    public string? InviterAvatarUrl { get; }
 
     [ObservableProperty]
     private int _remainingSeconds = TimeoutSeconds;
@@ -30,10 +27,11 @@ public partial class PartyInviteNotificationViewModel : ViewModelBase
     /// <summary>Fired on the UI thread when this notification should be removed.</summary>
     public event Action<PartyInviteNotificationViewModel>? Closed;
 
-    public PartyInviteNotificationViewModel(string inviteId, string inviterName, Func<string, bool, Task> respond)
+    public PartyInviteNotificationViewModel(string inviteId, string inviterName, string? avatarUrl, Func<string, bool, Task> respond)
     {
         _inviteId = inviteId;
         InviterName = inviterName;
+        InviterAvatarUrl = avatarUrl;
         _respond = respond;
 
         AcceptCommand = new AsyncRelayCommand(() => RespondAsync(true));
@@ -42,15 +40,6 @@ public partial class PartyInviteNotificationViewModel : ViewModelBase
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += OnTick;
         _timer.Start();
-    }
-
-    public void LoadAvatar(Func<Task<Bitmap?>> loader)
-    {
-        _ = Task.Run(async () =>
-        {
-            var bitmap = await loader().ConfigureAwait(false);
-            Dispatcher.UIThread.Post(() => InviterAvatarImage = bitmap);
-        });
     }
 
     /// <summary>Called externally when the server says the invite expired.</summary>

@@ -22,7 +22,6 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
     private readonly IBackendApiService _backendApiService;
     private readonly IHttpImageService _imageService;
-    private readonly Dictionary<string, string> _avatarUrlByAuthor = new(StringComparer.Ordinal);
     // Emoticon GIF bytes keyed by code (populated once at startup).
     private Dictionary<string, byte[]> _emoticonImages = new(StringComparer.Ordinal);
     // User name cache: steamId → resolved name (null = fetch in-flight).
@@ -159,9 +158,6 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 || Math.Abs((ParseDate(msg.CreatedAt) - ParseDate(_lastMessageRaw.Value.CreatedAt)).TotalSeconds)
                    > MergeWindowSeconds;
 
-            if (!string.IsNullOrWhiteSpace(msg.AuthorAvatarUrl))
-                _avatarUrlByAuthor[msg.AuthorSteamId] = msg.AuthorAvatarUrl!;
-
             var richContent = RichMessageParser.Parse(msg.Content, _emoticonImages, _userNameCache);
             ScheduleUserLoads(richContent);
             var view = new ChatMessageView(
@@ -171,14 +167,12 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 msg.AuthorName,
                 msg.AuthorSteamId,
                 showHeader,
-                FormatTime(ParseDate(msg.CreatedAt)));
+                FormatTime(ParseDate(msg.CreatedAt)),
+                showHeader ? msg.AuthorAvatarUrl : null);
 
             Messages.Add(view);
             _lastMessageRaw = (msg.AuthorSteamId, msg.CreatedAt);
             MessagesUpdated?.Invoke();
-
-            if (showHeader)
-                _ = LoadSingleAvatarAsync(view, CancellationToken.None);
         });
     }
 
@@ -216,8 +210,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 IsLoading = false;
             });
 
-            _ = LoadAvatarsAsync(grouped, ct);
-        }
+            }
         catch (OperationCanceledException) { }
         catch (Exception ex)
         {
@@ -273,9 +266,6 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 || Math.Abs((ParseDate(msg.CreatedAt) - ParseDate(prev.CreatedAt)).TotalSeconds)
                    > MergeWindowSeconds;
 
-            if (!string.IsNullOrWhiteSpace(msg.AuthorAvatarUrl))
-                _avatarUrlByAuthor[msg.AuthorSteamId] = msg.AuthorAvatarUrl!;
-
             var richContent = RichMessageParser.Parse(msg.Content, _emoticonImages, _userNameCache);
             ScheduleUserLoads(richContent);
             result.Add(new ChatMessageView(
@@ -285,7 +275,8 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 msg.AuthorName,
                 msg.AuthorSteamId,
                 showHeader,
-                FormatTime(ParseDate(msg.CreatedAt))));
+                FormatTime(ParseDate(msg.CreatedAt)),
+                showHeader ? msg.AuthorAvatarUrl : null));
         }
 
         // Remember last message so ConsumeIncomingMessage can compute headers for SSE events.
@@ -307,31 +298,6 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         Messages.Clear();
         foreach (var m in incoming)
             Messages.Add(m);
-    }
-
-    private async Task LoadAvatarsAsync(List<ChatMessageView> messages, CancellationToken ct)
-    {
-        var seen = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var msg in messages)
-        {
-            if (!msg.ShowHeader) continue;
-            if (!seen.Add(msg.AuthorSteamId)) continue;
-            if (ct.IsCancellationRequested) return;
-            await LoadSingleAvatarAsync(msg, ct).ConfigureAwait(false);
-        }
-    }
-
-    private async Task LoadSingleAvatarAsync(ChatMessageView view, CancellationToken ct)
-    {
-        if (!_avatarUrlByAuthor.TryGetValue(view.AuthorSteamId, out var url)) return;
-        var bitmap = await _imageService.LoadBitmapAsync(url, ct).ConfigureAwait(false);
-        if (bitmap == null || ct.IsCancellationRequested) return;
-
-        Dispatcher.UIThread.Post(() =>
-        {
-            foreach (var m in Messages.Where(m => m.AuthorSteamId == view.AuthorSteamId))
-                m.AvatarImage = bitmap;
-        });
     }
 
     // ── Player name resolution ────────────────────────────────────────────────

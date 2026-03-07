@@ -1,5 +1,4 @@
 using Avalonia.Media;
-using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using d2c_launcher.Services;
 
@@ -9,16 +8,16 @@ public sealed partial class RoomPlayerView : ObservableObject
 {
     public string SteamId { get; }
     public string Name { get; }
-    public Bitmap? AvatarImage { get; }
-    
+    public string? AvatarUrl { get; }
+
     [ObservableProperty]
     private ReadyState _state;
 
-    public RoomPlayerView(string steamId, string name, Bitmap? avatarImage, ReadyState state)
+    public RoomPlayerView(string steamId, string name, string? avatarUrl, ReadyState state)
     {
         SteamId = steamId;
         Name = name;
-        AvatarImage = avatarImage;
+        AvatarUrl = avatarUrl;
         _state = state;
     }
 

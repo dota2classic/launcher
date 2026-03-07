@@ -22,8 +22,8 @@ public static class PreviewRegistry
             {
                 var stub = new StubQueueSocketService();
                 var vm = new PartyViewModel(stub, new StubBackendApiService());
-                vm.PartyMembers.Add(new d2c_launcher.Models.PartyMemberView("1", "Player One", null, null));
-                vm.PartyMembers.Add(new d2c_launcher.Models.PartyMemberView("2", "Player Two", null, null));
+                vm.PartyMembers.Add(new d2c_launcher.Models.PartyMemberView("1", "Player One", null));
+                vm.PartyMembers.Add(new d2c_launcher.Models.PartyMemberView("2", "Player Two", null));
                 return (new PartyPanel(), vm);
             },
             ["QueueButton"] = () =>
@@ -43,7 +43,7 @@ public static class PreviewRegistry
             },
             ["NotificationArea"] = () =>
             {
-                var vm = new NotificationAreaViewModel(new StubHttpImageService(), new StubQueueSocketService());
+                var vm = new NotificationAreaViewModel(new StubQueueSocketService());
                 return (new NotificationArea(), vm);
             },
             ["Loading"] = () =>

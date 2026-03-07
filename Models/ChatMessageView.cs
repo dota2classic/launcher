@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Avalonia;
-using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace d2c_launcher.Models;
@@ -15,12 +14,10 @@ public sealed partial class ChatMessageView : ObservableObject
     public bool ShowHeader { get; }
     public Thickness GroupMargin => ShowHeader ? new Thickness(0, 6, 0, 0) : default;
     public string TimeText { get; }
+    public string? AvatarUrl { get; }
 
     [ObservableProperty]
     private IReadOnlyList<RichSegment> _richContent;
-
-    [ObservableProperty]
-    private Bitmap? _avatarImage;
 
     public ChatMessageView(
         string messageId,
@@ -30,7 +27,7 @@ public sealed partial class ChatMessageView : ObservableObject
         string authorSteamId,
         bool showHeader,
         string timeText,
-        Bitmap? avatarImage = null)
+        string? avatarUrl = null)
     {
         MessageId = messageId;
         Content = content;
@@ -39,7 +36,7 @@ public sealed partial class ChatMessageView : ObservableObject
         AuthorSteamId = authorSteamId;
         ShowHeader = showHeader;
         TimeText = timeText;
-        _avatarImage = avatarImage;
+        AvatarUrl = avatarUrl;
         Initials = ComputeInitials(authorName);
     }
 

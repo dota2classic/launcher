@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Media.Imaging;
 using d2c_launcher.Api;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
@@ -44,8 +43,8 @@ internal sealed class StubBackendApiService : IBackendApiService
 {
     public Task<PartySnapshot> GetMyPartySnapshotAsync(string bearerToken, CancellationToken cancellationToken = default)
         => Task.FromResult(new PartySnapshot([
-            new PartyMemberView("76561198000000001", "Player One", null, null),
-            new PartyMemberView("76561198000000002", "Player Two", null, null),
+            new PartyMemberView("76561198000000001", "Player One", null),
+            new PartyMemberView("76561198000000002", "Player Two", null),
         ], null));
 
     public Task<IReadOnlyList<MatchmakingModeInfo>> GetEnabledMatchmakingModesAsync(CancellationToken cancellationToken = default)
@@ -60,8 +59,8 @@ internal sealed class StubBackendApiService : IBackendApiService
     public Task<IReadOnlyList<InviteCandidateView>> SearchPlayersAsync(string name, int count = 25, CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<InviteCandidateView>>([]);
 
-    public Task<(string? Name, Bitmap? AvatarImage)?> GetUserInfoAsync(string steamId, string bearerToken, CancellationToken cancellationToken = default)
-        => Task.FromResult<(string?, Bitmap?)?>(null);
+    public Task<(string? Name, string? AvatarUrl)?> GetUserInfoAsync(string steamId, string bearerToken, CancellationToken cancellationToken = default)
+        => Task.FromResult<(string?, string?)?>(null);
 
     public Task<(int InGame, int OnSite)> GetOnlineStatsAsync(CancellationToken cancellationToken = default)
         => Task.FromResult((0, 0));
@@ -94,8 +93,6 @@ internal sealed class StubBackendApiService : IBackendApiService
 
 internal sealed class StubHttpImageService : IHttpImageService
 {
-    public Task<Bitmap?> LoadBitmapAsync(string? url, CancellationToken cancellationToken = default)
-        => Task.FromResult<Bitmap?>(null);
     public Task<byte[]?> LoadBytesAsync(string? url, CancellationToken cancellationToken = default)
         => Task.FromResult<byte[]?>(null);
 }

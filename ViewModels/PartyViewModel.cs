@@ -93,7 +93,6 @@ public partial class PartyViewModel : ViewModelBase, IDisposable
             }
 
             var partySnapshot = await _backendApiService.GetMyPartySnapshotAsync(token);
-            DisposePartyAvatars();
             PartyMembers.Clear();
             foreach (var m in partySnapshot.Members)
                 PartyMembers.Add(m);
@@ -123,7 +122,6 @@ public partial class PartyViewModel : ViewModelBase, IDisposable
 
     public void ClearParty()
     {
-        DisposePartyAvatars();
         PartyMembers.Clear();
         EnterQueueAtChanged?.Invoke(null);
         PartyMembersChanged?.Invoke(Array.Empty<Models.PartyMemberView>());
@@ -216,12 +214,6 @@ public partial class PartyViewModel : ViewModelBase, IDisposable
         {
             AppLog.Error("Failed to load initial invite candidates.", ex);
         }
-    }
-
-    private void DisposePartyAvatars()
-    {
-        foreach (var member in PartyMembers)
-            member.AvatarImage?.Dispose();
     }
 
     public void Dispose()

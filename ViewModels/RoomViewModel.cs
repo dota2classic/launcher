@@ -2,7 +2,6 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -109,10 +108,7 @@ public partial class RoomViewModel : ViewModelBase
         for (int i = RoomPlayers.Count - 1; i >= 0; i--)
         {
             if (!steamIds.Contains(RoomPlayers[i].SteamId))
-            {
-                RoomPlayers[i].AvatarImage?.Dispose();
                 RoomPlayers.RemoveAt(i);
-            }
         }
 
         // Update or add players
@@ -131,7 +127,6 @@ public partial class RoomViewModel : ViewModelBase
                     if (CurrentRoomId != msg.RoomId)
                     {
                         AppLog.Info($"UpdatePlayerRoomStateAsync: room changed during fetch, aborting (expected={msg.RoomId}, current={CurrentRoomId})");
-                        info?.AvatarImage?.Dispose();
                         return;
                     }
                     // Re-check after await: a concurrent update may have already added this player
@@ -139,14 +134,13 @@ public partial class RoomViewModel : ViewModelBase
                     if (existingAfterFetch != null)
                     {
                         existingAfterFetch.State = entry.State;
-                        info?.AvatarImage?.Dispose();
                     }
                     else
                     {
                         RoomPlayers.Add(new RoomPlayerView(
                             entry.SteamId,
                             info?.Name ?? entry.SteamId,
-                            info?.AvatarImage,
+                            info?.AvatarUrl,
                             entry.State));
                     }
                 }
@@ -174,7 +168,7 @@ public partial class RoomViewModel : ViewModelBase
             IsAcceptGameModalOpen = true;
     }
 
-    private async Task<(string? Name, Bitmap? AvatarImage)?> FetchUserInfoAsync(string steamId)
+    private async Task<(string? Name, string? AvatarUrl)?> FetchUserInfoAsync(string steamId)
     {
         var token = GetBackendToken();
         if (string.IsNullOrWhiteSpace(token))
@@ -232,8 +226,6 @@ public partial class RoomViewModel : ViewModelBase
         HasMyPlayerResponded = false;
         CurrentRoomId = null;
         RoomMode = null;
-        foreach (var player in RoomPlayers)
-            player.AvatarImage?.Dispose();
         RoomPlayers.Clear();
     }
 }

@@ -1,5 +1,3 @@
-using Avalonia.Media.Imaging;
-
 namespace d2c_launcher.Models;
 
 public sealed class PartyMemberView
@@ -7,7 +5,7 @@ public sealed class PartyMemberView
     public string SteamId { get; }
     public string Name { get; }
     public string? AvatarUrl { get; }
-    public Bitmap? AvatarImage { get; }
+    public string Initials { get; }
 
     // Ban / access restrictions (from PlayerSummaryDto; defaults for leader who has no summary)
     public bool IsBanned { get; }
@@ -20,7 +18,6 @@ public sealed class PartyMemberView
         string steamId,
         string name,
         string? avatarUrl,
-        Bitmap? avatarImage,
         bool isBanned = false,
         string? bannedUntil = null,
         bool canPlayHumanGames = true,
@@ -30,7 +27,7 @@ public sealed class PartyMemberView
         SteamId = steamId;
         Name = name;
         AvatarUrl = avatarUrl;
-        AvatarImage = avatarImage;
+        Initials = string.IsNullOrWhiteSpace(name) ? "?" : name.Trim()[0].ToString().ToUpperInvariant();
         IsBanned = isBanned;
         BannedUntil = bannedUntil;
         CanPlayHumanGames = canPlayHumanGames;

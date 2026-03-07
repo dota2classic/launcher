@@ -4,6 +4,7 @@
             xmlns:m="using:d2c_launcher.Models"
             xmlns:util="using:d2c_launcher.Util"
             xmlns:components="using:d2c_launcher.Views.Components"
+            xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
             x:Class="d2c_launcher.Views.MainLauncherView"
             x:DataType="vm:MainLauncherViewModel">
    <UserControl.Background>
@@ -13,10 +14,6 @@
            <GradientStop Color="#0c0c0c" Offset="1"/>
        </LinearGradientBrush>
    </UserControl.Background>
-   <UserControl.Resources>
-       <util:NullToBoolConverter x:Key="NullToBoolConverter"/>
-       <util:NullToInverseBoolConverter x:Key="NullToInverseBoolConverter"/>
-   </UserControl.Resources>
    <UserControl.Styles>
    </UserControl.Styles>
 
@@ -105,15 +102,13 @@
                                                                <Panel Width="36" Height="36"
                                                                       HorizontalAlignment="Center" VerticalAlignment="Center">
                                                                    <Ellipse Width="36" Height="36" Fill="#242c34"/>
-                                                                   <Ellipse Width="36" Height="36"
-                                                                            IsVisible="{Binding AvatarImage, Converter={StaticResource NullToBoolConverter}}">
+                                                                   <TextBlock Text="{Binding Initials}" HorizontalAlignment="Center"
+                                                                              VerticalAlignment="Center" FontSize="12"/>
+                                                                   <Ellipse Width="36" Height="36">
                                                                        <Ellipse.Fill>
-                                                                           <ImageBrush Source="{Binding AvatarImage}" Stretch="UniformToFill"/>
+                                                                           <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding AvatarUrl}" Stretch="UniformToFill"/>
                                                                        </Ellipse.Fill>
                                                                    </Ellipse>
-                                                                   <TextBlock Text="{Binding Initials}" HorizontalAlignment="Center"
-                                                                              VerticalAlignment="Center" FontSize="12"
-                                                                              IsVisible="{Binding AvatarImage, Converter={StaticResource NullToInverseBoolConverter}}"/>
                                                                </Panel>
                                                                <Ellipse Width="10" Height="10" Fill="#44D46F"
                                                                         IsVisible="{Binding IsOnline}"

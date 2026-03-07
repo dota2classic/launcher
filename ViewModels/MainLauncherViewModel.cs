@@ -108,7 +108,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Queue = new QueueViewModel(queueSocketService, backendApiService);
         Room = new RoomViewModel(queueSocketService, backendApiService);
         Party = new PartyViewModel(queueSocketService, backendApiService);
-        NotificationArea = new NotificationAreaViewModel(imageService, queueSocketService);
+        NotificationArea = new NotificationAreaViewModel(queueSocketService);
         Settings = new SettingsViewModel(launchSettingsStorage, cvarProvider, settingsStorage, videoProvider, registryService);
         Settings.PushCvar = PushCvarIfGameRunning;
         Settings.OnDlcChanged = removedIds => OnDlcChanged?.Invoke(removedIds);

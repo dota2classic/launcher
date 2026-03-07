@@ -4,6 +4,7 @@
             xmlns:m="using:d2c_launcher.Models"
             xmlns:util="using:d2c_launcher.Util"
             xmlns:materialIcons="using:Material.Icons.Avalonia"
+            xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
             x:Class="d2c_launcher.Views.Components.PartyPanel"
             x:DataType="vm:PartyViewModel">
 
@@ -47,7 +48,15 @@
                                <!-- Inner border: avatar with rounded clip -->
                                <Border Width="40" Height="40" CornerRadius="0" ClipToBounds="True"
                                        Background="#1c2024">
-                                   <Image Source="{Binding AvatarImage}" Stretch="UniformToFill"/>
+                                   <Panel>
+                                       <!-- Initials fallback (shown while image loads or when no URL) -->
+                                       <TextBlock Text="{Binding Initials}"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                  FontSize="14" FontWeight="SemiBold" Foreground="#AAAAAA"/>
+                                       <!-- Avatar overlay via AsyncImageLoader -->
+                                       <Image Stretch="UniformToFill"
+                                              asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}"/>
+                                   </Panel>
                                </Border>
                            </Border>
                        </DataTemplate>

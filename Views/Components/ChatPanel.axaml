@@ -5,13 +5,10 @@
              xmlns:util="using:d2c_launcher.Util"
              xmlns:components="using:d2c_launcher.Views.Components"
              xmlns:materialIcons="using:Material.Icons.Avalonia"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              x:Class="d2c_launcher.Views.Components.ChatPanel"
              x:DataType="vm:ChatViewModel">
 
-    <UserControl.Resources>
-        <util:NullToBoolConverter x:Key="NullToBool"/>
-        <util:NullToInverseBoolConverter x:Key="NullToInverseBool"/>
-    </UserControl.Resources>
 
     <Border Background="#0e1012" BorderBrush="#1e2530" BorderThickness="1">
         <Grid RowDefinitions="34,*,Auto">
@@ -61,11 +58,11 @@
                                                            HorizontalAlignment="Center"
                                                            VerticalAlignment="Center"/>
                                             </Border>
-                                            <!-- Actual avatar (overlays initials when loaded) -->
+                                            <!-- Actual avatar (overlays initials while loading) -->
                                             <Border Width="30" Height="30" CornerRadius="15"
-                                                    ClipToBounds="True"
-                                                    IsVisible="{Binding AvatarImage, Converter={StaticResource NullToBool}}">
-                                                <Image Source="{Binding AvatarImage}" Stretch="UniformToFill"/>
+                                                    ClipToBounds="True">
+                                                <Image Stretch="UniformToFill"
+                                                       asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}"/>
                                             </Border>
                                         </Panel>
 
