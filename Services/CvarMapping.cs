@@ -41,9 +41,9 @@ public static class CvarMapping
             (s, v) => s.ResetCameraOnSpawn = v is "1",
             IsEmpty: _ => false),
 
-        new("dota_quick_select_setting",
-            s => s.QuickCast ? "1" : "0",
-            (s, v) => s.QuickCast = v is "1",
+        new("dota_player_teleport_requires_halt",
+            s => s.TeleportRequiresHalt ? "1" : "0",
+            (s, v) => s.TeleportRequiresHalt = v is "1",
             IsEmpty: _ => false),
 
     ];

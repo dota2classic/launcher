@@ -298,16 +298,6 @@
                                              VerticalAlignment="Center" HorizontalAlignment="Right"/>
                             </Grid>
 
-                            <!-- Quick cast -->
-                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
-                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="Быстрое применение" Classes="setting-label"/>
-                                    <TextBlock Text="Применять заклинания без подтверждения" Classes="setting-desc"/>
-                                </StackPanel>
-                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding QuickCast}"
-                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                            </Grid>
-
                             <!-- Disable camera zoom -->
                             <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
                                 <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
@@ -325,6 +315,16 @@
                                     <TextBlock Text="Удерживание ПКМ повторяет команду" Classes="setting-desc"/>
                                 </StackPanel>
                                 <ToggleSwitch Grid.Column="1" IsChecked="{Binding RightMouseAutoRepeat}"
+                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                            </Grid>
+
+                            <!-- Teleport requires halt -->
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
+                                    <TextBlock Text="Телепорт требует остановки" Classes="setting-label"/>
+                                    <TextBlock Text="Для отмены телепорта нужно нажать «Отменить»" Classes="setting-desc"/>
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding TeleportRequiresHalt}"
                                              VerticalAlignment="Center" HorizontalAlignment="Right"/>
                             </Grid>
 

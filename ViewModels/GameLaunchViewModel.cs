@@ -119,6 +119,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
 
             var launchSettings = _launchSettingsStorage.Get();
             var cliArgs = CfgGenerator.BuildCliArgs(launchSettings);
+            var presetArg = CfgGenerator.WritePreset(GameDirectory);
             var execArg = CfgGenerator.Generate(launchSettings, GameDirectory);
 
             // If any optional DLC is installed, the engine needs -override_vpk to load custom VPKs.
@@ -129,9 +130,11 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
             if (hasOptionalDlcInstalled)
                 cliArgs = string.IsNullOrEmpty(cliArgs) ? "-override_vpk" : $"{cliArgs} -override_vpk";
 
-            var arguments = execArg != null
-                ? $"{cliArgs} {execArg}".Trim()
-                : cliArgs;
+            var parts = new System.Collections.Generic.List<string>();
+            if (!string.IsNullOrEmpty(cliArgs)) parts.Add(cliArgs);
+            if (presetArg != null) parts.Add(presetArg);
+            if (execArg != null) parts.Add(execArg);
+            var arguments = string.Join(" ", parts);
 
             AppLog.Info($"LaunchGame: starting {exePath} {arguments}");
             using var _ = Process.Start(new ProcessStartInfo

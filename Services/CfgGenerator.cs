@@ -12,6 +12,39 @@ namespace d2c_launcher.Services;
 public static class CfgGenerator
 {
     private const string CfgFileName = "d2c_launch.cfg";
+    private const string PresetCfgFileName = "d2c_preset.cfg";
+
+    /// <summary>
+    /// Preset cvars enforced on every launch. Not user-configurable.
+    /// Exec'd after config.cfg so they always take effect.
+    /// </summary>
+    private static readonly string[] PresetLines =
+    [
+        "dota_embers 0",           // optimization: disable ambient embers
+        "dota_full_ui 1",          // disable tutorial overlays
+        "con_enable 1",            // always allow console access
+        "dota_use_particle_fow 1", // prevent particle-based fog-of-war abuse
+    ];
+
+    /// <summary>
+    /// Writes d2c_preset.cfg with hardcoded preset cvars.
+    /// Returns the +exec argument string, or null on failure.
+    /// </summary>
+    public static string? WritePreset(string gameDirectory)
+    {
+        var cfgDir = Path.Combine(gameDirectory, "dota", "cfg");
+        try
+        {
+            Directory.CreateDirectory(cfgDir);
+            var content = string.Join("\n", PresetLines) + "\n";
+            File.WriteAllText(Path.Combine(cfgDir, PresetCfgFileName), content, Encoding.UTF8);
+            return $"+exec {PresetCfgFileName}";
+        }
+        catch
+        {
+            return null;
+        }
+    }
 
     /// <summary>
     /// Writes d2c_launch.cfg if <see cref="GameLaunchSettings.CustomCfgLines"/> is set.

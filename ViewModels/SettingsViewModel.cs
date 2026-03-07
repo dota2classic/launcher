@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -279,72 +280,32 @@ public partial class SettingsViewModel : ViewModelBase
 
     public bool DisableCameraZoom
     {
-        get => _cvarProvider.Get().DisableCameraZoom;
-        set
-        {
-            var s = _cvarProvider.Get();
-            if (s.DisableCameraZoom == value) return;
-            s.DisableCameraZoom = value;
-            _cvarProvider.Update(s);
-            OnPropertyChanged();
-            PushCvar?.Invoke("dota_camera_disable_zoom", value ? "1" : "0");
-        }
+        get => GetBoolCvar(s => s.DisableCameraZoom);
+        set => SetBoolCvar(s => s.DisableCameraZoom, (s, v) => s.DisableCameraZoom = v, value, "dota_camera_disable_zoom");
     }
 
     public bool ForceRightClickAttack
     {
-        get => _cvarProvider.Get().ForceRightClickAttack;
-        set
-        {
-            var s = _cvarProvider.Get();
-            if (s.ForceRightClickAttack == value) return;
-            s.ForceRightClickAttack = value;
-            _cvarProvider.Update(s);
-            OnPropertyChanged();
-            PushCvar?.Invoke("dota_force_right_click_attack", value ? "1" : "0");
-        }
+        get => GetBoolCvar(s => s.ForceRightClickAttack);
+        set => SetBoolCvar(s => s.ForceRightClickAttack, (s, v) => s.ForceRightClickAttack = v, value, "dota_force_right_click_attack");
     }
 
     public bool RightMouseAutoRepeat
     {
-        get => _cvarProvider.Get().RightMouseAutoRepeat;
-        set
-        {
-            var s = _cvarProvider.Get();
-            if (s.RightMouseAutoRepeat == value) return;
-            s.RightMouseAutoRepeat = value;
-            _cvarProvider.Update(s);
-            OnPropertyChanged();
-            PushCvar?.Invoke("dota_player_auto_repeat_right_mouse", value ? "1" : "0");
-        }
+        get => GetBoolCvar(s => s.RightMouseAutoRepeat);
+        set => SetBoolCvar(s => s.RightMouseAutoRepeat, (s, v) => s.RightMouseAutoRepeat = v, value, "dota_player_auto_repeat_right_mouse");
     }
 
     public bool ResetCameraOnSpawn
     {
-        get => _cvarProvider.Get().ResetCameraOnSpawn;
-        set
-        {
-            var s = _cvarProvider.Get();
-            if (s.ResetCameraOnSpawn == value) return;
-            s.ResetCameraOnSpawn = value;
-            _cvarProvider.Update(s);
-            OnPropertyChanged();
-            PushCvar?.Invoke("dota_reset_camera_on_spawn", value ? "1" : "0");
-        }
+        get => GetBoolCvar(s => s.ResetCameraOnSpawn);
+        set => SetBoolCvar(s => s.ResetCameraOnSpawn, (s, v) => s.ResetCameraOnSpawn = v, value, "dota_reset_camera_on_spawn");
     }
 
-    public bool QuickCast
+    public bool TeleportRequiresHalt
     {
-        get => _cvarProvider.Get().QuickCast;
-        set
-        {
-            var s = _cvarProvider.Get();
-            if (s.QuickCast == value) return;
-            s.QuickCast = value;
-            _cvarProvider.Update(s);
-            OnPropertyChanged();
-            PushCvar?.Invoke("dota_quick_select_setting", value ? "1" : "0");
-        }
+        get => GetBoolCvar(s => s.TeleportRequiresHalt);
+        set => SetBoolCvar(s => s.TeleportRequiresHalt, (s, v) => s.TeleportRequiresHalt = v, value, "dota_player_teleport_requires_halt");
     }
 
     // ── Auto-attack mode ───────────────────────────────────────────────────────
@@ -436,18 +397,25 @@ public partial class SettingsViewModel : ViewModelBase
         _registryService = registryService;
     }
 
+    // Add new cvar property names here — RefreshFromCvarProvider picks them up automatically.
+    private static readonly string[] CvarPropertyNames =
+    [
+        nameof(DisableCameraZoom),
+        nameof(ForceRightClickAttack),
+        nameof(RightMouseAutoRepeat),
+        nameof(ResetCameraOnSpawn),
+        nameof(AutoAttackSelectedIndex),
+        nameof(TeleportRequiresHalt),
+    ];
+
     /// <summary>
     /// Refreshes all UI-bound cvar properties.
     /// Called when config.cfg is re-read (e.g. after game exit).
     /// </summary>
     public void RefreshFromCvarProvider()
     {
-        OnPropertyChanged(nameof(DisableCameraZoom));
-        OnPropertyChanged(nameof(ForceRightClickAttack));
-        OnPropertyChanged(nameof(RightMouseAutoRepeat));
-        OnPropertyChanged(nameof(ResetCameraOnSpawn));
-        OnPropertyChanged(nameof(AutoAttackSelectedIndex));
-        OnPropertyChanged(nameof(QuickCast));
+        foreach (var name in CvarPropertyNames)
+            OnPropertyChanged(name);
     }
 
     /// <summary>
@@ -459,5 +427,24 @@ public partial class SettingsViewModel : ViewModelBase
         OnPropertyChanged(nameof(Fullscreen));
         OnPropertyChanged(nameof(NoWindowBorder));
         OnPropertyChanged(nameof(SelectedResolutionIndex));
+    }
+
+    // ── Cvar helpers ──────────────────────────────────────────────────────────
+
+    private bool GetBoolCvar(Func<CvarSettings, bool> get) => get(_cvarProvider.Get());
+
+    private void SetBoolCvar(
+        Func<CvarSettings, bool> get,
+        Action<CvarSettings, bool> set,
+        bool value,
+        string cvar,
+        [CallerMemberName] string? propertyName = null)
+    {
+        var s = _cvarProvider.Get();
+        if (get(s) == value) return;
+        set(s, value);
+        _cvarProvider.Update(s);
+        OnPropertyChanged(propertyName);
+        PushCvar?.Invoke(cvar, value ? "1" : "0");
     }
 }
