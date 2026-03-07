@@ -13,10 +13,21 @@ public sealed partial class ChatMessageView : ObservableObject
     public string AuthorName { get; }
     public string AuthorSteamId { get; }
     public string Initials { get; }
-    public bool ShowHeader { get; }
-    public Thickness GroupMargin => ShowHeader ? new Thickness(0, 6, 0, 0) : default;
     public string TimeText { get; }
-    public string? AvatarUrl { get; }
+    /// <summary>Raw ISO timestamp — used for grouping re-computation after deletion.</summary>
+    public string CreatedAt { get; }
+    /// <summary>Avatar URL always stored (even for inline messages) so deletion can promote a successor.</summary>
+    public string? AuthorAvatarUrl { get; }
+
+    [ObservableProperty]
+    private bool _showHeader;
+
+    [ObservableProperty]
+    private string? _avatarUrl;
+
+    public Thickness GroupMargin => ShowHeader ? new Thickness(0, 6, 0, 0) : default;
+
+    partial void OnShowHeaderChanged(bool value) => OnPropertyChanged(nameof(GroupMargin));
 
     [ObservableProperty]
     private IReadOnlyList<RichSegment> _richContent;
@@ -29,16 +40,19 @@ public sealed partial class ChatMessageView : ObservableObject
         string authorSteamId,
         bool showHeader,
         string timeText,
-        string? avatarUrl = null)
+        string createdAt,
+        string? authorAvatarUrl = null)
     {
         MessageId = messageId;
         _content = content;
         _richContent = richContent;
         AuthorName = authorName;
         AuthorSteamId = authorSteamId;
-        ShowHeader = showHeader;
+        _showHeader = showHeader;
         TimeText = timeText;
-        AvatarUrl = avatarUrl;
+        CreatedAt = createdAt;
+        AuthorAvatarUrl = authorAvatarUrl;
+        _avatarUrl = showHeader ? authorAvatarUrl : null;
         Initials = ComputeInitials(authorName);
     }
 

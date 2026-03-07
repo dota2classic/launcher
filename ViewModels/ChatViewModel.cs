@@ -11,6 +11,7 @@ using CommunityToolkit.Mvvm.Input;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
 using d2c_launcher.Util;
+using static d2c_launcher.Util.ChatGrouper;
 
 namespace d2c_launcher.ViewModels;
 
@@ -144,8 +145,24 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
             if (msg.Deleted)
             {
                 var existing = Messages.FirstOrDefault(m => m.MessageId == msg.MessageId);
-                if (existing != null)
-                    Messages.Remove(existing);
+                if (existing == null) return;
+
+                var idx = Messages.IndexOf(existing);
+                var wasHeader = existing.ShowHeader;
+                Messages.Remove(existing);
+
+                var recomputeAt = ChatGrouper.GetIndexToRecompute(idx, wasHeader, Messages.Count);
+                if (recomputeAt >= 0)
+                {
+                    var next = Messages[recomputeAt];
+                    var prev = recomputeAt > 0 ? Messages[recomputeAt - 1] : null;
+                    var shouldBeHeader = ChatGrouper.ShouldShowHeader(
+                        prev == null ? null : new ChatEntry(prev.AuthorSteamId, prev.CreatedAt),
+                        new ChatEntry(next.AuthorSteamId, next.CreatedAt));
+                    next.ShowHeader = shouldBeHeader;
+                    if (shouldBeHeader)
+                        next.AvatarUrl = next.AuthorAvatarUrl;
+                }
                 return;
             }
 
@@ -158,10 +175,9 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 return;
             }
 
-            var showHeader = _lastMessageRaw == null
-                || _lastMessageRaw.Value.AuthorSteamId != msg.AuthorSteamId
-                || Math.Abs((ParseDate(msg.CreatedAt) - ParseDate(_lastMessageRaw.Value.CreatedAt)).TotalSeconds)
-                   > MergeWindowSeconds;
+            var prevEntry = _lastMessageRaw == null ? null
+                : new ChatEntry(_lastMessageRaw.Value.AuthorSteamId, _lastMessageRaw.Value.CreatedAt);
+            var showHeader = ChatGrouper.ShouldShowHeader(prevEntry, new ChatEntry(msg.AuthorSteamId, msg.CreatedAt));
 
             var richContent = RichMessageParser.Parse(msg.Content, _emoticonImages, _userNameCache);
             ScheduleUserLoads(richContent);
@@ -173,7 +189,8 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 msg.AuthorSteamId,
                 showHeader,
                 FormatTime(ParseDate(msg.CreatedAt)),
-                showHeader ? msg.AuthorAvatarUrl : null);
+                msg.CreatedAt,
+                msg.AuthorAvatarUrl);
 
             Messages.Add(view);
             _lastMessageRaw = (msg.AuthorSteamId, msg.CreatedAt);
@@ -266,10 +283,8 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
             var msg = sorted[i];
             var prev = i > 0 ? sorted[i - 1] : null;
 
-            var showHeader = prev == null
-                || prev.AuthorSteamId != msg.AuthorSteamId
-                || Math.Abs((ParseDate(msg.CreatedAt) - ParseDate(prev.CreatedAt)).TotalSeconds)
-                   > MergeWindowSeconds;
+            var prevEntry = prev == null ? null : new ChatEntry(prev.AuthorSteamId, prev.CreatedAt);
+            var showHeader = ChatGrouper.ShouldShowHeader(prevEntry, new ChatEntry(msg.AuthorSteamId, msg.CreatedAt));
 
             var richContent = RichMessageParser.Parse(msg.Content, _emoticonImages, _userNameCache);
             ScheduleUserLoads(richContent);
@@ -281,7 +296,8 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 msg.AuthorSteamId,
                 showHeader,
                 FormatTime(ParseDate(msg.CreatedAt)),
-                showHeader ? msg.AuthorAvatarUrl : null));
+                msg.CreatedAt,
+                msg.AuthorAvatarUrl));
         }
 
         // Remember last message so ConsumeIncomingMessage can compute headers for SSE events.
