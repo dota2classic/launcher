@@ -47,6 +47,9 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
     [ObservableProperty]
     private string _queueButtonTimeText = "";
 
+    [ObservableProperty]
+    private string _onlineStatsText = "";
+
     /// <summary>Blue when game ready, green when searching, dark gray when idle.</summary>
     public IBrush QueueButtonBackground => _hasServerUrl ? BrushReady
         : IsSearching ? BrushSearching : BrushIdle;

@@ -2,6 +2,14 @@
 
 ## Current Focus
 
+**Issue #32: Show online player count**
+
+Added `TextBlock` bound to `OnlineStatsText` below the `QueueButton` in [Views/MainLauncherView.axaml](Views/MainLauncherView.axaml). The ViewModel already had full logic: `OnlineInGame` polled from `/v1/stats/online` every 5s, `OnlineSessions` from the `ONLINE_UPDATE` websocket event (length of `online` array), combined into `OnlineStatsText` = "X в игре, Y на сайте". Only the XAML binding was missing.
+
+---
+
+## Previous Focus
+
 **Issue #17: Emoticons render as static images, not as GIFs**
 
 Root cause: emoticons downloaded with `new Bitmap(stream)` which decodes only the first frame.

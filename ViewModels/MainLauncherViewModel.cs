@@ -153,6 +153,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         {
             OnlineSessions = msg.Online?.Length ?? 0;
             OnPropertyChanged(nameof(OnlineStatsText));
+            Queue.OnlineStatsText = OnlineStatsText;
         });
 
         // в игре: polled from API every 5 seconds
@@ -302,6 +303,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         var (inGame, _) = await _backendApiService.GetOnlineStatsAsync();
         OnlineInGame = inGame;
         OnPropertyChanged(nameof(OnlineStatsText));
+        Queue.OnlineStatsText = OnlineStatsText;
     }
 
     private void PersistBackendToken(string? token)
