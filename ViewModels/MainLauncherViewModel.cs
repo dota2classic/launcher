@@ -112,7 +112,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Settings = new SettingsViewModel(launchSettingsStorage, cvarProvider, settingsStorage, videoProvider, registryService);
         Settings.PushCvar = PushCvarIfGameRunning;
         Settings.OnDlcChanged = removedIds => OnDlcChanged?.Invoke(removedIds);
-        Chat = new ChatViewModel(backendApiService, imageService);
+        Chat = new ChatViewModel(backendApiService, imageService, queueSocketService);
         Chat.GetBackendToken = () => BackendAccessToken;
         _ = Chat.StartAsync();
 

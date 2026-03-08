@@ -100,7 +100,7 @@ public static class PreviewRegistry
             ["ChatPanel"] = () =>
             {
                 var stub = new StubBackendApiService();
-                var vm = new ChatViewModel(stub, new StubHttpImageService());
+                var vm = new ChatViewModel(stub, new StubHttpImageService(), new StubQueueSocketService());
                 vm.GetBackendToken = () => "stub-token";
                 _ = vm.StartAsync();
                 var host = new Avalonia.Controls.Panel

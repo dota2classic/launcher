@@ -31,6 +31,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     private CancellationTokenSource? _sseCts;
     // Tracks the last appended message for SSE header-grouping decisions.
     private (string AuthorSteamId, string CreatedAt)? _lastMessageRaw;
+    private HashSet<string> _onlineUsers = new(StringComparer.Ordinal);
 
     public Func<string?> GetBackendToken { get; set; } = () => null;
 
@@ -42,10 +43,19 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
     public event Action? MessagesUpdated;
 
-    public ChatViewModel(IBackendApiService backendApiService, IHttpImageService imageService)
+    public ChatViewModel(IBackendApiService backendApiService, IHttpImageService imageService, IQueueSocketService queueSocketService)
     {
         _backendApiService = backendApiService;
         _imageService = imageService;
+        queueSocketService.OnlineUpdated += msg => Dispatcher.UIThread.Post(() => UpdateOnlineUsers(msg));
+    }
+
+    private void UpdateOnlineUsers(OnlineUpdateMessage msg)
+    {
+        _onlineUsers = msg.Online?.ToHashSet(StringComparer.Ordinal) ?? new HashSet<string>(StringComparer.Ordinal);
+        foreach (var m in Messages)
+            if (m.ShowHeader)
+                m.IsOnline = _onlineUsers.Contains(m.AuthorSteamId);
     }
 
     /// <summary>Loads initial messages then starts the SSE live-update stream.</summary>
@@ -161,7 +171,10 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                         new ChatEntry(next.AuthorSteamId, next.CreatedAt));
                     next.ShowHeader = shouldBeHeader;
                     if (shouldBeHeader)
+                    {
                         next.AvatarUrl = next.AuthorAvatarUrl;
+                        next.IsOnline = _onlineUsers.Contains(next.AuthorSteamId);
+                    }
                 }
                 return;
             }
@@ -192,6 +205,8 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 msg.CreatedAt,
                 msg.AuthorAvatarUrl);
 
+            if (showHeader)
+                view.IsOnline = _onlineUsers.Contains(msg.AuthorSteamId);
             Messages.Add(view);
             _lastMessageRaw = (msg.AuthorSteamId, msg.CreatedAt);
             MessagesUpdated?.Invoke();
@@ -288,7 +303,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
             var richContent = RichMessageParser.Parse(msg.Content, _emoticonImages, _userNameCache);
             ScheduleUserLoads(richContent);
-            result.Add(new ChatMessageView(
+            var view = new ChatMessageView(
                 msg.MessageId,
                 msg.Content,
                 richContent,
@@ -297,7 +312,10 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 showHeader,
                 FormatTime(ParseDate(msg.CreatedAt)),
                 msg.CreatedAt,
-                msg.AuthorAvatarUrl));
+                msg.AuthorAvatarUrl);
+            if (showHeader)
+                view.IsOnline = _onlineUsers.Contains(msg.AuthorSteamId);
+            result.Add(view);
         }
 
         // Remember last message so ConsumeIncomingMessage can compute headers for SSE events.

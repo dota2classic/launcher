@@ -208,6 +208,8 @@ public partial class PartyViewModel : ViewModelBase, IDisposable
             Dispatcher.UIThread.Post(() =>
             {
                 InviteCandidates = new ObservableCollection<InviteCandidateView>(results);
+                foreach (var c in InviteCandidates)
+                    c.IsOnline = _onlineUsers.Contains(c.SteamId);
             });
         }
         catch (Exception ex)

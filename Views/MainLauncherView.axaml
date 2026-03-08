@@ -97,27 +97,7 @@
                                                        Background="Transparent" BorderThickness="0" Padding="0"
                                                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                                                    <Border Padding="8" BorderBrush="#242c34" BorderThickness="0,0,0,1">
-                                                       <StackPanel Orientation="Horizontal" Spacing="10">
-                                                           <Grid Width="40" Height="40">
-                                                               <Panel Width="36" Height="36"
-                                                                      HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                                   <Ellipse Width="36" Height="36" Fill="#242c34"/>
-                                                                   <TextBlock Text="{Binding Initials}" HorizontalAlignment="Center"
-                                                                              VerticalAlignment="Center" FontSize="12"/>
-                                                                   <Ellipse Width="36" Height="36">
-                                                                       <Ellipse.Fill>
-                                                                           <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding AvatarUrl}" Stretch="UniformToFill"/>
-                                                                       </Ellipse.Fill>
-                                                                   </Ellipse>
-                                                               </Panel>
-                                                               <Ellipse Width="10" Height="10" Fill="#44D46F"
-                                                                        IsVisible="{Binding IsOnline}"
-                                                                        HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                                                                        Margin="0,0,2,2"/>
-                                                           </Grid>
-                                                           <TextBlock Text="{Binding Name}" VerticalAlignment="Center"
-                                                                      TextTrimming="CharacterEllipsis"/>
-                                                       </StackPanel>
+                                                       <components:PlayerPreviewControl/>
                                                    </Border>
                                                </Button>
                                            </DataTemplate>

@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:m="using:d2c_launcher.Models"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             x:Class="d2c_launcher.Views.Components.PlayerPreviewControl"
+             x:DataType="m:InviteCandidateView">
+
+    <StackPanel Orientation="Horizontal" Spacing="10">
+        <!-- Avatar + online dot -->
+        <Grid Width="40" Height="40">
+            <Panel Width="36" Height="36"
+                   HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Ellipse Width="36" Height="36" Fill="#242c34"/>
+                <TextBlock Text="{Binding Initials}" HorizontalAlignment="Center"
+                           VerticalAlignment="Center" FontSize="12"/>
+                <Ellipse Width="36" Height="36">
+                    <Ellipse.Fill>
+                        <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding AvatarUrl}" Stretch="UniformToFill"/>
+                    </Ellipse.Fill>
+                </Ellipse>
+            </Panel>
+            <!-- Online indicator dot (20% of 36px avatar, 2px outline) -->
+            <Grid Width="11" Height="11"
+                  IsVisible="{Binding IsOnline}"
+                  HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                  Margin="0,0,-1,-1">
+                <Ellipse Width="11" Height="11" Fill="#1c2024"/>
+                <Ellipse Width="7" Height="7" Fill="#22ce22"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+        </Grid>
+        <!-- Name -->
+        <TextBlock Text="{Binding Name}" VerticalAlignment="Center"
+                   TextTrimming="CharacterEllipsis"/>
+    </StackPanel>
+
+</UserControl>

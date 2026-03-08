@@ -23,6 +23,9 @@ public sealed partial class ChatMessageView : ObservableObject
     private bool _showHeader;
 
     [ObservableProperty]
+    private bool _isOnline;
+
+    [ObservableProperty]
     private string? _avatarUrl;
 
     public Thickness GroupMargin => ShowHeader ? new Thickness(0, 6, 0, 0) : default;
