@@ -168,6 +168,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         if (string.IsNullOrEmpty(url))
             return;
 
+        d2c_launcher.Services.FaroTelemetryService.TrackEvent("connect_pressed");
         AppLog.Info($"ConnectToGame: serverUrl={url}");
 
         if (RunState == GameRunState.OtherDotaRunning)

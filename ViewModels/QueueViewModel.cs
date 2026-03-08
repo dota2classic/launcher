@@ -27,6 +27,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
     private readonly DispatcherTimer _queueTimer;
     private DateTimeOffset? _enterQueueAt;
     private int _queuedModeCount;
+    private MatchmakingMode[]? _queuedModes;
     private bool _hasServerUrl;
 
     [ObservableProperty]
@@ -86,6 +87,18 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
     {
         if (IsSearching)
         {
+            var cancelModesStr = _queuedModes != null
+                ? string.Join(",", _queuedModes.Select(m => ((int)m).ToString()))
+                : "";
+            var durationSec = _enterQueueAt.HasValue
+                ? (long)DateTimeOffset.UtcNow.Subtract(_enterQueueAt.Value.UtcDateTime).TotalSeconds
+                : 0L;
+            d2c_launcher.Services.FaroTelemetryService.TrackEvent("cancel_queue",
+                new Dictionary<string, string>
+                {
+                    ["modes"] = cancelModesStr,
+                    ["duration_sec"] = durationSec.ToString(),
+                });
             await _queueSocketService.LeaveAllQueuesAsync();
             return;
         }
@@ -97,6 +110,9 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
             return;
 
         await _queueSocketService.EnterQueueAsync(selected);
+        var modesStr = string.Join(",", selected.Select(m => ((int)m).ToString()));
+        d2c_launcher.Services.FaroTelemetryService.TrackEvent("queue_entered",
+            new System.Collections.Generic.Dictionary<string, string> { ["modes"] = modesStr });
     }
 
     public async Task RefreshMatchmakingModesAsync()
@@ -143,6 +159,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
     {
         if (msg.InQueue)
         {
+            _queuedModes = msg.Modes;
             _queuedModeCount = msg.Modes?.Length ?? 0;
             var names = MatchmakingModes
                 .Where(m => msg.Modes!.Any(x => (int)x == m.ModeId))
@@ -154,6 +171,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         }
         else
         {
+            _queuedModes = null;
             _queuedModeCount = 0;
             SearchingModesText = "Не в поиске";
         }

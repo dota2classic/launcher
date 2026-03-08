@@ -190,6 +190,7 @@ public partial class RoomViewModel : ViewModelBase
         {
             await _queueSocketService.SetReadyCheckAsync(CurrentRoomId, true);
             AppLog.Info($"Accepted game for room: {CurrentRoomId}");
+            d2c_launcher.Services.FaroTelemetryService.TrackEvent("game_accepted");
         }
         catch (Exception ex)
         {
@@ -211,6 +212,7 @@ public partial class RoomViewModel : ViewModelBase
         {
             await _queueSocketService.SetReadyCheckAsync(CurrentRoomId, false);
             AppLog.Info($"Declined game for room: {CurrentRoomId}");
+            d2c_launcher.Services.FaroTelemetryService.TrackEvent("game_declined");
             ClearRoomState();
         }
         catch (Exception ex)

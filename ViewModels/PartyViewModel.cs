@@ -150,6 +150,7 @@ public partial class PartyViewModel : ViewModelBase, IDisposable
         {
             await _queueSocketService.InviteToPartyAsync(steamId);
             AppLog.Info($"Invite sent for steamId: {steamId}");
+            d2c_launcher.Services.FaroTelemetryService.TrackEvent("party_invite_sent");
         }
         catch (Exception ex)
         {

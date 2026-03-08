@@ -63,6 +63,8 @@ public partial class PartyInviteNotificationViewModel : ViewModelBase
     {
         _timer.Stop();
         try { await _respond(_inviteId, accept).ConfigureAwait(false); } catch { }
+        if (accept)
+            d2c_launcher.Services.FaroTelemetryService.TrackEvent("party_invite_accepted");
         Dispatcher.UIThread.Post(() => Closed?.Invoke(this));
     }
 }
