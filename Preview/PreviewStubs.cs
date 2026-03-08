@@ -91,6 +91,12 @@ internal sealed class StubBackendApiService : IBackendApiService
     }
 }
 
+internal sealed class StubEmoticonService : IEmoticonService
+{
+    public Task<Dictionary<string, byte[]>> GetEmoticonImagesAsync()
+        => Task.FromResult(new Dictionary<string, byte[]>());
+}
+
 internal sealed class StubHttpImageService : IHttpImageService
 {
     public Task<byte[]?> LoadBytesAsync(string? url, CancellationToken cancellationToken = default)

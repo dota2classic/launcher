@@ -23,6 +23,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
     private readonly IBackendApiService _backendApiService;
     private readonly IHttpImageService _imageService;
+    private readonly IEmoticonService _emoticonService;
     // Emoticon GIF bytes keyed by code (populated once at startup).
     private Dictionary<string, byte[]> _emoticonImages = new(StringComparer.Ordinal);
     // User name cache: steamId → resolved name (null = fetch in-flight).
@@ -43,10 +44,11 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
     public event Action? MessagesUpdated;
 
-    public ChatViewModel(IBackendApiService backendApiService, IHttpImageService imageService, IQueueSocketService queueSocketService)
+    public ChatViewModel(IBackendApiService backendApiService, IHttpImageService imageService, IEmoticonService emoticonService, IQueueSocketService queueSocketService)
     {
         _backendApiService = backendApiService;
         _imageService = imageService;
+        _emoticonService = emoticonService;
         queueSocketService.OnlineUpdated += msg => Dispatcher.UIThread.Post(() => UpdateOnlineUsers(msg));
     }
 
@@ -73,24 +75,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     {
         try
         {
-            var list = await _backendApiService.GetEmoticonsAsync().ConfigureAwait(false);
-
-            // Download all emoticon GIF bytes in parallel.
-            var tasks = list.Select(async e =>
-            {
-                var bytes = await _imageService.LoadBytesAsync(e.Src).ConfigureAwait(false);
-                return (e.Code, bytes);
-            });
-            var results = await Task.WhenAll(tasks).ConfigureAwait(false);
-
-            var images = new Dictionary<string, byte[]>(results.Length, StringComparer.Ordinal);
-            foreach (var (code, bytes) in results)
-            {
-                if (bytes != null)
-                    images[code] = bytes;
-            }
-            _emoticonImages = images;
-            AppLog.Info($"Chat: loaded {images.Count} emoticon images.");
+            _emoticonImages = await _emoticonService.GetEmoticonImagesAsync().ConfigureAwait(false);
 
             // Re-parse any messages that were rendered before emoticons finished loading.
             Dispatcher.UIThread.Post(ReparseAllMessages);

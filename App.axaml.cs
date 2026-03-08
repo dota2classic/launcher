@@ -56,6 +56,7 @@ public partial class App : Application
             services.AddSingleton<ISteamAuthApi, SteamAuthApi>();
             services.AddSingleton<IBackendApiService, BackendApiService>();
             services.AddSingleton<IHttpImageService, HttpImageService>();
+            services.AddSingleton<IEmoticonService, EmoticonService>();
             services.AddSingleton<IQueueSocketService, QueueSocketService>();
             services.AddSingleton<UpdateService>();
             services.AddSingleton<ILocalManifestService, LocalManifestService>();

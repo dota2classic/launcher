@@ -19,6 +19,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly ISteamAuthApi _steamAuthApi;
     private readonly IBackendApiService _backendApiService;
     private readonly IHttpImageService _imageService;
+    private readonly IEmoticonService _emoticonService;
     private readonly IQueueSocketService _queueSocketService;
     private readonly ICvarSettingsProvider _cvarProvider;
     private readonly IVideoSettingsProvider _videoProvider;
@@ -50,6 +51,7 @@ public partial class MainWindowViewModel : ViewModelBase
         ISteamAuthApi steamAuthApi,
         IBackendApiService backendApiService,
         IHttpImageService imageService,
+        IEmoticonService emoticonService,
         IQueueSocketService queueSocketService,
         ICvarSettingsProvider cvarProvider,
         IVideoSettingsProvider videoProvider,
@@ -66,6 +68,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _steamAuthApi = steamAuthApi;
         _backendApiService = backendApiService;
         _imageService = imageService;
+        _emoticonService = emoticonService;
         _queueSocketService = queueSocketService;
         _cvarProvider = cvarProvider;
         _videoProvider = videoProvider;
@@ -243,7 +246,7 @@ public partial class MainWindowViewModel : ViewModelBase
         DisposeCurrentVm();
         var vm = new MainLauncherViewModel(
             _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider, _videoProvider,
-            _steamAuthApi, _backendApiService, _imageService, _queueSocketService, _registryService);
+            _steamAuthApi, _backendApiService, _imageService, _emoticonService, _queueSocketService, _registryService);
         vm.OnGameDirectoryChanged = _ => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirChanged(AppState)));
         vm.OnDlcChanged = removedIds => Dispatcher.UIThread.Post(() =>
         {

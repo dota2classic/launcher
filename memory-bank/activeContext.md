@@ -2,6 +2,29 @@
 
 ## Current Focus
 
+**Issue #33: Cache emoticons**
+
+Introduced `IEmoticonService` / `EmoticonService` — a dedicated service that owns emoticon lifecycle:
+- Cache dir: `%LocalAppData%\d2c-launcher\emoticons\`
+- Each emoticon stored as `{code}.gif` + `{code}.gif.meta` (JSON with `CachedAt` timestamp)
+- TTL: 24 hours — stale entries are re-downloaded on next startup
+- Cleanup: emoticons no longer in the server list are deleted from disk
+- `ChatViewModel` now injects `IEmoticonService`; `LoadEmoticonsAsync` is a single `await _emoticonService.GetEmoticonImagesAsync()` call
+
+Files changed:
+- `Services/IEmoticonService.cs` — new interface
+- `Services/EmoticonService.cs` — new implementation (cache + TTL + cleanup)
+- `App.axaml.cs` — registered `IEmoticonService → EmoticonService` as singleton
+- `ViewModels/ChatViewModel.cs` — inject `IEmoticonService`, simplified `LoadEmoticonsAsync`
+- `ViewModels/MainLauncherViewModel.cs` — added `IEmoticonService` param, stores field, passes to `ChatViewModel`
+- `ViewModels/MainWindowViewModel.cs` — added `IEmoticonService` param, stores field, passes to `MainLauncherViewModel`
+- `Preview/PreviewStubs.cs` — added `StubEmoticonService`
+- `Preview/PreviewRegistry.cs` — passes `StubEmoticonService` to `ChatViewModel`
+
+---
+
+## Previous Focus
+
 **Issue #20: Embed images in chat**
 
 Image URLs in chat messages now render as embedded images instead of clickable text links.
