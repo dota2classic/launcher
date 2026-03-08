@@ -2,6 +2,18 @@
 
 ## Current Focus
 
+**Issue #24: message_updated event doesn't update rendered messages**
+
+`ConsumeIncomingMessage` was skipping SSE messages whose `MessageId` already existed in `Messages`. Fixed by updating the existing entry's `Content` and `RichContent` instead of returning early. Also made `Content` an `[ObservableProperty]` in `ChatMessageView` so bindings react to the change.
+
+Files changed:
+- `Models/ChatMessageView.cs` — `Content` changed from `{ get; }` to `[ObservableProperty]`
+- `ViewModels/ChatViewModel.cs` — `ConsumeIncomingMessage` now updates existing message instead of skipping
+
+---
+
+## Previous Focus
+
 **Issue #32: Show online player count**
 
 Added `TextBlock` bound to `OnlineStatsText` below the `QueueButton` in [Views/MainLauncherView.axaml](Views/MainLauncherView.axaml). The ViewModel already had full logic: `OnlineInGame` polled from `/v1/stats/online` every 5s, `OnlineSessions` from the `ONLINE_UPDATE` websocket event (length of `online` array), combined into `OnlineStatsText` = "X в игре, Y на сайте". Only the XAML binding was missing.

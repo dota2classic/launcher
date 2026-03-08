@@ -24,12 +24,14 @@ internal static class Program
         {
             if (!SteamAPI.IsSteamRunning())
             {
+                Log("info", "Steam is not running.");
                 WriteSnapshot(new Snapshot("NotRunning"));
                 return 0;
             }
 
             if (!SteamAPI.Init())
             {
+                Log("error", "SteamAPI.Init() failed — Steam is running but init returned false.");
                 WriteSnapshot(new Snapshot("InitFailed"));
                 return 0;
             }
@@ -40,6 +42,7 @@ internal static class Program
                 SteamAPI.RunCallbacks();
                 if (!SteamUser.BLoggedOn())
                 {
+                    Log("info", "Steam is running but the user is not logged in.");
                     WriteSnapshot(new Snapshot("NotLoggedIn"));
                     return 0;
                 }
@@ -51,8 +54,14 @@ internal static class Program
 
                 // Get ticket and immediately exchange it with the backend while SteamAPI is still running.
                 var ticketHex = TryGetAuthTicket();
-                var backendToken = ticketHex != null ? ExchangeForBackendToken(ticketHex) : null;
+                if (ticketHex == null)
+                    Log("warn", "Auth ticket request failed or timed out — backend token will be null.");
 
+                var backendToken = ticketHex != null ? ExchangeForBackendToken(ticketHex) : null;
+                if (ticketHex != null && backendToken == null)
+                    Log("warn", "Backend token exchange failed — API call returned null.");
+
+                Log("info", $"Snapshot ready: status=Running, steamId={steamId}, hasToken={backendToken != null}.");
                 WriteSnapshot(new Snapshot("Running", steamId, personaName, avatarRgba, avatarWidth, avatarHeight, backendToken));
                 return 0;
             }
@@ -61,8 +70,9 @@ internal static class Program
                 SteamAPI.Shutdown();
             }
         }
-        catch
+        catch (Exception ex)
         {
+            Log("error", $"Unhandled exception: {ex.GetType().Name}: {ex.Message}");
             WriteSnapshot(new Snapshot("Offline"));
             return 0;
         }
@@ -77,17 +87,24 @@ internal static class Program
             using var request = new HttpRequestMessage(HttpMethod.Post, url);
             using var response = http.Send(request);
             if (!response.IsSuccessStatusCode)
+            {
+                Log("warn", $"Backend token exchange HTTP error: {(int)response.StatusCode} {response.StatusCode}.");
                 return null;
+            }
 
             var body = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
             if (string.IsNullOrWhiteSpace(body))
+            {
+                Log("warn", "Backend token exchange returned empty body.");
                 return null;
+            }
 
             try { return JsonSerializer.Deserialize<string>(body); }
             catch { return body.Trim().Trim('"'); }
         }
-        catch
+        catch (Exception ex)
         {
+            Log("error", $"Backend token exchange threw: {ex.GetType().Name}: {ex.Message}");
             return null;
         }
     }
@@ -198,6 +215,15 @@ internal static class Program
     private static void WriteSnapshot(Snapshot snapshot)
     {
         Console.WriteLine(JsonSerializer.Serialize(snapshot, SnapshotJsonContext.Default.Snapshot));
+    }
+
+    /// <summary>
+    /// Writes a structured log line to stderr. The main process reads bridge stderr
+    /// and forwards it to AppLog (and thus to Faro). Format: [LEVEL] message
+    /// </summary>
+    private static void Log(string level, string message)
+    {
+        Console.Error.WriteLine($"[{level.ToUpperInvariant()}] {message}");
     }
 
 }

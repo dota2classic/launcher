@@ -95,10 +95,15 @@ public class SteamManager : IDisposable
                     }
                     else
                     {
-                        // Bridge failed — log the status code for diagnosis and apply backoff.
+                        // Bridge returned no user — may be a normal transient state or a real error.
                         _bridgeFailStreak++;
                         var bridgeStatus = snapshot?.Status ?? "null";
-                        AppLog.Error($"[SteamManager] Bridge returned no user info (status={bridgeStatus}, streak={_bridgeFailStreak}).");
+                        // NotRunning / NotLoggedIn are expected states, not errors.
+                        var isExpected = bridgeStatus is "NotRunning" or "NotLoggedIn";
+                        if (isExpected)
+                            AppLog.Info($"[SteamManager] Bridge returned no user info (status={bridgeStatus}, streak={_bridgeFailStreak}).");
+                        else
+                            AppLog.Error($"[SteamManager] Bridge returned no user info (status={bridgeStatus}, streak={_bridgeFailStreak}).");
                         SetUser(null);
                         SetAuthTicket(null);
 
@@ -227,7 +232,7 @@ public class SteamManager : IDisposable
         var output = await outputTask;
         var stderr = await stderrTask;
         if (!string.IsNullOrWhiteSpace(stderr))
-            AppLog.Info($"[SteamManager] Bridge stderr: {stderr.Trim()}");
+            ForwardBridgeLogs(stderr);
 
         AppLog.Info($"[SteamManager] Bridge stdout: {(output.Length > 200 ? output[..200] + "..." : output)}");
 
@@ -245,6 +250,28 @@ public class SteamManager : IDisposable
         {
             AppLog.Error("[SteamManager] Failed to parse bridge output.", ex);
             return null;
+        }
+    }
+
+    /// <summary>
+    /// Forwards bridge stderr lines to AppLog, respecting the [LEVEL] prefix written by bridge.
+    /// Lines without a recognised prefix are treated as info.
+    /// </summary>
+    private static void ForwardBridgeLogs(string stderr)
+    {
+        foreach (var rawLine in stderr.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            var line = rawLine.TrimEnd('\r');
+            if (string.IsNullOrEmpty(line)) continue;
+
+            if (line.StartsWith("[ERROR]", StringComparison.OrdinalIgnoreCase))
+                AppLog.Error($"[Bridge] {line["[ERROR]".Length..].TrimStart()}");
+            else if (line.StartsWith("[WARN]", StringComparison.OrdinalIgnoreCase))
+                AppLog.Info($"[Bridge] [WARN] {line["[WARN]".Length..].TrimStart()}");
+            else if (line.StartsWith("[INFO]", StringComparison.OrdinalIgnoreCase))
+                AppLog.Info($"[Bridge] {line["[INFO]".Length..].TrimStart()}");
+            else
+                AppLog.Info($"[Bridge] {line}");
         }
     }
 
