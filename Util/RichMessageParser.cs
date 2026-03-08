@@ -24,6 +24,9 @@ public static class RichMessageParser
     private static readonly Regex s_playerLink = new(
         @"https://dotaclassic\.ru/players/(\d+)",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex s_imageUrl  = new(
+        @"https?://[^\s]+\.(?:jpg|jpeg|png|gif|webp|bmp)(?:\?[^\s]*)?",
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
     private static readonly Regex s_url      = new(@"https?://[^\s]+", RegexOptions.Compiled);
 
     public static IReadOnlyList<RichSegment> Parse(
@@ -64,6 +67,9 @@ public static class RichMessageParser
                 : "Загрузка...";
             return new PlayerLinkSegment(steamId, m.Value, displayName);
         });
+
+        // Apply image URL rule (before generic URL rule)
+        ApplyRule(tokens, s_imageUrl, m => new ImageSegment(m.Value));
 
         // Apply URL rule
         ApplyRule(tokens, s_url, m => new UrlSegment(m.Value));

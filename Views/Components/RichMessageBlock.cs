@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Threading;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Input;
@@ -19,6 +22,8 @@ namespace d2c_launcher.Views.Components;
 /// </summary>
 public class RichMessageBlock : UserControl
 {
+    private static readonly HttpClient s_http = new();
+
     private readonly TextBlock _textBlock;
     // Maps character ranges to URLs for click detection.
     private readonly List<(int Start, int End, string Url)> _urlRanges = new();
@@ -143,6 +148,18 @@ public class RichMessageBlock : UserControl
                     charPos += pls.DisplayName.Length;
                     break;
 
+                case ImageSegment img:
+                    var imageCtrl = new Image
+                    {
+                        Height = 150,
+                        Stretch = Stretch.Uniform,
+                        Margin = new Thickness(0, 4, 0, 4)
+                    };
+                    _textBlock.Inlines.Add(new InlineUIContainer(imageCtrl));
+                    charPos += 1;
+                    LoadImageAsync(img.Url, imageCtrl);
+                    break;
+
                 case UrlSegment us:
                     var start = charPos;
                     _textBlock.Inlines.Add(new Run(us.Url)
@@ -154,6 +171,17 @@ public class RichMessageBlock : UserControl
                     break;
             }
         }
+    }
+
+    private static async void LoadImageAsync(string url, Image target)
+    {
+        try
+        {
+            var bytes = await s_http.GetByteArrayAsync(url).ConfigureAwait(false);
+            var bitmap = new Avalonia.Media.Imaging.Bitmap(new MemoryStream(bytes));
+            Dispatcher.UIThread.Post(() => target.Source = bitmap);
+        }
+        catch { /* silently ignore failed image loads */ }
     }
 
     private static readonly Dictionary<string, IBrush> s_rarityBrushes =

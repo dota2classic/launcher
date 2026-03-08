@@ -38,7 +38,8 @@
 
                     <!-- Message list -->
                     <ItemsControl ItemsSource="{Binding Messages}"
-                                  IsVisible="{Binding IsLoading, Converter={x:Static BoolConverters.Not}}">
+                                  IsVisible="{Binding IsLoading, Converter={x:Static BoolConverters.Not}}"
+                                  Margin="0,0,0,8">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="m:ChatMessageView">
                                 <Border Padding="14,2" Margin="{Binding GroupMargin}">

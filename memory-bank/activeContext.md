@@ -2,6 +2,18 @@
 
 ## Current Focus
 
+**Issue #20: Embed images in chat**
+
+Image URLs in chat messages now render as embedded images instead of clickable text links.
+
+- `Models/RichSegment.cs` — Added `ImageSegment` with `Url` property
+- `Util/RichMessageParser.cs` — Added `s_imageUrl` regex (before generic `s_url` rule) matching `.jpg/.jpeg/.png/.gif/.webp/.bmp` URLs → `ImageSegment`
+- `Views/Components/RichMessageBlock.cs` — Added `ImageSegment` case: renders as `Image` (max 200×200) via `InlineUIContainer`; async-loads bytes with static `HttpClient`, dispatches bitmap to UI thread; silent fail on error
+
+---
+
+## Previous Focus
+
 **Issue #24: message_updated event doesn't update rendered messages**
 
 `ConsumeIncomingMessage` was skipping SSE messages whose `MessageId` already existed in `Messages`. Fixed by updating the existing entry's `Content` and `RichContent` instead of returning early. Also made `Content` an `[ObservableProperty]` in `ChatMessageView` so bindings react to the change.

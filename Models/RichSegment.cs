@@ -28,6 +28,12 @@ public sealed class EmoticonSegment : RichSegment
     public EmoticonSegment(string code, byte[]? bytes) { Code = code; Bytes = bytes; }
 }
 
+public sealed class ImageSegment : RichSegment
+{
+    public string Url { get; }
+    public ImageSegment(string url) => Url = url;
+}
+
 public sealed class PlayerLinkSegment : RichSegment
 {
     public string SteamId { get; }
