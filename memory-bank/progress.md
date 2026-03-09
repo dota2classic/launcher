@@ -74,20 +74,52 @@
 | Feature | Status | Notes |
 | ------- | ------ | ----- |
 | Chat panel UI | ✅ Done | `ChatPanel.axaml`, `ChatViewModel` |
-| Chat SSE live updates (issue #12) | ✅ Done | `SubscribeChatAsync` via `IAsyncEnumerable`; `_sseHttpClient` with `Timeout.InfiniteTimeSpan`; 3s reconnect backoff |
+| Chat SSE live updates (issue #12) | ✅ Done | `SubscribeChatAsync` via `IAsyncEnumerable`; 3s reconnect backoff |
 | Rich message rendering (issue #15) | ✅ Done | `RichMessageParser` + `RichMessageBlock`; emoticons, rarity tags, clickable URLs |
+| Embed images in chat (issue #20) | ✅ Done | `ImageSegment`; auto-renders `.jpg/.png/.gif/.webp` URLs as inline images (max 200×200) |
+| Message updates via SSE (issue #24) | ✅ Done | `message_updated` event updates existing message content in-place |
+| Emoticons as animated GIFs (issue #17) | ✅ Done | `Avalonia.Labs.Gif.GifImage`; `IHttpImageService`/`HttpImageService` |
+| Emoticon disk cache (issue #33) | ✅ Done | `IEmoticonService`/`EmoticonService`; `%LocalAppData%\d2c-launcher\emoticons\`; 24h TTL |
+| Chat scrolling | 🔲 Open | Issue #13 |
 
+### UI / UX
+
+| Feature | Status | Notes |
+| ------- | ------ | ----- |
+| Gamemode flags icons (issue #30) | ✅ Done | Proper icons for game modes in `GameSearchPanel` |
+| Online player count (issue #32) | ✅ Done | `OnlineStatsText` bound in `MainLauncherView`; "X в игре, Y на сайте" |
+| Consistent online indicator + `PlayerPreviewControl` | ✅ Done | Reusable control; unified across Party, Queue |
+| Panel header typography unification | ✅ Done | Chat, Party, Game Search headers unified |
+| Release notes in update banner | ✅ Done | `feat: display release notes in update banner` |
+| Matchmaking telemetry events to Faro | ✅ Done | `feat: add matchmaking telemetry events to Faro` |
+
+
+### Game Settings (cvars → config.cfg)
+
+| Setting | Cvar | Status |
+| ------- | ---- | ------ |
+| FPS cap | `fps_max` | ✅ Done |
+| Console enabled | `con_enable` | ✅ Done |
+| Disable camera zoom | `dota_camera_disable_zoom` | ✅ Done |
+| Force right click attack | `dota_force_right_click_attack` | ✅ Done |
+| Auto-repeat right mouse | `dota_player_auto_repeat_right_mouse` | ✅ Done (issue #21 under investigation) |
+| Camera reset on spawn | `dota_reset_camera_on_spawn` | ✅ Done |
+| Auto-attack mode | `dota_player_units_auto_attack` + `_after_spell` | ✅ Done |
+| Colorblind mode | (composite) | ✅ Done |
+| Camera distance (issue #19) | `dota_camera_distance` | ✅ Done; nullable, clamped [1000,1600] |
+| Quick cast | `dota_quick_select_setting` | ✅ Done |
+| Chat filter | `chat_filter_enabled` | ✅ Done |
 
 ### Testing
 
-
-| Area                  | Status |
-| --------------------- | ------ |
-| xUnit project setup   | ✅ Done |
-| `CfgGenerator` tests  | ✅ Done |
+| Area | Status |
+| ---- | ------ |
+| xUnit project setup | ✅ Done |
+| `CfgGenerator` tests | ✅ Done |
 | `DotaCfgReader` tests | ✅ Done |
-| `CvarMapping` tests   | ✅ Done |
-| CI test step          | ✅ Done |
+| `CvarMapping` tests | ✅ Done |
+| `DotaCfgWriter` tests (issue #0e31d40) | ✅ Done |
+| CI test step | ✅ Done |
 
 
 ### CI/CD
@@ -105,25 +137,41 @@
 
 ## Known Gaps / Backlog
 
+Open GitHub issues:
 
-| Item                 | Priority | Notes                                                           |
-| -------------------- | -------- | --------------------------------------------------------------- |
-| Keybind settings UI  | —        | `config.cfg` bind lines are parsed but not exposed in UI        |
-| Send HWID to backend | —        | HardwareInfoService in progress; backend endpoint may be needed |
-| Extra launch args UI | —        | `ExtraArgs` field exists in model, UI unknown                   |
-| Custom cfg lines UI  | —        | `CustomCfgLines` field exists, wired to `d2c_launch.cfg`        |
+| Issue | Title | Priority |
+| ----- | ----- | -------- |
+| #31 | Add proper localization | enhancement |
+| #23 | Add support for abandoning in launcher | — |
+| #22 | Steam not being detected | under investigation — root cause unknown |
+| #21 | Setting autorepeat doesn't work | under investigation — may not be a bug |
+| #18 | Parallelize local scan + remote manifest load | enhancement |
+| #13 | Support chat scrolling | — |
+| #8 | Research crash dump analysis | — |
+| #7 | Handling game crashes | — |
 
+Other known technical debt:
+
+| Item | Notes |
+| ---- | ----- |
+| Keybind settings UI | `config.cfg` bind lines parsed but not exposed in UI |
+| Send HWID to backend | `HardwareInfoService` logs HWID but doesn't send it |
+| Extra launch args UI | `ExtraArgs` field in model; no UI |
+| Custom cfg lines UI | `CustomCfgLines` wired to `d2c_launch.cfg`; no UI |
+| `QueueSocketService.Dispose()` blocks UI | `Task.Run+.Wait` up to 2s |
+| Chat thread ID hardcoded | `"17aa3530-d152-462e-a032-909ae69019ed"` in `ChatViewModel` |
 
 ---
 
 ## Architecture / Docs Status
 
-
-| Doc                                        | Status    |
-| ------------------------------------------ | --------- |
-| `docs/source-engine-launch.md`             | ✅ Written |
+| Doc | Status |
+| --- | ------ |
+| `docs/source-engine-launch.md` | ✅ Written |
 | `docs/source-engine-config-persistence.md` | ✅ Written |
-| `docs/settings-architecture.md`            | ✅ Written |
-| Memory bank (`memory-bank/`)               | ✅ Written |
+| `docs/settings-architecture.md` | ✅ Written |
+| `docs/game-update-manifest.md` | ✅ Written |
+| `docs/client-dll-patching.md` | ✅ Written — patching done server-side (CDN); enables `dota_camera_distance` cvar; released |
+| Memory bank (`memory-bank/`) | ✅ Written |
 
 

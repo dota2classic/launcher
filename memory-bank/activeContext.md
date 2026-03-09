@@ -2,6 +2,22 @@
 
 ## Current Focus
 
+**No active issue — all recent issues closed. See open issues list below.**
+
+Open issues (as of 2026-03-09):
+- #31 — Add proper localization (enhancement)
+- #23 — Add support for abandoning in launcher
+- #22 — Steam not being detected
+- #21 — Setting autorepeat doesn't work (bug)
+- #18 — Parallelize local file scan + remote manifest load
+- #13 — Support chat scrolling
+- #8 — Research crash dump analysis
+- #7 — Handling game crashes
+
+---
+
+## Previous Focus
+
 **Issue #19: Camera distance setting via cvar**
 
 Added `dota_camera_distance` as a configurable setting in the ГЕЙМПЛЕЙ settings tab.

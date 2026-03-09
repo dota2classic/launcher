@@ -2,13 +2,54 @@
 
 ## Overview
 
-The Dota 2 Classic backend serves a manifest file that describes every expected game file. The launcher uses this manifest to determine which files are missing or outdated and need to be downloaded.
+The CDN serves a **registry** of content packages. Each package has its own manifest listing expected files. The launcher fetches the registry, resolves which packages to use (required + user-selected optional), fetches their manifests, scans local files, diffs, and downloads anything missing or outdated.
 
-Manifest URL: `https://launcher.dotaclassic.ru/files/manifest.json`
+CDN base URL: `https://launcher.dotaclassic.ru/files/`
 
 ---
 
-## Manifest Format
+## Step 1 — Content Registry
+
+**URL:** `GET /files/registry.json`
+**Service:** `ContentRegistryService` / `IContentRegistryService` (singleton, in-memory cache, `Invalidate()` to bust)
+
+```json
+{
+  "packages": [
+    { "id": "core",    "folder": "core",    "name": "Dota 2 Classic", "optional": false },
+    { "id": "maps_ru", "folder": "maps_ru", "name": "Русские карты",  "optional": true  }
+  ]
+}
+```
+
+**C# model** (`Models/ContentRegistry.cs`):
+```csharp
+public class ContentPackage
+{
+    public string Id     { get; set; }   // unique identifier
+    public string Folder { get; set; }   // CDN subfolder; used to build URLs
+    public string Name   { get; set; }   // display name (Russian)
+    public bool   Optional { get; set; } // false = always downloaded
+}
+
+public class ContentRegistry
+{
+    public List<ContentPackage> Packages { get; set; }
+}
+```
+
+**Package selection:**
+- Required packages (`Optional == false`) are always included.
+- Optional packages are selected by the user; choices persisted in `LauncherSettings.SelectedDlcIds`.
+- Selection UI shown on first install (after folder pick in `SelectGameView`) and in the Launcher settings tab.
+
+---
+
+## Step 2 — Per-Package Manifest
+
+**URL:** `GET /files/{package.Folder}/manifest.json`
+
+One manifest per package. Format is identical across packages:
 
 ```json
 {
@@ -29,51 +70,42 @@ Manifest URL: `https://launcher.dotaclassic.ru/files/manifest.json`
 }
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
+| Field  | Type   | Description |
+|--------|--------|-------------|
 | `path` | string | Relative path within the game directory, forward-slash separated |
-| `hash` | string | MD5 hex digest (lowercase) of the file's content |
+| `hash` | string | MD5 hex digest (lowercase) |
 | `size` | number | File size in bytes |
 | `mode` | string | Sync mode: `"exact"` or `"existing"` |
 
 ### Sync Modes
 
-- **`exact`** — The file must exist AND its MD5 hash must match. Used for binaries, assets, and any file the server wants to control precisely. If the file is missing or its hash differs, it must be re-downloaded.
-- **`existing`** — The file only needs to exist; its content is not verified. Used for user-editable files such as configs and settings that the player may have modified locally. If the file is absent it will be downloaded (providing a default), but local modifications are preserved.
+- **`exact`** — File must exist and MD5 must match. Used for binaries and assets.
+- **`existing`** — File only needs to exist; content is not verified. Used for user-editable configs — if absent, the default is downloaded; local changes are preserved.
 
----
-
-## C# Model
-
+**C# model** (`Models/GameManifest.cs`):
 ```csharp
-// Models/GameManifest.cs
-public enum ManifestFileMode { Exact, Existing }
-
 public class GameManifestFile
 {
-    public string Path { get; set; }   // relative path, forward slashes
-    public string Hash { get; set; }   // lowercase MD5 hex
-    public long Size { get; set; }
-    public string Mode { get; set; }   // "exact" | "existing"
+    public string Path   { get; set; }
+    public string Hash   { get; set; }
+    public long   Size   { get; set; }
+    public string Mode   { get; set; }
 
-    [JsonIgnore]
-    public ManifestFileMode FileMode { get; }  // parsed from Mode
-}
-
-public class GameManifest
-{
-    public List<GameManifestFile> Files { get; set; }
+    [JsonIgnore] public ManifestFileMode FileMode { get; }  // parsed from Mode
+    [JsonIgnore] public string PackageFolder { get; set; }  // set at runtime from ContentPackage.Folder
+    [JsonIgnore] public string PackageName   { get; set; }  // set at runtime from ContentPackage.Name
 }
 ```
 
+`PackageFolder` is set when loading from the registry so the download service can construct the correct URL without needing to look up the package again.
+
 ---
 
-## LocalManifestService
+## Step 3 — Local Manifest Scan
 
-**File:** `Services/LocalManifestService.cs`
-**Interface:** `Services/ILocalManifestService.cs`
+**Service:** `LocalManifestService` / `ILocalManifestService`
 
-Scans the game directory and produces a `GameManifest` representing what is currently installed on disk.
+Scans the game directory and produces a `GameManifest` of installed files.
 
 ```csharp
 Task<GameManifest> BuildAsync(
@@ -82,28 +114,36 @@ Task<GameManifest> BuildAsync(
     CancellationToken ct = default);
 ```
 
-### How it works
+### Hash cache
 
-1. Enumerates all files recursively with `DirectoryInfo.GetFiles("*", SearchOption.AllDirectories)` (~30 000 files for a full install).
-2. For each file:
-   - Computes MD5 hash via `System.Security.Cryptography.MD5`; the computation is offloaded to the thread pool with `Task.Run` to keep the UI thread responsive.
-   - Records `FileInfo.Length` as the size.
-   - Normalizes the path to forward slashes with `Path.GetRelativePath` + `Replace('\\', '/')`.
-   - All local files are recorded with `mode = "exact"` since the local manifest just describes what exists.
-3. Reports `(done, total)` progress after each file.
+Hashing ~30 000 files is slow, especially on HDD. `LocalManifestCache` persists `(size, mtime_ticks, MD5)` per file to:
 
-### Performance note
+```
+%LocalAppData%\d2c-launcher\local_manifest_cache.json
+```
 
-Hashing 30 000 files is IO-bound. The service does not parallelize across files (to avoid overwhelming the disk), but each individual hash computation runs off the UI thread. A full scan of a typical installation takes roughly 30–120 seconds depending on disk speed.
+On each scan, if a file's `Length` and `LastWriteTimeUtc.Ticks` match the cached entry, the stored hash is reused without reading the file. Only changed/new files are re-hashed. Failures are silently swallowed — the cache is purely advisory.
+
+### Drive detection and parallelism
+
+`GetOptimalParallelism()` uses WMI to detect whether the game directory lives on an SSD or HDD:
+
+1. `Win32_LogicalDisk` → `Win32_DiskPartition` (via `Win32_LogicalDiskToPartition`)
+2. `Win32_DiskPartition` → `Win32_DiskDrive` (via `Win32_DiskDriveToDiskPartition`)
+3. `MSFT_PhysicalDisk.MediaType` where `Number` matches the physical drive index
+
+| `MediaType` | Meaning | Parallelism |
+|-------------|---------|-------------|
+| 4 | SSD | `min(CPU count, 8)` |
+| 3 / 0 / error | HDD or unknown | 1 (sequential) |
+
+Sequential I/O avoids disk-head thrashing on HDD. Falls back to 1 on any WMI failure.
 
 ---
 
-## ManifestDiffService
+## Step 4 — Diff
 
-**File:** `Services/ManifestDiffService.cs`
-**Interface:** `Services/IManifestDiffService.cs`
-
-Compares a remote manifest against a local manifest and returns the list of files that need to be downloaded.
+**Service:** `ManifestDiffService` / `IManifestDiffService`
 
 ```csharp
 IReadOnlyList<GameManifestFile> ComputeFilesToDownload(
@@ -111,43 +151,50 @@ IReadOnlyList<GameManifestFile> ComputeFilesToDownload(
     GameManifest local);
 ```
 
-### Algorithm
+Algorithm (synchronous, <5 ms for 30 000 files):
 
 ```
-localIndex = Dictionary(path → file, case-insensitive)  // Windows FS is case-insensitive
+localIndex = Dictionary(path → file, OrdinalIgnoreCase)
 
 for each remoteFile in remote.Files:
-    localFile = localIndex[remoteFile.Path]  // OrdinalIgnoreCase lookup
+    localFile = localIndex[remoteFile.Path]
 
     if localFile is missing:
         → download  (both modes)
 
-    if remoteFile.mode == "exact" AND localFile.Hash != remoteFile.Hash:
+    if remoteFile.mode == "exact" AND localFile.Hash != remoteFile.Hash (OrdinalIgnoreCase):
         → download  (content mismatch)
 
     // "existing" + file present → skip regardless of hash
 ```
 
-The diff is synchronous. For 30 000 files the dictionary construction and lookup takes under 5 ms and does not need to be offloaded.
-
-### Path comparison
-
-Paths are compared case-insensitively (`StringComparer.OrdinalIgnoreCase`) because Windows NTFS is case-insensitive — a local scan might yield `dota/Cfg/autoexec.cfg` while the manifest lists `dota/cfg/autoexec.cfg`.
-
-### Hash comparison
-
-Hashes are compared case-insensitively (`StringComparison.OrdinalIgnoreCase`). The remote manifest uses lowercase hex; the local manifest also uses lowercase, but this guards against any inconsistency.
+Paths and hashes are compared case-insensitively to match Windows NTFS semantics.
 
 ---
 
-## Intended Update Flow
+## Step 5 — Download
+
+**Service:** `GameDownloadService` / `IGameDownloadService`
+
+Download URL per file: `GET /files/{PackageFolder}/{file.Path}`
+
+- Streams in 256 KB chunks directly to the target path.
+- Reports rolling speed (bytes/s), ETA, and current filename via `DownloadProgress`.
+- `GameDownloadViewModel` orchestrates all phases and drives the `GameDownloadView` progress UI.
+
+---
+
+## Full Update Flow
 
 ```
-1. Fetch remote manifest  (HTTP GET manifest.json)
-2. Build local manifest   (LocalManifestService.BuildAsync)
-3. Compute diff           (ManifestDiffService.ComputeFilesToDownload)
-4. Download missing files (not yet implemented)
-5. Verify after download  (optional: rebuild local manifest and diff again)
+1. GET /files/registry.json              → ContentRegistry
+2. Filter packages by SelectedDlcIds
+3. GET /files/{folder}/manifest.json     → one GameManifest per package
+4. Merge all package manifests into one combined remote GameManifest
+5. LocalManifestService.BuildAsync()     → local GameManifest (with hash cache + SSD/HDD parallelism)
+6. ManifestDiffService.ComputeFilesToDownload(remote, local)
+7. GameDownloadService.DownloadAsync()   → streams missing/changed files from CDN
+8. (Optional) Re-scan to verify         → not currently done post-download
 ```
 
-Steps 1–3 are implemented. Step 4 (actual file download) is a future task.
+This flow runs every launch in `GameDownloadView`, between `SelectGameView` and `MainLauncherView`.
