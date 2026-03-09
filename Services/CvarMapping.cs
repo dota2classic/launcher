@@ -46,6 +46,11 @@ public static class CvarMapping
             (s, v) => s.TeleportRequiresHalt = v is "1",
             IsEmpty: _ => false),
 
+        new("dota_camera_distance",
+            s => s.CameraDistance?.ToString() ?? "",
+            (s, v) => s.CameraDistance = int.TryParse(v, out var n) ? Math.Clamp(n, 1000, 1600) : null,
+            IsEmpty: s => !s.CameraDistance.HasValue),
+
     ];
 }
 

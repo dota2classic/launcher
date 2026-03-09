@@ -14,4 +14,5 @@ public class CvarSettings
     public bool RightMouseAutoRepeat { get; set; }
     public bool ResetCameraOnSpawn { get; set; } = true;
     public bool TeleportRequiresHalt { get; set; }
+    public int? CameraDistance { get; set; }
 }

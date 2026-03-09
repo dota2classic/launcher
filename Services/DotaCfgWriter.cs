@@ -70,6 +70,10 @@ public static class DotaCfgWriter
                 lines.Add($"{name} \"{value}\"");
         }
 
+        // Strip trailing empty lines accumulated from previous writes
+        while (lines.Count > 0 && string.IsNullOrWhiteSpace(lines[^1]))
+            lines.RemoveAt(lines.Count - 1);
+
         try
         {
             File.WriteAllText(configPath, string.Join("\n", lines) + "\n", Encoding.UTF8);

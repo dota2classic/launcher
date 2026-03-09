@@ -308,6 +308,21 @@ public partial class SettingsViewModel : ViewModelBase
         set => SetBoolCvar(s => s.TeleportRequiresHalt, (s, v) => s.TeleportRequiresHalt = v, value, "dota_player_teleport_requires_halt");
     }
 
+    public int CameraDistance
+    {
+        get => _cvarProvider.Get().CameraDistance ?? 1134;
+        set
+        {
+            var clamped = Math.Clamp(value, 1000, 1600);
+            var s = _cvarProvider.Get();
+            if (s.CameraDistance == clamped) return;
+            s.CameraDistance = clamped;
+            _cvarProvider.Update(s);
+            OnPropertyChanged();
+            PushCvar?.Invoke("dota_camera_distance", clamped.ToString());
+        }
+    }
+
     // ── Auto-attack mode ───────────────────────────────────────────────────────
 
     public static string[] AutoAttackOptions { get; } = ["Выключена", "После заклинания", "Всегда"];
@@ -406,6 +421,7 @@ public partial class SettingsViewModel : ViewModelBase
         nameof(ResetCameraOnSpawn),
         nameof(AutoAttackSelectedIndex),
         nameof(TeleportRequiresHalt),
+        nameof(CameraDistance),
     ];
 
     /// <summary>

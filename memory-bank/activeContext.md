@@ -2,6 +2,19 @@
 
 ## Current Focus
 
+**Issue #19: Camera distance setting via cvar**
+
+Added `dota_camera_distance` as a configurable setting in the ГЕЙМПЛЕЙ settings tab.
+
+- `Models/CvarSettings.cs` — added `int? CameraDistance` (nullable; null = not set, game uses its default of 1134)
+- `Services/CvarMapping.cs` — added `dota_camera_distance` entry; clamps to [1000, 1600] on read; omits from cfg when null
+- `ViewModels/SettingsViewModel.cs` — added `CameraDistanceText` string property with clamp and live `PushCvar`; added to `CvarPropertyNames`
+- `Views/Components/SettingsPanel.axaml` — added TextBox row in ГЕЙМПЛЕЙ tab with warning about values > 1134 causing unclickable screen areas
+
+---
+
+## Previous Focus
+
 **Issue #33: Cache emoticons**
 
 Introduced `IEmoticonService` / `EmoticonService` — a dedicated service that owns emoticon lifecycle:
