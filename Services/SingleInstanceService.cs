@@ -37,7 +37,25 @@ public sealed class SingleInstanceService : IDisposable
         if (createdNew)
             return true;
 
-        // Another instance is running — forward our args to it.
+        // Mutex existed — try to acquire it immediately.
+        // If the previous owner died without releasing (abandoned), WaitOne throws
+        // AbandonedMutexException but still grants ownership — we become the primary.
+        bool acquired;
+        try
+        {
+            acquired = _mutex.WaitOne(0);
+        }
+        catch (AbandonedMutexException)
+        {
+            // Previous instance exited without releasing (e.g. Velopack Environment.Exit).
+            // We now own the mutex — become the primary instance.
+            return true;
+        }
+
+        if (acquired)
+            return true;
+
+        // Another active instance is running — forward our args to it.
         ForwardArgsToPrimary(args);
         return false;
     }
