@@ -2,6 +2,23 @@
 
 ## Current Focus
 
+**Issue #38: Add mod limitations**
+
+Implemented game mode access restrictions in the matchmaking mode selector:
+
+- `Models/PartyMemberView.cs` — added `int? Mmr` (nullable; null = unknown, e.g. party leader)
+- `Services/BackendApiService.cs` — passes `mmr: (int)summary.SeasonStats.Mmr` when constructing `PartyMemberView` for party players
+- `ViewModels/QueueViewModel.cs` — replaced `CanMemberPlayMode` + `FormatMemberRestriction` with single `GetMemberModeRestriction(member, modeId) → string?` that returns the specific reason:
+  - Permaban → "Аккаунт заблокирован навсегда"
+  - Temp ban (human modes only) → "Поиск запрещён до {date}"
+  - `!CanPlayHumanGames` → "Для доступа выиграйте хотя бы одну игру"
+  - `!CanPlaySimpleModes` → "Сыграйте против ботов для открытия режима"
+  - Highroom (mode 8) with `Mmr < 2500` → "Нужно 2500 MMR (у {name}: {mmr})"
+
+---
+
+## Previous Focus
+
 **Issue #37: First-run introduction overlay**
 
 Added one-time onboarding overlay for new players + user indicator in header.

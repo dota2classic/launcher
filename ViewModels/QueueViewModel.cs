@@ -235,6 +235,8 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         ApplyRestrictionsToModes();
     }
 
+    private const int HighroomMmrRequired = 2500;
+
     private void ApplyRestrictionsToModes()
     {
         foreach (var mode in MatchmakingModes)
@@ -242,32 +244,41 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
             string? restriction = null;
             foreach (var member in _latestPartyMembers)
             {
-                if (!CanMemberPlayMode(member, mode.ModeId))
-                {
-                    restriction = FormatMemberRestriction(member);
+                restriction = GetMemberModeRestriction(member, mode.ModeId);
+                if (restriction != null)
                     break;
-                }
             }
             mode.RestrictionText = restriction;
         }
     }
 
-    private static bool CanMemberPlayMode(Models.PartyMemberView member, int modeId)
+    private static string? GetMemberModeRestriction(Models.PartyMemberView member, int modeId)
     {
         if (member.IsBanned)
         {
-            // Permaban (> 2 years from now) blocks every mode
             if (IsPermaban(member.BannedUntil))
-                return false;
+                return "Аккаунт заблокирован навсегда";
             // Regular ban blocks human 5×5 modes only
-            return !HumanGameModeIds.Contains(modeId);
+            if (HumanGameModeIds.Contains(modeId))
+            {
+                TryGetBanExpiry(member.BannedUntil, out var until);
+                return $"Поиск запрещён до {until.LocalDateTime:dd.MM.yyyy HH:mm}";
+            }
+            return null;
         }
 
-        // Not banned: honour the access map
-        if (HumanGameModeIds.Contains(modeId)) return member.CanPlayHumanGames;
-        if (SimpleModeIds.Contains(modeId)) return member.CanPlaySimpleModes;
-        if (EducationModeIds.Contains(modeId)) return member.CanPlayEducation;
-        return true;
+        if (HumanGameModeIds.Contains(modeId) && !member.CanPlayHumanGames)
+            return "Для доступа выиграйте хотя бы одну игру";
+        if (SimpleModeIds.Contains(modeId) && !member.CanPlaySimpleModes)
+            return "Сыграйте против ботов для открытия режима";
+        if (EducationModeIds.Contains(modeId) && !member.CanPlayEducation)
+            return "Нет доступа к режиму";
+
+        // Highroom requires minimum MMR across the party
+        if (modeId == 8 && member.Mmr.HasValue && member.Mmr.Value < HighroomMmrRequired)
+            return $"Нужно {HighroomMmrRequired} MMR (у {member.Name}: {member.Mmr.Value})";
+
+        return null;
     }
 
     private static bool TryGetBanExpiry(string? bannedUntil, out DateTimeOffset until)
@@ -280,17 +291,6 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
 
     private static bool IsPermaban(string? bannedUntil)
         => !TryGetBanExpiry(bannedUntil, out var until) || until > DateTimeOffset.UtcNow.AddYears(2);
-
-    private static string FormatMemberRestriction(Models.PartyMemberView member)
-    {
-        if (member.IsBanned)
-        {
-            if (!TryGetBanExpiry(member.BannedUntil, out var until) || until > DateTimeOffset.UtcNow.AddYears(2))
-                return "Аккаунт заблокирован навсегда";
-            return $"Поиск запрещён до {until.LocalDateTime:dd.MM.yyyy, HH:mm}";
-        }
-        return "Нет доступа к режиму";
-    }
 
     private static string FormatModeCount(int n)
     {

@@ -8,6 +8,8 @@
              x:DataType="vm:QueueViewModel">
   <UserControl.Resources>
       <util:InverseBoolConverter x:Key="InverseBoolConverter"/>
+      <util:BoolToNotAllowedCursorConverter x:Key="BoolToNotAllowedCursorConverter"/>
+      <util:BoolToRestrictedOpacityConverter x:Key="BoolToRestrictedOpacityConverter"/>
   </UserControl.Resources>
 
   <Border CornerRadius="0" Background="#121315" BorderBrush="#2d3842"
@@ -26,7 +28,8 @@
           </Border>
 
           <!-- Mode list -->
-          <Border IsEnabled="{Binding IsSearching, Converter={StaticResource InverseBoolConverter}}">
+          <Border IsEnabled="{Binding IsSearching, Converter={StaticResource InverseBoolConverter}}"
+                  Opacity="{Binding IsSearching, Converter={StaticResource BoolToRestrictedOpacityConverter}}">
               <ItemsControl ItemsSource="{Binding MatchmakingModes}">
                   <ItemsControl.ItemsPanel>
                       <ItemsPanelTemplate>
@@ -41,10 +44,11 @@
                                   Padding="0"
                                   Background="Transparent"
                                   BorderThickness="0"
-                                  Cursor="Hand"
+                                  Cursor="{Binding IsRestricted, Converter={StaticResource BoolToNotAllowedCursorConverter}}"
                                   ToolTip.Tip="{Binding FlagsTooltip}"
                                   ToolTip.ShowDelay="1000">
-                          <Border Padding="8,6" BorderBrush="#2d3842" BorderThickness="0,0,0,1">
+                          <Border Padding="8,6" BorderBrush="#2d3842" BorderThickness="0,0,0,1"
+                                  Opacity="{Binding IsRestricted, Converter={StaticResource BoolToRestrictedOpacityConverter}}">
                               <Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
                                   <CheckBox Grid.Column="0"
                                             IsChecked="{Binding IsSelected}"

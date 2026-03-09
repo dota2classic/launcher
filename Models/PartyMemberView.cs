@@ -13,6 +13,8 @@ public sealed class PartyMemberView
     public bool CanPlayHumanGames { get; }
     public bool CanPlaySimpleModes { get; }
     public bool CanPlayEducation { get; }
+    /// <summary>Season MMR. Null means unknown (e.g. party leader with no summary loaded).</summary>
+    public int? Mmr { get; }
 
     public PartyMemberView(
         string steamId,
@@ -22,7 +24,8 @@ public sealed class PartyMemberView
         string? bannedUntil = null,
         bool canPlayHumanGames = true,
         bool canPlaySimpleModes = true,
-        bool canPlayEducation = true)
+        bool canPlayEducation = true,
+        int? mmr = null)
     {
         SteamId = steamId;
         Name = name;
@@ -33,5 +36,6 @@ public sealed class PartyMemberView
         CanPlayHumanGames = canPlayHumanGames;
         CanPlaySimpleModes = canPlaySimpleModes;
         CanPlayEducation = canPlayEducation;
+        Mmr = mmr;
     }
 }

@@ -111,7 +111,8 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
                     bannedUntil: ban?.BannedUntil,
                     canPlayHumanGames: access?.HumanGames ?? true,
                     canPlaySimpleModes: access?.SimpleModes ?? true,
-                    canPlayEducation: access?.Education ?? true);
+                    canPlayEducation: access?.Education ?? true,
+                    mmr: (int)summary.SeasonStats.Mmr);
             }
         }
 
