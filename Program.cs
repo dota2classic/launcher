@@ -16,10 +16,14 @@ sealed class Program
     {
         VelopackApp.Build().Run();
 
+        // Skip single-instance enforcement in preview mode so the preview tool
+        // can run alongside a running launcher instance.
+        var isPreview = Array.IndexOf(args, "--preview") >= 0;
+
         // Enforce single instance: if another launcher is already running, forward
         // our args to it (e.g. a d2c:// protocol URL) and exit immediately.
         var singleInstance = new SingleInstanceService();
-        if (!singleInstance.TryBecomePrimaryInstance(args))
+        if (!isPreview && !singleInstance.TryBecomePrimaryInstance(args))
         {
             singleInstance.Dispose();
             return;

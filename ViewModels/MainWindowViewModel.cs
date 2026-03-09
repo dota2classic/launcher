@@ -20,8 +20,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IGameLaunchSettingsStorage _launchSettingsStorage;
     private readonly ISteamAuthApi _steamAuthApi;
     private readonly IBackendApiService _backendApiService;
-    private readonly IHttpImageService _imageService;
-    private readonly IEmoticonService _emoticonService;
+    private readonly IChatViewModelFactory _chatViewModelFactory;
     private readonly IQueueSocketService _queueSocketService;
     private readonly ICvarSettingsProvider _cvarProvider;
     private readonly IVideoSettingsProvider _videoProvider;
@@ -58,9 +57,8 @@ public partial class MainWindowViewModel : ViewModelBase
         IGameLaunchSettingsStorage launchSettingsStorage,
         ISteamAuthApi steamAuthApi,
         IBackendApiService backendApiService,
-        IHttpImageService imageService,
-        IEmoticonService emoticonService,
         IQueueSocketService queueSocketService,
+        IChatViewModelFactory chatViewModelFactory,
         ICvarSettingsProvider cvarProvider,
         IVideoSettingsProvider videoProvider,
         UpdateService updateService,
@@ -75,9 +73,8 @@ public partial class MainWindowViewModel : ViewModelBase
         _launchSettingsStorage = launchSettingsStorage;
         _steamAuthApi = steamAuthApi;
         _backendApiService = backendApiService;
-        _imageService = imageService;
-        _emoticonService = emoticonService;
         _queueSocketService = queueSocketService;
+        _chatViewModelFactory = chatViewModelFactory;
         _cvarProvider = cvarProvider;
         _videoProvider = videoProvider;
         _updateService = updateService;
@@ -129,7 +126,14 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void ApplyUpdate() => _updateService.ApplyAndRestart();
+    private void ApplyUpdate()
+    {
+        // Release the single-instance mutex before Velopack launches the new process,
+        // otherwise the new instance sees the mutex held and exits immediately.
+        App.SingleInstance?.Dispose();
+        App.SingleInstance = null;
+        _updateService.ApplyAndRestart();
+    }
 
     // ── State transitions ────────────────────────────────────────────────────
 
@@ -268,7 +272,7 @@ public partial class MainWindowViewModel : ViewModelBase
         DisposeCurrentVm();
         var vm = new MainLauncherViewModel(
             _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider, _videoProvider,
-            _steamAuthApi, _backendApiService, _imageService, _emoticonService, _queueSocketService, _registryService);
+            _steamAuthApi, _backendApiService, _queueSocketService, _registryService, _chatViewModelFactory);
         vm.OnGameDirectoryChanged = _ => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirChanged(AppState)));
         vm.RequestGameDirectoryChange = () => Dispatcher.UIThread.Post(() => EnterState(AppState.SelectGameDirectory));
         vm.OnDlcChanged = removedIds => Dispatcher.UIThread.Post(() =>

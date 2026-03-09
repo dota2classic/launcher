@@ -68,6 +68,7 @@ public partial class App : Application
             services.AddSingleton<IGameDownloadService, GameDownloadService>();
             services.AddSingleton<RedistInstallService>();
             services.AddSingleton<IContentRegistryService, ContentRegistryService>();
+            services.AddSingleton<IChatViewModelFactory, ChatViewModelFactory>();
             services.AddSingleton<MainWindowViewModel>();
 
             _services = services.BuildServiceProvider();

@@ -1,9 +1,9 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="d2c_launcher.Views.PreviewWindow"
-        SystemDecorations="None"
         SizeToContent="WidthAndHeight"
         WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="True"
         Background="#1a1c20">
 
     <ContentControl x:Name="Host"
