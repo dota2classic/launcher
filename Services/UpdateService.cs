@@ -12,7 +12,13 @@ public class UpdateService
 
     public UpdateService()
     {
-        _mgr = new UpdateManager(new GithubSource("https://github.com/dota2classic/launcher", null, false));
+        // Allow a local directory override for manual update testing:
+        //   set D2C_UPDATE_SOURCE=C:\vpk-test  before launching the app
+        var localSource = Environment.GetEnvironmentVariable("D2C_UPDATE_SOURCE");
+        IUpdateSource source = string.IsNullOrWhiteSpace(localSource)
+            ? new GithubSource("https://github.com/dota2classic/launcher", null, false)
+            : new SimpleWebSource("file:///" + localSource.Replace('\\', '/'));
+        _mgr = new UpdateManager(source);
     }
 
     /// <summary>

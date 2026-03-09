@@ -14,7 +14,10 @@ sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        VelopackApp.Build().Run();
+        // Disable Velopack's "auto-apply on startup" (it is ON by default).
+        // We download updates silently but only apply them when the user clicks
+        // "Restart and update" in the launcher UI.
+        VelopackApp.Build().SetAutoApplyOnStartup(false).Run();
 
         // Skip single-instance enforcement in preview mode so the preview tool
         // can run alongside a running launcher instance.
