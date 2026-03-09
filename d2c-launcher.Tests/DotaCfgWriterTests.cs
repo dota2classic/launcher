@@ -245,6 +245,61 @@ public class DotaCfgWriterTests : IDisposable
         Assert.DoesNotContain("fps_max \"120\"", content);
     }
 
+    // ── Trailing empty lines (regression) ────────────────────────────────────
+
+    [Fact]
+    public void RepeatedWrites_DoNotAccumulateTrailingEmptyLines()
+    {
+        WriteCfg("con_enable \"0\"\n");
+
+        var cvars = new Dictionary<string, string> { ["con_enable"] = "1" };
+
+        DotaCfgWriter.WriteCvars(_gameDir, cvars);
+        DotaCfgWriter.WriteCvars(_gameDir, cvars);
+        DotaCfgWriter.WriteCvars(_gameDir, cvars);
+
+        var content = ReadCfg();
+        // After the last non-empty line there should be exactly one newline
+        Assert.Equal(content.TrimEnd('\n', '\r'), content.TrimEnd());
+        var trailingNewlines = content.Length - content.TrimEnd('\n').Length;
+        Assert.Equal(1, trailingNewlines);
+    }
+
+    [Fact]
+    public void CrlfLineEndings_DoNotAccumulateTrailingEmptyLines()
+    {
+        // Dota writes config.cfg with CRLF on Windows
+        WriteCfg("con_enable \"0\"\r\nfps_max \"120\"\r\n");
+
+        var cvars = new Dictionary<string, string>
+        {
+            ["con_enable"] = "1",
+            ["fps_max"] = "144",
+        };
+
+        DotaCfgWriter.WriteCvars(_gameDir, cvars);
+        DotaCfgWriter.WriteCvars(_gameDir, cvars);
+
+        var content = ReadCfg();
+        var trailingNewlines = content.Length - content.TrimEnd('\n').Length;
+        Assert.Equal(1, trailingNewlines);
+    }
+
+    [Fact]
+    public void SingleWrite_EndsWithExactlyOneNewline()
+    {
+        File.Delete(_cfgPath);
+
+        DotaCfgWriter.WriteCvars(_gameDir, new Dictionary<string, string>
+        {
+            ["con_enable"] = "1",
+        });
+
+        var content = ReadCfg();
+        Assert.True(content.EndsWith("\n"), "file should end with newline");
+        Assert.False(content.EndsWith("\n\n"), "file should not end with double newline");
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private static int CountOccurrences(string text, string pattern)
