@@ -17,23 +17,23 @@ public class UpdateService
 
     /// <summary>
     /// Checks for updates and downloads them in the background.
-    /// Returns true if an update was found and is ready to apply.
+    /// Returns (true, notes) if an update was found and is ready to apply.
     /// Safe to call outside of a Velopack-installed context (returns false).
     /// </summary>
-    public async Task<bool> CheckAndDownloadAsync()
+    public async Task<(bool HasUpdate, string? ReleaseNotes)> CheckAndDownloadAsync()
     {
         try
         {
             var update = await _mgr.CheckForUpdatesAsync();
-            if (update == null) return false;
+            if (update == null) return (false, null);
 
             await _mgr.DownloadUpdatesAsync(update);
             _pendingUpdate = update;
-            return true;
+            return (true, update.TargetFullRelease.NotesMarkdown);
         }
         catch (Exception)
         {
-            return false;
+            return (false, null);
         }
     }
 

@@ -39,6 +39,9 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private bool _updateAvailable;
 
+    [ObservableProperty]
+    private string? _releaseNotes;
+
     public bool IsSteamRunning => _steamManager.SteamStatus is SteamStatus.Running or SteamStatus.Offline;
 
     public string WindowTitle { get; } =
@@ -111,9 +114,13 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private async Task CheckForUpdatesAsync()
     {
-        var hasUpdate = await _updateService.CheckAndDownloadAsync();
+        var (hasUpdate, notes) = await _updateService.CheckAndDownloadAsync();
         if (hasUpdate)
-            Dispatcher.UIThread.Post(() => UpdateAvailable = true);
+            Dispatcher.UIThread.Post(() =>
+            {
+                ReleaseNotes = notes;
+                UpdateAvailable = true;
+            });
     }
 
     [RelayCommand]
