@@ -41,7 +41,9 @@ internal sealed class StubQueueSocketService : IQueueSocketService
 
 internal sealed class StubBackendApiService : IBackendApiService
 {
-    public Task<PartySnapshot> GetMyPartySnapshotAsync(string bearerToken, CancellationToken cancellationToken = default)
+    public void SetBearerToken(string? token) { }
+
+    public Task<PartySnapshot> GetMyPartySnapshotAsync(CancellationToken cancellationToken = default)
         => Task.FromResult(new PartySnapshot([
             new PartyMemberView("76561198000000001", "Player One", null),
             new PartyMemberView("76561198000000002", "Player Two", null),
@@ -59,13 +61,13 @@ internal sealed class StubBackendApiService : IBackendApiService
     public Task<IReadOnlyList<InviteCandidateView>> SearchPlayersAsync(string name, int count = 25, CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<InviteCandidateView>>([]);
 
-    public Task<(string? Name, string? AvatarUrl)?> GetUserInfoAsync(string steamId, string bearerToken, CancellationToken cancellationToken = default)
+    public Task<(string? Name, string? AvatarUrl)?> GetUserInfoAsync(string steamId, CancellationToken cancellationToken = default)
         => Task.FromResult<(string?, string?)?>(null);
 
     public Task<(int InGame, int OnSite)> GetOnlineStatsAsync(CancellationToken cancellationToken = default)
         => Task.FromResult((0, 0));
 
-    public Task<IReadOnlyList<ChatMessageData>> GetChatMessagesAsync(string threadId, int limit, string bearerToken, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<ChatMessageData>> GetChatMessagesAsync(string threadId, int limit, CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<ChatMessageData>>([
             new ChatMessageData("1", threadId, "Давай сыграем!", "2025-03-05T20:00:00Z", "111", "MaxiKo", null, false),
             new ChatMessageData("2", threadId, "трамвай потеет)", "2025-03-05T20:00:30Z", "111", "MaxiKo", null, false),
@@ -75,7 +77,7 @@ internal sealed class StubBackendApiService : IBackendApiService
             new ChatMessageData("6", threadId, "играю сносно https://dotaclassic.ru/players/198768255 але", "2025-03-05T20:11:00Z", "222", "лоутаб секьюрити", null, false),
         ]);
 
-    public Task PostChatMessageAsync(string threadId, string content, string bearerToken, CancellationToken cancellationToken = default)
+    public Task PostChatMessageAsync(string threadId, string content, CancellationToken cancellationToken = default)
         => Task.CompletedTask;
 
     public Task<IReadOnlyList<EmoticonData>> GetEmoticonsAsync(CancellationToken cancellationToken = default)
@@ -85,7 +87,7 @@ internal sealed class StubBackendApiService : IBackendApiService
         => Task.FromResult<Models.LiveMatchInfo?>(null);
 
     public async IAsyncEnumerable<ChatMessageData> SubscribeChatAsync(
-        string threadId, string bearerToken,
+        string threadId,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         // Stub: yield nothing (preview shows only the initially-loaded messages).
