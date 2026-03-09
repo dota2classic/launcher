@@ -14,6 +14,7 @@ public partial class SelectGameViewModel : ViewModelBase
 
     [ObservableProperty] private string? _selectedDownloadPath;
     [ObservableProperty] private string? _selectedInstalledPath;
+    [ObservableProperty] private string? _installedPathError;
     [ObservableProperty] private bool _isChoosingDlc;
     [ObservableProperty] private bool _isDlcLoading;
 

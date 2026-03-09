@@ -243,6 +243,16 @@ public partial class MainWindowViewModel : ViewModelBase
                 _settingsStorage.Save(s);
             },
             OnCompleted = () => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnVerificationCompleted(AppState))),
+            OnInvalidGameDirectory = () => Dispatcher.UIThread.Post(() =>
+            {
+                var s = _settingsStorage.Get();
+                s.GameDirectory = null;
+                _settingsStorage.Save(s);
+                // Reset AppState before entering — otherwise the sticky rule in OnSteamUpdate
+                // keeps us in VerifyingGame even with no valid game directory.
+                AppState = AppState.CheckingSteam;
+                EnterState(AppState.SelectGameDirectory);
+            }),
         };
         CurrentContentViewModel = vm;
         vm.StartAsync();
@@ -255,6 +265,7 @@ public partial class MainWindowViewModel : ViewModelBase
             _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider, _videoProvider,
             _steamAuthApi, _backendApiService, _imageService, _emoticonService, _queueSocketService, _registryService);
         vm.OnGameDirectoryChanged = _ => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirChanged(AppState)));
+        vm.RequestGameDirectoryChange = () => Dispatcher.UIThread.Post(() => EnterState(AppState.SelectGameDirectory));
         vm.OnDlcChanged = removedIds => Dispatcher.UIThread.Post(() =>
         {
             AppState = AppState.VerifyingGame;

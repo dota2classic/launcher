@@ -273,6 +273,12 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     /// </summary>
     public Action<string>? OnGameDirectoryChanged { get; set; }
 
+    /// <summary>
+    /// Called when the user requests to change the game directory from settings.
+    /// The caller should navigate to the game selection screen.
+    /// </summary>
+    public Action? RequestGameDirectoryChange { get; set; }
+
     public void SetGameDirectory(string? path)
     {
         Launch.SetGameDirectory(path);

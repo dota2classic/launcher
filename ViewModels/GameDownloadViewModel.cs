@@ -10,6 +10,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
+using d2c_launcher.Util;
 
 namespace d2c_launcher.ViewModels;
 
@@ -38,6 +39,12 @@ public partial class GameDownloadViewModel : ViewModelBase
     public List<string>? PackageIdsToRemove { get; set; }
 
     public Action? OnCompleted { get; set; }
+
+    /// <summary>
+    /// Called when the selected game directory is not a valid Dota 2 Classic installation.
+    /// The caller should clear the stored game directory from settings and navigate back to folder selection.
+    /// </summary>
+    public Action? OnInvalidGameDirectory { get; set; }
 
     /// <summary>
     /// Called after a successful download with the IDs of all packages that were installed
@@ -120,6 +127,21 @@ public partial class GameDownloadViewModel : ViewModelBase
 
     private async Task RunAsync()
     {
+        AppLog.Info($"[GameDownload] RunAsync started. GameDirectory={GameDirectory}");
+        if (!GameDirectoryValidator.IsAcceptable(GameDirectory, out var dirError))
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                Phase = VerificationPhase.Failed;
+                HasError = true;
+                StatusText = "Неверная папка с игрой";
+                ErrorText = dirError ?? "Выбранная папка не является Dota 2 Classic.";
+                IsIndeterminate = false;
+                OnInvalidGameDirectory?.Invoke();
+            });
+            return;
+        }
+
         try
         {
             await RunDefenderPhaseAsync();

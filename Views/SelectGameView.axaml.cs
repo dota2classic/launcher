@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
+using d2c_launcher.Services;
 using d2c_launcher.ViewModels;
 
 namespace d2c_launcher.Views;
@@ -30,7 +31,10 @@ public partial class SelectGameView : UserControl
     private async void OnChangeInstalledClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         if (DataContext is SelectGameViewModel vm)
+        {
             vm.SelectedInstalledPath = null;
+            vm.InstalledPathError = null;
+        }
         await PickInstalledExeAsync();
     }
 
@@ -84,6 +88,13 @@ public partial class SelectGameView : UserControl
         if (string.IsNullOrEmpty(dir))
             return;
 
+        if (!GameDirectoryValidator.IsAcceptable(dir, out var validationError))
+        {
+            vm.InstalledPathError = validationError;
+            return;
+        }
+
+        vm.InstalledPathError = null;
         vm.SelectedInstalledPath = dir;
         vm.NotifyGameDirectorySelected(dir);
     }

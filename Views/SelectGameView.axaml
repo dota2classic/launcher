@@ -94,6 +94,12 @@
                           TextDecorations="Underline"/>
            </Button>
 
+           <!-- Installed path error -->
+           <TextBlock IsVisible="{Binding InstalledPathError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                      Text="{Binding InstalledPathError}"
+                      FontSize="12" Foreground="#e05555"
+                      TextWrapping="Wrap"/>
+
            <!-- Installed path row (shown after folder is picked) -->
            <Grid IsVisible="{Binding SelectedInstalledPath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                  ColumnDefinitions="*,Auto">
