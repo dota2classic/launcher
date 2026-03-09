@@ -97,11 +97,11 @@ public class SteamManager : IDisposable
                     {
                         // Bridge returned no user — may be a normal transient state or a real error.
                         _bridgeFailStreak++;
-                        var bridgeStatus = snapshot?.Status ?? "null";
-                        // NotRunning / NotLoggedIn are expected states, not errors.
-                        var isExpected = bridgeStatus is "NotRunning" or "NotLoggedIn";
+                        var bridgeStatus = snapshot?.Status;
+                        // These statuses mean Steam/bridge isn't ready yet — expected, not errors.
+                        var isExpected = bridgeStatus is null or "NotRunning" or "NotLoggedIn" or "InitFailed" or "AuthTicketTimeout" or "AuthTicketFailed";
                         if (isExpected)
-                            AppLog.Info($"[SteamManager] Bridge returned no user info (status={bridgeStatus}, streak={_bridgeFailStreak}).");
+                            AppLog.Info($"[SteamManager] Bridge returned no user info (status={bridgeStatus ?? "null"}, streak={_bridgeFailStreak}).");
                         else
                             AppLog.Error($"[SteamManager] Bridge returned no user info (status={bridgeStatus}, streak={_bridgeFailStreak}).");
                         SetUser(null);
@@ -238,7 +238,7 @@ public class SteamManager : IDisposable
 
         if (string.IsNullOrWhiteSpace(output))
         {
-            AppLog.Error("[SteamManager] Bridge returned empty output.");
+            AppLog.Info("[SteamManager] Bridge returned empty output.");
             return null;
         }
 

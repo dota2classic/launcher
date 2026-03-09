@@ -17,7 +17,7 @@
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
                 Spacing="16" MaxWidth="420">
 
-        <TextBlock Text="Dota 2 Classic"
+        <TextBlock Text="Dotaclassic"
                    FontFamily="{StaticResource TrajanPro3}"
                    FontSize="22" FontWeight="Bold"
                    HorizontalAlignment="Center"

@@ -135,7 +135,7 @@ public partial class GameDownloadViewModel : ViewModelBase
                 Phase = VerificationPhase.Failed;
                 HasError = true;
                 StatusText = "Неверная папка с игрой";
-                ErrorText = dirError ?? "Выбранная папка не является Dota 2 Classic.";
+                ErrorText = dirError ?? "Выбранная папка не является Dotaclassic.";
                 IsIndeterminate = false;
                 OnInvalidGameDirectory?.Invoke();
             });

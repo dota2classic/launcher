@@ -1,6 +1,6 @@
 # Source Engine Launch Mechanisms
 
-When launching a Source 1 game (like Dota 2 Classic), there are two distinct mechanisms for passing startup configuration to the process.
+When launching a Source 1 game (like Dotaclassic), there are two distinct mechanisms for passing startup configuration to the process.
 
 ## `-flag` — Engine Launch Arguments
 

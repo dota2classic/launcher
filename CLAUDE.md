@@ -22,7 +22,7 @@ As you work:
 
 ## Project Overview
 
-**D2C Launcher** is a Windows desktop application for **Dota 2 Classic** — a community-maintained server running the old Dota 2 on the Source 1 engine. The launcher handles:
+**D2C Launcher** is a Windows desktop application for **Dotaclassic** — a community-maintained server running the old Dota 2 on the Source 1 engine. The launcher handles:
 
 - Steam authentication (via SteamBridge subprocess)
 - Matchmaking queue and real-time updates (Socket.IO)

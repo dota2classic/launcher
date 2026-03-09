@@ -149,7 +149,7 @@
                            <StackPanel IsVisible="{Binding IntroStep, Converter={x:Static util:IntroStepConverter.Instance}, ConverterParameter=1}" Spacing="8">
                                <TextBlock Text="▶  Кнопка запуска игры" FontSize="15" FontWeight="SemiBold" Foreground="#4DA9F3"/>
                                <TextBlock TextWrapping="Wrap" Foreground="#C0C0C0" FontSize="13">
-                                   В правом верхнем углу находится кнопка запуска. Нажмите её, чтобы запустить Dota 2 Classic. Если игра уже запущена и найден сервер — кнопка изменится на «Подключиться».
+                                   В правом верхнем углу находится кнопка запуска. Нажмите её, чтобы запустить Dotaclassic. Если игра уже запущена и найден сервер — кнопка изменится на «Подключиться».
                                </TextBlock>
                            </StackPanel>
                            <!-- Step 2: Settings -->

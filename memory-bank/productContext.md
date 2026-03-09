@@ -2,7 +2,7 @@
 
 ## Why This Exists
 
-Dota 2 Classic is a community effort to preserve and play the old Dota 2 (Source 1 era). Valve deprecated this version and provides no official launcher or matchmaking. The community maintains custom servers at `api.dotaclassic.ru` and needs a purpose-built launcher to:
+Dotaclassic is a community effort to preserve and play the old Dota 2 (Source 1 era). Valve deprecated this version and provides no official launcher or matchmaking. The community maintains custom servers at `api.dotaclassic.ru` and needs a purpose-built launcher to:
 
 1. Generate a valid Steam auth ticket (requires live Steam session)
 2. Connect players to community matchmaking

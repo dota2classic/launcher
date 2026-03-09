@@ -4,17 +4,17 @@ using d2c_launcher.Util;
 namespace d2c_launcher.Services;
 
 /// <summary>
-/// Validates that a given directory is suitable for Dota 2 Classic (patch 6.84).
+/// Validates that a given directory is suitable for Dotaclassic (patch 6.84).
 /// Rejects new Dota 2 (Source 2) installations and old Dota builds from a different patch.
 /// </summary>
 public static class GameDirectoryValidator
 {
-    /// <summary>PatchVersion value in dota/steam.inf for the Dota 2 Classic 6.84 build.</summary>
+    /// <summary>PatchVersion value in dota/steam.inf for the Dotaclassic 6.84 build.</summary>
     private const int ExpectedPatchVersion = 41;
 
     /// <summary>
     /// Returns true if the directory is acceptable: either a fresh/empty folder (for new downloads),
-    /// or a Dota 2 Classic 6.84 installation.
+    /// or a Dotaclassic 6.84 installation.
     /// Returns false when the directory is positively identified as the wrong version.
     /// </summary>
     public static bool IsAcceptable(string dir, out string? error)
@@ -32,7 +32,7 @@ public static class GameDirectoryValidator
             AppLog.Info($"[GameDirValidator] Source 2 marker check (level {i}): {File.Exists(source2Marker)} ({source2Marker})");
             if (File.Exists(source2Marker))
             {
-                error = "Выбранная папка содержит новую Dota 2 (Source 2). Пожалуйста, выберите папку с Dota 2 Classic.";
+                error = "Выбранная папка содержит новую Dota 2 (Source 2). Пожалуйста, выберите папку с Dotaclassic.";
                 AppLog.Info($"[GameDirValidator] Rejected: Source 2 installation detected at {checkDir}.");
                 return false;
             }
@@ -57,7 +57,7 @@ public static class GameDirectoryValidator
                         AppLog.Info($"[GameDirValidator] PatchVersion={value} (expected {ExpectedPatchVersion})");
                         if (!int.TryParse(value, out var patchVersion) || patchVersion != ExpectedPatchVersion)
                         {
-                            error = $"Выбранная папка содержит другой патч Dota 2 (версия {value}). Dota 2 Classic использует патч 6.84. Выберите правильную папку или скачайте игру заново.";
+                            error = $"Выбранная папка содержит другой патч Dota 2 (версия {value}). Dotaclassic использует патч 6.84. Выберите правильную папку или скачайте игру заново.";
                             AppLog.Info($"[GameDirValidator] Rejected: wrong PatchVersion.");
                             return false;
                         }

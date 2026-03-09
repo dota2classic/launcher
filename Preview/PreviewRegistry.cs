@@ -61,7 +61,7 @@ public static class PreviewRegistry
                     new StubGameDownloadService(),
                     new d2c_launcher.Services.RedistInstallService())
                 {
-                    GameDirectory = @"C:\fake\dota2classic",
+                    GameDirectory = @"C:\fake\dotaclassic",
                     StatusText = "Загрузка (142/2381 файлов)",
                     DetailsText = "dota/bin/win64/engine.dll\n12.3 МБ / 24.1 ГБ  1.8 МБ/с  ~3ч 42м",
                     ProgressValue = 42,
@@ -78,7 +78,7 @@ public static class PreviewRegistry
                     new StubGameDownloadService(),
                     new d2c_launcher.Services.RedistInstallService())
                 {
-                    GameDirectory = @"C:\fake\dota2classic",
+                    GameDirectory = @"C:\fake\dotaclassic",
                     StatusText = "Ошибка загрузки",
                     ErrorText = "Ошибка подключения к серверу обновлений.\nПроверьте интернет-соединение и попробуйте снова.",
                     ProgressValue = 47,

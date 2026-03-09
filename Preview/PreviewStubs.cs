@@ -165,7 +165,7 @@ internal sealed class StubContentRegistryService : IContentRegistryService
     {
         Packages =
         [
-            new() { Id = "base",   Folder = "base",   Name = "Dota 2 Classic",                        Optional = false },
+            new() { Id = "base",   Folder = "base",   Name = "Dotaclassic",                           Optional = false },
             new() { Id = "redist", Folder = "redist", Name = "Необходимые библиотеки",                Optional = false },
             new() { Id = "ru_vo",  Folder = "ru_vo",  Name = "Русская озвучка от Strategic Music",    Optional = true  },
         ]

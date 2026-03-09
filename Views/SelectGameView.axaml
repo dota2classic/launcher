@@ -21,7 +21,7 @@
                    Spacing="16" MaxWidth="420" Margin="24,0"
                    IsVisible="{Binding !IsChoosingDlc}">
 
-           <TextBlock Text="Dota 2 Classic"
+           <TextBlock Text="Dotaclassic"
                       FontFamily="{StaticResource TrajanPro3}"
                       FontSize="28" FontWeight="Bold"
                       HorizontalAlignment="Center"

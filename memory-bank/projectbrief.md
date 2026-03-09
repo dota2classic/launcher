@@ -2,11 +2,11 @@
 
 ## What It Is
 
-**D2C Launcher** is a Windows desktop application for **Dota 2 Classic** — a community-maintained server running the original Dota 2 on the **Source 1 engine**. It provides the full lifecycle needed to play on the community server: authentication, matchmaking, and game launch.
+**D2C Launcher** is a Windows desktop application for **Dotaclassic** — a community-maintained server running the original Dota 2 on the **Source 1 engine**. It provides the full lifecycle needed to play on the community server: authentication, matchmaking, and game launch.
 
 ## Problem It Solves
 
-Dota 2 Classic is a community project with no official support from Valve. Players need:
+Dotaclassic is a community project with no official support from Valve. Players need:
 - A way to authenticate with Steam without official game integration
 - Matchmaking against other community players
 - Validation that the game is correctly installed
@@ -30,7 +30,7 @@ Dota 2 Classic is a community project with no official support from Valve. Playe
 
 - **Platform:** Windows only (x64), no other targets
 - **Runtime:** .NET 10.0 self-contained
-- **User base:** Russian-speaking Dota 2 Classic community
+- **User base:** Russian-speaking Dotaclassic community
 - **Backend API:** `https://api.dotaclassic.ru`
 - **Steam App ID:** 480 (Spacewar/demo) — used for auth ticket generation
 

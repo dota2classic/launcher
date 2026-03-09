@@ -46,7 +46,7 @@ public partial class SelectGameView : UserControl
 
         var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
-            Title = "Выберите папку для установки Dota 2 Classic",
+            Title = "Выберите папку для установки Dotaclassic",
             AllowMultiple = false
         });
 

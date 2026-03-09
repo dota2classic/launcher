@@ -1,6 +1,6 @@
 # client.dll Binary Patching
 
-Tooling and process for patching `client.dll` in Dota 2 Classic (Source 1 engine, Windows x86 32-bit).
+Tooling and process for patching `client.dll` in Dotaclassic (Source 1 engine, Windows x86 32-bit).
 
 See `tools/patch-client-dll.py` for the ready-to-use script.
 

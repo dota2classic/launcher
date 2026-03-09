@@ -53,12 +53,16 @@ internal static class Program
                 TryGetAvatar(steamIdObj, out var avatarRgba, out var avatarWidth, out var avatarHeight);
 
                 // Get ticket and immediately exchange it with the backend while SteamAPI is still running.
-                var ticketHex = TryGetAuthTicket();
+                var ticketHex = TryGetAuthTicket(out var authTicketStatus);
                 if (ticketHex == null)
-                    Log("warn", "Auth ticket request failed or timed out — backend token will be null.");
+                {
+                    Log("warn", $"Auth ticket not obtained: {authTicketStatus}.");
+                    WriteSnapshot(new Snapshot(authTicketStatus, steamId, personaName, avatarRgba, avatarWidth, avatarHeight));
+                    return 0;
+                }
 
-                var backendToken = ticketHex != null ? ExchangeForBackendToken(ticketHex) : null;
-                if (ticketHex != null && backendToken == null)
+                var backendToken = ExchangeForBackendToken(ticketHex);
+                if (backendToken == null)
                     Log("warn", "Backend token exchange failed — API call returned null.");
 
                 Log("info", $"Snapshot ready: status=Running, steamId={steamId}, hasToken={backendToken != null}.");
@@ -170,18 +174,19 @@ internal static class Program
         return 0;
     }
 
-    private static string? TryGetAuthTicket()
+    private static string? TryGetAuthTicket(out string failStatus)
     {
         _ticketReady?.Dispose();
         _ticketReady = new ManualResetEventSlim(false);
         _ticketHex = null;
         _ticketHandle = HAuthTicket.Invalid;
 
-        var identity = DefaultWebApiIdentity;
-
-        var handle = SteamUser.GetAuthTicketForWebApi(identity);
+        var handle = SteamUser.GetAuthTicketForWebApi(DefaultWebApiIdentity);
         if (handle == HAuthTicket.Invalid)
+        {
+            failStatus = "AuthTicketFailed";
             return null;
+        }
 
         _ticketHandle = handle;
         var deadline = DateTime.UtcNow + AuthTicketTimeout;
@@ -193,6 +198,14 @@ internal static class Program
 
         _ticketReady?.Dispose();
         _ticketReady = null;
+
+        if (_ticketHex == null)
+        {
+            failStatus = "AuthTicketTimeout";
+            return null;
+        }
+
+        failStatus = "Running";
         return _ticketHex;
     }
 

@@ -16,7 +16,7 @@ CDN base URL: `https://launcher.dotaclassic.ru/files/`
 ```json
 {
   "packages": [
-    { "id": "core",    "folder": "core",    "name": "Dota 2 Classic", "optional": false },
+    { "id": "core",    "folder": "core",    "name": "Dotaclassic", "optional": false },
     { "id": "maps_ru", "folder": "maps_ru", "name": "Русские карты",  "optional": true  }
   ]
 }
