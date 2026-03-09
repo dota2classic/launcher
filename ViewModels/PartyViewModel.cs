@@ -22,9 +22,6 @@ public partial class PartyViewModel : ViewModelBase, IDisposable
     private int _partyRefreshRunning;
     private System.Collections.Generic.HashSet<string> _onlineUsers = new(StringComparer.Ordinal);
 
-    // Delegate set by parent
-    public Func<string?> GetBackendToken { get; set; } = () => null;
-
     [ObservableProperty]
     private ObservableCollection<PartyMemberView> _partyMembers = new();
 
@@ -84,15 +81,7 @@ public partial class PartyViewModel : ViewModelBase, IDisposable
 
         try
         {
-            var token = GetBackendToken();
-            if (string.IsNullOrWhiteSpace(token))
-            {
-                AppLog.Info("Party refresh skipped: no backend token.");
-                ClearParty();
-                return;
-            }
-
-            var partySnapshot = await _backendApiService.GetMyPartySnapshotAsync(token);
+            var partySnapshot = await _backendApiService.GetMyPartySnapshotAsync();
             PartyMembers.Clear();
             foreach (var m in partySnapshot.Members)
                 PartyMembers.Add(m);

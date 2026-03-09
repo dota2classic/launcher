@@ -103,6 +103,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
         var settings = settingsStorage.Get();
         _backendAccessToken = settings.BackendAccessToken;
+        if (!string.IsNullOrWhiteSpace(_backendAccessToken))
+            _backendApiService.SetBearerToken(_backendAccessToken);
         _isIntroOpen = !settings.IntroShown;
         _currentUser = steamManager.CurrentUser;
         _avatarImage = SteamAvatarHelper.FromUser(_currentUser);
@@ -126,15 +128,12 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Settings.PushCvar = PushCvarIfGameRunning;
         Settings.OnDlcChanged = removedIds => OnDlcChanged?.Invoke(removedIds);
         Chat = new ChatViewModel(backendApiService, imageService, emoticonService, queueSocketService);
-        Chat.GetBackendToken = () => BackendAccessToken;
         _ = Chat.StartAsync();
 
         // Wire delegates into children that need auth state
         Room.GetCurrentUser = () => CurrentUser;
-        Room.GetBackendToken = () => BackendAccessToken;
         Room.GetModeName = mode =>
             Queue.MatchmakingModes.FirstOrDefault(m => m.ModeId == (int)mode)?.Name ?? mode.ToString();
-        Party.GetBackendToken = () => BackendAccessToken;
 
         // Keep queue timer in sync with party queue time
         Party.EnterQueueAtChanged += time => Queue.SetEnterQueueAt(time);
@@ -299,6 +298,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         {
             AppLog.Info("Backend token cleared.");
             BackendAccessToken = null;
+            _backendApiService.SetBearerToken(null);
             PersistBackendToken(null);
             await EnsureQueueConnectionAsync(null, ct);
             Party.ClearParty();
@@ -309,6 +309,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         {
             AppLog.Info("Backend token received from bridge.");
             BackendAccessToken = token;
+            _backendApiService.SetBearerToken(token);
             PersistBackendToken(token);
             await EnsureQueueConnectionAsync(token, ct);
             await Party.RefreshPartyAsync();
@@ -325,6 +326,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
             AppLog.Error("Backend token application failed.", ex);
             BackendAccessToken = null;
+            _backendApiService.SetBearerToken(null);
             PersistBackendToken(null);
             await EnsureQueueConnectionAsync(null, ct);
             Party.ClearParty();

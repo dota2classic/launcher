@@ -34,8 +34,6 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     private (string AuthorSteamId, string CreatedAt)? _lastMessageRaw;
     private HashSet<string> _onlineUsers = new(StringComparer.Ordinal);
 
-    public Func<string?> GetBackendToken { get; set; } = () => null;
-
     public ObservableCollection<ChatMessageView> Messages { get; } = new();
 
     [ObservableProperty] private string _inputText = "";
@@ -107,17 +105,9 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     {
         while (!ct.IsCancellationRequested)
         {
-            var token = GetBackendToken();
-            if (string.IsNullOrWhiteSpace(token))
-            {
-                try { await Task.Delay(5000, ct).ConfigureAwait(false); }
-                catch (OperationCanceledException) { break; }
-                continue;
-            }
-
             try
             {
-                await foreach (var msg in _backendApiService.SubscribeChatAsync(ThreadId, token, ct))
+                await foreach (var msg in _backendApiService.SubscribeChatAsync(ThreadId, ct))
                     ConsumeIncomingMessage(msg);
             }
             catch (OperationCanceledException) when (ct.IsCancellationRequested)
@@ -200,13 +190,6 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
     public async Task RefreshAsync()
     {
-        var token = GetBackendToken();
-        if (string.IsNullOrWhiteSpace(token))
-        {
-            AppLog.Info("Chat: skipping refresh, no token.");
-            return;
-        }
-
         _loadCts?.Cancel();
         _loadCts = new CancellationTokenSource();
         var ct = _loadCts.Token;
@@ -216,7 +199,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
             Dispatcher.UIThread.Post(() => IsLoading = Messages.Count == 0);
 
             var data = await _backendApiService.GetChatMessagesAsync(
-                ThreadId, MessageLimit, token, ct).ConfigureAwait(false);
+                ThreadId, MessageLimit, ct).ConfigureAwait(false);
 
             AppLog.Info($"Chat: received {data.Count} messages from API.");
 
@@ -247,15 +230,12 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         var text = InputText.Trim();
         if (string.IsNullOrEmpty(text)) return;
 
-        var token = GetBackendToken();
-        if (string.IsNullOrWhiteSpace(token)) return;
-
         IsSending = true;
         var saved = text;
         try
         {
             InputText = "";
-            await _backendApiService.PostChatMessageAsync(ThreadId, text, token)
+            await _backendApiService.PostChatMessageAsync(ThreadId, text)
                 .ConfigureAwait(false);
             // SSE will deliver the sent message — no manual refresh needed.
         }
@@ -338,16 +318,14 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
     private async Task LoadUserAsync(string steamId)
     {
-        var token = GetBackendToken();
-        if (string.IsNullOrWhiteSpace(token))
+        var info = await _backendApiService.GetUserInfoAsync(steamId).ConfigureAwait(false);
+        if (info == null)
         {
-            // No token yet — remove from cache so it retries next time.
+            // No token yet or user not found — remove from cache so it retries next time.
             _userNameCache.Remove(steamId);
             return;
         }
-
-        var info = await _backendApiService.GetUserInfoAsync(steamId, token).ConfigureAwait(false);
-        var name = info?.Name ?? steamId;
+        var name = info.Value.Name ?? steamId;
 
         Dispatcher.UIThread.Post(() =>
         {

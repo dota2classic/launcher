@@ -33,16 +33,14 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         BaseAddress = BaseUri,
         Timeout = System.Threading.Timeout.InfiniteTimeSpan
     };
-    // TODO: Merge into a single HttpClient. Setting DefaultRequestHeaders per-call is not
-    // thread-safe under concurrent requests. Prefer passing the bearer token via a delegating
-    // handler or creating a new HttpRequestMessage per call.
-    // Shared client for authenticated requests. Auth header is set per-call before use.
-    // Thread-safe for our single-user desktop app (only one token in flight at a time).
+    // Shared client for authenticated requests. Bearer token is set once via SetBearerToken()
+    // and reused across all authenticated calls.
     private readonly HttpClient _authHttpClient = new HttpClient
     {
         BaseAddress = BaseUri,
         Timeout = TimeSpan.FromSeconds(10)
     };
+    private string? _currentToken;
     private static readonly IReadOnlyDictionary<int, string> MatchmakingModeLabels = new Dictionary<int, string>
     {
         [0] = "Рейтинговая 5x5",
@@ -61,15 +59,21 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         [13] = "Турбо"
     };
 
-    public async Task<PartySnapshot> GetMyPartySnapshotAsync(string bearerToken, CancellationToken cancellationToken = default)
+    public void SetBearerToken(string? token)
     {
-        if (string.IsNullOrWhiteSpace(bearerToken))
+        _currentToken = token;
+        _authHttpClient.DefaultRequestHeaders.Authorization = string.IsNullOrWhiteSpace(token)
+            ? null
+            : new AuthenticationHeaderValue("Bearer", token);
+    }
+
+    public async Task<PartySnapshot> GetMyPartySnapshotAsync(CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(_currentToken))
         {
             AppLog.Info("Party fetch skipped: backend token is empty.");
             return new PartySnapshot(Array.Empty<PartyMemberView>(), null);
         }
-
-        _authHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
 
         var api = new DotaclassicApiClient(_authHttpClient);
         var party = await api.PlayerController_myPartyAsync(cancellationToken);
@@ -187,14 +191,13 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         return result;
     }
 
-    public async Task<(string? Name, string? AvatarUrl)?> GetUserInfoAsync(string steamId, string bearerToken, CancellationToken cancellationToken = default)
+    public async Task<(string? Name, string? AvatarUrl)?> GetUserInfoAsync(string steamId, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(steamId) || string.IsNullOrWhiteSpace(bearerToken))
+        if (string.IsNullOrWhiteSpace(steamId) || string.IsNullOrWhiteSpace(_currentToken))
             return null;
 
         try
         {
-            _authHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
             var api = new DotaclassicApiClient(_authHttpClient);
             var user = await api.PlayerController_userAsync(steamId, cancellationToken).ConfigureAwait(false);
             if (user == null)
@@ -240,10 +243,8 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
     }
 
     public async Task<IReadOnlyList<ChatMessageData>> GetChatMessagesAsync(
-        string threadId, int limit, string bearerToken, CancellationToken cancellationToken = default)
+        string threadId, int limit, CancellationToken cancellationToken = default)
     {
-        _authHttpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", bearerToken);
         var api = new DotaclassicApiClient(_authHttpClient);
         var messages = await api.ForumController_getMessagesAsync(
             threadId,
@@ -275,10 +276,8 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
     }
 
     public async Task PostChatMessageAsync(
-        string threadId, string content, string bearerToken, CancellationToken cancellationToken = default)
+        string threadId, string content, CancellationToken cancellationToken = default)
     {
-        _authHttpClient.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", bearerToken);
         var api = new DotaclassicApiClient(_authHttpClient);
         // The POST body expects the full prefixed threadId (e.g. "forum_<uuid>"),
         // while the GET endpoints use the bare UUID + a separate threadType param.
@@ -288,12 +287,13 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
     }
 
     public async IAsyncEnumerable<ChatMessageData> SubscribeChatAsync(
-        string threadId, string bearerToken,
+        string threadId,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var url = $"v1/forum/thread/{Uri.EscapeDataString(threadId)}/forum/sse";
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", bearerToken);
+        if (!string.IsNullOrWhiteSpace(_currentToken))
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _currentToken);
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/event-stream"));
 
         using var response = await _sseHttpClient.SendAsync(

@@ -19,7 +19,6 @@ public partial class RoomViewModel : ViewModelBase
 
     // Delegates set by parent after construction
     public Func<Models.User?> GetCurrentUser { get; set; } = () => null;
-    public Func<string?> GetBackendToken { get; set; } = () => null;
     public Func<MatchmakingMode, string> GetModeName { get; set; } = m => m.ToString();
 
     [ObservableProperty]
@@ -170,10 +169,7 @@ public partial class RoomViewModel : ViewModelBase
 
     private async Task<(string? Name, string? AvatarUrl)?> FetchUserInfoAsync(string steamId)
     {
-        var token = GetBackendToken();
-        if (string.IsNullOrWhiteSpace(token))
-            return null;
-        return await _backendApiService.GetUserInfoAsync(steamId, token);
+        return await _backendApiService.GetUserInfoAsync(steamId);
     }
 
     private void AcceptGame()

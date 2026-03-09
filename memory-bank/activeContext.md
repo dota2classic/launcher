@@ -2,6 +2,24 @@
 
 ## Current Focus
 
+### Refactoring: MainLauncherViewModel god class
+
+**Goal:** Reduce MLVM from 376 lines / 10 concerns to ~160 lines (thin coordinator).
+
+**Planned extractions:**
+1. **`SetBearerToken` on `BackendApiService`** *(in progress)* — Centralize auth token on the HTTP client. Drop `bearerToken` parameter from all 5 authenticated API methods. Drop `GetBackendToken` delegates from `PartyViewModel`, `RoomViewModel`, `ChatViewModel`. MLVM calls `_backendApiService.SetBearerToken(token)` once in `ApplyBackendTokenAsync`.
+2. **Extract `AuthCoordinator`** — Move `ApplyBackendTokenAsync`, `EnsureQueueConnectionAsync`, `PersistBackendToken`, `_ticketExchangeCts` + Steam event subscription out of MLVM into a dedicated coordinator class.
+3. **Extract `OnlineStatsViewModel`** — Move `_onlineStatsTimer`, `RefreshInGameCountAsync`, socket `OnlineUpdated` handler, `OnlineInGame/Sessions/StatsText` into a child VM. XAML binds to `OnlineStats.Text`.
+4. **Extract `UserProfileViewModel`** — Move `CurrentUser`, `AvatarImage`, `LoggedInAsText`, `OnUserUpdated` handler into a child VM.
+5. **Extract `SocketSoundCoordinator`** — Move 4 socket event → sound/notification handlers into a plain class.
+
+**Files to create:** `Services/AuthCoordinator.cs`, `ViewModels/OnlineStatsViewModel.cs`, `ViewModels/UserProfileViewModel.cs`, `Integration/SocketSoundCoordinator.cs`
+**Files to modify:** `IBackendApiService.cs`, `BackendApiService.cs`, `PartyViewModel.cs`, `RoomViewModel.cs`, `ChatViewModel.cs`, `MainLauncherViewModel.cs`, `Preview/PreviewStubs.cs`, relevant XAML
+
+---
+
+## Previous Focus
+
 **Issue #40: dota_camera_distance not persisting**
 
 Root cause: the game client overwrites `config.cfg` on exit, wiping any cvars it doesn't manage (like `dota_camera_distance`).
