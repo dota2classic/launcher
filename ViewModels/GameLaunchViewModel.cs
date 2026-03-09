@@ -119,7 +119,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
 
             var launchSettings = _launchSettingsStorage.Get();
             var cliArgs = CfgGenerator.BuildCliArgs(launchSettings);
-            var presetArg = CfgGenerator.WritePreset(GameDirectory);
+            var presetArg = CfgGenerator.WritePreset(GameDirectory, _cvarProvider.GetPresetCvars());
             var execArg = CfgGenerator.Generate(launchSettings, GameDirectory);
 
             // If any optional DLC is installed, the engine needs -override_vpk to load custom VPKs.

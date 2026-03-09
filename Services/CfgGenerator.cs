@@ -27,16 +27,20 @@ public static class CfgGenerator
     ];
 
     /// <summary>
-    /// Writes d2c_preset.cfg with hardcoded preset cvars.
+    /// Writes d2c_preset.cfg with hardcoded preset cvars plus any user-configurable preset cvars.
     /// Returns the +exec argument string, or null on failure.
     /// </summary>
-    public static string? WritePreset(string gameDirectory)
+    public static string? WritePreset(string gameDirectory, IReadOnlyDictionary<string, string>? userCvars = null)
     {
         var cfgDir = Path.Combine(gameDirectory, "dota", "cfg");
         try
         {
             Directory.CreateDirectory(cfgDir);
-            var content = string.Join("\n", PresetLines) + "\n";
+            var lines = new System.Collections.Generic.List<string>(PresetLines);
+            if (userCvars != null)
+                foreach (var (name, value) in userCvars)
+                    lines.Add($"{name} \"{value}\"");
+            var content = string.Join("\n", lines) + "\n";
             File.WriteAllText(Path.Combine(cfgDir, PresetCfgFileName), content, Encoding.UTF8);
             return $"+exec {PresetCfgFileName}";
         }

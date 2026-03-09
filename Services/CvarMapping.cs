@@ -4,6 +4,18 @@ using d2c_launcher.Models;
 namespace d2c_launcher.Services;
 
 /// <summary>
+/// Determines which cfg file a cvar is read from and written to.
+/// </summary>
+public enum CvarConfigSource
+{
+    /// <summary>config.cfg — managed by the game client. Used for cvars the game also writes.</summary>
+    ConfigCfg,
+
+    /// <summary>d2c_preset.cfg — managed only by the launcher. Used for cvars the game client never touches.</summary>
+    PresetCfg,
+}
+
+/// <summary>
 /// Central registry mapping Source engine cvar names to <see cref="CvarSettings"/> properties.
 /// Used by CfgGenerator (write), DotaCfgReader (read-back), and live console push.
 /// </summary>
@@ -49,7 +61,8 @@ public static class CvarMapping
         new("dota_camera_distance",
             s => s.CameraDistance?.ToString() ?? "",
             (s, v) => s.CameraDistance = int.TryParse(v, out var n) ? Math.Clamp(n, 1000, 1600) : null,
-            IsEmpty: s => !s.CameraDistance.HasValue),
+            IsEmpty: s => !s.CameraDistance.HasValue,
+            Source: CvarConfigSource.PresetCfg),
 
     ];
 }
@@ -58,8 +71,10 @@ public static class CvarMapping
 /// <param name="GetValue">Reads the current value from settings as a string.</param>
 /// <param name="SetValue">Writes a parsed string value into settings.</param>
 /// <param name="IsEmpty">Returns true if the setting should be omitted from cfg output (e.g. fps_max not set).</param>
+/// <param name="Source">Which cfg file this cvar belongs to.</param>
 public record CvarEntry(
     string CvarName,
     Func<CvarSettings, string> GetValue,
     Action<CvarSettings, string> SetValue,
-    Func<CvarSettings, bool> IsEmpty);
+    Func<CvarSettings, bool> IsEmpty,
+    CvarConfigSource Source = CvarConfigSource.ConfigCfg);

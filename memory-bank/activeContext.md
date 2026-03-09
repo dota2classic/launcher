@@ -2,6 +2,26 @@
 
 ## Current Focus
 
+**Issue #40: dota_camera_distance not persisting**
+
+Root cause: the game client overwrites `config.cfg` on exit, wiping any cvars it doesn't manage (like `dota_camera_distance`).
+
+Fix: introduced `CvarConfigSource` enum (`ConfigCfg` / `PresetCfg`) on `CvarEntry`. Cvars the game client doesn't manage are now written to `d2c_preset.cfg` instead of `config.cfg`. The preset file is exec'd at launch and never touched by the game client.
+
+Changes:
+- `Services/CvarMapping.cs` — added `CvarConfigSource` enum; `CvarEntry` gets `Source` field (default `ConfigCfg`); `dota_camera_distance` marked `PresetCfg`
+- `Services/DotaCfgReader.cs` — extracted `ReadKnownCvarsFromFile(path)`; `ApplyToSettings` takes `CvarConfigSource` param and reads the appropriate file; startup now reads both files
+- `Services/CfgGenerator.cs` — `WritePreset` accepts optional `userCvars` dict; appends them after hardcoded lines
+- `Services/CvarSettingsProvider.cs` — `Update()` always writes (dropped `!IsGameRunning` guard); splits cvars by source and writes to correct files; `LoadFromConfigCfg` reads both files; exposes `GetPresetCvars()`
+- `Services/ICvarSettingsProvider.cs` — added `GetPresetCvars()` method; updated doc comments
+- `ViewModels/GameLaunchViewModel.cs` — passes `_cvarProvider.GetPresetCvars()` to `WritePreset` on launch
+- `Preview/PreviewStubs.cs` — stub implements `GetPresetCvars()`
+- `docs/settings-architecture.md` — documented the cfg file split
+
+---
+
+## Previous Focus
+
 **Issue #38: Add mod limitations**
 
 Implemented game mode access restrictions in the matchmaking mode selector:

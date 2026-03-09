@@ -9,6 +9,19 @@ The settings system has two separate stores:
 
 There is no periodic sync loop. The launcher reads config.cfg on startup and on game exit, and writes to it directly when the user changes a cvar setting while the game is not running.
 
+## Cfg File Split
+
+Cvars are split across two files based on `CvarEntry.Source` (`CvarConfigSource` enum):
+
+| `CvarConfigSource` | File | Who else writes it |
+|---|---|---|
+| `ConfigCfg` (default) | `config.cfg` | Game client on exit |
+| `PresetCfg` | `d2c_preset.cfg` | Nobody — launcher only |
+
+**Rule:** cvars that the game client also saves (e.g. keybinds, UI toggles) go in `config.cfg`. Cvars the game client never writes (e.g. `dota_camera_distance`) go in `d2c_preset.cfg` so a game-exit config flush can't wipe them.
+
+`d2c_preset.cfg` is exec'd at game launch via `+exec d2c_preset.cfg`. It contains both hardcoded launcher presets (`dota_embers 0`, etc.) and user-configurable `PresetCfg` cvars.
+
 ## Setting Types
 
 ### 1:1 Cvars (`CvarMapping`)
@@ -20,9 +33,15 @@ new("dota_camera_disable_zoom",
     s => s.DisableCameraZoom ? "1" : "0",    // getter: CvarSettings → string
     (s, v) => s.DisableCameraZoom = v is "1", // setter: string → CvarSettings
     IsEmpty: _ => false),                      // always write to cfg
+
+new("dota_camera_distance",
+    s => s.CameraDistance?.ToString() ?? "",
+    (s, v) => s.CameraDistance = int.TryParse(v, out var n) ? Math.Clamp(n, 1000, 1600) : null,
+    IsEmpty: s => !s.CameraDistance.HasValue,
+    Source: CvarConfigSource.PresetCfg),      // goes to d2c_preset.cfg, not config.cfg
 ```
 
-Entries: `fps_max`, `con_enable`, `dota_camera_disable_zoom`, `dota_force_right_click_attack`, `dota_player_auto_repeat_right_mouse`, `dota_reset_camera_on_spawn`.
+Entries: `fps_max`, `con_enable`, `dota_camera_disable_zoom`, `dota_force_right_click_attack`, `dota_player_auto_repeat_right_mouse`, `dota_reset_camera_on_spawn`, `dota_camera_distance` (PresetCfg).
 
 ### Composite Cvars (`CompositeCvarMapping`)
 
@@ -48,9 +67,9 @@ UI ──> SettingsViewModel setter ──> CvarSettingsProvider.Update()
 
 ### User changes a cvar (game running)
 ```
-UI ──> SettingsViewModel setter ──> CvarSettingsProvider.Update() (in-memory only, skips config.cfg write)
+UI ──> SettingsViewModel setter ──> CvarSettingsProvider.Update()
+       ──> writes to config.cfg / d2c_preset.cfg (always, even while game runs)
        ──> PushCvar delegate ──> DotaConsoleConnector.SendCommand("cvar value")
-Game flushes to config.cfg on exit.
 ```
 
 ### User changes a launch flag (NoVid, Language)

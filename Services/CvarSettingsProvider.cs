@@ -21,16 +21,26 @@ public class CvarSettingsProvider : ICvarSettingsProvider
     {
         _settings = settings;
 
-        if (!IsGameRunning && !string.IsNullOrWhiteSpace(_gameDirectory))
+        if (!string.IsNullOrWhiteSpace(_gameDirectory))
         {
             try
             {
-                var cvars = BuildCvarDictionary(settings);
-                DotaCfgWriter.WriteCvars(_gameDirectory, cvars);
+                var configCvars = BuildCvarDictionary(settings, CvarConfigSource.ConfigCfg);
+                DotaCfgWriter.WriteCvars(_gameDirectory, configCvars);
             }
             catch (Exception ex)
             {
                 AppLog.Error("CvarSettingsProvider: failed to write config.cfg", ex);
+            }
+
+            try
+            {
+                var presetCvars = BuildCvarDictionary(settings, CvarConfigSource.PresetCfg);
+                CfgGenerator.WritePreset(_gameDirectory, presetCvars);
+            }
+            catch (Exception ex)
+            {
+                AppLog.Error("CvarSettingsProvider: failed to write d2c_preset.cfg", ex);
             }
         }
 
@@ -41,7 +51,10 @@ public class CvarSettingsProvider : ICvarSettingsProvider
     {
         _gameDirectory = gameDirectory;
 
-        var changed = DotaCfgReader.ApplyToSettings(_settings, gameDirectory);
+        var changed = DotaCfgReader.ApplyToSettings(_settings, gameDirectory, CvarConfigSource.ConfigCfg);
+        var presetChanged = DotaCfgReader.ApplyToSettings(_settings, gameDirectory, CvarConfigSource.PresetCfg);
+        changed = changed || presetChanged;
+
         if (changed)
             CvarChanged?.Invoke();
 
@@ -60,29 +73,39 @@ public class CvarSettingsProvider : ICvarSettingsProvider
     }
 
     /// <summary>
-    /// Builds a dictionary of all managed cvar names → current string values.
-    /// Always includes cl_cloud_settings=0 to prevent retail Dota 2 cloud sync from conflicting.
+    /// Builds a dictionary of cvar names → current string values for the given source file.
+    /// For <see cref="CvarConfigSource.ConfigCfg"/> also includes cl_cloud_settings=0 and composite cvars.
     /// </summary>
-    private static Dictionary<string, string> BuildCvarDictionary(CvarSettings settings)
+    private static Dictionary<string, string> BuildCvarDictionary(CvarSettings settings, CvarConfigSource source)
     {
-        var cvars = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            ["cl_cloud_settings"] = "0",
-        };
+        var cvars = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        if (source == CvarConfigSource.ConfigCfg)
+            cvars["cl_cloud_settings"] = "0";
 
         foreach (var entry in CvarMapping.Entries)
         {
+            if (entry.Source != source)
+                continue;
             if (entry.IsEmpty(settings))
                 continue;
             cvars[entry.CvarName] = entry.GetValue(settings);
         }
 
-        foreach (var entry in CompositeCvarMapping.Entries)
+        if (source == CvarConfigSource.ConfigCfg)
         {
-            foreach (var (name, value) in entry.GetValues(settings))
-                cvars[name] = value;
+            foreach (var entry in CompositeCvarMapping.Entries)
+                foreach (var (name, value) in entry.GetValues(settings))
+                    cvars[name] = value;
         }
 
         return cvars;
     }
+
+    /// <summary>
+    /// Returns the current preset cvars (for <see cref="CvarConfigSource.PresetCfg"/>) as a dictionary.
+    /// Used by <see cref="GameLaunchViewModel"/> when writing d2c_preset.cfg before launch.
+    /// </summary>
+    public IReadOnlyDictionary<string, string> GetPresetCvars()
+        => BuildCvarDictionary(_settings, CvarConfigSource.PresetCfg);
 }

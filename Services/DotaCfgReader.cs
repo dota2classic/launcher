@@ -13,6 +13,7 @@ namespace d2c_launcher.Services;
 public static class DotaCfgReader
 {
     private const string ConfigFileName = "config.cfg";
+    private const string PresetCfgFileName = "d2c_preset.cfg";
 
     /// <summary>
     /// Reads config.cfg and returns values for known cvars.
@@ -20,8 +21,17 @@ public static class DotaCfgReader
     /// </summary>
     public static Dictionary<string, string> ReadKnownCvars(string gameDirectory)
     {
-        var cvars = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         var configPath = Path.Combine(gameDirectory, "dota", "cfg", ConfigFileName);
+        return ReadKnownCvarsFromFile(configPath);
+    }
+
+    /// <summary>
+    /// Reads an arbitrary cfg file and returns values for known cvars.
+    /// Returns an empty dictionary on any IO error (file locked, missing, etc.).
+    /// </summary>
+    public static Dictionary<string, string> ReadKnownCvarsFromFile(string configPath)
+    {
+        var cvars = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         if (!File.Exists(configPath))
             return cvars;
@@ -76,11 +86,17 @@ public static class DotaCfgReader
 
     /// <summary>
     /// Reads config.cfg and applies any changed cvar values to <paramref name="settings"/>.
+    /// Only processes cvars whose <see cref="CvarEntry.Source"/> matches <paramref name="source"/>.
     /// Returns true if any setting was actually modified.
     /// </summary>
-    public static bool ApplyToSettings(CvarSettings settings, string gameDirectory)
+    public static bool ApplyToSettings(CvarSettings settings, string gameDirectory,
+        CvarConfigSource source = CvarConfigSource.ConfigCfg)
     {
-        var cvars = ReadKnownCvars(gameDirectory);
+        var configPath = source == CvarConfigSource.PresetCfg
+            ? Path.Combine(gameDirectory, "dota", "cfg", PresetCfgFileName)
+            : Path.Combine(gameDirectory, "dota", "cfg", ConfigFileName);
+
+        var cvars = ReadKnownCvarsFromFile(configPath);
         if (cvars.Count == 0)
             return false;
 
@@ -89,6 +105,8 @@ public static class DotaCfgReader
         // 1:1 cvars
         foreach (var entry in CvarMapping.Entries)
         {
+            if (entry.Source != source)
+                continue;
             if (!cvars.TryGetValue(entry.CvarName, out var fileValue))
                 continue;
 
@@ -100,7 +118,10 @@ public static class DotaCfgReader
             changed = true;
         }
 
-        // Composite cvars
+        // Composite cvars always live in config.cfg
+        if (source == CvarConfigSource.PresetCfg)
+            return changed;
+
         foreach (var entry in CompositeCvarMapping.Entries)
         {
             var fileValues = new Dictionary<string, string>();

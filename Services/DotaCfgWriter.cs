@@ -22,6 +22,9 @@ public static class DotaCfgWriter
         var cfgDir = Path.Combine(gameDirectory, "dota", "cfg");
         Directory.CreateDirectory(cfgDir);
 
+        // Normalize to case-insensitive so file keys like "CON_ENABLE" match dict keys like "con_enable".
+        var cvarsCi = new Dictionary<string, string>(cvars, StringComparer.OrdinalIgnoreCase);
+
         var configPath = Path.Combine(cfgDir, ConfigFileName);
         var lines = new List<string>();
         var written = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -50,7 +53,7 @@ public static class DotaCfgWriter
                 if (spaceIdx > 0)
                 {
                     var name = trimmed[..spaceIdx];
-                    if (cvars.TryGetValue(name, out var newValue))
+                    if (cvarsCi.TryGetValue(name, out var newValue))
                     {
                         lines.Add($"{name} \"{newValue}\"");
                         written.Add(name);
@@ -64,7 +67,7 @@ public static class DotaCfgWriter
         }
 
         // Append any cvars not found in the existing file
-        foreach (var (name, value) in cvars)
+        foreach (var (name, value) in cvarsCi)
         {
             if (!written.Contains(name))
                 lines.Add($"{name} \"{value}\"");

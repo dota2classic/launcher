@@ -127,6 +127,7 @@ internal sealed class StubCvarSettingsProvider : ICvarSettingsProvider
     public CvarSettings Get() => _settings;
     public void Update(CvarSettings settings) { _settings = settings; CvarChanged?.Invoke(); }
     public bool LoadFromConfigCfg(string gameDirectory) => false;
+    public IReadOnlyDictionary<string, string> GetPresetCvars() => new Dictionary<string, string>();
 }
 
 internal sealed class StubSettingsStorage : ISettingsStorage
