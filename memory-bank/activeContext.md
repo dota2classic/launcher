@@ -2,7 +2,16 @@
 
 ## Current Focus
 
-**No active issue — all recent issues closed. See open issues list below.**
+**Issue #37: First-run introduction overlay**
+
+Added one-time onboarding overlay for new players + user indicator in header.
+
+Files changed:
+- `Models/LauncherSettings.cs` — added `bool IntroShown`
+- `ViewModels/MainLauncherViewModel.cs` — added `IsIntroOpen`, `IntroStep`, `IntroStepCount`, `NextIntroStepCommand`, `CloseIntroCommand`; initialized from `!settings.IntroShown`; `CloseIntro()` saves `IntroShown = true`
+- `Views/MainLauncherView.axaml` — intro overlay (ZIndex=200) with 4 step panels, next/skip buttons; uses `IntroStepConverter` and `IntroNextButtonTextConverter`
+- `Util/IntroConverters.cs` — new: `IntroStepConverter` (equality check), `IntroNextButtonTextConverter` ("Далее"/"Начать играть")
+- `Views/Components/LauncherHeader.axaml` — user block now shows green online dot on avatar + "Вы:" sublabel above persona name
 
 Open issues (as of 2026-03-09):
 - #31 — Add proper localization (enhancement)

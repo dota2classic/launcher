@@ -128,19 +128,29 @@ Push a tag matching `v*.*.*` to trigger GitHub Actions. The workflow:
 
 ## Developer Tools
 
+### Live App (computer-use MCP)
+
+Launch the app, then use the `computer-use` MCP tools to screenshot and interact with it directly:
+
+```bash
+# Launch detached
+start dotnet run --project d2c-launcher.csproj
+# Wait ~10s for startup, then use mcp__computer-use__screenshot / click / etc.
+```
+
+- Coordinate formula: `screen = window_offset + screenshot_px` (get offset via `get_window_rect`)
+- 0.1s sleep between actions is sufficient
+
 ### Component Preview (Storybook-like)
 
-Render a single UI component in isolation, screenshot it, and iterate — without running the full launcher.
+Render a single UI component in isolation — without running the full launcher.
 
 ```powershell
 # From repo root (use powershell, not pwsh — pwsh is not installed):
 powershell -ExecutionPolicy Bypass -File tools/preview.ps1 PartyPanel
-# → C:\...\tools\screenshots\20260302_143201.png
 ```
 
-The script always runs an incremental `dotnet build`, launches the app in `--preview` mode, waits for the window, screenshots it, kills the process, and prints the PNG path.
-
-Use the `Read` tool on the returned path to view the screenshot.
+The script builds incrementally and launches the app in `--preview` mode. Use the `computer-use` MCP to screenshot the result.
 
 **Available components:**
 
@@ -158,25 +168,6 @@ Use the `Read` tool on the returned path to view the screenshot.
 Stub services are in [Preview/PreviewStubs.cs](Preview/PreviewStubs.cs).
 
 **Note:** Steam does not need to be running for the preview tool to work.
-
-### Full App Screenshot
-
-To screenshot the full running app (all real services, real routing), use:
-
-```powershell
-# From repo root (use powershell, not pwsh):
-powershell -ExecutionPolicy Bypass -File tools/screenshot.ps1
-# → C:\...\tools\screenshots\20260302_143201.png
-```
-
-The script builds incrementally, launches the app without any special flags, waits up to 15 seconds for the window, screenshots it, kills the process, and prints the PNG path.
-
-Use the `Read` tool on the returned path to view the screenshot.
-
-**Notes:**
-- If Steam is not running the app will show the `LaunchSteamFirst` screen — that is expected and still useful for layout review.
-- Pass `-WaitSeconds 20` if startup is slow.
-- Output goes to the same `tools/screenshots/` directory as component previews.
 
 ### HTML Screenshot
 
@@ -206,6 +197,7 @@ Project documentation lives in the `docs/` directory. Current files:
 | [docs/settings-architecture.md](docs/settings-architecture.md) | Settings system: CvarMapping, CompositeCvarMapping, BindMapping, SettingsViewModel, adding new settings |
 | [docs/game-update-manifest.md](docs/game-update-manifest.md) | Game update manifest format, `exact`/`existing` modes, `LocalManifestService`, `ManifestDiffService`, update flow |
 | [docs/client-dll-patching.md](docs/client-dll-patching.md) | Binary patching of `client.dll`: FCVAR_CHEAT removal, default value patch, PE layout, sync strategy |
+| [docs/computer-use-workflow.md](docs/computer-use-workflow.md) | Step-by-step workflow for implementing and visually verifying UI changes using the computer-use MCP |
 
 When you discover new domain knowledge, architectural decisions, or non-trivial technical details during implementation, **write them up as a new `.md` file in `docs/`** and add an entry to this table. Keep docs focused — one topic per file.
 
