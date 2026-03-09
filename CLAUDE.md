@@ -205,6 +205,7 @@ Project documentation lives in the `docs/` directory. Current files:
 | [docs/source-engine-config-persistence.md](docs/source-engine-config-persistence.md) | `config.cfg` format, `FCVAR_ARCHIVE`, `host_writeconfig`, reading config from launcher |
 | [docs/settings-architecture.md](docs/settings-architecture.md) | Settings system: CvarMapping, CompositeCvarMapping, BindMapping, SettingsViewModel, adding new settings |
 | [docs/game-update-manifest.md](docs/game-update-manifest.md) | Game update manifest format, `exact`/`existing` modes, `LocalManifestService`, `ManifestDiffService`, update flow |
+| [docs/client-dll-patching.md](docs/client-dll-patching.md) | Binary patching of `client.dll`: FCVAR_CHEAT removal, default value patch, PE layout, sync strategy |
 
 When you discover new domain knowledge, architectural decisions, or non-trivial technical details during implementation, **write them up as a new `.md` file in `docs/`** and add an entry to this table. Keep docs focused — one topic per file.
 
