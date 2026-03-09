@@ -81,6 +81,9 @@ internal sealed class StubBackendApiService : IBackendApiService
     public Task<IReadOnlyList<EmoticonData>> GetEmoticonsAsync(CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<EmoticonData>>([]);
 
+    public Task<Models.LiveMatchInfo?> GetLiveMatchAsync(int matchId, CancellationToken cancellationToken = default)
+        => Task.FromResult<Models.LiveMatchInfo?>(null);
+
     public async IAsyncEnumerable<ChatMessageData> SubscribeChatAsync(
         string threadId, string bearerToken,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)

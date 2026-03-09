@@ -7,6 +7,7 @@ using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using Avalonia.Markup.Xaml;
 using d2c_launcher.Integration;
+using d2c_launcher.Util;
 using d2c_launcher.Preview;
 using d2c_launcher.Services;
 using d2c_launcher.ViewModels;
@@ -17,6 +18,9 @@ namespace d2c_launcher;
 
 public partial class App : Application
 {
+    /// <summary>Set by Program.Main before Avalonia starts.</summary>
+    public static Services.SingleInstanceService? SingleInstance { get; set; }
+
     private ServiceProvider? _services;
 
     public override void Initialize()
@@ -68,18 +72,35 @@ public partial class App : Application
 
             _services = services.BuildServiceProvider();
 
+            ProtocolRegistrationService.EnsureRegistered();
+
             var steamManager = _services.GetRequiredService<SteamManager>();
             var queueSocket = _services.GetRequiredService<IQueueSocketService>();
+            var mainVm = _services.GetRequiredService<MainWindowViewModel>();
+
+            // Handle protocol URL passed as initial arg (e.g. launched via d2c:// link).
+            var protocolArg = Array.Find(args, a => a.StartsWith("d2c://", StringComparison.OrdinalIgnoreCase));
+            if (protocolArg != null)
+                mainVm.HandleProtocolUrl(protocolArg);
+
+            // Handle protocol URLs forwarded from second instances that started while we were running.
+            if (SingleInstance != null)
+            {
+                SingleInstance.OnMessageReceived += msg =>
+                    mainVm.HandleProtocolUrl(msg);
+            }
+
             desktop.Exit += (_, _) =>
             {
                 steamManager.Dispose();
                 queueSocket.Dispose();
                 _services.Dispose();
+                SingleInstance?.Dispose();
             };
 
             desktop.MainWindow = new MainWindow
             {
-                DataContext = _services.GetRequiredService<MainWindowViewModel>(),
+                DataContext = mainVm,
             };
         }
 

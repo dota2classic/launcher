@@ -117,7 +117,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         }
 
         // Create child ViewModels
-        Launch = new GameLaunchViewModel(settingsStorage, launchSettingsStorage, cvarProvider, videoProvider, queueSocketService);
+        Launch = new GameLaunchViewModel(settingsStorage, launchSettingsStorage, cvarProvider, videoProvider, queueSocketService, backendApiService);
         Queue = new QueueViewModel(queueSocketService, backendApiService);
         Room = new RoomViewModel(queueSocketService, backendApiService);
         Party = new PartyViewModel(queueSocketService, backendApiService);

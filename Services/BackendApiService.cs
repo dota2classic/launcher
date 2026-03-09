@@ -384,6 +384,26 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         }
     }
 
+    public async Task<Models.LiveMatchInfo?> GetLiveMatchAsync(int matchId, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var api = new DotaclassicApiClient(_httpClient);
+            var matches = await api.LiveMatchController_listMatchesAsync(cancellationToken).ConfigureAwait(false);
+            if (matches == null)
+                return null;
+            var match = matches.FirstOrDefault(m => (int)m.MatchId == matchId);
+            if (match == null || string.IsNullOrWhiteSpace(match.Server))
+                return null;
+            return new Models.LiveMatchInfo((int)match.MatchId, match.Server);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error($"GetLiveMatchAsync({matchId}) failed: {ex.Message}", ex);
+            return null;
+        }
+    }
+
     public void Dispose()
     {
         _httpClient.Dispose();

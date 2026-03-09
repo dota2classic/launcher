@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -8,6 +9,7 @@ using CommunityToolkit.Mvvm.Input;
 using d2c_launcher.Integration;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
+using d2c_launcher.Util;
 
 namespace d2c_launcher.ViewModels;
 
@@ -29,6 +31,9 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IGameDownloadService _gameDownloadService;
     private readonly RedistInstallService _redistInstallService;
     private readonly IContentRegistryService _registryService;
+
+    /// <summary>Pending spectate match ID received before the Launcher state was entered.</summary>
+    private int? _pendingSpectateMatchId;
 
     [ObservableProperty]
     private AppState _appState;
@@ -272,6 +277,45 @@ public partial class MainWindowViewModel : ViewModelBase
             EnterVerifyingGame(removedIds);
         });
         CurrentContentViewModel = vm;
+
+        if (_pendingSpectateMatchId.HasValue)
+        {
+            var matchId = _pendingSpectateMatchId.Value;
+            _pendingSpectateMatchId = null;
+            vm.Launch.SpectateMatch(matchId);
+        }
+    }
+
+    /// <summary>
+    /// Handles a d2c:// protocol URL (e.g. "d2c://spectate/123").
+    /// Safe to call from any thread.
+    /// </summary>
+    public void HandleProtocolUrl(string url)
+    {
+        AppLog.Info($"[Protocol] handling URL: {url}");
+        if (TryParseSpectateUrl(url, out var matchId))
+            Dispatcher.UIThread.Post(() => HandleSpectate(matchId));
+        else
+            AppLog.Info($"[Protocol] unrecognised URL: {url}");
+    }
+
+    private static bool TryParseSpectateUrl(string url, out int matchId)
+    {
+        matchId = 0;
+        // Expected: d2c://spectate/12345  (scheme is stripped to "spectate/12345" by Uri or left as-is)
+        var lower = url.ToLowerInvariant().TrimEnd('/');
+        const string prefix = "d2c://spectate/";
+        if (!lower.StartsWith(prefix, StringComparison.Ordinal))
+            return false;
+        return int.TryParse(url[prefix.Length..], out matchId);
+    }
+
+    private void HandleSpectate(int matchId)
+    {
+        if (CurrentContentViewModel is MainLauncherViewModel launcherVm)
+            launcherVm.Launch.SpectateMatch(matchId);
+        else
+            _pendingSpectateMatchId = matchId;
     }
 
     private void DisposeCurrentVm()

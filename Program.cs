@@ -15,6 +15,24 @@ sealed class Program
     public static void Main(string[] args)
     {
         VelopackApp.Build().Run();
+
+        // Enforce single instance: if another launcher is already running, forward
+        // our args to it (e.g. a d2c:// protocol URL) and exit immediately.
+        var singleInstance = new SingleInstanceService();
+        if (!singleInstance.TryBecomePrimaryInstance(args))
+        {
+            singleInstance.Dispose();
+            return;
+        }
+
+        // We are the primary instance — start the pipe server before Avalonia so
+        // it is ready to receive messages from any second instance that starts
+        // while we are initialising.
+        singleInstance.StartPipeServer();
+
+        // Expose the service so App can wire protocol handling after DI is set up.
+        App.SingleInstance = singleInstance;
+
         var hw = HardwareInfoService.Collect();
         var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "0.0.0";
         FaroTelemetryService.Init(version, hw);

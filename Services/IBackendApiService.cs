@@ -17,4 +17,6 @@ public interface IBackendApiService
     Task PostChatMessageAsync(string threadId, string content, string bearerToken, CancellationToken cancellationToken = default);
     IAsyncEnumerable<ChatMessageData> SubscribeChatAsync(string threadId, string bearerToken, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<EmoticonData>> GetEmoticonsAsync(CancellationToken cancellationToken = default);
+    /// <summary>Returns the live match with the given ID, or null if not found.</summary>
+    Task<LiveMatchInfo?> GetLiveMatchAsync(int matchId, CancellationToken cancellationToken = default);
 }

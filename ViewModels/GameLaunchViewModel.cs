@@ -17,6 +17,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
     private readonly IGameLaunchSettingsStorage _launchSettingsStorage;
     private readonly ICvarSettingsProvider _cvarProvider;
     private readonly IVideoSettingsProvider _videoProvider;
+    private readonly IBackendApiService _backendApiService;
     private readonly DispatcherTimer _runStateTimer;
 
     [ObservableProperty]
@@ -63,12 +64,14 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         IGameLaunchSettingsStorage launchSettingsStorage,
         ICvarSettingsProvider cvarProvider,
         IVideoSettingsProvider videoProvider,
-        IQueueSocketService queueSocketService)
+        IQueueSocketService queueSocketService,
+        IBackendApiService backendApiService)
     {
         _settingsStorage = settingsStorage;
         _launchSettingsStorage = launchSettingsStorage;
         _cvarProvider = cvarProvider;
         _videoProvider = videoProvider;
+        _backendApiService = backendApiService;
         var settings = settingsStorage.Get();
         _gameDirectory = settings.GameDirectory;
         _runState = GameRunState.None;
@@ -209,6 +212,38 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         await Task.Delay(3000);
         AppLog.Info($"ConnectToGame: sending 'connect {url}'");
         DotaConsoleConnector.SendCommand($"connect {url}");
+    }
+
+    /// <summary>
+    /// Queries the live match, computes the spectator address (game_port + 1),
+    /// launches the game if needed, and connects as a spectator.
+    /// </summary>
+    public void SpectateMatch(int matchId) => _ = SpectateMatchAsync(matchId);
+
+    private async Task SpectateMatchAsync(int matchId)
+    {
+        AppLog.Info($"SpectateMatch: fetching live match {matchId}");
+        var match = await _backendApiService.GetLiveMatchAsync(matchId).ConfigureAwait(false);
+        if (match == null)
+        {
+            AppLog.Info($"SpectateMatch: match {matchId} not found or has no server");
+            return;
+        }
+
+        // server is "ip:port"; spectator port = game_port + 1
+        var parts = match.Server.Split(':');
+        if (parts.Length != 2 || !int.TryParse(parts[1], out var gamePort))
+        {
+            AppLog.Info($"SpectateMatch: cannot parse server address '{match.Server}'");
+            return;
+        }
+
+        var spectatorAddress = $"{parts[0]}:{gamePort + 1}";
+        AppLog.Info($"SpectateMatch: connecting to spectator address {spectatorAddress}");
+        FaroTelemetryService.TrackEvent("spectate_match", new() { ["match_id"] = matchId.ToString() });
+
+        await Dispatcher.UIThread.InvokeAsync(() => ServerUrl = spectatorAddress);
+        await ConnectToGameAsync().ConfigureAwait(false);
     }
 
     public void RefreshRunState()
