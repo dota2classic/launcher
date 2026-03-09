@@ -21,8 +21,6 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     private readonly ISteamAuthApi _steamAuthApi;
     private readonly IQueueSocketService _queueSocketService;
     private readonly IBackendApiService _backendApiService;
-    private readonly IHttpImageService _imageService;
-    private readonly IEmoticonService _emoticonService;
     private readonly ICvarSettingsProvider _cvarProvider;
     private readonly IVideoSettingsProvider _videoProvider;
     private readonly IContentRegistryService _registryService;
@@ -85,10 +83,9 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         IVideoSettingsProvider videoProvider,
         ISteamAuthApi steamAuthApi,
         IBackendApiService backendApiService,
-        IHttpImageService imageService,
-        IEmoticonService emoticonService,
         IQueueSocketService queueSocketService,
-        IContentRegistryService registryService)
+        IContentRegistryService registryService,
+        IChatViewModelFactory chatViewModelFactory)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -97,8 +94,6 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         _steamAuthApi = steamAuthApi;
         _queueSocketService = queueSocketService;
         _backendApiService = backendApiService;
-        _imageService = imageService;
-        _emoticonService = emoticonService;
         _registryService = registryService;
 
         var settings = settingsStorage.Get();
@@ -127,7 +122,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Settings = new SettingsViewModel(launchSettingsStorage, cvarProvider, settingsStorage, videoProvider, registryService);
         Settings.PushCvar = PushCvarIfGameRunning;
         Settings.OnDlcChanged = removedIds => OnDlcChanged?.Invoke(removedIds);
-        Chat = new ChatViewModel(backendApiService, imageService, emoticonService, queueSocketService);
+        Chat = chatViewModelFactory.Create("17aa3530-d152-462e-a032-909ae69019ed");
         _ = Chat.StartAsync();
 
         // Wire delegates into children that need auth state

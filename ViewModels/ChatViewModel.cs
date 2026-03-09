@@ -17,7 +17,7 @@ namespace d2c_launcher.ViewModels;
 
 public partial class ChatViewModel : ViewModelBase, IDisposable
 {
-    private const string ThreadId = "17aa3530-d152-462e-a032-909ae69019ed";
+    private readonly string _threadId;
     private const int MessageLimit = 100;
     private const int MergeWindowSeconds = 60;
 
@@ -42,8 +42,9 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
     public event Action? MessagesUpdated;
 
-    public ChatViewModel(IBackendApiService backendApiService, IHttpImageService imageService, IEmoticonService emoticonService, IQueueSocketService queueSocketService)
+    public ChatViewModel(string threadId, IBackendApiService backendApiService, IHttpImageService imageService, IEmoticonService emoticonService, IQueueSocketService queueSocketService)
     {
+        _threadId = threadId;
         _backendApiService = backendApiService;
         _imageService = imageService;
         _emoticonService = emoticonService;
@@ -107,7 +108,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         {
             try
             {
-                await foreach (var msg in _backendApiService.SubscribeChatAsync(ThreadId, ct))
+                await foreach (var msg in _backendApiService.SubscribeChatAsync(_threadId, ct))
                     ConsumeIncomingMessage(msg);
             }
             catch (OperationCanceledException) when (ct.IsCancellationRequested)
@@ -199,7 +200,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
             Dispatcher.UIThread.Post(() => IsLoading = Messages.Count == 0);
 
             var data = await _backendApiService.GetChatMessagesAsync(
-                ThreadId, MessageLimit, ct).ConfigureAwait(false);
+                _threadId, MessageLimit, ct).ConfigureAwait(false);
 
             AppLog.Info($"Chat: received {data.Count} messages from API.");
 
@@ -235,7 +236,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         try
         {
             InputText = "";
-            await _backendApiService.PostChatMessageAsync(ThreadId, text)
+            await _backendApiService.PostChatMessageAsync(_threadId, text)
                 .ConfigureAwait(false);
             // SSE will deliver the sent message — no manual refresh needed.
         }
