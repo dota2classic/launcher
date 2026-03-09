@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using d2c_launcher.Integration;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
@@ -57,6 +58,14 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     private bool _isSettingsOpen;
 
     [ObservableProperty]
+    private bool _isIntroOpen;
+
+    [ObservableProperty]
+    private int _introStep = 1;
+
+    public int IntroStepCount => 4;
+
+    [ObservableProperty]
     private int _onlineInGame;
 
     [ObservableProperty]
@@ -94,6 +103,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
         var settings = settingsStorage.Get();
         _backendAccessToken = settings.BackendAccessToken;
+        _isIntroOpen = !settings.IntroShown;
         _currentUser = steamManager.CurrentUser;
         _avatarImage = SteamAvatarHelper.FromUser(_currentUser);
 
@@ -232,6 +242,30 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     }
 
     public void CloseSettings() => IsSettingsOpen = false;
+
+    // ── Intro ─────────────────────────────────────────────────────────────────
+
+    [RelayCommand]
+    private void NextIntroStep()
+    {
+        if (IntroStep < IntroStepCount)
+        {
+            IntroStep++;
+        }
+        else
+        {
+            CloseIntro();
+        }
+    }
+
+    [RelayCommand]
+    private void CloseIntro()
+    {
+        IsIntroOpen = false;
+        var settings = _settingsStorage.Get();
+        settings.IntroShown = true;
+        _settingsStorage.Save(settings);
+    }
 
     /// <summary>
     /// Called by <see cref="MainWindowViewModel"/> so that a directory change from

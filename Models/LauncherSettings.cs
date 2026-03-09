@@ -41,4 +41,9 @@ public class LauncherSettings
     /// Null means the game has never been downloaded via the package system.
     /// </summary>
     public List<string>? InstalledPackageIds { get; set; }
+
+    /// <summary>
+    /// True once the user has seen the first-run introduction overlay.
+    /// </summary>
+    public bool IntroShown { get; set; }
 }

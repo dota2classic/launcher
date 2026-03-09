@@ -19,7 +19,7 @@
 
    <Grid>
            <Grid RowDefinitions="Auto,*,Auto">
-               <components:LauncherHeader Grid.Row="0" DataContext="{Binding}"/>
+               <components:LauncherHeader x:Name="LauncherHeaderControl" Grid.Row="0" DataContext="{Binding}"/>
 
                <Grid Grid.Row="1" Margin="20,8,20,10" ColumnDefinitions="*,360">
                    <!-- Chat -->
@@ -32,7 +32,7 @@
                                               DataContext="{Binding Party}"
                                               InviteClicked="OnInvitePlayerClicked"/>
 
-                       <components:GameSearchPanel Grid.Row="1" DataContext="{Binding Queue}"/>
+                       <components:GameSearchPanel x:Name="GameSearchPanelControl" Grid.Row="1" DataContext="{Binding Queue}"/>
 
                        <!-- Server URL + queue button -->
                        <StackPanel Grid.Row="2" Spacing="6" Margin="0,12,0,0">
@@ -106,6 +106,102 @@
                                </ScrollViewer>
                            </Border>
                        </StackPanel>
+                   </StackPanel>
+               </Border>
+           </Panel>
+
+           <!-- Intro overlay -->
+           <Panel IsVisible="{Binding IsIntroOpen}" ZIndex="200"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+               <components:SpotlightOverlay x:Name="IntroSpotlight"
+                                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+               <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Width="420" Padding="0" CornerRadius="0"
+                       Background="#121315" BorderBrush="#2d3842" BorderThickness="1"
+                       BoxShadow="0 12 28 0 #80000000">
+                   <StackPanel>
+                       <!-- Header -->
+                       <Border Background="#0A0B0D" Padding="18,14">
+                           <Grid ColumnDefinitions="*,Auto">
+                               <StackPanel>
+                                   <TextBlock Text="Добро пожаловать в D2C Launcher"
+                                              FontSize="17" FontWeight="Bold" Foreground="#D9D9D9"/>
+                                   <TextBlock Foreground="#4DA9F3" FontSize="12" Margin="0,4,0,0">
+                                       <TextBlock.Text>
+                                           <MultiBinding StringFormat="Шаг {0} из {1}">
+                                               <Binding Path="IntroStep"/>
+                                               <Binding Path="IntroStepCount"/>
+                                           </MultiBinding>
+                                       </TextBlock.Text>
+                                   </TextBlock>
+                               </StackPanel>
+                               <Button Grid.Column="1" Command="{Binding CloseIntroCommand}"
+                                       Background="Transparent" BorderThickness="0"
+                                       Padding="2,0" Cursor="Hand" VerticalAlignment="Top">
+                                   <TextBlock Text="✕" FontSize="16" Foreground="#AAAAAA"/>
+                               </Button>
+                           </Grid>
+                       </Border>
+
+                       <!-- Step content -->
+                       <StackPanel Margin="18,16,18,20" Spacing="12" MinHeight="120">
+                           <!-- Step 1: Play button -->
+                           <StackPanel IsVisible="{Binding IntroStep, Converter={x:Static util:IntroStepConverter.Instance}, ConverterParameter=1}" Spacing="8">
+                               <TextBlock Text="▶  Кнопка запуска игры" FontSize="15" FontWeight="SemiBold" Foreground="#4DA9F3"/>
+                               <TextBlock TextWrapping="Wrap" Foreground="#C0C0C0" FontSize="13">
+                                   В правом верхнем углу находится кнопка запуска. Нажмите её, чтобы запустить Dota 2 Classic. Если игра уже запущена и найден сервер — кнопка изменится на «Подключиться».
+                               </TextBlock>
+                           </StackPanel>
+                           <!-- Step 2: Settings -->
+                           <StackPanel IsVisible="{Binding IntroStep, Converter={x:Static util:IntroStepConverter.Instance}, ConverterParameter=2}" Spacing="8">
+                               <TextBlock Text="⚙  Настройки" FontSize="15" FontWeight="SemiBold" Foreground="#4DA9F3"/>
+                               <TextBlock TextWrapping="Wrap" Foreground="#C0C0C0" FontSize="13">
+                                   Значок шестерёнки рядом с кнопкой запуска открывает панель настроек. Там можно настроить графику, геймплей (чувствительность, быстрый каст), язык, а также параметры загрузки.
+                               </TextBlock>
+                           </StackPanel>
+                           <!-- Step 3: Matchmaking modes -->
+                           <StackPanel IsVisible="{Binding IntroStep, Converter={x:Static util:IntroStepConverter.Instance}, ConverterParameter=3}" Spacing="8">
+                               <TextBlock Text="🎮  Режимы и поиск игры" FontSize="15" FontWeight="SemiBold" Foreground="#4DA9F3"/>
+                               <TextBlock TextWrapping="Wrap" Foreground="#C0C0C0" FontSize="13">
+                                   В правой части экрана выберите один или несколько режимов игры, затем нажмите «Найти игру». Когда матч будет найден — подтвердите готовность прямо в лаунчере.
+                               </TextBlock>
+                           </StackPanel>
+                           <!-- Step 4: Bots suggestion -->
+                           <StackPanel IsVisible="{Binding IntroStep, Converter={x:Static util:IntroStepConverter.Instance}, ConverterParameter=4}" Spacing="8">
+                               <TextBlock Text="🤖  Совет: сыграйте против ботов" FontSize="15" FontWeight="SemiBold" Foreground="#4DA9F3"/>
+                               <TextBlock TextWrapping="Wrap" Foreground="#C0C0C0" FontSize="13">
+                                   Если вы новичок или хотите потренироваться — выберите режим «Боты» перед поиском. Это отличный способ освоиться в игре без давления соперников.
+                               </TextBlock>
+                           </StackPanel>
+                       </StackPanel>
+
+                       <!-- Footer buttons -->
+                       <Border Background="#0A0B0D" Padding="18,12">
+                           <Grid ColumnDefinitions="*,Auto,Auto">
+                               <Button Grid.Column="0" Command="{Binding CloseIntroCommand}"
+                                       Background="Transparent" BorderThickness="0"
+                                       Padding="0" Cursor="Hand" VerticalAlignment="Center"
+                                       HorizontalAlignment="Left">
+                                   <TextBlock Text="Пропустить" Foreground="#666" FontSize="12"/>
+                               </Button>
+                               <Button Grid.Column="2" Command="{Binding NextIntroStepCommand}"
+                                       Padding="22,9" FontSize="14" FontWeight="SemiBold"
+                                       Foreground="White" BorderThickness="0" CornerRadius="0" Cursor="Hand">
+                                   <Button.Background>
+                                       <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                           <GradientStop Color="#1a5aaa" Offset="0"/>
+                                           <GradientStop Color="#3a90d6" Offset="1"/>
+                                       </LinearGradientBrush>
+                                   </Button.Background>
+                                   <TextBlock>
+                                       <TextBlock.Text>
+                                           <Binding Path="IntroStep"
+                                                    Converter="{x:Static util:IntroNextButtonTextConverter.Instance}"/>
+                                       </TextBlock.Text>
+                                   </TextBlock>
+                               </Button>
+                           </Grid>
+                       </Border>
                    </StackPanel>
                </Border>
            </Panel>

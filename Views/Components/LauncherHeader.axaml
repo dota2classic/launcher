@@ -41,23 +41,38 @@
 
   <Grid Margin="20,14">
     <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
-      <Button Classes="play-btn"
+      <Button x:Name="PlayButton" Classes="play-btn"
               VerticalAlignment="Stretch"
               Classes.play-stop="{Binding Launch.PlayButtonIsStop}"
               Content="{Binding Launch.PlayButtonText}"
               Click="OnPlayClicked"/>
-      <Button Classes="settings-icon" VerticalAlignment="Stretch" Click="OnSettingsClicked">
+      <Button x:Name="SettingsButton" Classes="settings-icon" VerticalAlignment="Stretch" Click="OnSettingsClicked">
         <materialIcons:MaterialIcon Kind="Cog" Width="24" Height="24"/>
       </Button>
       <Border VerticalAlignment="Stretch" Padding="10,8" CornerRadius="0"
               Background="#242c34">
         <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-          <Border Width="36" Height="36" CornerRadius="0" ClipToBounds="True"
-                  Background="#2d3842">
-            <Image Source="{Binding AvatarImage}" Width="36" Height="36" Stretch="UniformToFill"/>
-          </Border>
-          <TextBlock Text="{Binding CurrentUser.PersonaName}" VerticalAlignment="Center"
-                     FontWeight="SemiBold"/>
+          <!-- Avatar with online dot -->
+          <Grid Width="36" Height="36">
+            <Border Width="36" Height="36" CornerRadius="0" ClipToBounds="True"
+                    Background="#2d3842">
+              <Image Source="{Binding AvatarImage}" Width="36" Height="36" Stretch="UniformToFill"/>
+            </Border>
+            <!-- Online indicator dot -->
+            <Ellipse Width="10" Height="10" Fill="#4CAF50"
+                     HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                     Margin="0,0,-2,-2">
+              <Ellipse.Stroke>
+                <SolidColorBrush Color="#242c34"/>
+              </Ellipse.Stroke>
+              <Ellipse.StrokeThickness>2</Ellipse.StrokeThickness>
+            </Ellipse>
+          </Grid>
+          <StackPanel VerticalAlignment="Center" Spacing="1">
+            <TextBlock Text="Вы:" Foreground="#7a8a9a" FontSize="10"/>
+            <TextBlock Text="{Binding CurrentUser.PersonaName}"
+                       FontWeight="SemiBold" FontSize="13"/>
+          </StackPanel>
         </StackPanel>
       </Border>
     </StackPanel>
