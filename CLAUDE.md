@@ -198,6 +198,7 @@ Project documentation lives in the `docs/` directory. Current files:
 | [docs/game-update-manifest.md](docs/game-update-manifest.md) | Game update manifest format, `exact`/`existing` modes, `LocalManifestService`, `ManifestDiffService`, update flow |
 | [docs/client-dll-patching.md](docs/client-dll-patching.md) | Binary patching of `client.dll`: FCVAR_CHEAT removal, default value patch, PE layout, sync strategy |
 | [docs/computer-use-workflow.md](docs/computer-use-workflow.md) | Step-by-step workflow for implementing and visually verifying UI changes using the computer-use MCP |
+| [docs/release-cycle.md](docs/release-cycle.md) | Release channels (nightly/stable), CI workflow, Velopack channel mechanics, opting into nightly updates |
 
 When you discover new domain knowledge, architectural decisions, or non-trivial technical details during implementation, **write them up as a new `.md` file in `docs/`** and add an entry to this table. Keep docs focused — one topic per file.
 
