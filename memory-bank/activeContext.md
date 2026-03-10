@@ -2,35 +2,33 @@
 
 ## Current Focus
 
-### Issue #46: Minimize to tray on close
+**Release infrastructure** — nightly/stable channel split implemented and live.
 
-Implemented system-tray support:
-
-- `Services/IWindowService.cs` — new interface `ShowAndActivate()`
-- `Services/WindowService.cs` — concrete impl; `SetWindow(MainWindow)` called by `App` after creation
-- `Views/MainWindow.axaml.cs` — `OnClosing` intercepts user X-button only (`WindowCloseReason.WindowClosing` + `!RealExit`), hides instead of closing; `ShowAndActivate()` restores; `RealExit` flag lets tray "Выход" do a real shutdown
-- `App.axaml` — `TrayIcon` with "Открыть" / "Выход" menu items
-- `App.axaml.cs` — registers `IWindowService`; wires tray clicks; second-instance `__show__` message → `ShowAndActivate()`; tray "Выход" sets `RealExit = true` then calls `Shutdown()`
-- `Services/SingleInstanceService.cs` — `ForwardArgsToPrimary` always sends something; uses `"__show__"` when args empty
-- `Integration/SocketSoundCoordinator.cs` — added `IWindowService` param; calls `ShowAndActivate()` on `PlayerRoomFound` and `PlayerGameStateUpdated` (server ready)
-- `ViewModels/MainLauncherViewModel.cs` — added `IWindowService` param; passes to `SocketSoundCoordinator`
-- `ViewModels/MainWindowViewModel.cs` — added `IWindowService` param; passes to `MainLauncherViewModel`
+- Every master push → `nightly` pre-release (Velopack channel `nightly`, version `0.0.{run_number}`)
+- Manual `v*.*.*` tag → stable versioned release
+- `LauncherSettings.NightlyUpdates` (default false) — set in JSON to opt into nightly channel
+- See `docs/release-cycle.md` for full details
 
 ---
 
-### Refactoring: MainLauncherViewModel god class
+## Recent Completed Work
 
-**Goal:** Reduce MLVM from 376 lines / 10 concerns to ~160 lines (thin coordinator).
+### Refactoring: MainLauncherViewModel (commit c46fbdf)
+- Extracted `Services/AuthCoordinator.cs` — owns token application, queue connect/disconnect, settings persistence, Steam auth event subscription
+- Extracted `Integration/SocketSoundCoordinator.cs` — owns 4 socket event → sound/notification handlers
+- MLVM reduced from 377 → 285 lines
 
-**Planned extractions:**
-1. **`SetBearerToken` on `BackendApiService`** *(in progress)* — Centralize auth token on the HTTP client. Drop `bearerToken` parameter from all 5 authenticated API methods. Drop `GetBackendToken` delegates from `PartyViewModel`, `RoomViewModel`, `ChatViewModel`. MLVM calls `_backendApiService.SetBearerToken(token)` once in `ApplyBackendTokenAsync`.
-2. **Extract `AuthCoordinator`** — Move `ApplyBackendTokenAsync`, `EnsureQueueConnectionAsync`, `PersistBackendToken`, `_ticketExchangeCts` + Steam event subscription out of MLVM into a dedicated coordinator class.
-3. **Extract `OnlineStatsViewModel`** — Move `_onlineStatsTimer`, `RefreshInGameCountAsync`, socket `OnlineUpdated` handler, `OnlineInGame/Sessions/StatsText` into a child VM. XAML binds to `OnlineStats.Text`.
-4. **Extract `UserProfileViewModel`** — Move `CurrentUser`, `AvatarImage`, `LoggedInAsText`, `OnUserUpdated` handler into a child VM.
-5. **Extract `SocketSoundCoordinator`** — Move 4 socket event → sound/notification handlers into a plain class.
+### Issue #50: Reply preview in chat messages (commit 5ace64d)
+- Messages with a reply show a blue left-border preview block above content
+- Displays quoted author name + truncated text
+- Reply data from `ThreadMessageDTO.Reply` in both REST (`GetChatMessagesAsync`) and SSE (`ParseSseChatMessage`) paths
 
-**Files to create:** `Services/AuthCoordinator.cs`, `ViewModels/OnlineStatsViewModel.cs`, `ViewModels/UserProfileViewModel.cs`, `Integration/SocketSoundCoordinator.cs`
-**Files to modify:** `IBackendApiService.cs`, `BackendApiService.cs`, `PartyViewModel.cs`, `RoomViewModel.cs`, `ChatViewModel.cs`, `MainLauncherViewModel.cs`, `Preview/PreviewStubs.cs`, relevant XAML
+### Issue #46: Close to tray (commit cc35153)
+- `IWindowService` / `WindowService` — `ShowAndActivate()`
+- X button hides to tray; tray menu "Открыть" / "Выход"
+- Second instance → `__show__` pipe message → `ShowAndActivate()`
+- Match found / room ready → auto-restores window from tray
+- `CloseToTray` setting in `LauncherSettings` (default true)
 
 ---
 

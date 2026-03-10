@@ -92,6 +92,8 @@
 | Panel header typography unification | ✅ Done | Chat, Party, Game Search headers unified |
 | Release notes in update banner | ✅ Done | `feat: display release notes in update banner` |
 | Matchmaking telemetry events to Faro | ✅ Done | `feat: add matchmaking telemetry events to Faro` |
+| Close to tray (issue #46) | ✅ Done | X button hides to tray; tray menu Open/Exit; second instance restores; match found restores window automatically; `CloseToTray` setting (default true) |
+| Reply preview in chat messages (issue #50) | ✅ Done | Blue left-border preview block above message; shows quoted author + truncated text; from `ThreadMessageDTO.Reply` via REST and SSE |
 
 
 ### Game Settings (cvars → config.cfg)
@@ -125,12 +127,13 @@
 ### CI/CD
 
 
-| Step                    | Status |
-| ----------------------- | ------ |
-| Build workflow          | ✅ Done |
-| Test step               | ✅ Done |
-| Velopack packaging      | ✅ Done |
-| GitHub Release creation | ✅ Done |
+| Step                    | Status | Notes |
+| ----------------------- | ------ | ----- |
+| Build workflow          | ✅ Done | |
+| Test step               | ✅ Done | |
+| Velopack packaging      | ✅ Done | |
+| Nightly channel         | ✅ Done | Every master push → `nightly` pre-release (version `0.0.{run_number}`, channel `nightly`); opt-in via `NightlyUpdates` in settings JSON |
+| Stable release          | ✅ Done | Manual `v*.*.*` tag → versioned stable release; `git tag vX.Y.Z && git push origin vX.Y.Z` |
 
 
 ---
