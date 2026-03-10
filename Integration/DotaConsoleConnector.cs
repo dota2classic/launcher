@@ -45,7 +45,6 @@ public static class DotaConsoleConnector
             {
                 Marshal.StructureToPtr(cds, pCds, false);
                 WinApi.SendMessageA(windowPtr, WinApi.WM_COPYDATA, IntPtr.Zero, pCds);
-                AppLog.Info($"DotaConsoleConnector: sent '{command}'");
                 return true;
             }
             finally
