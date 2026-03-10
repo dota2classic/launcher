@@ -51,6 +51,12 @@
                           HorizontalAlignment="Center"/>
            </Button>
 
+           <!-- Download path error -->
+           <TextBlock IsVisible="{Binding DownloadPathError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                      Text="{Binding DownloadPathError}"
+                      FontSize="12" Foreground="#e05555"
+                      TextWrapping="Wrap"/>
+
            <!-- Download path row (shown after folder is picked) -->
            <Grid IsVisible="{Binding SelectedDownloadPath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                  ColumnDefinitions="*,Auto">

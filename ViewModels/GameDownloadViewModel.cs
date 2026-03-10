@@ -43,8 +43,9 @@ public partial class GameDownloadViewModel : ViewModelBase
     /// <summary>
     /// Called when the selected game directory is not a valid Dota 2 Classic installation.
     /// The caller should clear the stored game directory from settings and navigate back to folder selection.
+    /// The string argument is an optional error message to display on the folder selection screen.
     /// </summary>
-    public Action? OnInvalidGameDirectory { get; set; }
+    public Action<string?>? OnInvalidGameDirectory { get; set; }
 
     /// <summary>
     /// Called after a successful download with the IDs of all packages that were installed
@@ -137,7 +138,7 @@ public partial class GameDownloadViewModel : ViewModelBase
                 StatusText = "Неверная папка с игрой";
                 ErrorText = dirError ?? "Выбранная папка не является Dotaclassic.";
                 IsIndeterminate = false;
-                OnInvalidGameDirectory?.Invoke();
+                OnInvalidGameDirectory?.Invoke(dirError);
             });
             return;
         }
@@ -169,6 +170,19 @@ public partial class GameDownloadViewModel : ViewModelBase
             {
                 OnPackagesInstalled?.Invoke(_pendingInstalledPackageIds);
                 OnCompleted?.Invoke();
+            });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            AppLog.Error($"[GameDownload] Access denied for game directory '{GameDirectory}'", ex);
+            Dispatcher.UIThread.Post(() =>
+            {
+                Phase = VerificationPhase.Failed;
+                HasError = true;
+                StatusText = "Нет доступа к папке";
+                ErrorText = ex.Message;
+                IsIndeterminate = false;
+                OnInvalidGameDirectory?.Invoke("Нет доступа к выбранной папке. Выберите другую папку для установки.");
             });
         }
         catch (Exception ex)

@@ -57,8 +57,9 @@ public partial class SelectGameView : UserControl
         if (string.IsNullOrEmpty(path))
             return;
 
-        vm.SelectedDownloadPath = path;
-        await vm.StartDlcSelectionAsync(path);
+        var gameDir = Path.Combine(path, "dotaclassic684");
+        vm.SelectedDownloadPath = gameDir;
+        await vm.StartDlcSelectionAsync(gameDir);
     }
 
     private async Task PickInstalledExeAsync()

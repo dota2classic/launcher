@@ -13,6 +13,7 @@ public partial class SelectGameViewModel : ViewModelBase
     private readonly IContentRegistryService _registryService;
 
     [ObservableProperty] private string? _selectedDownloadPath;
+    [ObservableProperty] private string? _downloadPathError;
     [ObservableProperty] private string? _selectedInstalledPath;
     [ObservableProperty] private string? _installedPathError;
     [ObservableProperty] private bool _isChoosingDlc;

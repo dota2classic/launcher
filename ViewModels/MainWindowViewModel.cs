@@ -35,6 +35,9 @@ public partial class MainWindowViewModel : ViewModelBase
     /// <summary>Pending spectate match ID received before the Launcher state was entered.</summary>
     private int? _pendingSpectateMatchId;
 
+    /// <summary>Error message to display on the SelectGame screen after an invalid directory reset.</summary>
+    private string? _pendingSelectGameError;
+
     [ObservableProperty]
     private AppState _appState;
 
@@ -186,6 +189,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 var settings = _settingsStorage.Get();
                 var selectVm = new SelectGameViewModel(_registryService)
                 {
+                    DownloadPathError = _pendingSelectGameError,
                     ExistingDlcIds = settings.SelectedDlcIds,
                     OnDlcSelectionSaved = ids =>
                     {
@@ -201,6 +205,7 @@ public partial class MainWindowViewModel : ViewModelBase
                         Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirSelected(AppState)));
                     }
                 };
+                _pendingSelectGameError = null;
                 CurrentContentViewModel = selectVm;
                 break;
 
@@ -255,7 +260,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 _settingsStorage.Save(s);
             },
             OnCompleted = () => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnVerificationCompleted(AppState))),
-            OnInvalidGameDirectory = () => Dispatcher.UIThread.Post(() =>
+            OnInvalidGameDirectory = errorMessage => Dispatcher.UIThread.Post(() =>
             {
                 var s = _settingsStorage.Get();
                 s.GameDirectory = null;
@@ -263,6 +268,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 // Reset AppState before entering — otherwise the sticky rule in OnSteamUpdate
                 // keeps us in VerifyingGame even with no valid game directory.
                 AppState = AppState.CheckingSteam;
+                _pendingSelectGameError = errorMessage;
                 EnterState(AppState.SelectGameDirectory);
             }),
         };
