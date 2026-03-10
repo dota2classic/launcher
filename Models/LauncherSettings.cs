@@ -52,4 +52,10 @@ public class LauncherSettings
     /// instead of shutting it down.
     /// </summary>
     public bool CloseToTray { get; set; } = true;
+
+    /// <summary>
+    /// When true, the updater checks the nightly release channel instead of stable.
+    /// Set manually in launcher_settings.json for testing.
+    /// </summary>
+    public bool NightlyUpdates { get; set; } = false;
 }
