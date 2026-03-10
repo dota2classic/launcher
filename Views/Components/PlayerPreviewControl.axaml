@@ -12,7 +12,7 @@
                    HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Ellipse Width="36" Height="36" Fill="#242c34"/>
                 <TextBlock Text="{Binding Initials}" HorizontalAlignment="Center"
-                           VerticalAlignment="Center" FontSize="12"/>
+                           VerticalAlignment="Center" FontSize="{DynamicResource FontSizeBase}"/>
                 <Ellipse Width="36" Height="36">
                     <Ellipse.Fill>
                         <ImageBrush asyncImageLoader:ImageBrushLoader.Source="{Binding AvatarUrl}" Stretch="UniformToFill"/>

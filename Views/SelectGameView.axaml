@@ -23,12 +23,12 @@
 
            <TextBlock Text="Dotaclassic"
                       FontFamily="{StaticResource TrajanPro3}"
-                      FontSize="28" FontWeight="Bold"
+                      FontSize="{DynamicResource FontSize4XL}" FontWeight="Bold"
                       HorizontalAlignment="Center"
                       Foreground="#D9D9D9"/>
 
            <TextBlock Text="Выберите папку для установки игры"
-                      FontSize="14" HorizontalAlignment="Center"
+                      FontSize="{DynamicResource FontSizeLG}" HorizontalAlignment="Center"
                       Foreground="#AAAAAA"/>
 
            <Rectangle Height="4" Fill="Transparent"/>
@@ -36,7 +36,7 @@
            <!-- Download option -->
            <Button HorizontalAlignment="Stretch"
                    Padding="32,10" CornerRadius="0"
-                   FontSize="16" FontWeight="SemiBold"
+                   FontSize="{DynamicResource FontSizeXL}" FontWeight="SemiBold"
                    Foreground="White" BorderThickness="0"
                    IsEnabled="{Binding !IsDlcLoading}"
                    Click="OnDownloadClicked">
@@ -47,14 +47,14 @@
                    </LinearGradientBrush>
                </Button.Background>
                <TextBlock Text="Скачать игру"
-                          FontSize="16" FontWeight="SemiBold" Foreground="White"
+                          FontSize="{DynamicResource FontSizeXL}" FontWeight="SemiBold" Foreground="White"
                           HorizontalAlignment="Center"/>
            </Button>
 
            <!-- Download path error -->
            <TextBlock IsVisible="{Binding DownloadPathError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                       Text="{Binding DownloadPathError}"
-                      FontSize="12" Foreground="#e05555"
+                      FontSize="{DynamicResource FontSizeBase}" Foreground="#e05555"
                       TextWrapping="Wrap"/>
 
            <!-- Download path row (shown after folder is picked) -->
@@ -65,7 +65,7 @@
                        BorderBrush="#2d3842" BorderThickness="1,1,0,1"
                        Padding="12,8">
                    <TextBlock Text="{Binding SelectedDownloadPath}"
-                              FontSize="12" Foreground="#AAAAAA"
+                              FontSize="{DynamicResource FontSizeBase}" Foreground="#AAAAAA"
                               TextTrimming="CharacterEllipsis"
                               VerticalAlignment="Center"/>
                </Border>
@@ -74,7 +74,7 @@
                        Background="#1e2530"
                        BorderBrush="#2d3842" BorderThickness="1"
                        Foreground="#888888"
-                       FontSize="12" Padding="14,8" CornerRadius="0"
+                       FontSize="{DynamicResource FontSizeBase}" Padding="14,8" CornerRadius="0"
                        Click="OnChangeDownloadClicked"/>
            </Grid>
 
@@ -83,7 +83,7 @@
                <Rectangle Grid.Column="0" Height="1" Fill="#1e1e1e" VerticalAlignment="Center"/>
                <TextBlock Grid.Column="1"
                           Text="ИЛИ"
-                          FontSize="11" Foreground="#444444"
+                          FontSize="{DynamicResource FontSizeSM}" Foreground="#444444"
                           LetterSpacing="1"
                           Margin="12,0"
                           VerticalAlignment="Center"/>
@@ -96,14 +96,14 @@
                    Background="Transparent" BorderThickness="0"
                    Click="OnAlreadyInstalledClicked">
                <TextBlock Text="У меня уже установлена Дота"
-                          FontSize="13" Foreground="#888888"
+                          FontSize="{DynamicResource FontSizeMD}" Foreground="#888888"
                           TextDecorations="Underline"/>
            </Button>
 
            <!-- Installed path error -->
            <TextBlock IsVisible="{Binding InstalledPathError, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                       Text="{Binding InstalledPathError}"
-                      FontSize="12" Foreground="#e05555"
+                      FontSize="{DynamicResource FontSizeBase}" Foreground="#e05555"
                       TextWrapping="Wrap"/>
 
            <!-- Installed path row (shown after folder is picked) -->
@@ -114,7 +114,7 @@
                        BorderBrush="#2d3842" BorderThickness="1,1,0,1"
                        Padding="12,8">
                    <TextBlock Text="{Binding SelectedInstalledPath}"
-                              FontSize="12" Foreground="#AAAAAA"
+                              FontSize="{DynamicResource FontSizeBase}" Foreground="#AAAAAA"
                               TextTrimming="CharacterEllipsis"
                               VerticalAlignment="Center"/>
                </Border>
@@ -123,7 +123,7 @@
                        Background="#1e2530"
                        BorderBrush="#2d3842" BorderThickness="1"
                        Foreground="#888888"
-                       FontSize="12" Padding="14,8" CornerRadius="0"
+                       FontSize="{DynamicResource FontSizeBase}" Padding="14,8" CornerRadius="0"
                        Click="OnChangeInstalledClicked"/>
            </Grid>
 
@@ -138,11 +138,11 @@
            <StackPanel Spacing="20">
 
                <TextBlock Text="Выберите контент для установки"
-                          FontSize="17" FontWeight="SemiBold"
+                          FontSize="{DynamicResource FontSize2XL}" FontWeight="SemiBold"
                           Foreground="#D9D9D9"/>
 
                <TextBlock Text="Обязательные пакеты отмечены и будут установлены автоматически."
-                          FontSize="12" Foreground="#AAAAAA" TextWrapping="Wrap"/>
+                          FontSize="{DynamicResource FontSizeBase}" Foreground="#AAAAAA" TextWrapping="Wrap"/>
 
                <ItemsControl ItemsSource="{Binding DlcPackages}">
                    <ItemsControl.ItemTemplate>
@@ -151,8 +151,8 @@
                                      IsEnabled="{Binding IsEnabled}"
                                      Margin="0,6,0,0"
                                      Foreground="#D0D4D8"
-                                     FontSize="13">
-                               <TextBlock Text="{Binding Name}" FontSize="13" Foreground="#D0D4D8"/>
+                                     FontSize="{DynamicResource FontSizeMD}">
+                               <TextBlock Text="{Binding Name}" FontSize="{DynamicResource FontSizeMD}" Foreground="#D0D4D8"/>
                            </CheckBox>
                        </DataTemplate>
                    </ItemsControl.ItemTemplate>
@@ -162,7 +162,7 @@
                        HorizontalAlignment="Right"
                        Padding="24,8" CornerRadius="0"
                        BorderThickness="0" Foreground="White"
-                       FontSize="13" FontWeight="SemiBold">
+                       FontSize="{DynamicResource FontSizeMD}" FontWeight="SemiBold">
                    <Button.Background>
                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                            <GradientStop Color="#1a5aaa" Offset="0"/>

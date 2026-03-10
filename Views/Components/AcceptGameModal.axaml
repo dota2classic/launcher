@@ -18,10 +18,10 @@
                BoxShadow="0 12 28 0 #80000000">
            <StackPanel Spacing="16" MaxWidth="580">
                <StackPanel Spacing="4" HorizontalAlignment="Center">
-                   <TextBlock Text="Игра найдена!" FontSize="20" FontWeight="Bold"
+                   <TextBlock Text="Игра найдена!" FontSize="{DynamicResource FontSize3XL}" FontWeight="Bold"
                               HorizontalAlignment="Center" Foreground="#D9D9D9"/>
                    <TextBlock Text="{Binding RoomModeText}" HorizontalAlignment="Center"
-                              Foreground="#AAAAAA" FontSize="13"/>
+                              Foreground="#AAAAAA" FontSize="{DynamicResource FontSizeMD}"/>
                </StackPanel>
 
                <ItemsControl ItemsSource="{Binding RoomPlayers}">
@@ -43,17 +43,17 @@
                                        <Panel>
                                            <TextBlock Text="{Binding Initials}"
                                                       HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                      FontSize="18" FontWeight="SemiBold" Foreground="#D9D9D9"/>
+                                                      FontSize="{DynamicResource FontSize2XL}" FontWeight="SemiBold" Foreground="#D9D9D9"/>
                                            <Image Stretch="UniformToFill"
                                                   asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}"/>
                                        </Panel>
                                    </Border>
                                </Panel>
                                <TextBlock Text="{Binding Name}" HorizontalAlignment="Center"
-                                          FontSize="11" TextTrimming="CharacterEllipsis" MaxWidth="74"
+                                          FontSize="{DynamicResource FontSizeSM}" TextTrimming="CharacterEllipsis" MaxWidth="74"
                                           TextAlignment="Center" Foreground="#D9D9D9"/>
                                <TextBlock Text="{Binding StateText}" HorizontalAlignment="Center"
-                                          Foreground="{Binding StateColor}" FontSize="10"
+                                          Foreground="{Binding StateColor}" FontSize="{DynamicResource FontSizeXS}"
                                           TextAlignment="Center"/>
                            </StackPanel>
                        </DataTemplate>
@@ -62,7 +62,7 @@
 
                <!-- Server searching state -->
                <TextBlock Text="Идёт поиск игрового сервера..." HorizontalAlignment="Center"
-                          Foreground="#AAAAAA" FontSize="13"
+                          Foreground="#AAAAAA" FontSize="{DynamicResource FontSizeMD}"
                           IsVisible="{Binding IsServerSearchingModalOpen}"/>
 
                <!-- Accept/decline state (hidden while searching) -->
@@ -85,7 +85,7 @@
                    </StackPanel>
 
                    <TextBlock Text="Ожидание других игроков..." HorizontalAlignment="Center"
-                              Foreground="#AAAAAA" FontSize="13"
+                              Foreground="#AAAAAA" FontSize="{DynamicResource FontSizeMD}"
                               IsVisible="{Binding HasMyPlayerAccepted}"/>
                </StackPanel>
            </StackPanel>

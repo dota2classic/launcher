@@ -40,8 +40,8 @@
                                    Background="#121315" BorderBrush="#243446" BorderThickness="1"
                                    CornerRadius="0" Padding="10,6">
                                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                                   <TextBlock Text="Сервер:" Foreground="#4DA9F3" FontSize="12" VerticalAlignment="Center"/>
-                                   <TextBlock Text="{Binding Launch.ServerUrl}" Foreground="#D9D9D9" FontSize="12"
+                                   <TextBlock Text="Сервер:" Foreground="#4DA9F3" FontSize="{DynamicResource FontSizeBase}" VerticalAlignment="Center"/>
+                                   <TextBlock Text="{Binding Launch.ServerUrl}" Foreground="#D9D9D9" FontSize="{DynamicResource FontSizeBase}"
                                               FontFamily="Monospace" VerticalAlignment="Center"/>
                                </StackPanel>
                            </Border>
@@ -77,12 +77,12 @@
                        <Border Background="#0A0B0D" Padding="18,10">
                            <Grid ColumnDefinitions="*,Auto">
                                <TextBlock Text="Выбрать игрока"
-                                          FontSize="16" FontWeight="SemiBold" Foreground="#D9D9D9"
+                                          FontSize="{DynamicResource FontSizeXL}" FontWeight="SemiBold" Foreground="#D9D9D9"
                                           VerticalAlignment="Center"/>
                                <Button Grid.Column="1" Click="OnCloseInviteModal"
                                        Background="Transparent" BorderThickness="0"
                                        Padding="2,0" Cursor="Hand" VerticalAlignment="Center">
-                                   <TextBlock Text="✕" FontSize="16" Foreground="#AAAAAA" VerticalAlignment="Center"/>
+                                   <TextBlock Text="✕" FontSize="{DynamicResource FontSizeXL}" Foreground="#AAAAAA" VerticalAlignment="Center"/>
                                </Button>
                            </Grid>
                        </Border>
@@ -125,8 +125,8 @@
                            <Grid ColumnDefinitions="*,Auto">
                                <StackPanel>
                                    <TextBlock Text="Добро пожаловать в D2C Launcher"
-                                              FontSize="17" FontWeight="Bold" Foreground="#D9D9D9"/>
-                                   <TextBlock Foreground="#4DA9F3" FontSize="12" Margin="0,4,0,0">
+                                              FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold" Foreground="#D9D9D9"/>
+                                   <TextBlock Foreground="#4DA9F3" FontSize="{DynamicResource FontSizeBase}" Margin="0,4,0,0">
                                        <TextBlock.Text>
                                            <MultiBinding StringFormat="Шаг {0} из {1}">
                                                <Binding Path="IntroStep"/>
@@ -138,7 +138,7 @@
                                <Button Grid.Column="1" Command="{Binding CloseIntroCommand}"
                                        Background="Transparent" BorderThickness="0"
                                        Padding="2,0" Cursor="Hand" VerticalAlignment="Top">
-                                   <TextBlock Text="✕" FontSize="16" Foreground="#AAAAAA"/>
+                                   <TextBlock Text="✕" FontSize="{DynamicResource FontSizeXL}" Foreground="#AAAAAA"/>
                                </Button>
                            </Grid>
                        </Border>
@@ -147,29 +147,29 @@
                        <StackPanel Margin="18,16,18,20" Spacing="12" MinHeight="120">
                            <!-- Step 1: Play button -->
                            <StackPanel IsVisible="{Binding IntroStep, Converter={x:Static util:IntroStepConverter.Instance}, ConverterParameter=1}" Spacing="8">
-                               <TextBlock Text="▶  Кнопка запуска игры" FontSize="15" FontWeight="SemiBold" Foreground="#4DA9F3"/>
-                               <TextBlock TextWrapping="Wrap" Foreground="#C0C0C0" FontSize="13">
+                               <TextBlock Text="▶  Кнопка запуска игры" FontSize="{DynamicResource FontSizeLG}" FontWeight="SemiBold" Foreground="#4DA9F3"/>
+                               <TextBlock TextWrapping="Wrap" Foreground="#C0C0C0" FontSize="{DynamicResource FontSizeMD}">
                                    В правом верхнем углу находится кнопка запуска. Нажмите её, чтобы запустить Dotaclassic. Если игра уже запущена и найден сервер — кнопка изменится на «Подключиться».
                                </TextBlock>
                            </StackPanel>
                            <!-- Step 2: Settings -->
                            <StackPanel IsVisible="{Binding IntroStep, Converter={x:Static util:IntroStepConverter.Instance}, ConverterParameter=2}" Spacing="8">
-                               <TextBlock Text="⚙  Настройки" FontSize="15" FontWeight="SemiBold" Foreground="#4DA9F3"/>
-                               <TextBlock TextWrapping="Wrap" Foreground="#C0C0C0" FontSize="13">
+                               <TextBlock Text="⚙  Настройки" FontSize="{DynamicResource FontSizeLG}" FontWeight="SemiBold" Foreground="#4DA9F3"/>
+                               <TextBlock TextWrapping="Wrap" Foreground="#C0C0C0" FontSize="{DynamicResource FontSizeMD}">
                                    Значок шестерёнки рядом с кнопкой запуска открывает панель настроек. Там можно настроить графику, геймплей (чувствительность, быстрый каст), язык, а также параметры загрузки.
                                </TextBlock>
                            </StackPanel>
                            <!-- Step 3: Matchmaking modes -->
                            <StackPanel IsVisible="{Binding IntroStep, Converter={x:Static util:IntroStepConverter.Instance}, ConverterParameter=3}" Spacing="8">
-                               <TextBlock Text="🎮  Режимы и поиск игры" FontSize="15" FontWeight="SemiBold" Foreground="#4DA9F3"/>
-                               <TextBlock TextWrapping="Wrap" Foreground="#C0C0C0" FontSize="13">
+                               <TextBlock Text="🎮  Режимы и поиск игры" FontSize="{DynamicResource FontSizeLG}" FontWeight="SemiBold" Foreground="#4DA9F3"/>
+                               <TextBlock TextWrapping="Wrap" Foreground="#C0C0C0" FontSize="{DynamicResource FontSizeMD}">
                                    В правой части экрана выберите один или несколько режимов игры, затем нажмите «Найти игру». Когда матч будет найден — подтвердите готовность прямо в лаунчере.
                                </TextBlock>
                            </StackPanel>
                            <!-- Step 4: Bots suggestion -->
                            <StackPanel IsVisible="{Binding IntroStep, Converter={x:Static util:IntroStepConverter.Instance}, ConverterParameter=4}" Spacing="8">
-                               <TextBlock Text="🤖  Совет: сыграйте против ботов" FontSize="15" FontWeight="SemiBold" Foreground="#4DA9F3"/>
-                               <TextBlock TextWrapping="Wrap" Foreground="#C0C0C0" FontSize="13">
+                               <TextBlock Text="🤖  Совет: сыграйте против ботов" FontSize="{DynamicResource FontSizeLG}" FontWeight="SemiBold" Foreground="#4DA9F3"/>
+                               <TextBlock TextWrapping="Wrap" Foreground="#C0C0C0" FontSize="{DynamicResource FontSizeMD}">
                                    Если вы новичок или хотите потренироваться — выберите режим «Боты» перед поиском. Это отличный способ освоиться в игре без давления соперников.
                                </TextBlock>
                            </StackPanel>
@@ -182,10 +182,10 @@
                                        Background="Transparent" BorderThickness="0"
                                        Padding="0" Cursor="Hand" VerticalAlignment="Center"
                                        HorizontalAlignment="Left">
-                                   <TextBlock Text="Пропустить" Foreground="#666" FontSize="12"/>
+                                   <TextBlock Text="Пропустить" Foreground="#666" FontSize="{DynamicResource FontSizeBase}"/>
                                </Button>
                                <Button Grid.Column="2" Command="{Binding NextIntroStepCommand}"
-                                       Padding="22,9" FontSize="14" FontWeight="SemiBold"
+                                       Padding="22,9" FontSize="{DynamicResource FontSizeLG}" FontWeight="SemiBold"
                                        Foreground="White" BorderThickness="0" CornerRadius="0" Cursor="Hand">
                                    <Button.Background>
                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">

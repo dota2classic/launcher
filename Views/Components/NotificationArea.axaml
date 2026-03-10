@@ -28,11 +28,11 @@
                                           FontWeight="SemiBold" Foreground="#4DA9F3"
                                           TextTrimming="CharacterEllipsis"/>
                                <TextBlock Text="Приглашает в группу"
-                                          FontSize="11" Foreground="#AAAAAA"/>
+                                          FontSize="{DynamicResource FontSizeSM}" Foreground="#AAAAAA"/>
                            </StackPanel>
                            <TextBlock Grid.Column="2"
                                       Text="{Binding RemainingSeconds}"
-                                      Foreground="#535252" FontSize="11"
+                                      Foreground="#535252" FontSize="{DynamicResource FontSizeSM}"
                                       VerticalAlignment="Top"/>
                        </Grid>
 
@@ -42,7 +42,7 @@
                                    Content="ПРИНЯТЬ"
                                    Command="{Binding AcceptCommand}"
                                    Background="#1a5aaa" Foreground="White"
-                                   FontSize="12" FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSizeBase}" FontWeight="Bold"
                                    CornerRadius="0" BorderThickness="0"
                                    HorizontalAlignment="Stretch"
                                    HorizontalContentAlignment="Center"
@@ -51,7 +51,7 @@
                                    Content="ОТКЛОНИТЬ"
                                    Command="{Binding DeclineCommand}"
                                    Background="#6e2222" Foreground="White"
-                                   FontSize="12" FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSizeBase}" FontWeight="Bold"
                                    CornerRadius="0" BorderThickness="0"
                                    HorizontalAlignment="Stretch"
                                    HorizontalContentAlignment="Center"

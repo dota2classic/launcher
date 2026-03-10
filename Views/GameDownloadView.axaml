@@ -21,12 +21,12 @@
 
             <TextBlock Text="Dotaclassic"
                        FontFamily="{StaticResource TrajanPro3}"
-                       FontSize="28" FontWeight="Bold"
+                       FontSize="{DynamicResource FontSize4XL}" FontWeight="Bold"
                        HorizontalAlignment="Center"
                        Foreground="#D9D9D9"/>
 
             <TextBlock Text="{Binding StatusText}"
-                       FontSize="14" HorizontalAlignment="Center"
+                       FontSize="{DynamicResource FontSizeLG}" HorizontalAlignment="Center"
                        Foreground="#AAAAAA"/>
 
             <ProgressBar Value="{Binding ProgressValue}"
@@ -46,21 +46,21 @@
 
             <TextBlock Text="{Binding CurrentFileText}"
                        IsVisible="{Binding CurrentFileText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                       FontSize="12" HorizontalAlignment="Center"
+                       FontSize="{DynamicResource FontSizeBase}" HorizontalAlignment="Center"
                        Foreground="#888888"
                        TextTrimming="CharacterEllipsis"
                        TextAlignment="Center"/>
 
             <TextBlock Text="{Binding DetailsText}"
                        IsVisible="{Binding DetailsText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                       FontSize="12" HorizontalAlignment="Center"
+                       FontSize="{DynamicResource FontSizeBase}" HorizontalAlignment="Center"
                        Foreground="#888888"
                        TextAlignment="Center"/>
 
             <!-- Error panel -->
             <StackPanel IsVisible="{Binding HasError}" Spacing="12" HorizontalAlignment="Center">
                 <TextBlock Text="{Binding ErrorText}"
-                           FontSize="13" Foreground="#e05555"
+                           FontSize="{DynamicResource FontSizeMD}" Foreground="#e05555"
                            TextWrapping="Wrap" TextAlignment="Center"
                            MaxWidth="420"/>
                 <Button Command="{Binding RetryCommand}"
@@ -69,9 +69,9 @@
                         Background="Transparent"
                         BorderBrush="#e05555" BorderThickness="1"
                         Foreground="#e05555"
-                        FontSize="13" FontWeight="SemiBold">
+                        FontSize="{DynamicResource FontSizeMD}" FontWeight="SemiBold">
                     <TextBlock Text="Повторить"
-                               FontSize="13" FontWeight="SemiBold" Foreground="#e05555"/>
+                               FontSize="{DynamicResource FontSizeMD}" FontWeight="SemiBold" Foreground="#e05555"/>
                 </Button>
             </StackPanel>
 
@@ -87,9 +87,9 @@
                     BoxShadow="0 12 28 0 #80000000">
                 <StackPanel Spacing="20">
                     <TextBlock Text="Исключение Windows Defender"
-                               FontSize="17" FontWeight="SemiBold"
+                               FontSize="{DynamicResource FontSize2XL}" FontWeight="SemiBold"
                                Foreground="#D9D9D9"/>
-                    <TextBlock TextWrapping="Wrap" Foreground="#AAAAAA" FontSize="13" LineHeight="20">
+                    <TextBlock TextWrapping="Wrap" Foreground="#AAAAAA" FontSize="{DynamicResource FontSizeMD}" LineHeight="20">
                         <Run Text="Добавить папку с игрой в исключения Windows Defender?"/>
                         <Run Text="&#10;&#10;"/>
                         <Run Text="Без исключения антивирус проверяет каждый файл при скачивании и проверке игры, что замедляет процесс и нагружает диск и процессор."/>
@@ -101,13 +101,13 @@
                                 Padding="20,8" CornerRadius="0"
                                 Background="Transparent"
                                 BorderBrush="#444" BorderThickness="1"
-                                Foreground="#AAAAAA" FontSize="13">
+                                Foreground="#AAAAAA" FontSize="{DynamicResource FontSizeMD}">
                             Пропустить
                         </Button>
                         <Button Command="{Binding AcceptDefenderCommand}"
                                 Padding="20,8" CornerRadius="0"
                                 BorderThickness="0" Foreground="White"
-                                FontSize="13" FontWeight="SemiBold">
+                                FontSize="{DynamicResource FontSizeMD}" FontWeight="SemiBold">
                             <Button.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                                     <GradientStop Color="#1a5aaa" Offset="0"/>

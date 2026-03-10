@@ -9,7 +9,7 @@
         <!-- ── Section label (uppercase, dim gold) ── -->
         <Style Selector="TextBlock.section-label">
             <Setter Property="Foreground" Value="#888b8f"/>
-            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSizeXS}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="LetterSpacing" Value="2"/>
         </Style>
@@ -17,14 +17,14 @@
         <!-- ── Setting row label ── -->
         <Style Selector="TextBlock.setting-label">
             <Setter Property="Foreground" Value="#d0d4d8"/>
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSizeMD}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
 
         <!-- ── Setting row sub-description ── -->
         <Style Selector="TextBlock.setting-desc">
             <Setter Property="Foreground" Value="#505860"/>
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSizeSM}"/>
         </Style>
 
         <!-- ── TabControl: transparent, no outer border ── -->
@@ -42,7 +42,7 @@
         <!-- ── Tab items ── -->
         <Style Selector="TabItem">
             <Setter Property="Foreground" Value="#505860"/>
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSizeSM}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Margin" Value="0,0,24,0"/>
@@ -109,7 +109,7 @@
             <Setter Property="BorderBrush" Value="#243446"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="12,5"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSizeBase}"/>
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
         <Style Selector="Button.dir-btn:pointerover /template/ ContentPresenter">
@@ -142,7 +142,7 @@
             <Setter Property="BorderBrush" Value="#2a4830"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="16,6"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSizeBase}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="HorizontalAlignment" Value="Right"/>
@@ -165,12 +165,12 @@
             <Border Grid.Row="0" Background="#0c0f13" BorderBrush="#222830" BorderThickness="0,0,0,1">
                 <Grid ColumnDefinitions="*,Auto" Margin="18,0">
                     <TextBlock Text="НАСТРОЙКИ"
-                               FontSize="12" FontWeight="Bold" LetterSpacing="3"
+                               FontSize="{DynamicResource FontSizeBase}" FontWeight="Bold" LetterSpacing="3"
                                Foreground="#d9dde0" VerticalAlignment="Center"/>
                     <Button Grid.Column="1" Click="OnCloseClicked"
                             Background="Transparent" BorderThickness="0"
                             Padding="4,0" Cursor="Hand" VerticalAlignment="Center">
-                        <TextBlock Text="✕" FontSize="14" Foreground="#606870" VerticalAlignment="Center"/>
+                        <TextBlock Text="✕" FontSize="{DynamicResource FontSizeLG}" Foreground="#606870" VerticalAlignment="Center"/>
                     </Button>
                 </Grid>
             </Border>
@@ -183,12 +183,12 @@
                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
                     <Border Grid.Column="0" Background="#0c0e12" BorderBrush="#2d3842" BorderThickness="1"
                             Padding="6,5" VerticalAlignment="Stretch">
-                        <TextBlock Text="📁" FontSize="14" VerticalAlignment="Center" Opacity="0.7"/>
+                        <TextBlock Text="📁" FontSize="{DynamicResource FontSizeLG}" VerticalAlignment="Center" Opacity="0.7"/>
                     </Border>
                     <Border Grid.Column="1" Background="#0c0e12" BorderBrush="#2d3842" BorderThickness="1"
                             Padding="8,5">
                         <TextBlock Text="{Binding GameDirectory}"
-                                   Foreground="#c0c4c8" FontSize="12"
+                                   Foreground="#c0c4c8" FontSize="{DynamicResource FontSizeBase}"
                                    TextTrimming="CharacterEllipsis"
                                    VerticalAlignment="Center"/>
                     </Border>
@@ -420,8 +420,8 @@
                                         <CheckBox IsChecked="{Binding IsSelected}"
                                                   IsEnabled="{Binding IsEnabled}"
                                                   Margin="0,0,0,8"
-                                                  FontSize="13">
-                                            <TextBlock Text="{Binding Name}" FontSize="13"/>
+                                                  FontSize="{DynamicResource FontSizeMD}">
+                                            <TextBlock Text="{Binding Name}" FontSize="{DynamicResource FontSizeMD}"/>
                                         </CheckBox>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>

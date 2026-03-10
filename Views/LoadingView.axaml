@@ -19,7 +19,7 @@
 
         <TextBlock Text="Dotaclassic"
                    FontFamily="{StaticResource TrajanPro3}"
-                   FontSize="22" FontWeight="Bold"
+                   FontSize="{DynamicResource FontSize3XL}" FontWeight="Bold"
                    HorizontalAlignment="Center"
                    Foreground="#D9D9D9"
                    LetterSpacing="2"/>
@@ -31,7 +31,7 @@
                      Background="#2a2a2a"/>
 
         <TextBlock Text="Подключение к Steam..."
-                   FontSize="13" HorizontalAlignment="Center"
+                   FontSize="{DynamicResource FontSizeMD}" HorizontalAlignment="Center"
                    Foreground="#888888"/>
 
     </StackPanel>

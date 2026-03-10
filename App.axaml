@@ -11,6 +11,15 @@
     <Application.Resources>
         <FontFamily x:Key="TrajanPro3">avares://d2c-launcher/Assets/Fonts#Trajan Pro 3</FontFamily>
         <FontFamily x:Key="NotoSans">avares://d2c-launcher/Assets/Fonts#Noto Sans</FontFamily>
+        <x:Double x:Key="FontSizeXS">10</x:Double>
+        <x:Double x:Key="FontSizeSM">11</x:Double>
+        <x:Double x:Key="FontSizeBase">12</x:Double>
+        <x:Double x:Key="FontSizeMD">13</x:Double>
+        <x:Double x:Key="FontSizeLG">14</x:Double>
+        <x:Double x:Key="FontSizeXL">16</x:Double>
+        <x:Double x:Key="FontSize2XL">18</x:Double>
+        <x:Double x:Key="FontSize3XL">22</x:Double>
+        <x:Double x:Key="FontSize4XL">28</x:Double>
     </Application.Resources>
 
    <Application.DataTemplates>

@@ -13,7 +13,7 @@
                 PointerPressed="OnDialogPointerPressed">
             <StackPanel Spacing="12">
                 <TextBlock Text="{Binding Title, ElementName=Root}"
-                           FontSize="16" FontWeight="SemiBold"/>
+                           FontSize="{DynamicResource FontSizeXL}" FontWeight="SemiBold"/>
                 <ContentPresenter Content="{Binding Content, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
             </StackPanel>
         </Border>

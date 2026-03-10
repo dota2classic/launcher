@@ -19,7 +19,7 @@
                     Padding="14,0">
                 <Grid ColumnDefinitions="*,Auto">
                     <TextBlock Text="ЧАТ"
-                               FontSize="10" FontWeight="SemiBold" LetterSpacing="2"
+                               FontSize="{DynamicResource FontSizeXS}" FontWeight="SemiBold" LetterSpacing="2"
                                Foreground="#D9D9D9" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
@@ -32,7 +32,7 @@
                     <!-- Loading placeholder -->
                     <TextBlock Text="Загрузка..."
                                IsVisible="{Binding IsLoading}"
-                               Foreground="#48525a" FontSize="12"
+                               Foreground="#48525a" FontSize="{DynamicResource FontSizeBase}"
                                HorizontalAlignment="Center" VerticalAlignment="Center"
                                Margin="0,20"/>
 
@@ -55,7 +55,7 @@
                                                     Background="#1e2a3a"
                                                     BorderBrush="#2d3842" BorderThickness="1">
                                                 <TextBlock Text="{Binding Initials}"
-                                                           FontSize="10" Foreground="#3a90d6"
+                                                           FontSize="{DynamicResource FontSizeXS}" Foreground="#3a90d6"
                                                            HorizontalAlignment="Center"
                                                            VerticalAlignment="Center"/>
                                             </Border>
@@ -82,12 +82,12 @@
                                             <Grid ColumnDefinitions="*,Auto"
                                                   IsVisible="{Binding ShowHeader}">
                                                 <TextBlock Text="{Binding AuthorName}"
-                                                           FontSize="12" FontWeight="SemiBold"
+                                                           FontSize="{DynamicResource FontSizeBase}" FontWeight="SemiBold"
                                                            Foreground="#d9dde0"
                                                            TextTrimming="CharacterEllipsis"/>
                                                 <TextBlock Grid.Column="1"
                                                            Text="{Binding TimeText}"
-                                                           FontSize="10" Foreground="#48525a"
+                                                           FontSize="{DynamicResource FontSizeXS}" Foreground="#48525a"
                                                            VerticalAlignment="Bottom"
                                                            Margin="8,0,0,0"/>
                                             </Grid>
@@ -100,11 +100,11 @@
                                                     Margin="0,0,0,2">
                                                 <StackPanel Spacing="1">
                                                     <TextBlock Text="{Binding ReplyToAuthorName}"
-                                                               FontSize="11" FontWeight="SemiBold"
+                                                               FontSize="{DynamicResource FontSizeSM}" FontWeight="SemiBold"
                                                                Foreground="#3a90d6"
                                                                TextTrimming="CharacterEllipsis"/>
                                                     <TextBlock Text="{Binding ReplyToContent}"
-                                                               FontSize="11" Foreground="#6b7a8d"
+                                                               FontSize="{DynamicResource FontSizeSM}" Foreground="#6b7a8d"
                                                                TextTrimming="CharacterEllipsis"
                                                                MaxLines="1"/>
                                                 </StackPanel>
@@ -135,7 +135,7 @@
                                  x:Name="MessageInput"
                                  Text="{Binding InputText}"
                                  Watermark="Введите сообщение"
-                                 FontSize="13"
+                                 FontSize="{DynamicResource FontSizeMD}"
                                  Background="Transparent"
                                  BorderThickness="0"
                                  Padding="0"

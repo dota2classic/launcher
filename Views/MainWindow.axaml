@@ -20,10 +20,10 @@
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Spacing="2">
                     <TextBlock Text="Доступна новая версия, готова к установке."
-                               Foreground="White" FontSize="13" FontWeight="SemiBold"/>
+                               Foreground="White" FontSize="{DynamicResource FontSizeMD}" FontWeight="SemiBold"/>
                     <TextBlock Text="{Binding ReleaseNotes}"
                                IsVisible="{Binding ReleaseNotes, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
-                               Foreground="#ccffffff" FontSize="11" TextWrapping="Wrap"/>
+                               Foreground="#ccffffff" FontSize="{DynamicResource FontSizeSM}" TextWrapping="Wrap"/>
                 </StackPanel>
                 <Button Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0"
                         Content="Перезапустить и обновить"

@@ -7,7 +7,7 @@
     <Button Height="68" HorizontalAlignment="Stretch"
             HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
             Background="{Binding QueueButtonBackground}" Foreground="White"
-            FontWeight="Bold" FontSize="18" BorderThickness="0" CornerRadius="0"
+            FontWeight="Bold" FontSize="{DynamicResource FontSize2XL}" BorderThickness="0" CornerRadius="0"
             Padding="18,12" Click="OnQueueButtonClicked">
         <Button.Styles>
             <Style Selector="Button:pointerover">
@@ -18,8 +18,8 @@
             <TextBlock Text="{Binding QueueButtonMainText}" HorizontalAlignment="Center"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8"
                         IsVisible="{Binding IsSearching}">
-                <TextBlock Text="{Binding QueueButtonModeCountText}" Foreground="White" FontSize="14"/>
-                <TextBlock Text="{Binding QueueButtonTimeText}" Foreground="#F5D042" FontSize="14"/>
+                <TextBlock Text="{Binding QueueButtonModeCountText}" Foreground="White" FontSize="{DynamicResource FontSizeLG}"/>
+                <TextBlock Text="{Binding QueueButtonTimeText}" Foreground="#F5D042" FontSize="{DynamicResource FontSizeLG}"/>
             </StackPanel>
         </StackPanel>
     </Button>

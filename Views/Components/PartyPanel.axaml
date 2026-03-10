@@ -20,7 +20,7 @@
            <Border Background="#0A0B0D" Padding="12,0" MinHeight="34"
                    BorderBrush="#1e2530" BorderThickness="0,0,0,1">
                <Grid ColumnDefinitions="*,Auto">
-                   <TextBlock Text="ГРУППА" Foreground="#D9D9D9" FontWeight="SemiBold" FontSize="10"
+                   <TextBlock Text="ГРУППА" Foreground="#D9D9D9" FontWeight="SemiBold" FontSize="{DynamicResource FontSizeXS}"
                               LetterSpacing="2" VerticalAlignment="Center"/>
                    <Button Grid.Column="1"
                            IsVisible="{Binding CanLeaveParty}"
@@ -53,7 +53,7 @@
                                        <!-- Initials fallback (shown while image loads or when no URL) -->
                                        <TextBlock Text="{Binding Initials}"
                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                  FontSize="14" FontWeight="SemiBold" Foreground="#AAAAAA"/>
+                                                  FontSize="{DynamicResource FontSizeLG}" FontWeight="SemiBold" Foreground="#AAAAAA"/>
                                        <!-- Avatar overlay via AsyncImageLoader -->
                                        <Image Stretch="UniformToFill"
                                               asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}"/>
