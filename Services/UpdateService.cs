@@ -14,12 +14,13 @@ public class UpdateService
     {
         // Allow a local directory override for manual update testing:
         //   set D2C_UPDATE_SOURCE=C:\vpk-test  before launching the app
+        var isNightly = settings.Get().NightlyUpdates;
         var localSource = Environment.GetEnvironmentVariable("D2C_UPDATE_SOURCE");
         IUpdateSource source = string.IsNullOrWhiteSpace(localSource)
-            ? new GithubSource("https://github.com/dota2classic/launcher", null, false)
+            ? new GithubSource("https://github.com/dota2classic/launcher", null, isNightly)
             : new SimpleWebSource("file:///" + localSource.Replace('\\', '/'));
 
-        var options = settings.Get().NightlyUpdates
+        var options = isNightly
             ? new UpdateOptions { ExplicitChannel = "nightly", AllowVersionDowngrade = true }
             : null;
 
