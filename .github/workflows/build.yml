@@ -34,7 +34,7 @@ jobs:
       - name: Publish
         shell: pwsh
         run: |
-          $version = if ("${{ github.ref }}" -like 'refs/tags/v*') { "${{ github.ref_name }}" -replace '^v', '' } else { "0.0.${{ github.run_number }}-nightly" }
+          $version = if ("${{ github.ref }}" -like 'refs/tags/v*') { "${{ github.ref_name }}" -replace '^v', '' } else { "0.0.${{ github.run_number }}-pre" }
           dotnet publish d2c-launcher.csproj -c Release -r win-x64 --self-contained true -p:Version=$version -o publish/
 
       - name: Publish SteamBridge
@@ -57,7 +57,7 @@ jobs:
         run: |
           vpk pack `
             --packId "d2c-launcher" `
-            --packVersion "0.0.${{ github.run_number }}-nightly" `
+            --packVersion "0.0.${{ github.run_number }}-pre" `
             --channel nightly `
             --packDir publish/ `
             --mainExe d2c-launcher.exe `
