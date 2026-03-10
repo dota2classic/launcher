@@ -52,8 +52,18 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public bool IsSteamRunning => _steamManager.SteamStatus is SteamStatus.Running or SteamStatus.Offline;
 
-    public string WindowTitle { get; } =
-        $"dotaclassic v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "?"}";
+    public string WindowTitle { get; } = BuildWindowTitle();
+
+    private static string BuildWindowTitle()
+    {
+        var asm = Assembly.GetExecutingAssembly();
+        var version = (asm.GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>()
+                          ?.InformationalVersion
+                          ?.Split('+')[0])
+                      ?? asm.GetName().Version?.ToString(3)
+                      ?? "?";
+        return $"dotaclassic v{version}";
+    }
 
     public MainWindowViewModel(
         SteamManager steamManager,

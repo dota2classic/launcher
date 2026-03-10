@@ -41,7 +41,14 @@ sealed class Program
         App.SingleInstance = singleInstance;
 
         var hw = HardwareInfoService.Collect();
-        var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "0.0.0";
+        var asm = Assembly.GetExecutingAssembly();
+        // AssemblyInformationalVersion keeps the full semver (e.g. "0.0.97-pre+abc123").
+        // AssemblyVersion is numeric-only (e.g. "0.0.97.0"), losing the pre-release suffix.
+        var version = (asm.GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>()
+                          ?.InformationalVersion
+                          ?.Split('+')[0])           // strip build metadata hash
+                      ?? asm.GetName().Version?.ToString(3)
+                      ?? "0.0.0";
         FaroTelemetryService.Init(version, hw);
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         FaroTelemetryService.ShutdownAsync().GetAwaiter().GetResult();
