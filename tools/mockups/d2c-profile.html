@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<title>D2C — Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Sans:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:         #0e1012;
+    --bg-panel:   #12151a;
+    --bg-panel2:  #161b21;
+    --bg-input:   #0c0e12;
+    --bg-hover:   #1a2028;
+    --border:     #1e2530;
+    --border-lit: #2d3842;
+    --gold:       #c8a84b;
+    --gold-dim:   #6a5520;
+    --blue:       #3a90d6;
+    --blue-dark:  #1a5aaa;
+    --green:      #3a8c32;
+    --green-lit:  #4aaa40;
+    --red:        #c0402a;
+    --text:       #b8bcc0;
+    --text-dim:   #48525a;
+    --text-head:  #d9dde0;
+  }
+
+  body {
+    background: #060708;
+    font-family: 'Noto Sans', sans-serif;
+    color: var(--text);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 32px 16px;
+  }
+
+  .page {
+    width: 1100px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    box-shadow: 0 40px 120px rgba(0,0,0,0.9);
+    animation: fadeUp .25s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(8px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  /* ── PROFILE HEADER ── */
+  .profile-header {
+    background: #0a0d10;
+    border-bottom: 1px solid var(--border);
+    padding: 18px 20px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .profile-header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 0% 0%, rgba(58,144,214,0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .profile-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .avatar-wrap {
+    position: relative; flex-shrink: 0;
+  }
+  .avatar {
+    width: 72px; height: 72px;
+    border: 2px solid var(--border-lit);
+    background: linear-gradient(135deg, #1a2535, #2a3848);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cinzel', serif; font-size: 28px; color: var(--blue);
+    overflow: hidden;
+  }
+  .avatar-online {
+    position: absolute; bottom: 3px; right: 3px;
+    width: 11px; height: 11px; border-radius: 50%;
+    background: var(--green-lit);
+    border: 2px solid #0a0d10;
+    box-shadow: 0 0 6px rgba(74,170,64,0.6);
+  }
+
+  .profile-info { flex: 1; }
+  .profile-name {
+    font-family: 'Cinzel', serif;
+    font-size: 22px; font-weight: 700;
+    color: var(--text-head); letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .profile-badges {
+    display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+  }
+  .badge {
+    height: 20px; padding: 0 8px;
+    font-size: 10px; letter-spacing: 1px;
+    display: flex; align-items: center; gap: 4px;
+    border: 1px solid var(--border-lit);
+    background: var(--bg-panel2);
+    color: var(--text-dim);
+    text-transform: uppercase;
+    font-family: 'Cinzel', serif;
+  }
+  .badge.blue  { border-color: rgba(58,144,214,0.4); color: var(--blue); background: rgba(58,144,214,0.06); }
+  .badge.gold  { border-color: rgba(200,168,75,0.4); color: var(--gold); background: rgba(200,168,75,0.06); }
+  .badge.green { border-color: rgba(74,170,64,0.4); color: var(--green-lit); background: rgba(74,170,64,0.06); }
+
+  /* stats row */
+  .profile-stats {
+    display: flex; gap: 0;
+    margin-left: auto; align-self: flex-start;
+    border: 1px solid var(--border);
+  }
+  .stat-cell {
+    padding: 10px 20px;
+    border-right: 1px solid var(--border);
+    text-align: center; min-width: 90px;
+  }
+  .stat-cell:last-child { border-right: none; }
+  .stat-val {
+    font-family: 'Cinzel', serif;
+    font-size: 16px; font-weight: 700;
+    color: var(--text-head);
+    white-space: nowrap;
+  }
+  .stat-val.gold  { color: var(--gold); }
+  .stat-val.green { color: var(--green-lit); }
+  .stat-val.mixed span.w { color: var(--green-lit); }
+  .stat-val.mixed span.l { color: var(--red); }
+  .stat-lbl {
+    font-size: 9px; text-transform: uppercase;
+    letter-spacing: 1.5px; color: var(--text-dim);
+    margin-top: 3px; font-family: 'Cinzel', serif;
+  }
+
+  /* profile tabs */
+  .profile-tabs {
+    display: flex; gap: 0;
+    margin-top: 4px;
+  }
+  .ptab {
+    padding: 10px 18px;
+    font-family: 'Cinzel', serif;
+    font-size: 11px; letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color .15s, border-color .15s;
+    user-select: none;
+    position: relative; top: 1px;
+  }
+  .ptab:hover { color: var(--text); }
+  .ptab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+  /* ── BODY ── */
+  .profile-body {
+    display: flex; flex-direction: column;
+    padding: 0;
+  }
+
+  /* section header */
+  .section-bar {
+    height: 32px;
+    background: #0a0d10;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    padding: 0 16px; gap: 12px;
+  }
+  .section-bar-title {
+    font-family: 'Cinzel', serif;
+    font-size: 10px; letter-spacing: 2.5px;
+    text-transform: uppercase; color: var(--text-dim);
+  }
+  .section-bar-link {
+    margin-left: auto;
+    font-size: 11px; color: var(--blue);
+    cursor: pointer; letter-spacing: 0.5px;
+    transition: color .15s;
+  }
+  .section-bar-link:hover { color: #6ab5f0; text-decoration: underline; }
+
+  /* ── ACHIEVEMENTS STRIP ── */
+  .achievements-strip {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    scrollbar-width: thin;
+    scrollbar-color: #2a3040 transparent;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+    background: var(--bg-panel);
+    gap: 8px;
+    min-width: 0;
+  }
+  .achievements-strip::-webkit-scrollbar { height: 4px; }
+  .achievements-strip::-webkit-scrollbar-track { background: transparent; }
+  .achievements-strip::-webkit-scrollbar-thumb { background: #2a3040; border-radius: 2px; }
+
+  .ach-card {
+    flex-shrink: 0;
+    width: 86px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    cursor: pointer;
+    padding: 8px 6px;
+    border: 1px solid transparent;
+    transition: border-color .15s, background .15s;
+  }
+  .ach-card:hover { border-color: var(--border-lit); background: var(--bg-hover); }
+  .ach-card.unlocked:hover { border-color: rgba(200,168,75,0.3); }
+
+  .ach-icon {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--bg-panel2);
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .ach-card.unlocked .ach-icon {
+    border-color: var(--gold-dim);
+    background: linear-gradient(135deg, #1a1400, #2a2000);
+    box-shadow: 0 0 12px rgba(200,168,75,0.15);
+  }
+
+  .ach-stars {
+    display: flex; gap: 2px; justify-content: center;
+  }
+  .ach-star { font-size: 8px; color: var(--gold-dim); }
+  .ach-star.lit { color: var(--gold); }
+
+  .ach-name {
+    font-size: 10px; color: var(--text-dim);
+    text-align: center; line-height: 1.3;
+    font-family: 'Cinzel', serif; letter-spacing: 0.3px;
+  }
+  .ach-card.unlocked .ach-name { color: var(--text); }
+
+  .ach-check {
+    font-size: 9px; color: var(--green-lit);
+  }
+  .ach-progress {
+    font-size: 9px; color: var(--text-dim);
+    font-family: 'Cinzel', serif;
+  }
+
+  /* ── MAIN TWO-COL ── */
+  .two-col {
+    display: flex; gap: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  /* left col */
+  .col-left {
+    flex: 1; border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    min-width: 0;
+  }
+
+  /* reviews / radar */
+  .reviews-block {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .reviews-title {
+    font-family: 'Cinzel', serif;
+    font-size: 10px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+
+  .radar-wrap {
+    display: flex; justify-content: center; align-items: center;
+    padding: 8px 0 4px;
+  }
+  svg.radar { overflow: visible; }
+
+  /* season stats */
+  .season-block {
+    padding: 16px;
+  }
+  .season-title {
+    font-family: 'Cinzel', serif;
+    font-size: 10px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+  .stat-rows { display: flex; flex-direction: column; gap: 0; }
+  .stat-row {
+    display: flex; align-items: baseline;
+    padding: 7px 0;
+    border-bottom: 1px solid #161c22;
+    gap: 12px;
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-number {
+    font-family: 'Cinzel', serif;
+    font-size: 15px; font-weight: 600;
+    min-width: 80px;
+    color: var(--gold);
+  }
+  .stat-number.blue  { color: var(--blue); }
+  .stat-number.green { color: var(--green-lit); }
+  .stat-number.red   { color: #c05050; }
+  .stat-number.dim   { color: var(--text); font-size: 13px; }
+  .stat-desc { font-size: 12px; color: var(--text-dim); }
+
+  /* right col — hero table */
+  .col-right {
+    width: 420px; flex-shrink: 0;
+    display: flex; flex-direction: column;
+  }
+
+  .hero-table { flex: 1; }
+  .hero-table-head {
+    display: grid;
+    grid-template-columns: 1fr 60px 90px 60px;
+    padding: 6px 14px;
+    border-bottom: 1px solid var(--border);
+    background: #0a0d10;
+  }
+  .hero-table-head span {
+    font-size: 9px; text-transform: uppercase;
+    letter-spacing: 1.5px; color: var(--text-dim);
+    font-family: 'Cinzel', serif;
+  }
+  .hero-table-head span:not(:first-child) { text-align: center; }
+
+  .hero-row {
+    display: grid;
+    grid-template-columns: 1fr 60px 90px 60px;
+    align-items: center;
+    padding: 7px 14px;
+    border-bottom: 1px solid #161c22;
+    cursor: pointer;
+    transition: background .15s;
+    gap: 4px;
+  }
+  .hero-row:last-child { border-bottom: none; }
+  .hero-row:hover { background: var(--bg-hover); }
+
+  .hero-cell-name {
+    display: flex; align-items: center; gap: 9px;
+  }
+  .hero-avatar {
+    width: 34px; height: 34px;
+    background: var(--bg-panel2);
+    border: 1px solid var(--border-lit);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+    overflow: hidden;
+  }
+  .hero-name {
+    font-size: 12px; color: var(--blue);
+    font-weight: 600; cursor: pointer;
+    transition: color .15s;
+  }
+  .hero-name:hover { color: #6ab5f0; text-decoration: underline; }
+
+  .hero-cell { text-align: center; }
+  .hero-val { font-size: 12px; color: var(--text-head); font-weight: 600; }
+  .hero-val.gold { color: var(--gold); }
+
+  .winrate-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .winrate-val { font-size: 12px; font-weight: 600; }
+  .winrate-val.high { color: var(--green-lit); }
+  .winrate-val.mid  { color: var(--gold); }
+  .winrate-val.low  { color: #c05050; }
+  .winrate-bar {
+    width: 48px; height: 2px;
+    background: #1e2530; border-radius: 1px; overflow: hidden;
+  }
+  .winrate-fill { height: 100%; border-radius: 1px; }
+  .winrate-fill.high { background: var(--green-lit); }
+  .winrate-fill.mid  { background: var(--gold); }
+  .winrate-fill.low  { background: #c05050; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- PROFILE HEADER -->
+  <div class="profile-header">
+    <div class="profile-top">
+
+      <!-- Avatar -->
+      <div class="avatar-wrap">
+        <div class="avatar">E</div>
+        <div class="avatar-online"></div>
+      </div>
+
+      <!-- Name + badges -->
+      <div class="profile-info">
+        <div class="profile-name">egor_lib</div>
+        <div style="margin-top:8px; font-size:11px; color:var(--text-dim);">
+          Последняя игра: <span style="color:var(--text)">вчера в 23:44</span>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="profile-stats">
+        <div class="stat-cell">
+          <div class="stat-val mixed">
+            <span class="w">316</span>–<span class="l">262</span>–<span style="color:var(--text-dim)">0</span>
+          </div>
+          <div class="stat-lbl">Матчи</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-val green">54.67%</div>
+          <div class="stat-lbl">Доля побед</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-val gold">3311</div>
+          <div class="stat-lbl">Рейтинг</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-val" style="color:var(--text-head)">41</div>
+          <div class="stat-lbl">Ранг</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="profile-tabs">
+      <div class="ptab active">Общее</div>
+      <div class="ptab">Матчи</div>
+      <div class="ptab">Достижения</div>
+      <div class="ptab">Союзники</div>
+      <div class="ptab">Герои</div>
+      <div class="ptab">Рекорды</div>
+      <div class="ptab">Награды</div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="profile-body">
+
+    <!-- ACHIEVEMENTS STRIP -->
+    <div class="section-bar">
+      <span class="section-bar-title">Сводка</span>
+    </div>
+    <div class="achievements-strip">
+
+      <div class="ach-card unlocked">
+        <div class="ach-icon">🔥</div>
+        <div class="ach-stars"><span class="ach-star lit">★</span></div>
+        <div class="ach-name">Бустер</div>
+        <div class="ach-check">✓</div>
+      </div>
+
+      <div class="ach-card unlocked">
+        <div class="ach-icon">⚡</div>
+        <div class="ach-stars"><span class="ach-star lit">★</span></div>
+        <div class="ach-name">По фасту</div>
+        <div class="ach-check">✓</div>
+      </div>
+
+      <div class="ach-card unlocked">
+        <div class="ach-icon">🛡</div>
+        <div class="ach-stars"><span class="ach-star lit">★</span></div>
+        <div class="ach-name">Терпила</div>
+        <div class="ach-check">✓</div>
+      </div>
+
+      <div class="ach-card unlocked">
+        <div class="ach-icon">🏆</div>
+        <div class="ach-stars"><span class="ach-star lit">★</span></div>
+        <div class="ach-name">Классиковец</div>
+        <div class="ach-check">✓</div>
+      </div>
+
+      <div class="ach-card unlocked">
+        <div class="ach-icon">🌀</div>
+        <div class="ach-stars"><span class="ach-star lit">★</span></div>
+        <div class="ach-name">sololineabuse</div>
+        <div class="ach-check">✓</div>
+      </div>
+
+      <div class="ach-card unlocked">
+        <div class="ach-icon">💎</div>
+        <div class="ach-stars"><span class="ach-star lit">★</span></div>
+        <div class="ach-name">Стеклобой</div>
+        <div class="ach-check">✓</div>
+      </div>
+
+      <div class="ach-card unlocked">
+        <div class="ach-icon">⚒</div>
+        <div class="ach-stars"><span class="ach-star lit">★</span></div>
+        <div class="ach-name">Работяга</div>
+        <div class="ach-check">✓</div>
+      </div>
+
+      <div class="ach-card unlocked">
+        <div class="ach-icon">💰</div>
+        <div class="ach-stars">
+          <span class="ach-star lit">★</span><span class="ach-star lit">★</span>
+          <span class="ach-star lit">★</span><span class="ach-star lit">★</span>
+        </div>
+        <div class="ach-name">Бизнесмен</div>
+        <div class="ach-progress">1 403 / 1 500</div>
+      </div>
+
+      <div class="ach-card unlocked">
+        <div class="ach-icon">💀</div>
+        <div class="ach-stars">
+          <span class="ach-star lit">★</span><span class="ach-star lit">★</span>
+          <span class="ach-star lit">★</span><span class="ach-star lit">★</span>
+          <span class="ach-star">★</span>
+        </div>
+        <div class="ach-name">Палач</div>
+        <div class="ach-progress">45 / 50</div>
+      </div>
+
+      <div class="ach-card unlocked">
+        <div class="ach-icon">🤝</div>
+        <div class="ach-stars">
+          <span class="ach-star lit">★</span><span class="ach-star lit">★</span>
+          <span class="ach-star lit">★</span><span class="ach-star lit">★</span>
+          <span class="ach-star">★</span>
+        </div>
+        <div class="ach-name">Напарник</div>
+        <div class="ach-progress">44 / 50</div>
+      </div>
+
+      <div class="ach-card">
+        <div class="ach-icon" style="opacity:0.35">🔒</div>
+        <div class="ach-stars"><span class="ach-star">★</span></div>
+        <div class="ach-name">???</div>
+        <div class="ach-progress">0 / 100</div>
+      </div>
+
+    </div>
+
+    <!-- TWO COLUMNS -->
+    <div class="two-col">
+
+      <!-- LEFT: Radar + Season Stats -->
+      <div class="col-left">
+
+        <div class="reviews-block">
+          <div class="reviews-title">Отзывы</div>
+          <div class="radar-wrap">
+            <svg class="radar" width="240" height="220" viewBox="0 0 240 220">
+              <!-- labels -->
+              <text x="120" y="14" text-anchor="middle" font-family="Cinzel,serif" font-size="11" fill="#48525a">Оптимист</text>
+              <text x="226" y="118" text-anchor="end" font-family="Cinzel,serif" font-size="11" fill="#48525a">Добряк</text>
+              <text x="185" y="210" text-anchor="middle" font-family="Cinzel,serif" font-size="11" fill="#48525a">Болтун</text>
+              <text x="55"  y="210" text-anchor="middle" font-family="Cinzel,serif" font-size="11" fill="#48525a">Клоун</text>
+              <text x="14"  y="118" text-anchor="start" font-family="Cinzel,serif" font-size="11" fill="#48525a">Токсик</text>
+
+              <!-- grid rings -->
+              <polygon points="120,26 207,83 175,188 65,188 33,83" fill="none" stroke="#1e2530" stroke-width="1"/>
+              <polygon points="120,52 181,91 160,165 80,165 59,91"  fill="none" stroke="#1e2530" stroke-width="1"/>
+              <polygon points="120,78 155,99 145,143 95,143 85,99"  fill="none" stroke="#1e2530" stroke-width="1"/>
+              <!-- spokes -->
+              <line x1="120" y1="26"  x2="120" y2="107" stroke="#1e2530" stroke-width="1"/>
+              <line x1="207" y1="83"  x2="120" y2="107" stroke="#1e2530" stroke-width="1"/>
+              <line x1="175" y1="188" x2="120" y2="107" stroke="#1e2530" stroke-width="1"/>
+              <line x1="65"  y1="188" x2="120" y2="107" stroke="#1e2530" stroke-width="1"/>
+              <line x1="33"  y1="83"  x2="120" y2="107" stroke="#1e2530" stroke-width="1"/>
+
+              <!-- data shape -->
+              <polygon points="120,38 190,88 162,178 78,175 50,92"
+                fill="rgba(200,168,75,0.12)"
+                stroke="#c8a84b"
+                stroke-width="1.5"/>
+              <!-- data dots -->
+              <circle cx="120" cy="38"  r="3.5" fill="#c8a84b"/>
+              <circle cx="190" cy="88"  r="3.5" fill="#c8a84b"/>
+              <circle cx="162" cy="178" r="3.5" fill="#c8a84b"/>
+              <circle cx="78"  cy="175" r="3.5" fill="#c8a84b"/>
+              <circle cx="50"  cy="92"  r="3.5" fill="#c0402a"/>
+
+              <!-- center -->
+              <circle cx="120" cy="107" r="2" fill="#2d3842"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="season-block">
+          <div class="season-title">Статистика за сезон</div>
+          <div class="stat-rows">
+            <div class="stat-row">
+              <div class="stat-number">12.76</div>
+              <div class="stat-desc">Убийств</div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-number blue">7.83</div>
+              <div class="stat-desc">Смертей</div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-number">11.18</div>
+              <div class="stat-desc">Помощи</div>
+            </div>
+            <div class="stat-row" style="margin-top:6px;">
+              <div class="stat-number dim">96</div>
+              <div class="stat-desc">Игр сыграно</div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-number green">58.33%</div>
+              <div class="stat-desc">Доля побед</div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-number red">0.0%</div>
+              <div class="stat-desc">Покинутых игр</div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-number dim">2д, 11ч, 32м</div>
+              <div class="stat-desc">Времени в игре</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Hero table -->
+      <div class="col-right">
+        <div class="section-bar">
+          <span class="section-bar-title">Лучшие герои</span>
+          <span class="section-bar-link">Показать все →</span>
+        </div>
+        <div class="hero-table">
+          <div class="hero-table-head">
+            <span>Герой</span>
+            <span>Матчи</span>
+            <span>% Побед</span>
+            <span>KDA</span>
+          </div>
+
+          <!-- rows -->
+          <div class="hero-row">
+            <div class="hero-cell-name">
+              <div class="hero-avatar">🧙</div>
+              <span class="hero-name">Invoker</span>
+            </div>
+            <div class="hero-cell"><span class="hero-val">34</span></div>
+            <div class="hero-cell">
+              <div class="winrate-wrap">
+                <span class="winrate-val mid">55.88%</span>
+                <div class="winrate-bar"><div class="winrate-fill mid" style="width:55.88%"></div></div>
+              </div>
+            </div>
+            <div class="hero-cell"><span class="hero-val gold">7.04</span></div>
+          </div>
+
+          <div class="hero-row">
+            <div class="hero-cell-name">
+              <div class="hero-avatar">⚗️</div>
+              <span class="hero-name">Alchemist</span>
+            </div>
+            <div class="hero-cell"><span class="hero-val">28</span></div>
+            <div class="hero-cell">
+              <div class="winrate-wrap">
+                <span class="winrate-val mid">50.00%</span>
+                <div class="winrate-bar"><div class="winrate-fill mid" style="width:50%"></div></div>
+              </div>
+            </div>
+            <div class="hero-cell"><span class="hero-val gold">3.85</span></div>
+          </div>
+
+          <div class="hero-row">
+            <div class="hero-cell-name">
+              <div class="hero-avatar">🪝</div>
+              <span class="hero-name">Pudge</span>
+            </div>
+            <div class="hero-cell"><span class="hero-val">25</span></div>
+            <div class="hero-cell">
+              <div class="winrate-wrap">
+                <span class="winrate-val mid">56.00%</span>
+                <div class="winrate-bar"><div class="winrate-fill mid" style="width:56%"></div></div>
+              </div>
+            </div>
+            <div class="hero-cell"><span class="hero-val gold">3.08</span></div>
+          </div>
+
+          <div class="hero-row">
+            <div class="hero-cell-name">
+              <div class="hero-avatar">👻</div>
+              <span class="hero-name">Phantom Lancer</span>
+            </div>
+            <div class="hero-cell"><span class="hero-val">18</span></div>
+            <div class="hero-cell">
+              <div class="winrate-wrap">
+                <span class="winrate-val mid">50.00%</span>
+                <div class="winrate-bar"><div class="winrate-fill mid" style="width:50%"></div></div>
+              </div>
+            </div>
+            <div class="hero-cell"><span class="hero-val gold">4.84</span></div>
+          </div>
+
+          <div class="hero-row">
+            <div class="hero-cell-name">
+              <div class="hero-avatar">🚫</div>
+              <span class="hero-name">Anti-Mage</span>
+            </div>
+            <div class="hero-cell"><span class="hero-val">16</span></div>
+            <div class="hero-cell">
+              <div class="winrate-wrap">
+                <span class="winrate-val high">68.75%</span>
+                <div class="winrate-bar"><div class="winrate-fill high" style="width:68.75%"></div></div>
+              </div>
+            </div>
+            <div class="hero-cell"><span class="hero-val gold">7.52</span></div>
+          </div>
+
+          <div class="hero-row">
+            <div class="hero-cell-name">
+              <div class="hero-avatar">🩸</div>
+              <span class="hero-name">Bloodseeker</span>
+            </div>
+            <div class="hero-cell"><span class="hero-val">16</span></div>
+            <div class="hero-cell">
+              <div class="winrate-wrap">
+                <span class="winrate-val mid">56.25%</span>
+                <div class="winrate-bar"><div class="winrate-fill mid" style="width:56.25%"></div></div>
+              </div>
+            </div>
+            <div class="hero-cell"><span class="hero-val gold">6.77</span></div>
+          </div>
+
+          <div class="hero-row">
+            <div class="hero-cell-name">
+              <div class="hero-avatar">🗿</div>
+              <span class="hero-name">Tiny</span>
+            </div>
+            <div class="hero-cell"><span class="hero-val">15</span></div>
+            <div class="hero-cell">
+              <div class="winrate-wrap">
+                <span class="winrate-val high">66.67%</span>
+                <div class="winrate-bar"><div class="winrate-fill high" style="width:66.67%"></div></div>
+              </div>
+            </div>
+            <div class="hero-cell"><span class="hero-val gold">4.57</span></div>
+          </div>
+
+          <div class="hero-row">
+            <div class="hero-cell-name">
+              <div class="hero-avatar">👻</div>
+              <span class="hero-name">Spectre</span>
+            </div>
+            <div class="hero-cell"><span class="hero-val">14</span></div>
+            <div class="hero-cell">
+              <div class="winrate-wrap">
+                <span class="winrate-val high">78.57%</span>
+                <div class="winrate-bar"><div class="winrate-fill high" style="width:78.57%"></div></div>
+              </div>
+            </div>
+            <div class="hero-cell"><span class="hero-val gold">6.28</span></div>
+          </div>
+
+          <div class="hero-row">
+            <div class="hero-cell-name">
+              <div class="hero-avatar">🌙</div>
+              <span class="hero-name">Luna</span>
+            </div>
+            <div class="hero-cell"><span class="hero-val">13</span></div>
+            <div class="hero-cell">
+              <div class="winrate-wrap">
+                <span class="winrate-val mid">53.85%</span>
+                <div class="winrate-bar"><div class="winrate-fill mid" style="width:53.85%"></div></div>
+              </div>
+            </div>
+            <div class="hero-cell"><span class="hero-val gold">4.70</span></div>
+          </div>
+
+          <div class="hero-row">
+            <div class="hero-cell-name">
+              <div class="hero-avatar">🧲</div>
+              <span class="hero-name">Magnus</span>
+            </div>
+            <div class="hero-cell"><span class="hero-val">13</span></div>
+            <div class="hero-cell">
+              <div class="winrate-wrap">
+                <span class="winrate-val high">76.92%</span>
+                <div class="winrate-bar"><div class="winrate-fill high" style="width:76.92%"></div></div>
+              </div>
+            </div>
+            <div class="hero-cell"><span class="hero-val gold">6.68</span></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // tab switching (visual only)
+  document.querySelectorAll('.ptab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,7 +1,6 @@
 using System;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.VisualTree;
 using d2c_launcher.ViewModels;
 using d2c_launcher.Views.Components;
 
@@ -21,17 +20,16 @@ public partial class MainLauncherView : UserControl
     protected override void OnDataContextChanged(EventArgs e)
     {
         base.OnDataContextChanged(e);
-        UpdateSettingsGameDirectory();
 
         if (DataContext is MainLauncherViewModel vm)
         {
+            vm.Settings.RefreshGameDirectory();
             vm.PropertyChanged += (_, args) =>
             {
                 if (args.PropertyName is nameof(MainLauncherViewModel.IntroStep)
                                       or nameof(MainLauncherViewModel.IsIntroOpen))
                     UpdateSpotlight();
             };
-            // Compute spotlight once layout is ready
             LayoutUpdated += OnFirstLayoutForSpotlight;
         }
     }
@@ -48,8 +46,9 @@ public partial class MainLauncherView : UserControl
 
         Control? target = vm.IntroStep switch
         {
-            1 => LauncherHeaderControl.FindControl<Button>("PlayButton"),
-            2 => LauncherHeaderControl.FindControl<Button>("SettingsButton"),
+            // Steps 1 (play tab) and 2 (settings tab) now highlight the tab buttons in the header
+            1 => LauncherHeaderControl.FindControl<Button>("PlayTabButton"),
+            2 => LauncherHeaderControl.FindControl<Button>("SettingsTabButton"),
             3 or 4 => GameSearchPanelControl,
             _ => null
         };
@@ -66,12 +65,6 @@ public partial class MainLauncherView : UserControl
             : default;
     }
 
-    private void UpdateSettingsGameDirectory()
-    {
-        if (DataContext is MainLauncherViewModel vm)
-            vm.Settings.RefreshGameDirectory();
-    }
-
     private void OnSelectDotaExeClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         if (DataContext is MainLauncherViewModel vm)
@@ -82,31 +75,6 @@ public partial class MainLauncherView : UserControl
     {
         if (DataContext is MainLauncherViewModel vm)
             vm.CloseSettings();
-    }
-
-    private void OnSettingsOverlayBackdropPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
-    {
-        if (DataContext is MainLauncherViewModel vm && e.Source == sender)
-            vm.CloseSettings();
-    }
-
-    private void OnSettingsPanelPointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
-    {
-        e.Handled = true;
-    }
-
-    private void OnPrimaryActionClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        if (DataContext is not MainLauncherViewModel vm)
-            return;
-
-        if (!vm.IsGameDirectorySet)
-        {
-            OnSelectDotaExeClicked(sender, e);
-            return;
-        }
-
-        vm.LaunchGame();
     }
 
     private void OnInvitePlayerClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

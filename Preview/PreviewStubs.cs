@@ -86,6 +86,17 @@ internal sealed class StubBackendApiService : IBackendApiService
     public Task<Models.LiveMatchInfo?> GetLiveMatchAsync(int matchId, CancellationToken cancellationToken = default)
         => Task.FromResult<Models.LiveMatchInfo?>(null);
 
+    public Task<Models.PlayerProfileData?> GetPlayerSummaryAsync(string steamId, CancellationToken cancellationToken = default)
+        => Task.FromResult<Models.PlayerProfileData?>(new Models.PlayerProfileData(
+            "PreviewPlayer", null, 120, 80, 5, 3250, 42, 8.5, 5.2, 10.1));
+
+    public Task<IReadOnlyList<Models.HeroProfileData>> GetHeroStatsAsync(string steamId, CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<Models.HeroProfileData>>([
+            new Models.HeroProfileData("Invoker", 34, 55.88, 7.04),
+            new Models.HeroProfileData("Alchemist", 28, 50.00, 3.85),
+            new Models.HeroProfileData("Pudge", 25, 56.00, 3.08),
+        ]);
+
     public async IAsyncEnumerable<ChatMessageData> SubscribeChatAsync(
         string threadId,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)

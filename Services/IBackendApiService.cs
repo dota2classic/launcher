@@ -21,4 +21,6 @@ public interface IBackendApiService
     Task<IReadOnlyList<EmoticonData>> GetEmoticonsAsync(CancellationToken cancellationToken = default);
     /// <summary>Returns the live match with the given ID, or null if not found.</summary>
     Task<LiveMatchInfo?> GetLiveMatchAsync(int matchId, CancellationToken cancellationToken = default);
+    Task<PlayerProfileData?> GetPlayerSummaryAsync(string steamId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<HeroProfileData>> GetHeroStatsAsync(string steamId, CancellationToken cancellationToken = default);
 }

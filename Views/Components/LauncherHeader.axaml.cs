@@ -10,23 +10,24 @@ public partial class LauncherHeader : UserControl
         InitializeComponent();
     }
 
-    private void OnPlayClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void OnPlayTabClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        if (DataContext is not MainLauncherViewModel vm)
-            return;
-
-        if (vm.Launch.PlayButtonIsStop)
-            vm.Launch.StopGame();
-        else
-            vm.LaunchGame();
+        if (DataContext is MainLauncherViewModel vm)
+            vm.NavigateTo(LauncherTab.Play);
     }
 
-    private void OnSettingsClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void OnSettingsTabClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         if (DataContext is MainLauncherViewModel vm)
         {
-            vm.OpenSettings();
+            vm.NavigateTo(LauncherTab.Settings);
             _ = vm.Settings.LoadDlcPackagesAsync();
         }
+    }
+
+    private void OnProfileTabClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is MainLauncherViewModel vm)
+            vm.NavigateTo(vm.ActiveTab == LauncherTab.Profile ? LauncherTab.Play : LauncherTab.Profile);
     }
 }

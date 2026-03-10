@@ -5,76 +5,85 @@
            x:Class="d2c_launcher.Views.Components.LauncherHeader"
            x:DataType="vm:MainLauncherViewModel">
   <UserControl.Styles>
-    <Style Selector="Button.play-btn">
-      <Setter Property="Foreground" Value="White"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-      <Setter Property="FontSize" Value="{DynamicResource FontSizeXL}"/>
-      <Setter Property="Padding" Value="28,10"/>
+    <Style Selector="Button.nav-tab">
+      <Setter Property="Background" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="CornerRadius" Value="0"/>
-      <Setter Property="MinWidth" Value="110"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-      <Setter Property="Background">
-        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-          <GradientStop Color="#1a5aaa" Offset="0"/>
-          <GradientStop Color="#3a90d6" Offset="1"/>
-        </LinearGradientBrush>
-      </Setter>
+      <Setter Property="Padding" Value="22,14"/>
+      <Setter Property="Foreground" Value="#7a8a9a"/>
+      <Setter Property="FontSize" Value="{DynamicResource FontSizeMD}"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="Cursor" Value="Hand"/>
     </Style>
-    <Style Selector="Button.play-btn.play-stop">
-      <Setter Property="Background">
-        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-          <GradientStop Color="#7a1a1a" Offset="0"/>
-          <GradientStop Color="#c03030" Offset="1"/>
-        </LinearGradientBrush>
-      </Setter>
+    <Style Selector="Button.nav-tab:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#141820"/>
+      <Setter Property="TextElement.Foreground" Value="#b0bac6"/>
     </Style>
-    <Style Selector="Button.settings-icon">
-      <Setter Property="Width" Value="44"/>
-      <Setter Property="Padding" Value="0"/>
-      <Setter Property="CornerRadius" Value="0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Style Selector="Button.nav-tab.active">
+      <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style Selector="Button.nav-tab.active /template/ ContentPresenter">
+      <Setter Property="Background" Value="#141820"/>
     </Style>
   </UserControl.Styles>
 
-  <Grid Margin="20,14">
-    <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
-      <Button x:Name="PlayButton" Classes="play-btn"
-              VerticalAlignment="Stretch"
-              Classes.play-stop="{Binding Launch.PlayButtonIsStop}"
-              Content="{Binding Launch.PlayButtonText}"
-              Click="OnPlayClicked"/>
-      <Button x:Name="SettingsButton" Classes="settings-icon" VerticalAlignment="Stretch" Click="OnSettingsClicked">
-        <materialIcons:MaterialIcon Kind="Cog" Width="24" Height="24"/>
-      </Button>
-      <Border VerticalAlignment="Stretch" Padding="10,8" CornerRadius="0"
-              Background="#242c34">
+  <Border BorderBrush="#1e2530" BorderThickness="0,0,0,1">
+    <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,20,0">
+
+      <!-- Left: navigation tabs -->
+      <StackPanel Grid.Column="0" Orientation="Horizontal">
+        <Button x:Name="PlayTabButton" Classes="nav-tab" Classes.active="{Binding IsPlayTabActive}" Click="OnPlayTabClicked">
+          ИГРА
+        </Button>
+        <Button x:Name="SettingsTabButton" Classes="nav-tab" Classes.active="{Binding IsSettingsTabActive}" Click="OnSettingsTabClicked">
+          НАСТРОЙКИ
+        </Button>
+        <Button Classes="nav-tab" Classes.active="{Binding IsProfileTabActive}" Click="OnProfileTabClicked">
+          ПРОФИЛЬ
+        </Button>
+      </StackPanel>
+
+      <!-- Center: queue searching indicator -->
+      <Border Grid.Column="1" IsVisible="{Binding Queue.IsSearching}"
+              HorizontalAlignment="Center" VerticalAlignment="Center"
+              Background="#0d2a1a" BorderBrush="#27AE60" BorderThickness="1"
+              CornerRadius="0" Padding="12,6">
+        <StackPanel Orientation="Horizontal" Spacing="10">
+          <Ellipse Width="8" Height="8" Fill="#27AE60" VerticalAlignment="Center"/>
+          <TextBlock Text="Поиск игры" Foreground="#27AE60"
+                     FontSize="{DynamicResource FontSizeBase}" FontWeight="SemiBold"
+                     VerticalAlignment="Center"/>
+          <TextBlock Text="{Binding Queue.QueueButtonTimeText}"
+                     Foreground="#7ab57a" FontSize="{DynamicResource FontSizeBase}"
+                     VerticalAlignment="Center"/>
+        </StackPanel>
+      </Border>
+
+      <!-- Right: user avatar -->
+      <Button Grid.Column="2" x:Name="ProfileButton" VerticalAlignment="Stretch" Padding="10,8"
+              Background="Transparent" BorderThickness="0" CornerRadius="0"
+              Cursor="Hand" Click="OnProfileTabClicked">
         <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-          <!-- Avatar with online dot -->
-          <Grid Width="36" Height="36">
-            <Border Width="36" Height="36" CornerRadius="0" ClipToBounds="True"
+          <Grid Width="32" Height="32">
+            <Border Width="32" Height="32" CornerRadius="0" ClipToBounds="True"
                     Background="#2d3842">
-              <Image Source="{Binding AvatarImage}" Width="36" Height="36" Stretch="UniformToFill"/>
+              <Image Source="{Binding AvatarImage}" Width="32" Height="32" Stretch="UniformToFill"/>
             </Border>
-            <!-- Online indicator dot -->
-            <Ellipse Width="10" Height="10" Fill="#4CAF50"
+            <Ellipse Width="9" Height="9" Fill="#4CAF50"
                      HorizontalAlignment="Right" VerticalAlignment="Bottom"
                      Margin="0,0,-2,-2">
               <Ellipse.Stroke>
-                <SolidColorBrush Color="#242c34"/>
+                <SolidColorBrush Color="#1e2530"/>
               </Ellipse.Stroke>
               <Ellipse.StrokeThickness>2</Ellipse.StrokeThickness>
             </Ellipse>
           </Grid>
-          <StackPanel VerticalAlignment="Center" Spacing="1">
-            <TextBlock Text="Вы:" Foreground="#7a8a9a" FontSize="{DynamicResource FontSizeXS}"/>
-            <TextBlock Text="{Binding CurrentUser.PersonaName}"
-                       FontWeight="SemiBold" FontSize="{DynamicResource FontSizeMD}"/>
-          </StackPanel>
+          <TextBlock Text="{Binding CurrentUser.PersonaName}"
+                     FontWeight="SemiBold" FontSize="{DynamicResource FontSizeMD}"
+                     VerticalAlignment="Center"/>
         </StackPanel>
-      </Border>
-    </StackPanel>
-  </Grid>
+      </Button>
+
+    </Grid>
+  </Border>
 </UserControl>

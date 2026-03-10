@@ -416,6 +416,68 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         }
     }
 
+    public async Task<Models.PlayerProfileData?> GetPlayerSummaryAsync(string steamId, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var api = new DotaclassicApiClient(_authHttpClient);
+            var summary = await api.PlayerController_playerSummaryAsync(steamId, cancellationToken).ConfigureAwait(false);
+            if (summary == null) return null;
+            var stats = summary.SeasonStats;
+            int games = (int)stats.Games_played;
+            int wins = (int)stats.Wins;
+            int losses = (int)stats.Loss;
+            int abandons = (int)stats.Abandons;
+            double avgKills = games > 0 ? stats.Kills / games : 0;
+            double avgDeaths = games > 0 ? stats.Deaths / games : 0;
+            double avgAssists = games > 0 ? stats.Assists / games : 0;
+            var avatarUrl = summary.User?.AvatarSmall ?? summary.User?.Avatar;
+            return new Models.PlayerProfileData(
+                summary.User?.Name ?? steamId,
+                avatarUrl,
+                wins, losses, abandons,
+                (int)stats.Mmr, (int)stats.Rank,
+                avgKills, avgDeaths, avgAssists);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error($"GetPlayerSummaryAsync failed: {ex.Message}", ex);
+            return null;
+        }
+    }
+
+    public async Task<IReadOnlyList<Models.HeroProfileData>> GetHeroStatsAsync(string steamId, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var api = new DotaclassicApiClient(_authHttpClient);
+            var heroes = await api.PlayerController_heroSummaryAsync(steamId, cancellationToken).ConfigureAwait(false);
+            if (heroes == null) return Array.Empty<Models.HeroProfileData>();
+            var result = new List<Models.HeroProfileData>();
+            foreach (var h in heroes.OrderByDescending(h => h.Games).Take(8))
+            {
+                if (h == null || string.IsNullOrWhiteSpace(h.Hero)) continue;
+                int games = (int)h.Games;
+                double winRate = games > 0 ? h.Wins / games * 100.0 : 0;
+                result.Add(new Models.HeroProfileData(FormatHeroName(h.Hero), games, winRate, h.Kda));
+            }
+            return result;
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error($"GetHeroStatsAsync failed: {ex.Message}", ex);
+            return Array.Empty<Models.HeroProfileData>();
+        }
+    }
+
+    private static string FormatHeroName(string internalName)
+    {
+        var idx = internalName.IndexOf("hero_", StringComparison.OrdinalIgnoreCase);
+        var name = idx >= 0 ? internalName.Substring(idx + 5) : internalName;
+        var words = name.Split('_');
+        return string.Join(" ", words.Select(w => w.Length > 0 ? char.ToUpper(w[0]) + w.Substring(1) : w));
+    }
+
     public void Dispose()
     {
         _httpClient.Dispose();

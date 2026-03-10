@@ -2,6 +2,24 @@
 
 ## Current Focus
 
+**Issue #57: Profile page** — implemented.
+
+### What Was Changed
+- `Models/PlayerProfileData.cs` — new record (name, avatar, W/L/D, MMR, rank, avg KDA)
+- `Models/HeroProfileData.cs` — new record (hero name, games, win rate, KDA)
+- `Services/IBackendApiService.cs` — added `GetPlayerSummaryAsync` and `GetHeroStatsAsync`
+- `Services/BackendApiService.cs` — implemented both methods using generated client; `FormatHeroName` helper strips "npc_dota_hero_" prefix and capitalizes
+- `ViewModels/ProfileViewModel.cs` — new VM with `LoadAsync(steamId)`, exposes stats + `ObservableCollection<HeroRowViewModel> TopHeroes`
+- `ViewModels/MainLauncherViewModel.cs` — added `Profile` child VM, `IsProfileOpen`, `OpenProfile()`, `CloseProfile()`
+- `Views/Components/ProfilePanel.axaml/.cs` — new: header stats bar + KDA panel + top heroes table
+- `Views/MainLauncherView.axaml` — swaps main content with `ProfilePanel` when `IsProfileOpen`; shows queue indicator banner when searching
+- `Views/Components/LauncherHeader.axaml/.cs` — avatar/name block is now a `Button` that toggles profile open/closed
+- `Preview/PreviewStubs.cs` — stub implementations for new API methods
+
+---
+
+## Previous Focus
+
 **Release infrastructure** — nightly/stable channel split implemented and live.
 
 - Every master push → `nightly` pre-release (Velopack channel `nightly`, version `0.0.{run_number}`)

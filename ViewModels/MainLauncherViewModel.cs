@@ -13,6 +13,8 @@ using d2c_launcher.Util;
 
 namespace d2c_launcher.ViewModels;
 
+public enum LauncherTab { Play, Settings, Profile }
+
 public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 {
     private readonly SteamManager _steamManager;
@@ -40,6 +42,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public NotificationAreaViewModel NotificationArea { get; }
     public SettingsViewModel Settings { get; }
     public ChatViewModel Chat { get; }
+    public ProfileViewModel Profile { get; }
 
     // ── Auth / user state ─────────────────────────────────────────────────────
     [ObservableProperty]
@@ -49,7 +52,14 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     private Bitmap? _avatarImage;
 
     [ObservableProperty]
-    private bool _isSettingsOpen;
+    private LauncherTab _activeTab = LauncherTab.Play;
+
+    public bool IsPlayTabActive => ActiveTab == LauncherTab.Play;
+    public bool IsSettingsTabActive => ActiveTab == LauncherTab.Settings;
+    public bool IsProfileTabActive => ActiveTab == LauncherTab.Profile;
+
+    // Legacy compat for overlay logic
+    public bool IsSettingsOpen => false;
 
     [ObservableProperty]
     private bool _isIntroOpen;
@@ -119,6 +129,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Settings.OnDlcChanged = removedIds => OnDlcChanged?.Invoke(removedIds);
         Chat = chatViewModelFactory.Create("17aa3530-d152-462e-a032-909ae69019ed");
         _ = Chat.StartAsync();
+        Profile = new ProfileViewModel(backendApiService);
 
         _ = new SocketSoundCoordinator(queueSocketService, NotificationArea, windowService);
 
@@ -202,20 +213,38 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         await Queue.ToggleSearchAsync();
     }
 
-    // ── Settings ──────────────────────────────────────────────────────────────
-
-    public void OpenSettings()
+    partial void OnActiveTabChanged(LauncherTab value)
     {
-        var gameDir = Launch.GameDirectory;
-        if (!string.IsNullOrWhiteSpace(gameDir))
-        {
-            _videoProvider.LoadFromVideoTxt(gameDir);
-            Settings.RefreshFromVideoProvider();
-        }
-        IsSettingsOpen = true;
+        OnPropertyChanged(nameof(IsPlayTabActive));
+        OnPropertyChanged(nameof(IsSettingsTabActive));
+        OnPropertyChanged(nameof(IsProfileTabActive));
     }
 
-    public void CloseSettings() => IsSettingsOpen = false;
+    // ── Tab navigation ────────────────────────────────────────────────────────
+
+    public void NavigateTo(LauncherTab tab)
+    {
+        if (tab == LauncherTab.Settings)
+        {
+            var gameDir = Launch.GameDirectory;
+            if (!string.IsNullOrWhiteSpace(gameDir))
+            {
+                _videoProvider.LoadFromVideoTxt(gameDir);
+                Settings.RefreshFromVideoProvider();
+            }
+        }
+        else if (tab == LauncherTab.Profile && CurrentUser != null)
+        {
+            _ = Profile.LoadAsync(CurrentUser.SteamId);
+        }
+        ActiveTab = tab;
+    }
+
+    // ── Legacy compat (used by SettingsPanel close event) ─────────────────────
+    public void OpenSettings() => NavigateTo(LauncherTab.Settings);
+    public void CloseSettings() => NavigateTo(LauncherTab.Play);
+    public void OpenProfile() => NavigateTo(LauncherTab.Profile);
+    public void CloseProfile() => NavigateTo(LauncherTab.Play);
 
     // ── Intro ─────────────────────────────────────────────────────────────────
 
