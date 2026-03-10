@@ -192,7 +192,9 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 showHeader,
                 FormatTime(ParseDate(msg.CreatedAt)),
                 msg.CreatedAt,
-                msg.AuthorAvatarUrl);
+                msg.AuthorAvatarUrl,
+                msg.ReplyToAuthorName,
+                msg.ReplyToContent);
 
             if (showHeader)
                 view.IsOnline = _onlineUsers.Contains(msg.AuthorSteamId);
@@ -291,7 +293,9 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 showHeader,
                 FormatTime(ParseDate(msg.CreatedAt)),
                 msg.CreatedAt,
-                msg.AuthorAvatarUrl);
+                msg.AuthorAvatarUrl,
+                msg.ReplyToAuthorName,
+                msg.ReplyToContent);
             if (showHeader)
                 view.IsOnline = _onlineUsers.Contains(msg.AuthorSteamId);
             result.Add(view);

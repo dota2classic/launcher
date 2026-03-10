@@ -270,7 +270,9 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
                 msg.Author?.SteamId ?? "",
                 msg.Author?.Name ?? "",
                 msg.Author?.AvatarSmall ?? msg.Author?.Avatar,
-                msg.Deleted));
+                msg.Deleted,
+                msg.Reply?.Author?.Name,
+                msg.Reply?.Content));
         }
         return result;
     }
@@ -340,6 +342,14 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
                 return new ChatMessageData(messageId, "", "", "", "", "", null, true);
 
             var author = root.TryGetProperty("author", out var authorEl) ? authorEl : default;
+            string? replyAuthorName = null;
+            string? replyContent = null;
+            if (root.TryGetProperty("reply", out var replyEl) && replyEl.ValueKind == JsonValueKind.Object)
+            {
+                replyContent = replyEl.TryGetProperty("content", out var rc) ? rc.GetString() : null;
+                if (replyEl.TryGetProperty("author", out var ra) && ra.ValueKind == JsonValueKind.Object)
+                    replyAuthorName = ra.TryGetProperty("name", out var rn) ? rn.GetString() : null;
+            }
             return new ChatMessageData(
                 MessageId: messageId,
                 ThreadId: root.TryGetProperty("threadId", out var tid) ? tid.GetString() ?? "" : "",
@@ -351,7 +361,9 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
                     && author.TryGetProperty("name", out var name) ? name.GetString() ?? "" : "",
                 AuthorAvatarUrl: author.ValueKind != JsonValueKind.Undefined
                     && author.TryGetProperty("avatarSmall", out var avatar) ? avatar.GetString() : null,
-                Deleted: false);
+                Deleted: false,
+                ReplyToAuthorName: replyAuthorName,
+                ReplyToContent: replyContent);
         }
         catch (Exception ex)
         {

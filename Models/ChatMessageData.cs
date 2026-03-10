@@ -8,4 +8,6 @@ public record ChatMessageData(
     string AuthorSteamId,
     string AuthorName,
     string? AuthorAvatarUrl,
-    bool Deleted);
+    bool Deleted,
+    string? ReplyToAuthorName = null,
+    string? ReplyToContent = null);

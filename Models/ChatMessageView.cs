@@ -35,6 +35,10 @@ public sealed partial class ChatMessageView : ObservableObject
     [ObservableProperty]
     private IReadOnlyList<RichSegment> _richContent;
 
+    public string? ReplyToAuthorName { get; }
+    public string? ReplyToContent { get; }
+    public bool HasReply => ReplyToContent != null;
+
     public ChatMessageView(
         string messageId,
         string content,
@@ -44,7 +48,9 @@ public sealed partial class ChatMessageView : ObservableObject
         bool showHeader,
         string timeText,
         string createdAt,
-        string? authorAvatarUrl = null)
+        string? authorAvatarUrl = null,
+        string? replyToAuthorName = null,
+        string? replyToContent = null)
     {
         MessageId = messageId;
         _content = content;
@@ -57,6 +63,8 @@ public sealed partial class ChatMessageView : ObservableObject
         AuthorAvatarUrl = authorAvatarUrl;
         _avatarUrl = showHeader ? authorAvatarUrl : null;
         Initials = ComputeInitials(authorName);
+        ReplyToAuthorName = replyToAuthorName;
+        ReplyToContent = replyToContent;
     }
 
     private static string ComputeInitials(string name)
