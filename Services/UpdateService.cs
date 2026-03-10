@@ -1,6 +1,5 @@
 using System;
-using System.Threading.Tasks;
-using Velopack;
+using System.Threading.Tasks;using Velopack;
 using Velopack.Sources;
 
 namespace d2c_launcher.Services;
