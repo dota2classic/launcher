@@ -134,7 +134,10 @@ public class RichMessageBlock : UserControl
                     {
                         emoticonCtrl = new Image { Width = 18, Height = 18 };
                     }
-                    _textBlock.Inlines.Add(new InlineUIContainer(emoticonCtrl));
+                    _textBlock.Inlines.Add(new InlineUIContainer(emoticonCtrl)
+                    {
+                        BaselineAlignment = BaselineAlignment.Center
+                    });
                     charPos += 1; // InlineUIContainer occupies one character (U+FFFC)
                     break;
 
