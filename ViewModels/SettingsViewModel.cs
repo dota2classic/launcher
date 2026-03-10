@@ -361,6 +361,19 @@ public partial class SettingsViewModel : ViewModelBase
         }
     }
 
+    public bool CloseToTray
+    {
+        get => _settingsStorage.Get().CloseToTray;
+        set
+        {
+            var s = _settingsStorage.Get();
+            if (s.CloseToTray == value) return;
+            s.CloseToTray = value;
+            _settingsStorage.Save(s);
+            OnPropertyChanged();
+        }
+    }
+
     public bool DefenderExclusionEnabled
     {
         get

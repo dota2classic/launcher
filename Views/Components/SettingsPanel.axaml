@@ -382,6 +382,16 @@
                                              VerticalAlignment="Center" HorizontalAlignment="Right"/>
                             </Grid>
 
+                            <!-- Close to tray -->
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
+                                    <TextBlock Text="Сворачивать в трей при закрытии" Classes="setting-label"/>
+                                    <TextBlock Text="Закрытие окна скрывает лаунчер в трей" Classes="setting-desc"/>
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding CloseToTray}"
+                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                            </Grid>
+
                             <!-- Defender exclusion -->
                             <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
                                 <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">

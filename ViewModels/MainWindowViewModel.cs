@@ -30,6 +30,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IGameDownloadService _gameDownloadService;
     private readonly RedistInstallService _redistInstallService;
     private readonly IContentRegistryService _registryService;
+    private readonly IWindowService _windowService;
 
     /// <summary>Pending spectate match ID received before the Launcher state was entered.</summary>
     private int? _pendingSpectateMatchId;
@@ -66,7 +67,8 @@ public partial class MainWindowViewModel : ViewModelBase
         IManifestDiffService manifestDiffService,
         IGameDownloadService gameDownloadService,
         RedistInstallService redistInstallService,
-        IContentRegistryService registryService)
+        IContentRegistryService registryService,
+        IWindowService windowService)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -83,6 +85,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _gameDownloadService = gameDownloadService;
         _redistInstallService = redistInstallService;
         _registryService = registryService;
+        _windowService = windowService;
 
         // Eagerly prefetch the registry so it's cached by the time GameDownloadViewModel needs it.
         var initialGameDir = _settingsStorage.Get().GameDirectory;
@@ -272,7 +275,7 @@ public partial class MainWindowViewModel : ViewModelBase
         DisposeCurrentVm();
         var vm = new MainLauncherViewModel(
             _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider, _videoProvider,
-            _backendApiService, _queueSocketService, _registryService, _chatViewModelFactory);
+            _backendApiService, _queueSocketService, _registryService, _chatViewModelFactory, _windowService);
         vm.OnGameDirectoryChanged = _ => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirChanged(AppState)));
         vm.RequestGameDirectoryChange = () => Dispatcher.UIThread.Post(() => EnterState(AppState.SelectGameDirectory));
         vm.OnDlcChanged = removedIds => Dispatcher.UIThread.Post(() =>

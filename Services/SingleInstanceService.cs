@@ -107,9 +107,11 @@ public sealed class SingleInstanceService : IDisposable
 
     private static void ForwardArgsToPrimary(string[] args)
     {
+        // Always send something so the primary instance knows to restore from tray.
+        // Use "__show__" when there are no meaningful args.
         var payload = string.Join("\n", args);
         if (string.IsNullOrWhiteSpace(payload))
-            return;
+            payload = "__show__";
 
         try
         {

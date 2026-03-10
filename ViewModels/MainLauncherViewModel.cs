@@ -23,6 +23,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     private readonly IVideoSettingsProvider _videoProvider;
     private readonly IContentRegistryService _registryService;
     private readonly AuthCoordinator _authCoordinator;
+    private readonly IWindowService _windowService;
 
     /// <summary>
     /// Called when the user applies DLC changes in Settings. Receives the list of
@@ -79,7 +80,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         IBackendApiService backendApiService,
         IQueueSocketService queueSocketService,
         IContentRegistryService registryService,
-        IChatViewModelFactory chatViewModelFactory)
+        IChatViewModelFactory chatViewModelFactory,
+        IWindowService windowService)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -88,6 +90,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         _queueSocketService = queueSocketService;
         _backendApiService = backendApiService;
         _registryService = registryService;
+        _windowService = windowService;
 
         var settings = settingsStorage.Get();
         _isIntroOpen = !settings.IntroShown;
@@ -117,7 +120,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Chat = chatViewModelFactory.Create("17aa3530-d152-462e-a032-909ae69019ed");
         _ = Chat.StartAsync();
 
-        _ = new SocketSoundCoordinator(queueSocketService, NotificationArea);
+        _ = new SocketSoundCoordinator(queueSocketService, NotificationArea, windowService);
 
         // Wire delegates into children that need auth state
         Room.GetCurrentUser = () => CurrentUser;

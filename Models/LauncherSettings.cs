@@ -46,4 +46,10 @@ public class LauncherSettings
     /// True once the user has seen the first-run introduction overlay.
     /// </summary>
     public bool IntroShown { get; set; }
+
+    /// <summary>
+    /// When true, pressing the window close button hides the app to the system tray
+    /// instead of shutting it down.
+    /// </summary>
+    public bool CloseToTray { get; set; } = true;
 }

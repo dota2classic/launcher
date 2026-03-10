@@ -42,13 +42,23 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
     public event Action? MessagesUpdated;
 
-    public ChatViewModel(string threadId, IBackendApiService backendApiService, IHttpImageService imageService, IEmoticonService emoticonService, IQueueSocketService queueSocketService)
+    private readonly IWindowService _windowService;
+
+    public ChatViewModel(string threadId, IBackendApiService backendApiService, IHttpImageService imageService, IEmoticonService emoticonService, IQueueSocketService queueSocketService, IWindowService windowService)
     {
         _threadId = threadId;
         _backendApiService = backendApiService;
         _imageService = imageService;
         _emoticonService = emoticonService;
+        _windowService = windowService;
         queueSocketService.OnlineUpdated += msg => Dispatcher.UIThread.Post(() => UpdateOnlineUsers(msg));
+        windowService.WindowShown += OnWindowShown;
+    }
+
+    private void OnWindowShown()
+    {
+        _ = RefreshAsync();
+        RestartSse();
     }
 
     private void UpdateOnlineUsers(OnlineUpdateMessage msg)
@@ -126,6 +136,9 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
     private void ConsumeIncomingMessage(Models.ChatMessageData msg)
     {
+        if (!_windowService.IsWindowVisible)
+            return;
+
         Dispatcher.UIThread.Post(() =>
         {
             if (msg.Deleted)
@@ -363,6 +376,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
     public void Dispose()
     {
+        _windowService.WindowShown -= OnWindowShown;
         _sseCts?.Cancel();
         _sseCts?.Dispose();
         _loadCts?.Cancel();

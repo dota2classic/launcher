@@ -32,6 +32,20 @@
         <local:ViewLocator/>
     </Application.DataTemplates>
   
+    <TrayIcon.Icons>
+        <TrayIcons>
+            <TrayIcon Icon="/Assets/icon.ico" ToolTipText="D2C Launcher" Clicked="TrayOpen_Click">
+                <TrayIcon.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="Открыть" Click="TrayOpen_Click"/>
+                        <NativeMenuItemSeparator/>
+                        <NativeMenuItem Header="Выход" Click="TrayExit_Click"/>
+                    </NativeMenu>
+                </TrayIcon.Menu>
+            </TrayIcon>
+        </TrayIcons>
+    </TrayIcon.Icons>
+
     <Application.Styles>
         <FluentTheme />
         <Style Selector=":is(TemplatedControl)">

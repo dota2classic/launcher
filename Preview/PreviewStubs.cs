@@ -180,3 +180,10 @@ internal sealed class StubContentRegistryService : IContentRegistryService
     public Task<ContentRegistry?> GetAsync() => Task.FromResult<ContentRegistry?>(StubRegistry);
     public void Invalidate() { }
 }
+
+internal sealed class StubWindowService : IWindowService
+{
+    public bool IsWindowVisible => true;
+    public event Action? WindowShown;
+    public void ShowAndActivate() { }
+}

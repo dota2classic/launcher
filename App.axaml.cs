@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
@@ -22,6 +23,7 @@ public partial class App : Application
     public static Services.SingleInstanceService? SingleInstance { get; set; }
 
     private ServiceProvider? _services;
+    private MainWindow? _mainWindow;
 
     public override void Initialize()
     {
@@ -69,6 +71,7 @@ public partial class App : Application
             services.AddSingleton<RedistInstallService>();
             services.AddSingleton<IContentRegistryService, ContentRegistryService>();
             services.AddSingleton<IChatViewModelFactory, ChatViewModelFactory>();
+            services.AddSingleton<IWindowService, WindowService>();
             services.AddSingleton<MainWindowViewModel>();
 
             _services = services.BuildServiceProvider();
@@ -78,17 +81,29 @@ public partial class App : Application
             var steamManager = _services.GetRequiredService<SteamManager>();
             var queueSocket = _services.GetRequiredService<IQueueSocketService>();
             var mainVm = _services.GetRequiredService<MainWindowViewModel>();
+            var windowService = (WindowService)_services.GetRequiredService<IWindowService>();
+
+            var settingsStorage = _services.GetRequiredService<ISettingsStorage>();
+            _mainWindow = new MainWindow(settingsStorage) { DataContext = mainVm };
+            windowService.SetWindow(_mainWindow);
 
             // Handle protocol URL passed as initial arg (e.g. launched via d2c:// link).
             var protocolArg = Array.Find(args, a => a.StartsWith("d2c://", StringComparison.OrdinalIgnoreCase));
             if (protocolArg != null)
                 mainVm.HandleProtocolUrl(protocolArg);
 
-            // Handle protocol URLs forwarded from second instances that started while we were running.
+            // Handle messages forwarded from second instances.
+            // "__show__" means a second launch with no args — restore from tray.
+            // d2c:// URLs are forwarded to the protocol handler.
             if (SingleInstance != null)
             {
                 SingleInstance.OnMessageReceived += msg =>
-                    mainVm.HandleProtocolUrl(msg);
+                {
+                    if (msg == "__show__")
+                        Avalonia.Threading.Dispatcher.UIThread.Post(windowService.ShowAndActivate);
+                    else
+                        mainVm.HandleProtocolUrl(msg);
+                };
             }
 
             desktop.Exit += (_, _) =>
@@ -99,13 +114,22 @@ public partial class App : Application
                 SingleInstance?.Dispose();
             };
 
-            desktop.MainWindow = new MainWindow
-            {
-                DataContext = mainVm,
-            };
+            desktop.MainWindow = _mainWindow;
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private void TrayOpen_Click(object? sender, EventArgs e)
+    {
+        _mainWindow?.ShowAndActivate();
+    }
+
+    private void TrayExit_Click(object? sender, EventArgs e)
+    {
+        if (_mainWindow != null)
+            _mainWindow.RealExit = true;
+        (ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.Shutdown();
     }
 
     private void DisableAvaloniaDataAnnotationValidation()

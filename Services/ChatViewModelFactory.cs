@@ -13,19 +13,22 @@ public sealed class ChatViewModelFactory : IChatViewModelFactory
     private readonly IHttpImageService _imageService;
     private readonly IEmoticonService _emoticonService;
     private readonly IQueueSocketService _queueSocketService;
+    private readonly IWindowService _windowService;
 
     public ChatViewModelFactory(
         IBackendApiService backendApiService,
         IHttpImageService imageService,
         IEmoticonService emoticonService,
-        IQueueSocketService queueSocketService)
+        IQueueSocketService queueSocketService,
+        IWindowService windowService)
     {
         _backendApiService = backendApiService;
         _imageService = imageService;
         _emoticonService = emoticonService;
         _queueSocketService = queueSocketService;
+        _windowService = windowService;
     }
 
     public ChatViewModel Create(string threadId)
-        => new(threadId, _backendApiService, _imageService, _emoticonService, _queueSocketService);
+        => new(threadId, _backendApiService, _imageService, _emoticonService, _queueSocketService, _windowService);
 }

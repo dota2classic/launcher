@@ -2,6 +2,22 @@
 
 ## Current Focus
 
+### Issue #46: Minimize to tray on close
+
+Implemented system-tray support:
+
+- `Services/IWindowService.cs` — new interface `ShowAndActivate()`
+- `Services/WindowService.cs` — concrete impl; `SetWindow(MainWindow)` called by `App` after creation
+- `Views/MainWindow.axaml.cs` — `OnClosing` intercepts user X-button only (`WindowCloseReason.WindowClosing` + `!RealExit`), hides instead of closing; `ShowAndActivate()` restores; `RealExit` flag lets tray "Выход" do a real shutdown
+- `App.axaml` — `TrayIcon` with "Открыть" / "Выход" menu items
+- `App.axaml.cs` — registers `IWindowService`; wires tray clicks; second-instance `__show__` message → `ShowAndActivate()`; tray "Выход" sets `RealExit = true` then calls `Shutdown()`
+- `Services/SingleInstanceService.cs` — `ForwardArgsToPrimary` always sends something; uses `"__show__"` when args empty
+- `Integration/SocketSoundCoordinator.cs` — added `IWindowService` param; calls `ShowAndActivate()` on `PlayerRoomFound` and `PlayerGameStateUpdated` (server ready)
+- `ViewModels/MainLauncherViewModel.cs` — added `IWindowService` param; passes to `SocketSoundCoordinator`
+- `ViewModels/MainWindowViewModel.cs` — added `IWindowService` param; passes to `MainLauncherViewModel`
+
+---
+
 ### Refactoring: MainLauncherViewModel god class
 
 **Goal:** Reduce MLVM from 376 lines / 10 concerns to ~160 lines (thin coordinator).
