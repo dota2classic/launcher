@@ -58,6 +58,7 @@ public partial class SelectGameView : UserControl
             return;
 
         var gameDir = Path.Combine(path, "dotaclassic684");
+        Directory.CreateDirectory(gameDir);
         vm.SelectedDownloadPath = gameDir;
         await vm.StartDlcSelectionAsync(gameDir);
     }

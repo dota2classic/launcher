@@ -184,6 +184,8 @@ internal sealed class StubContentRegistryService : IContentRegistryService
 internal sealed class StubWindowService : IWindowService
 {
     public bool IsWindowVisible => true;
+#pragma warning disable CS0067
     public event Action? WindowShown;
+#pragma warning restore CS0067
     public void ShowAndActivate() { }
 }

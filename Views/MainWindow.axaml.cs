@@ -15,6 +15,10 @@ public partial class MainWindow : Window
 
     private readonly ISettingsStorage _settingsStorage;
 
+    public MainWindow() : this(null!)
+    {
+    }
+
     public MainWindow(ISettingsStorage settingsStorage)
     {
         _settingsStorage = settingsStorage;

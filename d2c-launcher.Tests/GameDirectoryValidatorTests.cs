@@ -28,36 +28,6 @@ public class GameDirectoryValidatorTests
         Assert.Null(error);
     }
 
-    // ── Source 2 (new Dota 2) rejection ──────────────────────────────────────
-
-    [Fact]
-    public void Source2Marker_IsRejected()
-    {
-        var dir = CreateTempDir();
-        var marker = Path.Combine(dir, "game", "dota", "gameinfo.gi");
-        Directory.CreateDirectory(Path.GetDirectoryName(marker)!);
-        File.WriteAllText(marker, "");
-
-        Assert.False(GameDirectoryValidator.IsAcceptable(dir, out var error));
-        Assert.NotNull(error);
-    }
-
-    [Fact]
-    public void Source2Marker_InParentDirectory_IsRejected()
-    {
-        // User may select a subdirectory (e.g. game/bin/win64) — validator walks up.
-        var root = CreateTempDir();
-        var marker = Path.Combine(root, "game", "dota", "gameinfo.gi");
-        Directory.CreateDirectory(Path.GetDirectoryName(marker)!);
-        File.WriteAllText(marker, "");
-
-        var subDir = Path.Combine(root, "game", "bin", "win64");
-        Directory.CreateDirectory(subDir);
-
-        Assert.False(GameDirectoryValidator.IsAcceptable(subDir, out var error));
-        Assert.NotNull(error);
-    }
-
     // ── Source 1 patch version checks ────────────────────────────────────────
 
     [Fact]

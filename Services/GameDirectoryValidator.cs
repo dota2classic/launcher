@@ -5,7 +5,7 @@ namespace d2c_launcher.Services;
 
 /// <summary>
 /// Validates that a given directory is suitable for Dotaclassic (patch 6.84).
-/// Rejects new Dota 2 (Source 2) installations and old Dota builds from a different patch.
+/// Rejects old Dota builds from a different patch.
 /// </summary>
 public static class GameDirectoryValidator
 {
@@ -20,24 +20,6 @@ public static class GameDirectoryValidator
     public static bool IsAcceptable(string dir, out string? error)
     {
         AppLog.Info($"[GameDirValidator] Checking directory: {dir}");
-
-        // New Dota 2 (Source 2) is identified by game/dota/gameinfo.gi.
-        // The user may have picked an exe inside a subdirectory (e.g. game/bin/win64),
-        // so walk up to 5 parent levels to find the actual install root.
-        var checkDir = dir;
-        for (int i = 0; i <= 5; i++)
-        {
-            if (checkDir == null) break;
-            var source2Marker = Path.Combine(checkDir, "game", "dota", "gameinfo.gi");
-            AppLog.Info($"[GameDirValidator] Source 2 marker check (level {i}): {File.Exists(source2Marker)} ({source2Marker})");
-            if (File.Exists(source2Marker))
-            {
-                error = "Выбранная папка содержит новую Dota 2 (Source 2). Пожалуйста, выберите папку с Dotaclassic.";
-                AppLog.Info($"[GameDirValidator] Rejected: Source 2 installation detected at {checkDir}.");
-                return false;
-            }
-            checkDir = Path.GetDirectoryName(checkDir);
-        }
 
         // If the directory has dota/gameinfo.txt, it's an old Dota install — verify patch version.
         // No steam.inf → assume it's already our patch (D2C manages it).
