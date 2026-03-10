@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
@@ -18,12 +17,12 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 {
     private readonly SteamManager _steamManager;
     private readonly ISettingsStorage _settingsStorage;
-    private readonly ISteamAuthApi _steamAuthApi;
     private readonly IQueueSocketService _queueSocketService;
     private readonly IBackendApiService _backendApiService;
     private readonly ICvarSettingsProvider _cvarProvider;
     private readonly IVideoSettingsProvider _videoProvider;
     private readonly IContentRegistryService _registryService;
+    private readonly AuthCoordinator _authCoordinator;
 
     /// <summary>
     /// Called when the user applies DLC changes in Settings. Receives the list of
@@ -31,7 +30,6 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     /// </summary>
     public Action<List<string>>? OnDlcChanged { get; set; }
     private readonly DispatcherTimer _onlineStatsTimer;
-    private CancellationTokenSource? _ticketExchangeCts;
 
     // ── Child ViewModels ──────────────────────────────────────────────────────
     public GameLaunchViewModel Launch { get; }
@@ -48,9 +46,6 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
     [ObservableProperty]
     private Bitmap? _avatarImage;
-
-    [ObservableProperty]
-    private string? _backendAccessToken;
 
     [ObservableProperty]
     private bool _isSettingsOpen;
@@ -81,7 +76,6 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         IGameLaunchSettingsStorage launchSettingsStorage,
         ICvarSettingsProvider cvarProvider,
         IVideoSettingsProvider videoProvider,
-        ISteamAuthApi steamAuthApi,
         IBackendApiService backendApiService,
         IQueueSocketService queueSocketService,
         IContentRegistryService registryService,
@@ -91,16 +85,14 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         _settingsStorage = settingsStorage;
         _cvarProvider = cvarProvider;
         _videoProvider = videoProvider;
-        _steamAuthApi = steamAuthApi;
         _queueSocketService = queueSocketService;
         _backendApiService = backendApiService;
         _registryService = registryService;
 
         var settings = settingsStorage.Get();
-        _backendAccessToken = settings.BackendAccessToken;
-        if (!string.IsNullOrWhiteSpace(_backendAccessToken))
-            _backendApiService.SetBearerToken(_backendAccessToken);
         _isIntroOpen = !settings.IntroShown;
+
+        _authCoordinator = new AuthCoordinator(steamManager, backendApiService, queueSocketService, settingsStorage);
         _currentUser = steamManager.CurrentUser;
         _avatarImage = SteamAvatarHelper.FromUser(_currentUser);
 
@@ -125,6 +117,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Chat = chatViewModelFactory.Create("17aa3530-d152-462e-a032-909ae69019ed");
         _ = Chat.StartAsync();
 
+        _ = new SocketSoundCoordinator(queueSocketService, NotificationArea);
+
         // Wire delegates into children that need auth state
         Room.GetCurrentUser = () => CurrentUser;
         Room.GetModeName = mode =>
@@ -135,25 +129,6 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
         // Push party restrictions into queue mode list
         Party.PartyMembersChanged += members => Queue.ApplyPartyRestrictions(members);
-
-        // Party invites → floating notifications + sound
-        queueSocketService.PartyInviteReceived += msg =>
-        {
-            Util.SoundPlayer.Play("party_invite.mp3");
-            Dispatcher.UIThread.Post(() => NotificationArea.AddInvite(msg));
-        };
-        queueSocketService.PartyInviteExpired += msg =>
-            Dispatcher.UIThread.Post(() => NotificationArea.RemoveByInviteId(msg.InviteId));
-
-        // Match found (initial PLAYER_ROOM_FOUND event only, not subsequent state updates) → sound
-        queueSocketService.PlayerRoomFound += _ => Util.SoundPlayer.Play("match_found.mp3");
-
-        // Server assigned (connect now) → sound
-        queueSocketService.PlayerGameStateUpdated += msg =>
-        {
-            if (!string.IsNullOrEmpty(msg?.ServerUrl))
-                Util.SoundPlayer.Play("ready_check_no_focus.wav");
-        };
 
         // на сайте: updated from socket events
         queueSocketService.OnlineUpdated += msg => Dispatcher.UIThread.Post(() =>
@@ -169,7 +144,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         _onlineStatsTimer.Start();
         _ = RefreshInGameCountAsync();
 
-        // Steam events
+        // Steam user profile events
         _steamManager.OnUserUpdated += u => Dispatcher.UIThread.Post(() =>
         {
             var oldBitmap = AvatarImage;
@@ -178,18 +153,20 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
             oldBitmap?.Dispose();
             OnPropertyChanged(nameof(LoggedInAsText));
         });
-        _steamManager.OnSteamAuthorizationChanged += token => Dispatcher.UIThread.Post(() =>
-        {
-            _ = ApplyBackendTokenAsync(token);
-        });
 
-        // If the token was already acquired before this VM was created (e.g. the user was on
-        // SelectGameView when the SteamManager fired OnSteamAuthorizationChanged), apply it now.
-        var currentToken = _steamManager.CurrentAuthTicket;
-        if (!string.IsNullOrWhiteSpace(currentToken))
-            _ = ApplyBackendTokenAsync(currentToken);
-        else if (!string.IsNullOrWhiteSpace(_backendAccessToken))
-            _ = EnsureQueueConnectionAsync(_backendAccessToken, CancellationToken.None);
+        _authCoordinator.TokenApplied += token =>
+        {
+            if (token != null)
+            {
+                _ = Party.RefreshPartyAsync();
+                Chat.RestartSse();
+            }
+            else
+            {
+                Party.ClearParty();
+            }
+        };
+        _authCoordinator.Start(settings.BackendAccessToken);
 
         // When cvar state changes (e.g. config.cfg re-read after game exit), refresh UI
         _cvarProvider.CvarChanged += OnCvarChanged;
@@ -280,77 +257,12 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
             OnGameDirectoryChanged?.Invoke(path);
     }
 
-    // ── Auth flow ─────────────────────────────────────────────────────────────
-
-    private async Task ApplyBackendTokenAsync(string? token)
-    {
-        _ticketExchangeCts?.Cancel();
-        _ticketExchangeCts?.Dispose();
-        _ticketExchangeCts = new CancellationTokenSource();
-        var ct = _ticketExchangeCts.Token;
-
-        if (string.IsNullOrWhiteSpace(token))
-        {
-            AppLog.Info("Backend token cleared.");
-            BackendAccessToken = null;
-            _backendApiService.SetBearerToken(null);
-            PersistBackendToken(null);
-            await EnsureQueueConnectionAsync(null, ct);
-            Party.ClearParty();
-            return;
-        }
-
-        try
-        {
-            AppLog.Info("Backend token received from bridge.");
-            BackendAccessToken = token;
-            _backendApiService.SetBearerToken(token);
-            PersistBackendToken(token);
-            await EnsureQueueConnectionAsync(token, ct);
-            await Party.RefreshPartyAsync();
-            Chat.RestartSse();
-        }
-        catch (OperationCanceledException)
-        {
-            AppLog.Info("Backend token application canceled.");
-        }
-        catch (Exception ex)
-        {
-            if (ct.IsCancellationRequested)
-                return;
-
-            AppLog.Error("Backend token application failed.", ex);
-            BackendAccessToken = null;
-            _backendApiService.SetBearerToken(null);
-            PersistBackendToken(null);
-            await EnsureQueueConnectionAsync(null, ct);
-            Party.ClearParty();
-        }
-    }
-
-    private async Task EnsureQueueConnectionAsync(string? token, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(token))
-        {
-            await _queueSocketService.DisconnectAsync(cancellationToken);
-            return;
-        }
-        await _queueSocketService.ConnectAsync(token, cancellationToken);
-    }
-
     private async Task RefreshInGameCountAsync()
     {
         var (inGame, _) = await _backendApiService.GetOnlineStatsAsync();
         OnlineInGame = inGame;
         OnPropertyChanged(nameof(OnlineStatsText));
         Queue.OnlineStatsText = OnlineStatsText;
-    }
-
-    private void PersistBackendToken(string? token)
-    {
-        var settings = _settingsStorage.Get();
-        settings.BackendAccessToken = token;
-        _settingsStorage.Save(settings);
     }
 
     // Forwarded for code-behind convenience
@@ -363,7 +275,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public void Dispose()
     {
         _onlineStatsTimer.Stop();
-        _ticketExchangeCts?.Dispose();
+        _authCoordinator.Dispose();
         Launch.Dispose();
         Queue.Dispose();
         Party.Dispose();
