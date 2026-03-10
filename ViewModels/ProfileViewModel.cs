@@ -45,13 +45,13 @@ public partial class ProfileViewModel : ViewModelBase
         _api = api;
     }
 
-    public async Task LoadAsync(ulong steamId)
+    public async Task LoadAsync(string steamId)
     {
         IsLoading = true;
         TopHeroes.Clear();
         try
         {
-            var steamIdStr = steamId.ToString();
+            var steamIdStr = steamId;
             var summaryTask = _api.GetPlayerSummaryAsync(steamIdStr);
             var heroesTask = _api.GetHeroStatsAsync(steamIdStr);
             await Task.WhenAll(summaryTask, heroesTask);

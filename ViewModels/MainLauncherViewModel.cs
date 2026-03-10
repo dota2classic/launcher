@@ -235,7 +235,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         }
         else if (tab == LauncherTab.Profile && CurrentUser != null)
         {
-            _ = Profile.LoadAsync(CurrentUser.SteamId);
+            var steam32 = (CurrentUser.SteamId - 76561197960265728UL).ToString();
+            _ = Profile.LoadAsync(steam32);
         }
         ActiveTab = tab;
     }
