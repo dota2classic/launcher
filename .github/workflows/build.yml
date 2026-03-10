@@ -74,7 +74,7 @@ jobs:
             --releaseName "Nightly" `
             --tag "nightly" `
             --channel nightly `
-            --pre-release `
+            --pre `
             --token "${{ secrets.GITHUB_TOKEN }}"
 
       # ── Stable (manual tag push) ─────────────────────────────────────────────
