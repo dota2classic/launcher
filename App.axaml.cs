@@ -84,6 +84,7 @@ public partial class App : Application
             var windowService = (WindowService)_services.GetRequiredService<IWindowService>();
 
             var settingsStorage = _services.GetRequiredService<ISettingsStorage>();
+            Services.UiScaleService.Apply(settingsStorage.Get().UiScale);
             _mainWindow = new MainWindow(settingsStorage) { DataContext = mainVm };
             windowService.SetWindow(_mainWindow);
 

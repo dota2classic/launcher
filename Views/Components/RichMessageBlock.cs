@@ -49,6 +49,9 @@ public class RichMessageBlock : UserControl
         _textBlock.PointerReleased += OnTextBlockPointerReleased;
         _textBlock.PointerMoved += OnTextBlockPointerMoved;
         Content = _textBlock;
+
+        this.ResourcesChanged += (_, _) => ApplyFontSize();
+        ApplyFontSize();
     }
 
     private void OnTextBlockPointerReleased(object? sender, PointerReleasedEventArgs e)
@@ -82,6 +85,12 @@ public class RichMessageBlock : UserControl
             if (charPos >= start && charPos < end) { overUrl = true; break; }
         }
         _textBlock.Cursor = new Cursor(overUrl ? StandardCursorType.Hand : StandardCursorType.Arrow);
+    }
+
+    private void ApplyFontSize()
+    {
+        if (this.TryFindResource("FontSizeBase", out var res) && res is double d)
+            _textBlock.FontSize = d;
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)

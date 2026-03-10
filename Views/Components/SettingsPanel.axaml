@@ -372,6 +372,28 @@
                                   VerticalScrollBarVisibility="Auto">
                         <StackPanel Spacing="0" Margin="0,12,12,12">
 
+                            <!-- UI Scale -->
+                            <StackPanel Margin="0,0,0,16" Spacing="6">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <StackPanel Grid.Column="0" Spacing="3">
+                                        <TextBlock Text="Масштаб интерфейса" Classes="setting-label"/>
+                                        <TextBlock Text="Увеличивает размер шрифта во всём лаунчере" Classes="setting-desc"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding UiScale}"
+                                               Classes="setting-label"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Right"
+                                               Width="24"
+                                               Margin="0,0,6,0"
+                                               TextAlignment="Center"/>
+                                </Grid>
+                                <Slider Minimum="0" Maximum="4"
+                                        Value="{Binding UiScale}"
+                                        TickFrequency="1"
+                                        IsSnapToTickEnabled="True"/>
+                            </StackPanel>
+
                             <!-- Auto-update -->
                             <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
                                 <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">

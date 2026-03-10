@@ -58,4 +58,18 @@ public class LauncherSettings
     /// Set manually in launcher_settings.json for testing.
     /// </summary>
     public bool NightlyUpdates { get; set; } = false;
+
+    /// <summary>
+    /// UI font scale step. 0 = default (no change), each step adds 1pt to every font size tier.
+    /// Range: 0–4.
+    /// </summary>
+    /// <summary>Null means the field was absent in JSON — treated as default (1).</summary>
+    public int? UiScaleRaw { get; set; }
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public int UiScale
+    {
+        get => UiScaleRaw ?? 1;
+        set => UiScaleRaw = value;
+    }
 }

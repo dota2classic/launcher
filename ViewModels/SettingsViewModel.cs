@@ -374,6 +374,21 @@ public partial class SettingsViewModel : ViewModelBase
         }
     }
 
+    public int UiScale
+    {
+        get => _settingsStorage.Get().UiScale;
+        set
+        {
+            var clamped = Math.Clamp(value, 0, 4);
+            var s = _settingsStorage.Get();
+            if (s.UiScale == clamped) return;
+            s.UiScale = clamped;
+            _settingsStorage.Save(s);
+            Services.UiScaleService.Apply(clamped);
+            OnPropertyChanged();
+        }
+    }
+
     public bool DefenderExclusionEnabled
     {
         get
