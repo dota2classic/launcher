@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using d2c_launcher.Services;
+using d2c_launcher.ViewModels;
 
 namespace d2c_launcher.Views;
 
@@ -22,9 +23,12 @@ public partial class MainWindow : Window
 
     protected override void OnClosing(WindowClosingEventArgs e)
     {
-        // Only intercept when the user explicitly pressed the X button.
-        // All other reasons (OS shutdown, programmatic Close() for updates/exit) pass through.
-        if (!RealExit && _settingsStorage.Get().CloseToTray && e.CloseReason == WindowCloseReason.WindowClosing)
+        var appState = (DataContext as MainWindowViewModel)?.AppState ?? default;
+        if (TrayClosePolicy.ShouldHideToTray(
+                RealExit,
+                _settingsStorage.Get().CloseToTray,
+                e.CloseReason == WindowCloseReason.WindowClosing,
+                appState))
         {
             e.Cancel = true;
             Hide();

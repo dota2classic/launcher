@@ -42,6 +42,8 @@
     <Compile Include="..\Models\SteamStatus.cs" Link="Models\SteamStatus.cs" />
     <Compile Include="..\Models\AppState.cs" Link="Models\AppState.cs" />
     <Compile Include="..\ViewModels\AppStateMachine.cs" Link="ViewModels\AppStateMachine.cs" />
+    <!-- Tray close policy (pure logic, no Avalonia deps) -->
+    <Compile Include="..\Views\TrayClosePolicy.cs" Link="Views\TrayClosePolicy.cs" />
     <!-- Telemetry (needed by AppLog) -->
     <Compile Include="..\Services\HardwareInfoService.cs" Link="Services\HardwareInfoService.cs" />
     <Compile Include="..\Services\FaroTelemetryService.cs" Link="Services\FaroTelemetryService.cs" />
