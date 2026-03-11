@@ -1,139 +1,419 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:d2c_launcher.ViewModels"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:components="using:d2c_launcher.Views.Components"
              x:Class="d2c_launcher.Views.Components.ProfilePanel"
              x:DataType="vm:ProfileViewModel">
+
+  <UserControl.Styles>
+    <!-- Sub-tab styles -->
+    <Style Selector="Border.SubTab">
+      <Setter Property="Padding" Value="18,10"/>
+      <Setter Property="BorderThickness" Value="0,0,0,2"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+    <Style Selector="Border.SubTabActive">
+      <Setter Property="BorderBrush" Value="#D4A843"/>
+    </Style>
+    <Style Selector="TextBlock.SubTabText">
+      <Setter Property="FontFamily" Value="{StaticResource TrajanPro3}"/>
+      <Setter Property="FontSize" Value="10"/>
+      <Setter Property="LetterSpacing" Value="1.5"/>
+      <Setter Property="Foreground" Value="#556070"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="TextBlock.SubTabTextActive">
+      <Setter Property="Foreground" Value="#D4A843"/>
+    </Style>
+    <!-- Hero row hover -->
+    <Style Selector="Border.HeroRow:pointerover">
+      <Setter Property="Background" Value="#1C2230"/>
+    </Style>
+    <!-- Stat row -->
+    <Style Selector="Border.StatRow">
+      <Setter Property="BorderBrush" Value="#181F28"/>
+      <Setter Property="BorderThickness" Value="0,0,0,1"/>
+      <Setter Property="Padding" Value="18,10"/>
+    </Style>
+  </UserControl.Styles>
 
   <Grid RowDefinitions="Auto,*">
 
     <!-- Loading indicator -->
     <TextBlock Grid.Row="0" IsVisible="{Binding IsLoading}"
-               Text="Загрузка профиля..." Foreground="#7a8a9a"
+               Text="Загрузка профиля..." Foreground="#556070"
                FontSize="{DynamicResource FontSizeBase}"
                HorizontalAlignment="Center" Margin="0,40"/>
 
-    <!-- Content (hidden while loading) -->
-    <Grid Grid.Row="0" RowDefinitions="Auto,*" IsVisible="{Binding !IsLoading}">
+    <!-- Content -->
+    <Grid Grid.Row="0" RowDefinitions="Auto,Auto,*" IsVisible="{Binding !IsLoading}">
 
-      <!-- Stats header bar -->
-      <Border Grid.Row="0" Background="#0A0B0D" Padding="20,14" Margin="0,0,0,12">
-        <Grid ColumnDefinitions="*,Auto">
-          <!-- Left: player name + W/L/D -->
-          <StackPanel Grid.Column="0" Spacing="4" VerticalAlignment="Center">
-            <TextBlock Text="{Binding PlayerName}"
-                       FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold" Foreground="#D9D9D9"/>
-            <TextBlock Text="{Binding WinsLossesText}"
-                       FontSize="{DynamicResource FontSizeMD}" Foreground="#7a8a9a"/>
-          </StackPanel>
+      <!-- ── PROFILE HERO HEADER ── -->
+      <Border Grid.Row="0" Background="#0A0C0F"
+              BorderBrush="#252E3A" BorderThickness="0,0,0,2">
+        <Grid ColumnDefinitions="3,*">
+          <!-- Blue left accent strip (gradient) -->
+          <Border Grid.Column="0">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="Transparent" Offset="0"/>
+                <GradientStop Color="#4A9EE0" Offset="0.4"/>
+                <GradientStop Color="#4A9EE0" Offset="0.6"/>
+                <GradientStop Color="Transparent" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.Background>
+          </Border>
 
-          <!-- Right: key stats -->
-          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="24" VerticalAlignment="Center">
-            <!-- Win rate -->
-            <StackPanel HorizontalAlignment="Center" Spacing="2">
-              <TextBlock Text="{Binding WinRateText}"
-                         FontSize="{DynamicResource FontSizeXL}" FontWeight="Bold" Foreground="#4DA9F3"
-                         HorizontalAlignment="Center"/>
-              <TextBlock Text="ДОЛЯ ПОБЕД" Foreground="#7a8a9a"
-                         FontSize="{DynamicResource FontSizeXS}" HorizontalAlignment="Center"/>
-            </StackPanel>
-            <!-- MMR -->
-            <StackPanel HorizontalAlignment="Center" Spacing="2">
-              <TextBlock Text="{Binding Mmr}"
-                         FontSize="{DynamicResource FontSizeXL}" FontWeight="Bold" Foreground="#D9D9D9"
-                         HorizontalAlignment="Center"/>
-              <TextBlock Text="РЕЙТИНГ" Foreground="#7a8a9a"
-                         FontSize="{DynamicResource FontSizeXS}" HorizontalAlignment="Center"/>
-            </StackPanel>
-            <!-- Rank -->
-            <StackPanel HorizontalAlignment="Center" Spacing="2">
-              <TextBlock Text="{Binding Rank}"
-                         FontSize="{DynamicResource FontSizeXL}" FontWeight="Bold" Foreground="#D9D9D9"
-                         HorizontalAlignment="Center"/>
-              <TextBlock Text="РАНГ" Foreground="#7a8a9a"
-                         FontSize="{DynamicResource FontSizeXS}" HorizontalAlignment="Center"/>
-            </StackPanel>
-          </StackPanel>
+          <Border Grid.Column="1" Padding="20,0,0,0">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+
+              <!-- Avatar -->
+              <Border Grid.Column="0" Width="60" Height="60" Margin="0,14,16,14"
+                      BorderBrush="#252E3A" BorderThickness="1" VerticalAlignment="Center">
+                <Panel>
+                  <Image asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}" Stretch="UniformToFill"
+                         IsVisible="{Binding AvatarUrl, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                  <Border Background="#1A2535"
+                          IsVisible="{Binding AvatarUrl, Converter={x:Static StringConverters.IsNullOrEmpty}}">
+                    <TextBlock Text="{Binding PlayerInitial}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               FontFamily="{StaticResource TrajanPro3}"
+                               FontSize="22" FontWeight="Bold" Foreground="#4A9EE0"/>
+                  </Border>
+                  <!-- Online dot -->
+                  <Ellipse Width="9" Height="9" Fill="#52B847"
+                           HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                           Margin="0,0,2,2"/>
+                </Panel>
+              </Border>
+
+              <!-- Name + match count -->
+              <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="5">
+                <TextBlock Text="{Binding PlayerName}"
+                           FontFamily="{StaticResource TrajanPro3}"
+                           FontSize="20" FontWeight="Bold"
+                           Foreground="#FFFFFF" LetterSpacing="1"/>
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                  <TextBlock Text="{Binding TotalGames}"
+                             FontSize="{DynamicResource FontSizeBase}" FontWeight="SemiBold"
+                             Foreground="#E2E6EA"/>
+                  <TextBlock Text="матчей"
+                             FontSize="{DynamicResource FontSizeBase}"
+                             Foreground="#99A8B4"/>
+                </StackPanel>
+              </StackPanel>
+
+              <!-- Stat chips -->
+              <Border Grid.Column="2" BorderBrush="#252E3A" BorderThickness="1,0,0,0"
+                      VerticalAlignment="Stretch">
+                <StackPanel Orientation="Horizontal">
+
+                  <!-- Wins/Losses -->
+                  <Border BorderBrush="#252E3A" BorderThickness="0,0,1,0" Padding="26,16" MinWidth="100">
+                    <StackPanel HorizontalAlignment="Center" Spacing="6">
+                      <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="0">
+                        <TextBlock Text="{Binding Wins}"
+                                   FontFamily="{StaticResource TrajanPro3}"
+                                   FontSize="18" FontWeight="Bold" Foreground="#E2E6EA"/>
+                        <TextBlock Text="–"
+                                   FontFamily="{StaticResource TrajanPro3}"
+                                   FontSize="18" FontWeight="Bold" Foreground="#556070"/>
+                        <TextBlock Text="{Binding Losses}"
+                                   FontFamily="{StaticResource TrajanPro3}"
+                                   FontSize="18" FontWeight="Bold" Foreground="#D04535"/>
+                        <TextBlock Text="–"
+                                   FontFamily="{StaticResource TrajanPro3}"
+                                   FontSize="18" FontWeight="Bold" Foreground="#556070"/>
+                        <TextBlock Text="{Binding Abandons}"
+                                   FontFamily="{StaticResource TrajanPro3}"
+                                   FontSize="18" FontWeight="Bold" Foreground="#556070"/>
+                      </StackPanel>
+                      <TextBlock Text="МАТЧИ"
+                                 FontFamily="{StaticResource TrajanPro3}"
+                                 FontSize="9" LetterSpacing="2"
+                                 Foreground="#556070" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                  </Border>
+
+                  <!-- Win rate -->
+                  <Border BorderBrush="#252E3A" BorderThickness="0,0,1,0" Padding="26,16" MinWidth="100">
+                    <StackPanel HorizontalAlignment="Center" Spacing="6">
+                      <TextBlock Text="{Binding WinRateText}"
+                                 FontFamily="{StaticResource TrajanPro3}"
+                                 FontSize="18" FontWeight="Bold" Foreground="#52B847"
+                                 HorizontalAlignment="Center"/>
+                      <TextBlock Text="ДОЛЯ ПОБЕД"
+                                 FontFamily="{StaticResource TrajanPro3}"
+                                 FontSize="9" LetterSpacing="2"
+                                 Foreground="#556070" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                  </Border>
+
+                  <!-- MMR -->
+                  <Border BorderBrush="#252E3A" BorderThickness="0,0,1,0" Padding="26,16" MinWidth="100">
+                    <StackPanel HorizontalAlignment="Center" Spacing="6">
+                      <TextBlock Text="{Binding Mmr}"
+                                 FontFamily="{StaticResource TrajanPro3}"
+                                 FontSize="18" FontWeight="Bold" Foreground="#D4A843"
+                                 HorizontalAlignment="Center"/>
+                      <TextBlock Text="РЕЙТИНГ"
+                                 FontFamily="{StaticResource TrajanPro3}"
+                                 FontSize="9" LetterSpacing="2"
+                                 Foreground="#556070" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                  </Border>
+
+                  <!-- Rank -->
+                  <Border Padding="26,16" MinWidth="100">
+                    <StackPanel HorizontalAlignment="Center" Spacing="6">
+                      <TextBlock Text="{Binding Rank}"
+                                 FontFamily="{StaticResource TrajanPro3}"
+                                 FontSize="18" FontWeight="Bold" Foreground="#E2E6EA"
+                                 HorizontalAlignment="Center"/>
+                      <TextBlock Text="РАНГ"
+                                 FontFamily="{StaticResource TrajanPro3}"
+                                 FontSize="9" LetterSpacing="2"
+                                 Foreground="#556070" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                  </Border>
+
+                </StackPanel>
+              </Border>
+
+            </Grid>
+          </Border>
         </Grid>
       </Border>
 
-      <!-- Body: season KDA (left) + top heroes (right) -->
-      <Grid Grid.Row="1" ColumnDefinitions="200,*" Margin="0,0,0,0">
+      <!-- ── PROFILE SUB-TABS ── -->
+      <Border Grid.Row="1" Background="#0A0C0F"
+              BorderBrush="#252E3A" BorderThickness="0,0,0,1">
+        <StackPanel Orientation="Horizontal" Margin="24,0,0,0">
+          <Border Classes="SubTab SubTabActive" Margin="0,0,0,-1">
+            <TextBlock Classes="SubTabText SubTabTextActive" Text="ОБЩЕЕ"/>
+          </Border>
+          <Border Classes="SubTab" Margin="0,0,0,-1">
+            <TextBlock Classes="SubTabText" Text="МАТЧИ"/>
+          </Border>
+          <Border Classes="SubTab" Margin="0,0,0,-1">
+            <TextBlock Classes="SubTabText" Text="ДОСТИЖЕНИЯ"/>
+          </Border>
+          <Border Classes="SubTab" Margin="0,0,0,-1">
+            <TextBlock Classes="SubTabText" Text="СОЮЗНИКИ"/>
+          </Border>
+          <Border Classes="SubTab" Margin="0,0,0,-1">
+            <TextBlock Classes="SubTabText" Text="ГЕРОИ"/>
+          </Border>
+          <Border Classes="SubTab" Margin="0,0,0,-1">
+            <TextBlock Classes="SubTabText" Text="РЕКОРДЫ"/>
+          </Border>
+        </StackPanel>
+      </Border>
 
-        <!-- Left: Season KDA -->
-        <Border Grid.Column="0" Background="#0A0B0D" Padding="16,14" Margin="0,0,12,0">
-          <StackPanel Spacing="16">
-            <TextBlock Text="СТАТИСТИКА ЗА СЕЗОН" Foreground="#7a8a9a"
-                       FontSize="{DynamicResource FontSizeXS}" FontWeight="SemiBold"/>
-            <StackPanel Spacing="10">
-              <Grid ColumnDefinitions="Auto,*">
-                <TextBlock Grid.Column="0" Text="{Binding AvgKills}"
-                           Foreground="#4DA9F3" FontSize="{DynamicResource FontSizeLG}" FontWeight="Bold"
-                           Width="64"/>
-                <TextBlock Grid.Column="1" Text="Убийств" Foreground="#C0C0C0"
-                           FontSize="{DynamicResource FontSizeBase}" VerticalAlignment="Center"/>
-              </Grid>
-              <Grid ColumnDefinitions="Auto,*">
-                <TextBlock Grid.Column="0" Text="{Binding AvgDeaths}"
-                           Foreground="#e05050" FontSize="{DynamicResource FontSizeLG}" FontWeight="Bold"
-                           Width="64"/>
-                <TextBlock Grid.Column="1" Text="Смертей" Foreground="#C0C0C0"
-                           FontSize="{DynamicResource FontSizeBase}" VerticalAlignment="Center"/>
-              </Grid>
-              <Grid ColumnDefinitions="Auto,*">
-                <TextBlock Grid.Column="0" Text="{Binding AvgAssists}"
-                           Foreground="#7a8a9a" FontSize="{DynamicResource FontSizeLG}" FontWeight="Bold"
-                           Width="64"/>
-                <TextBlock Grid.Column="1" Text="Помощи" Foreground="#C0C0C0"
-                           FontSize="{DynamicResource FontSizeBase}" VerticalAlignment="Center"/>
-              </Grid>
-            </StackPanel>
-          </StackPanel>
-        </Border>
+      <!-- ── CONTENT: 3 equal columns ── -->
+      <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="20" HorizontalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
 
-        <!-- Right: Top heroes -->
-        <Border Grid.Column="1" Background="#0A0B0D" Padding="16,14">
-          <StackPanel Spacing="10">
-            <TextBlock Text="ЛУЧШИЕ ГЕРОИ" Foreground="#7a8a9a"
-                       FontSize="{DynamicResource FontSizeXS}" FontWeight="SemiBold"/>
-
-            <!-- Table header -->
-            <Grid ColumnDefinitions="*,60,80,60">
-              <TextBlock Grid.Column="0" Text="ГЕРОЙ" Foreground="#4a5a6a"
-                         FontSize="{DynamicResource FontSizeXS}"/>
-              <TextBlock Grid.Column="1" Text="МАТЧИ" Foreground="#4a5a6a"
-                         FontSize="{DynamicResource FontSizeXS}" HorizontalAlignment="Center"/>
-              <TextBlock Grid.Column="2" Text="% ПОБЕД" Foreground="#4a5a6a"
-                         FontSize="{DynamicResource FontSizeXS}" HorizontalAlignment="Center"/>
-              <TextBlock Grid.Column="3" Text="KDA" Foreground="#4a5a6a"
-                         FontSize="{DynamicResource FontSizeXS}" HorizontalAlignment="Center"/>
+          <!-- ── BLOCK 1: Отзывы ── -->
+          <Border Grid.Column="0" Classes="Block">
+            <Grid RowDefinitions="36,*">
+              <Border Grid.Row="0" Classes="BlockHead">
+                <TextBlock Classes="BlockTitle" Text="ОТЗЫВЫ"/>
+              </Border>
+              <Border Grid.Row="1" Padding="16,20,16,16">
+                <components:PentagonControl Aspects="{Binding Aspects}"
+                                            Width="240" Height="230"
+                                            HorizontalAlignment="Center"/>
+              </Border>
             </Grid>
+          </Border>
 
-            <ItemsControl ItemsSource="{Binding TopHeroes}">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate x:DataType="vm:HeroRowViewModel">
-                  <Border BorderBrush="#1a2030" BorderThickness="0,0,0,1" Padding="0,6">
-                    <Grid ColumnDefinitions="*,60,80,60">
-                      <TextBlock Grid.Column="0" Text="{Binding HeroName}"
-                                 Foreground="#C0C0C0" FontSize="{DynamicResource FontSizeBase}"
-                                 VerticalAlignment="Center"/>
-                      <TextBlock Grid.Column="1" Text="{Binding Games}"
-                                 Foreground="#D9D9D9" FontSize="{DynamicResource FontSizeBase}"
-                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                      <TextBlock Grid.Column="2" Text="{Binding WinRateText}"
-                                 Foreground="#4DA9F3" FontSize="{DynamicResource FontSizeBase}"
-                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                      <TextBlock Grid.Column="3" Text="{Binding KdaText}"
-                                 Foreground="#C0C0C0" FontSize="{DynamicResource FontSizeBase}"
-                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Grid>
-                  </Border>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
+          <!-- ── BLOCK 2: Статистика за сезон ── -->
+          <Border Grid.Column="2" Classes="Block">
+            <Grid RowDefinitions="36,*">
+              <Border Grid.Row="0" Classes="BlockHead">
+                <TextBlock Classes="BlockTitle" Text="СТАТИСТИКА ЗА СЕЗОН"/>
+              </Border>
+              <StackPanel Grid.Row="1" Spacing="0">
 
-          </StackPanel>
-        </Border>
-      </Grid>
+                <!-- KDA group -->
+                <Border Classes="StatRow">
+                  <Grid ColumnDefinitions="96,*">
+                    <TextBlock Grid.Column="0" Text="{Binding AvgKills}"
+                               FontFamily="{StaticResource TrajanPro3}"
+                               FontSize="19" FontWeight="SemiBold" Foreground="#D4A843"/>
+                    <TextBlock Grid.Column="1" Text="Убийств" Foreground="#99A8B4"
+                               FontSize="13" VerticalAlignment="Center"/>
+                  </Grid>
+                </Border>
+                <Border Classes="StatRow">
+                  <Grid ColumnDefinitions="96,*">
+                    <TextBlock Grid.Column="0" Text="{Binding AvgDeaths}"
+                               FontFamily="{StaticResource TrajanPro3}"
+                               FontSize="19" FontWeight="SemiBold" Foreground="#4A9EE0"/>
+                    <TextBlock Grid.Column="1" Text="Смертей" Foreground="#99A8B4"
+                               FontSize="13" VerticalAlignment="Center"/>
+                  </Grid>
+                </Border>
+                <Border Classes="StatRow">
+                  <Grid ColumnDefinitions="96,*">
+                    <TextBlock Grid.Column="0" Text="{Binding AvgAssists}"
+                               FontFamily="{StaticResource TrajanPro3}"
+                               FontSize="19" FontWeight="SemiBold" Foreground="#D4A843"/>
+                    <TextBlock Grid.Column="1" Text="Помощи" Foreground="#99A8B4"
+                               FontSize="13" VerticalAlignment="Center"/>
+                  </Grid>
+                </Border>
+
+                <!-- Divider -->
+                <Border Height="1" Background="#252E3A" Margin="0,4"/>
+
+                <!-- General group -->
+                <Border Classes="StatRow">
+                  <Grid ColumnDefinitions="96,*">
+                    <TextBlock Grid.Column="0" Text="{Binding TotalGames}"
+                               FontFamily="{StaticResource TrajanPro3}"
+                               FontSize="15" FontWeight="SemiBold" Foreground="#E2E6EA"/>
+                    <TextBlock Grid.Column="1" Text="Игр сыграно" Foreground="#99A8B4"
+                               FontSize="13" VerticalAlignment="Center"/>
+                  </Grid>
+                </Border>
+                <Border Classes="StatRow">
+                  <Grid ColumnDefinitions="96,*">
+                    <TextBlock Grid.Column="0" Text="{Binding WinRateText}"
+                               FontFamily="{StaticResource TrajanPro3}"
+                               FontSize="15" FontWeight="SemiBold" Foreground="#52B847"/>
+                    <TextBlock Grid.Column="1" Text="Доля побед" Foreground="#99A8B4"
+                               FontSize="13" VerticalAlignment="Center"/>
+                  </Grid>
+                </Border>
+                <Border Classes="StatRow">
+                  <Grid ColumnDefinitions="96,*">
+                    <TextBlock Grid.Column="0" Text="{Binding AbandonRateText}"
+                               FontFamily="{StaticResource TrajanPro3}"
+                               FontSize="15" FontWeight="SemiBold" Foreground="#556070"/>
+                    <TextBlock Grid.Column="1" Text="Покинутых игр" Foreground="#99A8B4"
+                               FontSize="13" VerticalAlignment="Center"/>
+                  </Grid>
+                </Border>
+                <Border BorderBrush="#181F28" BorderThickness="0,0,0,0" Padding="18,10">
+                  <Grid ColumnDefinitions="96,*">
+                    <TextBlock Grid.Column="0" Text="{Binding PlaytimeText}"
+                               FontFamily="{StaticResource TrajanPro3}"
+                               FontSize="14" FontWeight="SemiBold" Foreground="#E2E6EA"/>
+                    <TextBlock Grid.Column="1" Text="Времени в игре" Foreground="#99A8B4"
+                               FontSize="13" VerticalAlignment="Center"/>
+                  </Grid>
+                </Border>
+
+              </StackPanel>
+            </Grid>
+          </Border>
+
+          <!-- ── BLOCK 3: Лучшие герои ── -->
+          <Border Grid.Column="4" Classes="Block">
+            <Grid RowDefinitions="36,Auto,*">
+
+              <!-- Block header -->
+              <Border Grid.Row="0" Classes="BlockHead">
+                <Grid>
+                  <TextBlock Classes="BlockTitle" Text="ЛУЧШИЕ ГЕРОИ" VerticalAlignment="Center"/>
+                  <TextBlock Text="Показать все →" Foreground="#4A9EE0"
+                             FontSize="11" HorizontalAlignment="Right"
+                             VerticalAlignment="Center" Cursor="Hand"/>
+                </Grid>
+              </Border>
+
+              <!-- Table column headers -->
+              <Border Grid.Row="1" Background="#0D1017"
+                      BorderBrush="#252E3A" BorderThickness="0,0,0,1"
+                      Padding="18,8">
+                <Grid ColumnDefinitions="*,52,88,52">
+                  <TextBlock Grid.Column="0" Text="ГЕРОЙ" Foreground="#556070"
+                             FontFamily="{StaticResource TrajanPro3}" FontSize="9" LetterSpacing="2"/>
+                  <TextBlock Grid.Column="1" Text="МАТЧИ" Foreground="#556070"
+                             FontFamily="{StaticResource TrajanPro3}" FontSize="9" LetterSpacing="2"
+                             HorizontalAlignment="Center"/>
+                  <TextBlock Grid.Column="2" Text="% ПОБЕД" Foreground="#556070"
+                             FontFamily="{StaticResource TrajanPro3}" FontSize="9" LetterSpacing="2"
+                             HorizontalAlignment="Center"/>
+                  <TextBlock Grid.Column="3" Text="KDA" Foreground="#556070"
+                             FontFamily="{StaticResource TrajanPro3}" FontSize="9" LetterSpacing="2"
+                             HorizontalAlignment="Center"/>
+                </Grid>
+              </Border>
+
+              <!-- Hero rows -->
+              <ItemsControl Grid.Row="2" ItemsSource="{Binding TopHeroes}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:HeroRowViewModel">
+                    <Border Classes="HeroRow"
+                            BorderBrush="#181F28" BorderThickness="0,0,0,1"
+                            Padding="18,8" Background="Transparent">
+                      <Grid ColumnDefinitions="*,52,88,52">
+
+                        <!-- Hero name + image -->
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="9"
+                                    VerticalAlignment="Center">
+                          <Border Width="34" Height="24" ClipToBounds="True"
+                                  BorderBrush="#252E3A" BorderThickness="1"
+                                  Background="#1A2030">
+                            <Image asyncImageLoader:ImageLoader.Source="{Binding HeroImageUrl}"
+                                   Stretch="UniformToFill"/>
+                          </Border>
+                          <TextBlock Text="{Binding HeroName}"
+                                     Foreground="#4A9EE0"
+                                     FontSize="12" FontWeight="SemiBold"
+                                     VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- Match count -->
+                        <TextBlock Grid.Column="1" Text="{Binding Games}"
+                                   Foreground="#E2E6EA"
+                                   FontSize="13" FontWeight="SemiBold"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                        <!-- Win rate + bar -->
+                        <StackPanel Grid.Column="2" HorizontalAlignment="Center"
+                                    VerticalAlignment="Center" Spacing="4">
+                          <TextBlock Text="{Binding WinRateText}"
+                                     Foreground="{Binding WinRateBrush}"
+                                     FontSize="12" FontWeight="SemiBold"
+                                     HorizontalAlignment="Center"/>
+                          <Border Height="2" Width="52" Background="#252E3A" HorizontalAlignment="Center">
+                            <Border HorizontalAlignment="Left" Height="2"
+                                    Width="{Binding WinRateBarWidth}"
+                                    Background="{Binding WinRateBrush}"/>
+                          </Border>
+                        </StackPanel>
+
+                        <!-- KDA -->
+                        <TextBlock Grid.Column="3" Text="{Binding KdaText}"
+                                   Foreground="#D4A843"
+                                   FontSize="13" FontWeight="SemiBold"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+
+            </Grid>
+          </Border>
+
+        </Grid>
+      </ScrollViewer>
+
     </Grid>
   </Grid>
 

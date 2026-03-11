@@ -107,5 +107,26 @@
             <Setter Property="BorderBrush" Value="#4DA9F3"/>
             <Setter Property="Background" Value="#1c2024"/>
         </Style>
+
+        <!-- ── Reusable panel block styles ── -->
+        <Style Selector="Border.Block">
+            <Setter Property="Background" Value="#13171D"/>
+            <Setter Property="BorderBrush" Value="#252E3A"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style Selector="Border.BlockHead">
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Background" Value="#0A0C0F"/>
+            <Setter Property="BorderBrush" Value="#252E3A"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Padding" Value="14,0"/>
+        </Style>
+        <Style Selector="TextBlock.BlockTitle">
+            <Setter Property="FontSize" Value="{DynamicResource FontSizeXS}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="LetterSpacing" Value="2"/>
+            <Setter Property="Foreground" Value="#D9D9D9"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
     </Application.Styles>
 </Application>

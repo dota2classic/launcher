@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<title>D2C — Profile v4</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:         #0e1012;
+    --bg-block:   #13171d;
+    --bg-dark:    #0a0c0f;
+    --bg-hover:   #1c2230;
+    --border:     #252e3a;
+    --gold:       #d4a843;
+    --blue:       #4a9ee0;
+    --green:      #52b847;
+    --red:        #d04535;
+    --text:       #e2e6ea;        /* BRIGHT */
+    --text-mid:   #99a8b4;        /* medium */
+    --text-dim:   #556070;        /* labels only */
+  }
+
+  body {
+    background: #060708;
+    font-family: 'Noto Sans', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+  }
+
+  .window {
+    width: 1100px;
+    min-height: 100vh;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 120px rgba(0,0,0,0.95);
+  }
+
+  /* ── TITLEBAR ── */
+  .titlebar {
+    height: 32px;
+    background: #07090b;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    padding: 0 14px; flex-shrink: 0;
+  }
+  .tb-logo {
+    font-family: 'Cinzel', serif;
+    font-size: 10px; letter-spacing: 3px;
+    color: #4a3c18; text-transform: uppercase;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .tb-ver { font-size: 10px; color: #1e2830; margin-left: -2px; }
+  .tb-controls { margin-left: auto; display: flex; }
+  .tb-btn {
+    width: 42px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    color: #2a3640; font-size: 12px; cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .tb-btn:hover { background: #181818; color: #aaa; }
+  .tb-btn.close:hover { background: #c42b1c; color: #fff; }
+
+  /* ── TOP NAV ── */
+  .topnav {
+    height: 46px;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: stretch; flex-shrink: 0;
+  }
+  .nav-tab {
+    padding: 0 28px;
+    font-family: 'Cinzel', serif;
+    font-size: 11px; letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    cursor: pointer; display: flex; align-items: center;
+    border-bottom: 2px solid transparent;
+    transition: color .15s, border-color .15s;
+    position: relative; top: 1px;
+  }
+  .nav-tab:hover { color: var(--text-mid); }
+  .nav-tab.active { color: var(--text); border-bottom-color: var(--blue); }
+  .nav-right {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 16px; border-left: 1px solid var(--border);
+  }
+  .nav-avatar {
+    width: 28px; height: 28px;
+    border: 1px solid var(--border);
+    background: #1a2535;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cinzel', serif; font-size: 11px; color: var(--blue);
+  }
+  .nav-name { font-size: 12px; color: var(--text); font-weight: 600; }
+
+  /* ── HERO HEADER ── */
+  .hero-header {
+    background: var(--bg-dark);
+    border-bottom: 2px solid var(--border);
+    padding: 0 24px;
+    display: flex; align-items: center; gap: 20px;
+    flex-shrink: 0; position: relative;
+  }
+  .hero-header::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: linear-gradient(180deg, transparent, var(--blue) 40%, var(--blue) 60%, transparent);
+  }
+  .hh-avatar {
+    width: 60px; height: 60px; margin: 14px 0;
+    border: 1px solid var(--border);
+    background: #1a2535;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cinzel', serif; font-size: 22px; color: var(--blue);
+    position: relative; flex-shrink: 0;
+  }
+  .hh-online {
+    position: absolute; bottom: 2px; right: 2px;
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--green); border: 2px solid var(--bg-dark);
+    box-shadow: 0 0 6px rgba(82,184,71,0.8);
+  }
+  .hh-info { flex: 1; }
+  .hh-name {
+    font-family: 'Cinzel', serif;
+    font-size: 20px; font-weight: 700;
+    color: #fff; letter-spacing: 1px;
+    line-height: 1; margin-bottom: 5px;
+  }
+  .hh-sub { font-size: 12px; color: var(--text-mid); }
+  .hh-sub b { color: var(--text); }
+
+  .hh-stats { display: flex; }
+  .hh-stat {
+    padding: 16px 26px;
+    border-left: 1px solid var(--border);
+    text-align: center;
+  }
+  .hh-val {
+    font-family: 'Cinzel', serif;
+    font-size: 18px; font-weight: 700;
+    line-height: 1; color: #fff; white-space: nowrap;
+  }
+  .hh-val.green { color: var(--green); }
+  .hh-val.gold  { color: var(--gold); }
+  .hh-val .l    { color: var(--red); }
+  .hh-val .sep  { color: var(--text-dim); margin: 0 1px; }
+  .hh-lbl {
+    font-size: 9px; text-transform: uppercase;
+    letter-spacing: 2px; color: var(--text-dim);
+    margin-top: 6px; font-family: 'Cinzel', serif;
+  }
+
+  /* ── SUB TABS ── */
+  .sub-tabs {
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; padding: 0 24px; flex-shrink: 0;
+  }
+  .sub-tab {
+    padding: 10px 18px;
+    font-family: 'Cinzel', serif;
+    font-size: 10px; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--text-dim);
+    cursor: pointer; border-bottom: 2px solid transparent;
+    transition: color .15s, border-color .15s;
+    position: relative; top: 1px;
+  }
+  .sub-tab:hover { color: var(--text-mid); }
+  .sub-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+  /* ── CONTENT ── */
+  /* Outer padding creates the gaps between blocks */
+  .content {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ── BLOCK ── */
+  .block {
+    background: var(--bg-block);
+    border: 1px solid var(--border);
+    display: flex; flex-direction: column;
+  }
+
+  .block-head {
+    height: 36px;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 18px; flex-shrink: 0;
+  }
+  .block-head-title {
+    font-family: 'Cinzel', serif;
+    font-size: 10px; letter-spacing: 2.5px;
+    text-transform: uppercase; color: var(--text-mid);
+  }
+  .block-head-link {
+    font-size: 11px; color: var(--blue); cursor: pointer;
+    transition: color .15s; font-family: 'Noto Sans', sans-serif;
+  }
+  .block-head-link:hover { color: #7ac0f8; }
+
+  /* ── 3-COL ROW ── */
+  .row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+  }
+
+  /* ── RADAR ── */
+  .radar-body {
+    padding: 20px 16px 16px;
+    display: flex; flex-direction: column; align-items: center; gap: 0;
+  }
+
+  /* ── SEASON STATS ── */
+  .stats-body { padding: 8px 0; }
+  .s-row {
+    display: flex; align-items: center;
+    gap: 14px; padding: 10px 18px;
+    border-bottom: 1px solid #181f28;
+  }
+  .s-row:last-child { border-bottom: none; }
+  .s-val {
+    font-family: 'Cinzel', serif;
+    font-size: 19px; font-weight: 600;
+    min-width: 96px; line-height: 1;
+    color: var(--gold);
+  }
+  .s-val.blue  { color: var(--blue); }
+  .s-val.green { color: var(--green); }
+  .s-val.white { color: var(--text); font-size: 15px; }
+  .s-val.dim   { color: var(--text-dim); font-size: 15px; }
+  .s-lbl { font-size: 13px; color: var(--text-mid); }
+
+  .s-divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+  /* ── HERO TABLE ── */
+  .hero-head {
+    display: grid;
+    grid-template-columns: 1fr 52px 88px 52px;
+    padding: 8px 18px;
+    border-bottom: 1px solid var(--border);
+    background: #0d1017;
+  }
+  .hero-head span {
+    font-size: 9px; text-transform: uppercase;
+    letter-spacing: 2px; color: var(--text-dim);
+    font-family: 'Cinzel', serif;
+  }
+  .hero-head span:not(:first-child) { text-align: center; }
+
+  .h-row {
+    display: grid;
+    grid-template-columns: 1fr 52px 88px 52px;
+    align-items: center;
+    padding: 8px 18px;
+    border-bottom: 1px solid #181f28;
+    cursor: pointer; transition: background .12s;
+  }
+  .h-row:last-child { border-bottom: none; }
+  .h-row:hover { background: var(--bg-hover); }
+
+  .h-name { display: flex; align-items: center; gap: 9px; }
+  .h-ico {
+    width: 34px; height: 24px;
+    background: #1a2030; border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+  .h-label {
+    font-size: 12px; font-weight: 600;
+    color: var(--blue); cursor: pointer;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .h-label:hover { color: #7ac0f8; }
+  .h-cell { text-align: center; }
+  .h-val  { font-size: 13px; font-weight: 600; color: var(--text); }
+  .h-kda  { font-size: 13px; font-weight: 600; color: var(--gold); }
+
+  .wr-col { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .wr-pct { font-size: 12px; font-weight: 600; }
+  .wr-pct.hi  { color: var(--green); }
+  .wr-pct.mid { color: var(--gold); }
+  .wr-pct.lo  { color: var(--red); }
+  .wr-bar { width: 52px; height: 2px; background: #252e3a; }
+  .wr-fill { height: 100%; }
+  .wr-fill.hi  { background: var(--green); }
+  .wr-fill.mid { background: var(--gold); }
+  .wr-fill.lo  { background: var(--red); }
+</style>
+</head>
+<body>
+<div class="window">
+
+  <!-- TITLEBAR -->
+  <div class="titlebar">
+    <div class="tb-logo">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+        <polygon points="8,1 15,5 15,11 8,15 1,11 1,5" stroke="#d4a843" stroke-width="1.2" fill="none" opacity=".4"/>
+        <circle cx="8" cy="8" r="2" fill="#d4a843" opacity="0.3"/>
+      </svg>
+      dotaclassic
+    </div>
+    <span class="tb-ver">v1.3.0</span>
+    <div class="tb-controls">
+      <div class="tb-btn">─</div>
+      <div class="tb-btn">□</div>
+      <div class="tb-btn close">✕</div>
+    </div>
+  </div>
+
+  <!-- TOP NAV -->
+  <div class="topnav">
+    <div class="nav-tab">Игра</div>
+    <div class="nav-tab">Настройки</div>
+    <div class="nav-tab active">Профиль</div>
+    <div class="nav-right">
+      <div class="nav-avatar">E</div>
+      <span class="nav-name">egor_lib</span>
+    </div>
+  </div>
+
+  <!-- HERO HEADER -->
+  <div class="hero-header">
+    <div class="hh-avatar">
+      E
+      <div class="hh-online"></div>
+    </div>
+    <div class="hh-info">
+      <div class="hh-name">egor_lib</div>
+      <div class="hh-sub"><b>578</b> матчей</div>
+    </div>
+    <div class="hh-stats">
+      <div class="hh-stat">
+        <div class="hh-val">316<span class="sep">–</span><span class="l">262</span><span class="sep">–0</span></div>
+        <div class="hh-lbl">Матчи</div>
+      </div>
+      <div class="hh-stat">
+        <div class="hh-val green">54.67%</div>
+        <div class="hh-lbl">Доля побед</div>
+      </div>
+      <div class="hh-stat">
+        <div class="hh-val gold">3311</div>
+        <div class="hh-lbl">Рейтинг</div>
+      </div>
+      <div class="hh-stat">
+        <div class="hh-val">41</div>
+        <div class="hh-lbl">Ранг</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUB TABS -->
+  <div class="sub-tabs">
+    <div class="sub-tab active" onclick="switchTab(this)">Общее</div>
+    <div class="sub-tab" onclick="switchTab(this)">Матчи</div>
+    <div class="sub-tab" onclick="switchTab(this)">Достижения</div>
+    <div class="sub-tab" onclick="switchTab(this)">Союзники</div>
+    <div class="sub-tab" onclick="switchTab(this)">Герои</div>
+    <div class="sub-tab" onclick="switchTab(this)">Рекорды</div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- 3-COL ROW -->
+    <div class="row-3">
+
+      <!-- BLOCK 1: Отзывы / Radar -->
+      <div class="block">
+        <div class="block-head">
+          <span class="block-head-title">Отзывы</span>
+        </div>
+        <div class="radar-body">
+          <svg overflow="visible" width="240" height="230" viewBox="0 0 240 230">
+            <text x="120" y="12"  text-anchor="middle" font-family="Cinzel,serif" font-size="11" fill="#99a8b4">Оптимист</text>
+            <text x="232" y="118" text-anchor="end"    font-family="Cinzel,serif" font-size="11" fill="#99a8b4">Добряк</text>
+            <text x="184" y="224" text-anchor="middle" font-family="Cinzel,serif" font-size="11" fill="#99a8b4">Болтун</text>
+            <text x="56"  y="224" text-anchor="middle" font-family="Cinzel,serif" font-size="11" fill="#99a8b4">Клоун</text>
+            <text x="8"   y="118" text-anchor="start"  font-family="Cinzel,serif" font-size="11" fill="#99a8b4">Токсик</text>
+
+            <polygon points="120,22 198,78 170,184 70,184 42,78"   fill="none" stroke="#252e3a" stroke-width="1"/>
+            <polygon points="120,48 172,92 150,162 90,162 68,92"   fill="none" stroke="#252e3a" stroke-width="1"/>
+            <polygon points="120,74 147,107 132,140 108,140 93,107" fill="none" stroke="#252e3a" stroke-width="1"/>
+
+            <line x1="120" y1="22"  x2="120" y2="110" stroke="#252e3a" stroke-width="1"/>
+            <line x1="198" y1="78"  x2="120" y2="110" stroke="#252e3a" stroke-width="1"/>
+            <line x1="170" y1="184" x2="120" y2="110" stroke="#252e3a" stroke-width="1"/>
+            <line x1="70"  y1="184" x2="120" y2="110" stroke="#252e3a" stroke-width="1"/>
+            <line x1="42"  y1="78"  x2="120" y2="110" stroke="#252e3a" stroke-width="1"/>
+
+            <defs>
+              <radialGradient id="rg" cx="50%" cy="48%" r="50%">
+                <stop offset="0%" stop-color="#d4a843" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#d4a843" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <polygon points="120,30 188,84 162,172 78,170 48,86"
+              fill="url(#rg)" stroke="#d4a843" stroke-width="1.5" stroke-linejoin="round"/>
+
+            <circle cx="120" cy="30"  r="4" fill="#d4a843"/>
+            <circle cx="188" cy="84"  r="4" fill="#d4a843"/>
+            <circle cx="162" cy="172" r="4" fill="#d4a843"/>
+            <circle cx="78"  cy="170" r="4" fill="#d4a843"/>
+            <circle cx="48"  cy="86"  r="4" fill="#d04535"/>
+            <circle cx="120" cy="110" r="2.5" fill="#2a3542"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- BLOCK 2: Статистика за сезон -->
+      <div class="block">
+        <div class="block-head">
+          <span class="block-head-title">Статистика за сезон</span>
+        </div>
+        <div class="stats-body">
+          <div class="s-row">
+            <span class="s-val">12.76</span>
+            <span class="s-lbl">Убийств</span>
+          </div>
+          <div class="s-row">
+            <span class="s-val blue">7.83</span>
+            <span class="s-lbl">Смертей</span>
+          </div>
+          <div class="s-row">
+            <span class="s-val">11.18</span>
+            <span class="s-lbl">Помощи</span>
+          </div>
+
+          <div class="s-divider"></div>
+
+          <div class="s-row">
+            <span class="s-val white">578</span>
+            <span class="s-lbl">Игр сыграно</span>
+          </div>
+          <div class="s-row">
+            <span class="s-val green">54.67%</span>
+            <span class="s-lbl">Доля побед</span>
+          </div>
+          <div class="s-row">
+            <span class="s-val dim">0.0%</span>
+            <span class="s-lbl">Покинутых игр</span>
+          </div>
+          <div class="s-row">
+            <span class="s-val white" style="font-size:14px;">2д 11ч 32м</span>
+            <span class="s-lbl">Времени в игре</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BLOCK 3: Лучшие герои -->
+      <div class="block">
+        <div class="block-head">
+          <span class="block-head-title">Лучшие герои</span>
+          <span class="block-head-link">Показать все →</span>
+        </div>
+        <div class="hero-head">
+          <span>Герой</span>
+          <span>Матчи</span>
+          <span>% Побед</span>
+          <span>KDA</span>
+        </div>
+
+        <div class="h-row">
+          <div class="h-name"><div class="h-ico">🧙</div><span class="h-label">Invoker</span></div>
+          <div class="h-cell"><span class="h-val">34</span></div>
+          <div class="wr-col"><span class="wr-pct mid">55.88%</span><div class="wr-bar"><div class="wr-fill mid" style="width:56%"></div></div></div>
+          <div class="h-cell"><span class="h-kda">7.04</span></div>
+        </div>
+        <div class="h-row">
+          <div class="h-name"><div class="h-ico">⚗️</div><span class="h-label">Alchemist</span></div>
+          <div class="h-cell"><span class="h-val">28</span></div>
+          <div class="wr-col"><span class="wr-pct mid">50.00%</span><div class="wr-bar"><div class="wr-fill mid" style="width:50%"></div></div></div>
+          <div class="h-cell"><span class="h-kda">3.85</span></div>
+        </div>
+        <div class="h-row">
+          <div class="h-name"><div class="h-ico">🪝</div><span class="h-label">Pudge</span></div>
+          <div class="h-cell"><span class="h-val">25</span></div>
+          <div class="wr-col"><span class="wr-pct mid">56.00%</span><div class="wr-bar"><div class="wr-fill mid" style="width:56%"></div></div></div>
+          <div class="h-cell"><span class="h-kda">3.08</span></div>
+        </div>
+        <div class="h-row">
+          <div class="h-name"><div class="h-ico">🚫</div><span class="h-label">Anti-Mage</span></div>
+          <div class="h-cell"><span class="h-val">16</span></div>
+          <div class="wr-col"><span class="wr-pct hi">68.75%</span><div class="wr-bar"><div class="wr-fill hi" style="width:69%"></div></div></div>
+          <div class="h-cell"><span class="h-kda">7.52</span></div>
+        </div>
+        <div class="h-row">
+          <div class="h-name"><div class="h-ico">🩸</div><span class="h-label">Bloodseeker</span></div>
+          <div class="h-cell"><span class="h-val">16</span></div>
+          <div class="wr-col"><span class="wr-pct mid">56.25%</span><div class="wr-bar"><div class="wr-fill mid" style="width:56%"></div></div></div>
+          <div class="h-cell"><span class="h-kda">6.77</span></div>
+        </div>
+        <div class="h-row">
+          <div class="h-name"><div class="h-ico">🗿</div><span class="h-label">Tiny</span></div>
+          <div class="h-cell"><span class="h-val">15</span></div>
+          <div class="wr-col"><span class="wr-pct hi">66.67%</span><div class="wr-bar"><div class="wr-fill hi" style="width:67%"></div></div></div>
+          <div class="h-cell"><span class="h-kda">4.57</span></div>
+        </div>
+        <div class="h-row">
+          <div class="h-name"><div class="h-ico">💜</div><span class="h-label">Spectre</span></div>
+          <div class="h-cell"><span class="h-val">14</span></div>
+          <div class="wr-col"><span class="wr-pct hi">78.57%</span><div class="wr-bar"><div class="wr-fill hi" style="width:79%"></div></div></div>
+          <div class="h-cell"><span class="h-kda">6.28</span></div>
+        </div>
+        <div class="h-row">
+          <div class="h-name"><div class="h-ico">🌙</div><span class="h-label">Luna</span></div>
+          <div class="h-cell"><span class="h-val">13</span></div>
+          <div class="wr-col"><span class="wr-pct mid">53.85%</span><div class="wr-bar"><div class="wr-fill mid" style="width:54%"></div></div></div>
+          <div class="h-cell"><span class="h-kda">4.70</span></div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function switchTab(el) {
+    document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+</script>
+</body>
+</html>

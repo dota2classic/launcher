@@ -1,13 +1,5 @@
 {
   "mcpServers": {
-    "computer-use": {
-      "type": "stdio",
-      "command": "python",
-      "args": [
-        "tools/computer-use-mcp/server.py"
-      ],
-      "env": {}
-    },
     "context-mode": {
       "type": "stdio",
       "command": "cmd",

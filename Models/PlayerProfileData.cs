@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace d2c_launcher.Models;
 
 public record PlayerProfileData(
@@ -10,4 +12,7 @@ public record PlayerProfileData(
     int Rank,
     double AvgKills,
     double AvgDeaths,
-    double AvgAssists);
+    double AvgAssists,
+    double SeasonAbandonRate,
+    double SeasonPlaytimeSeconds,
+    IReadOnlyList<AspectData> Aspects);

@@ -423,21 +423,28 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
             var api = new DotaclassicApiClient(_authHttpClient);
             var summary = await api.PlayerController_playerSummaryAsync(steamId, cancellationToken).ConfigureAwait(false);
             if (summary == null) return null;
-            var stats = summary.SeasonStats;
-            int games = (int)stats.Games_played;
-            int wins = (int)stats.Wins;
-            int losses = (int)stats.Loss;
-            int abandons = (int)stats.Abandons;
-            double avgKills = games > 0 ? stats.Kills / games : 0;
-            double avgDeaths = games > 0 ? stats.Deaths / games : 0;
-            double avgAssists = games > 0 ? stats.Assists / games : 0;
+            var overall = summary.OverallStats;
+            var season = summary.SeasonStats;
+            int wins = (int)overall.Wins;
+            int losses = (int)overall.Loss;
+            int abandons = (int)overall.Abandons;
             var avatarUrl = summary.User?.AvatarSmall ?? summary.User?.Avatar;
+            var aspects = new List<Models.AspectData>();
+            foreach (var a in summary.Aspects)
+                aspects.Add(new Models.AspectData(a.Aspect.ToString(), (int)a.Count));
+
+            int seasonGames = (int)(season.Wins + season.Abandons + season.Loss);
+            double abandonRate = seasonGames > 0 ? season.Abandons / seasonGames : 0;
+
             return new Models.PlayerProfileData(
                 summary.User?.Name ?? steamId,
                 avatarUrl,
                 wins, losses, abandons,
-                (int)stats.Mmr, (int)stats.Rank,
-                avgKills, avgDeaths, avgAssists);
+                (int)season.Mmr, (int)season.Rank,
+                season.Kills, season.Deaths, season.Assists,
+                abandonRate,
+                season.Playtime,
+                aspects);
         }
         catch (Exception ex)
         {
@@ -459,7 +466,7 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
                 if (h == null || string.IsNullOrWhiteSpace(h.Hero)) continue;
                 int games = (int)h.Games;
                 double winRate = games > 0 ? h.Wins / games * 100.0 : 0;
-                result.Add(new Models.HeroProfileData(FormatHeroName(h.Hero), games, winRate, h.Kda));
+                result.Add(new Models.HeroProfileData(h.Hero, games, winRate, h.Kda));
             }
             return result;
         }

@@ -10,17 +10,13 @@
              x:DataType="vm:ChatViewModel">
 
 
-    <Border Background="#0e1012" BorderBrush="#1e2530" BorderThickness="1">
-        <Grid RowDefinitions="34,*,Auto">
+    <Border Classes="Block">
+        <Grid RowDefinitions="36,*,Auto">
 
             <!-- Header -->
-            <Border Grid.Row="0" Background="#0a0d10"
-                    BorderBrush="#1e2530" BorderThickness="0,0,0,1"
-                    Padding="14,0">
+            <Border Grid.Row="0" Classes="BlockHead">
                 <Grid ColumnDefinitions="*,Auto">
-                    <TextBlock Text="ЧАТ"
-                               FontSize="{DynamicResource FontSizeXS}" FontWeight="SemiBold" LetterSpacing="2"
-                               Foreground="#D9D9D9" VerticalAlignment="Center"/>
+                    <TextBlock Classes="BlockTitle" Text="ЧАТ"/>
                 </Grid>
             </Border>
 

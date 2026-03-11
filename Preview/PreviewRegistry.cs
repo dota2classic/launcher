@@ -18,6 +18,13 @@ public static class PreviewRegistry
     private static readonly Dictionary<string, Func<(Control View, object? ViewModel)>> Registry =
         new(StringComparer.OrdinalIgnoreCase)
         {
+            ["ProfilePanel"] = () =>
+            {
+                var api = new StubBackendApiService();
+                var vm = new ProfileViewModel(api);
+                _ = vm.LoadAsync("76561198000000001");
+                return (new ProfilePanel { Width = 900, Height = 600 }, vm);
+            },
             ["PartyPanel"] = () =>
             {
                 var stub = new StubQueueSocketService();

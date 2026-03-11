@@ -12,15 +12,12 @@
       <util:BoolToRestrictedOpacityConverter x:Key="BoolToRestrictedOpacityConverter"/>
   </UserControl.Resources>
 
-  <Border CornerRadius="0" Background="#121315" BorderBrush="#2d3842"
-          BorderThickness="1" ClipToBounds="True">
+  <Border Classes="Block" ClipToBounds="True">
       <StackPanel>
           <!-- Header -->
-          <Border Background="#0A0B0D" Padding="12,0" MinHeight="34"
-                  BorderBrush="#1e2530" BorderThickness="0,0,0,1">
+          <Border Classes="BlockHead">
               <Grid>
-                  <TextBlock Text="ПОИСК ИГРЫ" Foreground="#D9D9D9" FontWeight="SemiBold" FontSize="{DynamicResource FontSizeXS}"
-                             LetterSpacing="2" VerticalAlignment="Center"/>
+                  <TextBlock Classes="BlockTitle" Text="ПОИСК ИГРЫ"/>
                   <TextBlock Text="{Binding OnlineStatsText}" HorizontalAlignment="Right"
                              Foreground="#888888" FontWeight="Normal" FontSize="{DynamicResource FontSizeXS}"
                              LetterSpacing="1" VerticalAlignment="Center"/>

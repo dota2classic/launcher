@@ -69,7 +69,7 @@ public class LauncherSettings
     [System.Text.Json.Serialization.JsonIgnore]
     public int UiScale
     {
-        get => UiScaleRaw ?? 1;
+        get => UiScaleRaw ?? 3;
         set => UiScaleRaw = value;
     }
 }
