@@ -82,9 +82,14 @@ public partial class PartyViewModel : ViewModelBase, IDisposable
         try
         {
             var partySnapshot = await _backendApiService.GetMyPartySnapshotAsync();
-            PartyMembers.Clear();
-            foreach (var m in partySnapshot.Members)
-                PartyMembers.Add(m);
+            var newIds = partySnapshot.Members.Select(m => m.SteamId).ToList();
+            var oldIds = PartyMembers.Select(m => m.SteamId).ToList();
+            if (!newIds.SequenceEqual(oldIds))
+            {
+                PartyMembers.Clear();
+                foreach (var m in partySnapshot.Members)
+                    PartyMembers.Add(m);
+            }
 
             // Notify parent to update queue timer and restrictions
             EnterQueueAtChanged?.Invoke(partySnapshot.EnterQueueAt);
