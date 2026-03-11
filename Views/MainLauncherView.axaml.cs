@@ -90,16 +90,10 @@ public partial class MainLauncherView : UserControl
             vm.CloseSettings();
     }
 
-    private void OnCloseSettingsModal(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        if (DataContext is MainLauncherViewModel vm && vm.IsSettingsOpen)
-            vm.NavigateTo(LauncherTab.Settings);
-    }
-
     private void OnSettingsOverlayBackdropPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
     {
-        if (DataContext is MainLauncherViewModel vm && e.Source == sender && vm.IsSettingsOpen)
-            vm.NavigateTo(LauncherTab.Settings);
+        if (DataContext is MainLauncherViewModel vm && e.Source == sender)
+            vm.CloseSettings();
     }
 
     private void OnSettingsModalPointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)

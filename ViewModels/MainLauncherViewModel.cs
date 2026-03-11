@@ -13,7 +13,7 @@ using d2c_launcher.Util;
 
 namespace d2c_launcher.ViewModels;
 
-public enum LauncherTab { Play, Live, Settings, Profile }
+public enum LauncherTab { Play, Live, Profile }
 
 public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 {
@@ -56,11 +56,10 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
     public bool IsPlayTabActive => ActiveTab == LauncherTab.Play;
     public bool IsLiveTabActive => ActiveTab == LauncherTab.Live;
-    public bool IsSettingsTabActive => _isSettingsOpen;
     public bool IsProfileTabActive => ActiveTab == LauncherTab.Profile;
 
+    [ObservableProperty]
     private bool _isSettingsOpen;
-    public bool IsSettingsOpen => _isSettingsOpen;
 
     [ObservableProperty]
     private bool _isIntroOpen;
@@ -219,37 +218,30 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     {
         OnPropertyChanged(nameof(IsPlayTabActive));
         OnPropertyChanged(nameof(IsLiveTabActive));
-        OnPropertyChanged(nameof(IsSettingsTabActive));
         OnPropertyChanged(nameof(IsProfileTabActive));
     }
 
     // ── Tab navigation ────────────────────────────────────────────────────────
 
-    public void NavigateTo(LauncherTab tab)
+    public void NavigateTo(LauncherTab tab) => ActiveTab = tab;
+
+    public void ToggleSettings()
     {
-        if (tab == LauncherTab.Settings)
+        IsSettingsOpen = !IsSettingsOpen;
+        if (IsSettingsOpen)
         {
-            _isSettingsOpen = !_isSettingsOpen;
-            if (_isSettingsOpen)
+            var gameDir = Launch.GameDirectory;
+            if (!string.IsNullOrWhiteSpace(gameDir))
             {
-                var gameDir = Launch.GameDirectory;
-                if (!string.IsNullOrWhiteSpace(gameDir))
-                {
-                    _videoProvider.LoadFromVideoTxt(gameDir);
-                    Settings.RefreshFromVideoProvider();
-                }
-                _ = Settings.LoadDlcPackagesAsync();
+                _videoProvider.LoadFromVideoTxt(gameDir);
+                Settings.RefreshFromVideoProvider();
             }
-            OnPropertyChanged(nameof(IsSettingsTabActive));
-            OnPropertyChanged(nameof(IsSettingsOpen));
-            return;
+            _ = Settings.LoadDlcPackagesAsync();
         }
-        ActiveTab = tab;
     }
 
-    // ── Legacy compat (used by SettingsPanel close event) ─────────────────────
-    public void OpenSettings() => NavigateTo(LauncherTab.Settings);
-    public void CloseSettings() => NavigateTo(LauncherTab.Settings);
+    public void OpenSettings() => IsSettingsOpen = true;
+    public void CloseSettings() => IsSettingsOpen = false;
     public void CloseProfile() => NavigateTo(LauncherTab.Play);
 
     public void OpenProfile()

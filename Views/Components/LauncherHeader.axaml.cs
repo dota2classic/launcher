@@ -25,7 +25,7 @@ public partial class LauncherHeader : UserControl
     private void OnSettingsTabClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         if (DataContext is MainLauncherViewModel vm)
-            vm.NavigateTo(LauncherTab.Settings);
+            vm.ToggleSettings();
     }
 
     private void OnProfileTabClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

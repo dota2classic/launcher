@@ -152,7 +152,7 @@
         <Button x:Name="SettingsButton" VerticalAlignment="Stretch" Padding="10,8"
                 Background="Transparent" BorderThickness="0" CornerRadius="0"
                 Cursor="Hand" Click="OnSettingsTabClicked"
-                Classes.active="{Binding IsSettingsTabActive}">
+                Classes.active="{Binding IsSettingsOpen}">
           <materialIcons:MaterialIcon Kind="Cog" Width="20" Height="20"/>
         </Button>
         <Button x:Name="ProfileButton" VerticalAlignment="Stretch" Padding="10,8"

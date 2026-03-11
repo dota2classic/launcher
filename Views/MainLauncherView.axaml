@@ -65,7 +65,7 @@
            </Grid>
 
            <!-- Settings modal -->
-           <Panel IsVisible="{Binding IsSettingsTabActive}" ZIndex="100"
+           <Panel IsVisible="{Binding IsSettingsOpen}" ZIndex="100"
                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#80000000"
                   PointerPressed="OnSettingsOverlayBackdropPressed">
                <Border HorizontalAlignment="Center" VerticalAlignment="Center"
