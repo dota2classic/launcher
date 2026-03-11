@@ -38,6 +38,9 @@
       <Setter Property="Fill" Value="#4a7eff"/>
     </Style>
     <!-- Settings button -->
+    <Style Selector="Button#SettingsButton materialIcons|MaterialIcon">
+      <Setter Property="Foreground" Value="#4a5668"/>
+    </Style>
     <Style Selector="Button#SettingsButton /template/ ContentPresenter">
       <Setter Property="Background" Value="Transparent"/>
     </Style>
@@ -52,7 +55,7 @@
     </Style>
   </UserControl.Styles>
 
-  <Border BorderBrush="#1e2530" BorderThickness="0,0,0,1">
+  <Border BorderBrush="#1e2530" BorderThickness="0">
     <Grid ColumnDefinitions="Auto,*,Auto" Margin="12,0,12,0">
 
       <!-- Left: navigation tabs -->
@@ -100,7 +103,7 @@
                 Background="Transparent" BorderThickness="0" CornerRadius="0"
                 Cursor="Hand" Click="OnSettingsTabClicked"
                 Classes.active="{Binding IsSettingsTabActive}">
-          <materialIcons:MaterialIcon Kind="Cog" Width="20" Height="20" Foreground="#4a5668"/>
+          <materialIcons:MaterialIcon Kind="Cog" Width="20" Height="20"/>
         </Button>
         <Button x:Name="ProfileButton" VerticalAlignment="Stretch" Padding="10,8"
                 Background="Transparent" BorderThickness="0" CornerRadius="0"

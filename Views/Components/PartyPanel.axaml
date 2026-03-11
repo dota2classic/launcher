@@ -11,6 +11,23 @@
    <UserControl.Resources>
        <util:BanBorderBrushConverter x:Key="BanBorderBrushConverter"/>
    </UserControl.Resources>
+   <UserControl.Styles>
+     <Style Selector="Button#InviteButton /template/ ContentPresenter">
+       <Setter Property="Background" Value="Transparent"/>
+     </Style>
+     <Style Selector="Button#InviteButton:pointerover /template/ ContentPresenter">
+       <Setter Property="Background" Value="Transparent"/>
+     </Style>
+     <Style Selector="Button#InviteButton materialIcons|MaterialIcon">
+       <Setter Property="Foreground" Value="#666666"/>
+     </Style>
+     <Style Selector="Button#InviteButton:pointerover materialIcons|MaterialIcon">
+       <Setter Property="Foreground" Value="#b0bac6"/>
+     </Style>
+     <Style Selector="Button#InviteButton:pointerover Border">
+       <Setter Property="BorderBrush" Value="#4a5668"/>
+     </Style>
+   </UserControl.Styles>
 
    <Border Classes="Block" Margin="0,0,0,12">
        <StackPanel>
@@ -60,7 +77,8 @@
                        </DataTemplate>
                    </ItemsControl.ItemTemplate>
                </ItemsControl>
-               <Button IsVisible="{Binding CanInviteToParty}"
+               <Button x:Name="InviteButton"
+                       IsVisible="{Binding CanInviteToParty}"
                        Padding="0"
                        Background="Transparent" BorderThickness="0"
                        Cursor="Hand"
@@ -68,7 +86,6 @@
                    <Border BorderThickness="2" BorderBrush="#2D2922" Padding="0">
                        <Border Width="40" Height="40" Background="#1c2024">
                            <materialIcons:MaterialIcon Kind="Plus" Width="20" Height="20"
-                                                       Foreground="#666666"
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"/>
                        </Border>
