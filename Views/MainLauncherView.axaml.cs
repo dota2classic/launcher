@@ -15,6 +15,9 @@ public partial class MainLauncherView : UserControl
         // Handle routed events from the SettingsPanel component
         AddHandler(SettingsPanel.SelectDirectoryRequestedEvent, OnSelectDotaExeClicked);
         AddHandler(SettingsPanel.CloseRequestedEvent, OnCloseSettingsClicked);
+
+        // Handle close from invite modal's ModalHeader
+        InviteModalPanel.AddHandler(ModalHeader.CloseRequestedEvent, OnCloseInviteModal);
     }
 
     protected override void OnDataContextChanged(EventArgs e)
@@ -48,7 +51,7 @@ public partial class MainLauncherView : UserControl
         {
             // Steps 1 (play tab) and 2 (settings tab) now highlight the tab buttons in the header
             1 => LauncherHeaderControl.FindControl<Button>("PlayTabButton"),
-            2 => LauncherHeaderControl.FindControl<Button>("SettingsTabButton"),
+            2 => LauncherHeaderControl.FindControl<Button>("SettingsButton"),
             3 or 4 => GameSearchPanelControl,
             _ => null
         };
@@ -75,6 +78,23 @@ public partial class MainLauncherView : UserControl
     {
         if (DataContext is MainLauncherViewModel vm)
             vm.CloseSettings();
+    }
+
+    private void OnCloseSettingsModal(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is MainLauncherViewModel vm && vm.IsSettingsOpen)
+            vm.NavigateTo(LauncherTab.Settings);
+    }
+
+    private void OnSettingsOverlayBackdropPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
+    {
+        if (DataContext is MainLauncherViewModel vm && e.Source == sender && vm.IsSettingsOpen)
+            vm.NavigateTo(LauncherTab.Settings);
+    }
+
+    private void OnSettingsModalPointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
+    {
+        e.Handled = true;
     }
 
     private void OnInvitePlayerClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)

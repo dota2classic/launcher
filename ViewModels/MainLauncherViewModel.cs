@@ -55,11 +55,11 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     private LauncherTab _activeTab = LauncherTab.Play;
 
     public bool IsPlayTabActive => ActiveTab == LauncherTab.Play;
-    public bool IsSettingsTabActive => ActiveTab == LauncherTab.Settings;
+    public bool IsSettingsTabActive => _isSettingsOpen;
     public bool IsProfileTabActive => ActiveTab == LauncherTab.Profile;
 
-    // Legacy compat for overlay logic
-    public bool IsSettingsOpen => false;
+    private bool _isSettingsOpen;
+    public bool IsSettingsOpen => _isSettingsOpen;
 
     [ObservableProperty]
     private bool _isIntroOpen;
@@ -226,12 +226,20 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     {
         if (tab == LauncherTab.Settings)
         {
-            var gameDir = Launch.GameDirectory;
-            if (!string.IsNullOrWhiteSpace(gameDir))
+            _isSettingsOpen = !_isSettingsOpen;
+            if (_isSettingsOpen)
             {
-                _videoProvider.LoadFromVideoTxt(gameDir);
-                Settings.RefreshFromVideoProvider();
+                var gameDir = Launch.GameDirectory;
+                if (!string.IsNullOrWhiteSpace(gameDir))
+                {
+                    _videoProvider.LoadFromVideoTxt(gameDir);
+                    Settings.RefreshFromVideoProvider();
+                }
+                _ = Settings.LoadDlcPackagesAsync();
             }
+            OnPropertyChanged(nameof(IsSettingsTabActive));
+            OnPropertyChanged(nameof(IsSettingsOpen));
+            return;
         }
         else if (tab == LauncherTab.Profile && CurrentUser != null)
         {

@@ -47,14 +47,6 @@
                    </Grid>
                </Grid>
 
-               <!-- SETTINGS tab content -->
-               <ScrollViewer Grid.Row="1" Margin="20,8,20,10"
-                             IsVisible="{Binding IsSettingsTabActive}"
-                             HorizontalScrollBarVisibility="Disabled">
-                   <components:SettingsPanel x:Name="SettingsPanelControl"
-                                             DataContext="{Binding Settings}"/>
-               </ScrollViewer>
-
                <!-- PROFILE tab content -->
                <Grid Grid.Row="1" Margin="20,8,20,10"
                      IsVisible="{Binding IsProfileTabActive}">
@@ -63,6 +55,22 @@
 
                <Grid Grid.Row="2" Margin="20,0,20,20"/>
            </Grid>
+
+           <!-- Settings modal -->
+           <Panel IsVisible="{Binding IsSettingsTabActive}" ZIndex="100"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#80000000"
+                  PointerPressed="OnSettingsOverlayBackdropPressed">
+               <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+                       PointerPressed="OnSettingsModalPointerPressed"
+                       Padding="0" CornerRadius="0"
+                       Background="#121315" BorderBrush="#2d3842" BorderThickness="1"
+                       BoxShadow="0 12 28 0 #80000000" MaxHeight="700">
+                   <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                       <components:SettingsPanel x:Name="SettingsPanelControl"
+                                                 DataContext="{Binding Settings}"/>
+                   </ScrollViewer>
+               </Border>
+           </Panel>
 
            <!-- Room ready-check modal -->
            <components:AcceptGameModal DataContext="{Binding Room}"/>
@@ -74,7 +82,8 @@
                                         Margin="0,12,20,0"/>
 
            <!-- Invite player overlay -->
-           <Panel IsVisible="{Binding Party.IsInviteModalOpen}" ZIndex="100"
+           <Panel x:Name="InviteModalPanel"
+                  IsVisible="{Binding Party.IsInviteModalOpen}" ZIndex="100"
                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#80000000"
                   PointerPressed="OnInviteOverlayBackdropPressed">
                <Border HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -84,18 +93,7 @@
                        BoxShadow="0 12 28 0 #80000000" Width="300">
                    <StackPanel>
                        <!-- Header -->
-                       <Border Background="#0A0B0D" Padding="18,10">
-                           <Grid ColumnDefinitions="*,Auto">
-                               <TextBlock Text="Выбрать игрока"
-                                          FontSize="{DynamicResource FontSizeXL}" FontWeight="SemiBold" Foreground="#D9D9D9"
-                                          VerticalAlignment="Center"/>
-                               <Button Grid.Column="1" Click="OnCloseInviteModal"
-                                       Background="Transparent" BorderThickness="0"
-                                       Padding="2,0" Cursor="Hand" VerticalAlignment="Center">
-                                   <TextBlock Text="✕" FontSize="{DynamicResource FontSizeXL}" Foreground="#AAAAAA" VerticalAlignment="Center"/>
-                               </Button>
-                           </Grid>
-                       </Border>
+                       <components:ModalHeader Title="ВЫБРАТЬ ИГРОКА"/>
                        <StackPanel Spacing="12" Margin="18,12,18,18">
                            <TextBox Text="{Binding Party.InviteSearchText}" Watermark="Никнейм игрока"/>
                            <Border Background="#0c0c0c" BorderBrush="#2d3842" BorderThickness="1" Height="300">

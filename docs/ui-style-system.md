@@ -115,6 +115,56 @@ Everything in panels, stats, names, tabs, and tables uses the default `NotoSans`
 
 ---
 
+## Modal Header
+
+All overlay modals use the shared `ModalHeader` component (`Views/Components/ModalHeader.axaml`) for their title bar. Do **not** hand-roll modal headers.
+
+### Visual tokens
+
+| Property | Value |
+|----------|-------|
+| Background | `#0c0f13` |
+| Bottom border | `#222830` / 1px |
+| Height | `48px` |
+| Title font size | `FontSizeBase` (12) |
+| Title weight | `Bold` |
+| Title letter-spacing | `3` |
+| Title foreground | `#d9dde0` |
+| Title casing | ALL CAPS |
+| Close `✕` font size | `FontSizeLG` (14) |
+| Close `✕` foreground | `#606870` |
+
+### Usage
+
+```xml
+<components:ModalHeader Title="МОЙ МОДАЛ"/>
+```
+
+The component raises `ModalHeader.CloseRequestedEvent` (bubbling) when the user clicks `✕`. Wire it up in the nearest parent that owns the close logic:
+
+```csharp
+// In constructor or InitializeComponent post-init:
+InviteModalPanel.AddHandler(ModalHeader.CloseRequestedEvent, OnCloseInviteModal);
+```
+
+Or, if a wrapper component (like `SettingsPanel`) intercepts and re-raises its own event:
+
+```csharp
+AddHandler(ModalHeader.CloseRequestedEvent, (s, e) => {
+    e.Handled = true;
+    RaiseEvent(new RoutedEventArgs(CloseRequestedEvent, this));
+});
+```
+
+### Current usages
+
+| Modal | Title | File |
+|-------|-------|------|
+| Настройки | `НАСТРОЙКИ` | `Views/Components/SettingsPanel.axaml` |
+| Пригласить игрока | `ВЫБРАТЬ ИГРОКА` | `Views/MainLauncherView.axaml` |
+
+---
+
 ## Sub-tab Bar (Profile page)
 
 Scoped to `ProfilePanel.axaml` — not global.

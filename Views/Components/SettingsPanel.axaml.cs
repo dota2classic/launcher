@@ -36,15 +36,17 @@ public partial class SettingsPanel : UserControl
     public SettingsPanel()
     {
         InitializeComponent();
+        AddHandler(ModalHeader.CloseRequestedEvent, OnModalHeaderCloseRequested);
+    }
+
+    private void OnModalHeaderCloseRequested(object? sender, RoutedEventArgs e)
+    {
+        e.Handled = true;
+        RaiseEvent(new RoutedEventArgs(CloseRequestedEvent, this));
     }
 
     private void OnSelectDirectoryClicked(object? sender, RoutedEventArgs e)
     {
         RaiseEvent(new RoutedEventArgs(SelectDirectoryRequestedEvent, this));
-    }
-
-    private void OnCloseClicked(object? sender, RoutedEventArgs e)
-    {
-        RaiseEvent(new RoutedEventArgs(CloseRequestedEvent, this));
     }
 }

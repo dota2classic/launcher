@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:d2c_launcher.ViewModels"
+             xmlns:components="using:d2c_launcher.Views.Components"
              x:Class="d2c_launcher.Views.Components.SettingsPanel"
              x:DataType="vm:SettingsViewModel">
 
@@ -162,18 +163,7 @@
         <Grid RowDefinitions="48,Auto,*">
 
             <!-- ═══ Header ═══ -->
-            <Border Grid.Row="0" Background="#0c0f13" BorderBrush="#222830" BorderThickness="0,0,0,1">
-                <Grid ColumnDefinitions="*,Auto" Margin="18,0">
-                    <TextBlock Text="НАСТРОЙКИ"
-                               FontSize="{DynamicResource FontSizeBase}" FontWeight="Bold" LetterSpacing="3"
-                               Foreground="#d9dde0" VerticalAlignment="Center"/>
-                    <Button Grid.Column="1" Click="OnCloseClicked"
-                            Background="Transparent" BorderThickness="0"
-                            Padding="4,0" Cursor="Hand" VerticalAlignment="Center">
-                        <TextBlock Text="✕" FontSize="{DynamicResource FontSizeLG}" Foreground="#606870" VerticalAlignment="Center"/>
-                    </Button>
-                </Grid>
-            </Border>
+            <components:ModalHeader Grid.Row="0" Title="НАСТРОЙКИ"/>
 
             <!-- ═══ Directory block ═══ -->
             <StackPanel Grid.Row="1" Spacing="8" Margin="18,14,18,0">
