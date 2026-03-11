@@ -61,7 +61,8 @@ public sealed class QueueSocketService : IQueueSocketService
             ConnectionTimeout = TimeSpan.FromSeconds(10),
             Auth = new Dictionary<string, string>
             {
-                ["token"] = token
+                ["token"] = token,
+                ["clientType"] = "launcher"
             }
         };
 
