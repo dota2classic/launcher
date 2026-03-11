@@ -96,7 +96,22 @@ Defined as `x:Double` resources in `App.axaml` and referenced via `{DynamicResou
 | Key | Usage |
 |-----|-------|
 | `NotoSans` | Default UI font (set globally on all `TextBlock` and `TemplatedControl`) |
-| `TrajanPro3` | Dota-style display font — used for player names, stat values, profile headings |
+| `TrajanPro3` | Reserved for single full-screen "hero" titles only — the big centered word or phrase on loading/download/setup screens (e.g. "DOTACLASSIC" on `GameDownloadView`, `LoadingView`, `SelectGameView`, `LaunchSteamFirstView`). Minimum font size ~22px, one prominent text element per screen. |
+
+### TrajanPro3 — when to use vs. when not to use
+
+**Use TrajanPro3:**
+- One large display title on a full-screen transition view (loading, game download, select game, Steam offline)
+- The text must be the visual focal point of the entire screen, not one item among many
+
+**Do NOT use TrajanPro3:**
+- Stat values or labels inside panels (MMR, win rate, KDA, kills, etc.)
+- Player names or avatar initials
+- Sub-tab labels or navigation text
+- Table headers or column labels
+- Any context where multiple text elements share the same visual weight
+
+Everything in panels, stats, names, tabs, and tables uses the default `NotoSans`.
 
 ---
 
@@ -108,5 +123,5 @@ Scoped to `ProfilePanel.axaml` — not global.
 |-------|---------|-------|
 | `SubTab` | `Border` | Tab item container, `Hand` cursor |
 | `SubTabActive` | `Border` | Adds `#D4A843` bottom underline |
-| `SubTabText` | `TextBlock` | Muted label (`#556070`, TrajanPro3) |
+| `SubTabText` | `TextBlock` | Muted label (`#556070`, NotoSans) |
 | `SubTabTextActive` | `TextBlock` | Active label color (`#D4A843`) |
