@@ -249,7 +249,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
     // ── Legacy compat (used by SettingsPanel close event) ─────────────────────
     public void OpenSettings() => NavigateTo(LauncherTab.Settings);
-    public void CloseSettings() => NavigateTo(LauncherTab.Play);
+    public void CloseSettings() => NavigateTo(LauncherTab.Settings);
     public void CloseProfile() => NavigateTo(LauncherTab.Play);
 
     public void OpenProfile()
