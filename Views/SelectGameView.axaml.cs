@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
-using d2c_launcher.Services;
+using d2c_launcher.Util;
 using d2c_launcher.ViewModels;
 
 namespace d2c_launcher.Views;
@@ -69,30 +69,12 @@ public partial class SelectGameView : UserControl
         if (topLevel?.StorageProvider == null || DataContext is not SelectGameViewModel vm)
             return;
 
-        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        var (dir, error) = await DotaExePicker.PickAsync(topLevel);
+
+        if (dir == null)
         {
-            Title = "Выберите dota.exe",
-            AllowMultiple = false,
-            FileTypeFilter = new[]
-            {
-                new FilePickerFileType("dota.exe") { Patterns = new[] { "dota.exe" } }
-            }
-        });
-
-        if (files.Count == 0)
-            return;
-
-        var exePath = files[0].TryGetLocalPath();
-        if (string.IsNullOrEmpty(exePath))
-            return;
-
-        var dir = Path.GetDirectoryName(exePath);
-        if (string.IsNullOrEmpty(dir))
-            return;
-
-        if (!GameDirectoryValidator.IsAcceptable(dir, out var validationError))
-        {
-            vm.InstalledPathError = validationError;
+            if (error != null)
+                vm.InstalledPathError = error;
             return;
         }
 

@@ -1,6 +1,8 @@
 using System;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.VisualTree;
+using d2c_launcher.Util;
 using d2c_launcher.ViewModels;
 using d2c_launcher.Views.Components;
 
@@ -68,10 +70,18 @@ public partial class MainLauncherView : UserControl
             : default;
     }
 
-    private void OnSelectDotaExeClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private async void OnSelectDotaExeClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        if (DataContext is MainLauncherViewModel vm)
-            vm.RequestGameDirectoryChange?.Invoke();
+        if (DataContext is not MainLauncherViewModel vm)
+            return;
+
+        var topLevel = this.GetVisualRoot() as TopLevel;
+        if (topLevel?.StorageProvider == null)
+            return;
+
+        var (dir, _) = await DotaExePicker.PickAsync(topLevel);
+        if (dir != null)
+            vm.SetGameDirectory(dir);
     }
 
     private void OnCloseSettingsClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
