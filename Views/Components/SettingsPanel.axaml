@@ -1,7 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:d2c_launcher.ViewModels"
-             xmlns:components="using:d2c_launcher.Views.Components"
              x:Class="d2c_launcher.Views.Components.SettingsPanel"
              x:DataType="vm:SettingsViewModel">
 
@@ -112,15 +111,11 @@
 
     </UserControl.Styles>
 
-    <!-- Fixed size modal card -->
-    <Grid Width="460" Height="580">
-        <Grid RowDefinitions="48,Auto,*">
-
-            <!-- ═══ Header ═══ -->
-            <components:ModalHeader Grid.Row="0" Title="НАСТРОЙКИ"/>
+    <Grid>
+        <Grid RowDefinitions="Auto,*">
 
             <!-- ═══ Directory block ═══ -->
-            <StackPanel Grid.Row="1" Spacing="8" Margin="18,14,18,0">
+            <StackPanel Grid.Row="0" Spacing="8" Margin="18,14,18,0">
                 <TextBlock Text="ДИРЕКТОРИЯ ИГРЫ" Classes="section-label"/>
 
                 <!-- Path row: folder icon + path + Изменить -->
@@ -148,7 +143,7 @@
             </StackPanel>
 
             <!-- ═══ Tabs ═══ -->
-            <TabControl Grid.Row="2" Margin="18,10,18,0">
+            <TabControl Grid.Row="1" Margin="18,10,18,0">
 
                 <!-- ─── Tab 1: Визуальные ─── -->
                 <TabItem Header="ВИЗУАЛЬНЫЕ">

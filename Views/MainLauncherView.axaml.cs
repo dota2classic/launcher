@@ -10,31 +10,35 @@ namespace d2c_launcher.Views;
 
 public partial class MainLauncherView : UserControl
 {
+    private System.ComponentModel.PropertyChangedEventHandler? _vmPropertyChangedHandler;
+
     public MainLauncherView()
     {
         InitializeComponent();
 
         // Handle routed events from the SettingsPanel component
         AddHandler(SettingsPanel.SelectDirectoryRequestedEvent, OnSelectDotaExeClicked);
-        AddHandler(SettingsPanel.CloseRequestedEvent, OnCloseSettingsClicked);
-
-        // Handle close from invite modal's ModalHeader
-        InviteModalPanel.AddHandler(ModalHeader.CloseRequestedEvent, OnCloseInviteModal);
     }
 
     protected override void OnDataContextChanged(EventArgs e)
     {
         base.OnDataContextChanged(e);
 
+        if (_vmPropertyChangedHandler != null && DataContext is MainLauncherViewModel oldVm)
+            oldVm.PropertyChanged -= _vmPropertyChangedHandler;
+
+        _vmPropertyChangedHandler = null;
+
         if (DataContext is MainLauncherViewModel vm)
         {
-            vm.Settings.RefreshGameDirectory();
-            vm.PropertyChanged += (_, args) =>
+            _vmPropertyChangedHandler = (_, args) =>
             {
                 if (args.PropertyName is nameof(MainLauncherViewModel.IntroStep)
                                       or nameof(MainLauncherViewModel.IsIntroOpen))
                     UpdateSpotlight();
             };
+            vm.PropertyChanged += _vmPropertyChangedHandler;
+            vm.Settings.RefreshGameDirectory();
             LayoutUpdated += OnFirstLayoutForSpotlight;
         }
     }
@@ -79,26 +83,16 @@ public partial class MainLauncherView : UserControl
         if (topLevel?.StorageProvider == null)
             return;
 
-        var (dir, _) = await DotaExePicker.PickAsync(topLevel);
-        if (dir != null)
-            vm.SetGameDirectory(dir);
-    }
-
-    private void OnCloseSettingsClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        if (DataContext is MainLauncherViewModel vm)
-            vm.CloseSettings();
-    }
-
-    private void OnSettingsOverlayBackdropPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
-    {
-        if (DataContext is MainLauncherViewModel vm && e.Source == sender)
-            vm.CloseSettings();
-    }
-
-    private void OnSettingsModalPointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
-    {
-        e.Handled = true;
+        try
+        {
+            var (dir, _) = await DotaExePicker.PickAsync(topLevel);
+            if (dir != null)
+                vm.SetGameDirectory(dir);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("Ошибка выбора директории игры", ex);
+        }
     }
 
     private void OnInvitePlayerClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -107,27 +101,19 @@ public partial class MainLauncherView : UserControl
             vm.OpenInviteModal();
     }
 
-    private void OnCloseInviteModal(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        if (DataContext is MainLauncherViewModel vm)
-            vm.CloseInviteModal();
-    }
-
-    private void OnInviteOverlayBackdropPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
-    {
-        if (DataContext is MainLauncherViewModel vm && e.Source == sender)
-            vm.CloseInviteModal();
-    }
-
-    private void OnInviteModalPointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
-    {
-        e.Handled = true;
-    }
-
     private async void OnSearchGameClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
-        if (DataContext is MainLauncherViewModel vm)
+        if (DataContext is not MainLauncherViewModel vm)
+            return;
+
+        try
+        {
             await vm.ToggleSearchAsync();
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("Ошибка переключения поиска игры", ex);
+        }
     }
 
     private async void OnInviteCandidateClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
@@ -141,7 +127,14 @@ public partial class MainLauncherView : UserControl
         if (button.DataContext is not d2c_launcher.Models.InviteCandidateView candidate)
             return;
 
-        await vm.InvitePlayerAsync(candidate.SteamId);
-        vm.CloseInviteModal();
+        try
+        {
+            await vm.InvitePlayerAsync(candidate.SteamId);
+            vm.CloseInviteModal();
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("Ошибка приглашения игрока", ex);
+        }
     }
 }

@@ -242,6 +242,9 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
     public void OpenSettings() => IsSettingsOpen = true;
     public void CloseSettings() => IsSettingsOpen = false;
+
+    [RelayCommand]
+    private void CloseSettingsRelay() => CloseSettings();
     public void CloseProfile() => NavigateTo(LauncherTab.Play);
 
     public void OpenProfile()

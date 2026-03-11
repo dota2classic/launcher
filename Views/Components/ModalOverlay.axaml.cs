@@ -15,6 +15,9 @@ public partial class ModalOverlay : UserControl
     public static readonly StyledProperty<ICommand?> CloseCommandProperty =
         AvaloniaProperty.Register<ModalOverlay, ICommand?>(nameof(CloseCommand));
 
+    public static readonly StyledProperty<object?> ModalContentProperty =
+        AvaloniaProperty.Register<ModalOverlay, object?>(nameof(ModalContent));
+
     public bool IsOpen
     {
         get => GetValue(IsOpenProperty);
@@ -33,6 +36,12 @@ public partial class ModalOverlay : UserControl
         set => SetValue(CloseCommandProperty, value);
     }
 
+    public object? ModalContent
+    {
+        get => GetValue(ModalContentProperty);
+        set => SetValue(ModalContentProperty, value);
+    }
+
     public ModalOverlay()
     {
         InitializeComponent();
@@ -48,5 +57,11 @@ public partial class ModalOverlay : UserControl
     private void OnDialogPointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
     {
         e.Handled = true;
+    }
+
+    private void OnModalHeaderCloseRequested(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (CloseCommand?.CanExecute(null) == true)
+            CloseCommand.Execute(null);
     }
 }
