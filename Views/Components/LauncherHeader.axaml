@@ -97,8 +97,31 @@
         </StackPanel>
       </Border>
 
-      <!-- Right: settings gear + user avatar -->
+      <!-- Right: launch button + settings gear + user avatar -->
       <StackPanel Grid.Column="2" Orientation="Horizontal">
+        <Button x:Name="LaunchGameButton" VerticalAlignment="Stretch" Margin="0,6,8,6"
+                Padding="20,8" CornerRadius="2" Cursor="Hand"
+                Click="OnLaunchGameClicked"
+                Classes.stop="{Binding Launch.PlayButtonIsStop}"
+                BorderThickness="0">
+          <Button.Styles>
+            <Style Selector="Button#LaunchGameButton">
+              <Setter Property="Background" Value="#1a6b35"/>
+            </Style>
+            <Style Selector="Button#LaunchGameButton:pointerover /template/ ContentPresenter">
+              <Setter Property="Background" Value="#22884a"/>
+            </Style>
+            <Style Selector="Button#LaunchGameButton.stop">
+              <Setter Property="Background" Value="#7b1e1e"/>
+            </Style>
+            <Style Selector="Button#LaunchGameButton.stop:pointerover /template/ ContentPresenter">
+              <Setter Property="Background" Value="#9e2828"/>
+            </Style>
+          </Button.Styles>
+          <TextBlock Text="{Binding Launch.PlayButtonText}"
+                     FontWeight="SemiBold" FontSize="{DynamicResource FontSizeMD}"
+                     Foreground="White" VerticalAlignment="Center"/>
+        </Button>
         <Button x:Name="SettingsButton" VerticalAlignment="Stretch" Padding="10,8"
                 Background="Transparent" BorderThickness="0" CornerRadius="0"
                 Cursor="Hand" Click="OnSettingsTabClicked"

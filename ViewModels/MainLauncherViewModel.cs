@@ -244,19 +244,20 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
             OnPropertyChanged(nameof(IsSettingsOpen));
             return;
         }
-        else if (tab == LauncherTab.Profile && CurrentUser != null)
-        {
-            var steam32 = (CurrentUser.SteamId - 76561197960265728UL).ToString();
-            _ = Profile.LoadAsync(steam32);
-        }
         ActiveTab = tab;
     }
 
     // ── Legacy compat (used by SettingsPanel close event) ─────────────────────
     public void OpenSettings() => NavigateTo(LauncherTab.Settings);
     public void CloseSettings() => NavigateTo(LauncherTab.Play);
-    public void OpenProfile() => NavigateTo(LauncherTab.Profile);
     public void CloseProfile() => NavigateTo(LauncherTab.Play);
+
+    public void OpenProfile()
+    {
+        if (CurrentUser == null) return;
+        var steam32 = (CurrentUser.SteamId - 76561197960265728UL).ToString();
+        OpenPlayerProfile(steam32);
+    }
 
     /// <summary>Navigates to the profile tab and loads the specified player. Receives steam32 ID.</summary>
     public void OpenPlayerProfile(string steam32Id)

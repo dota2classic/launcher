@@ -106,15 +106,12 @@ public sealed class PentagonControl : Control
         var typeface    = new Typeface(new FontFamily("avares://d2c-launcher/Assets/Fonts#Noto Sans"));
         var labelBrush  = new SolidColorBrush(Color.Parse("#48525A"));
         var dotGold     = new SolidColorBrush(Color.Parse("#C8A84B"));
-        var dotRed      = new SolidColorBrush(Color.Parse("#C0402A"));
 
         for (int i = 0; i < n; i++)
         {
             // dot
             var rawName = sorted[i].Name;
-            bool isNegative = !string.IsNullOrEmpty(rawName) &&
-                              AspectMeta.TryGetValue(rawName, out var meta) && meta.IsNegative;
-            ctx.DrawEllipse(isNegative ? dotRed : dotGold, null, dataPts[i], 3.5, 3.5);
+            ctx.DrawEllipse(dotGold, null, dataPts[i], 3.5, 3.5);
 
             // label
             if (string.IsNullOrEmpty(rawName)) continue;

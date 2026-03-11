@@ -54,8 +54,8 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
     public bool IsLaunchEnabled => !IsGameDirectorySet || RunState == GameRunState.None;
 
     public string PlayButtonText => RunState is GameRunState.OurGameRunning or GameRunState.OtherDotaRunning
-        ? "Стоп"
-        : "Играть";
+        ? "Остановить"
+        : "Запустить";
 
     public bool PlayButtonIsStop => RunState is GameRunState.OurGameRunning or GameRunState.OtherDotaRunning;
 

@@ -31,6 +31,17 @@ public partial class LauncherHeader : UserControl
     private void OnProfileTabClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         if (DataContext is MainLauncherViewModel vm)
-            vm.NavigateTo(vm.ActiveTab == LauncherTab.Profile ? LauncherTab.Play : LauncherTab.Profile);
+            vm.OpenProfile();
+    }
+
+    private void OnLaunchGameClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is MainLauncherViewModel vm)
+        {
+            if (vm.Launch.PlayButtonIsStop)
+                vm.Launch.StopGame();
+            else
+                vm.Launch.LaunchGame();
+        }
     }
 }
