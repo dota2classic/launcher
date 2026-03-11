@@ -9,11 +9,19 @@ using Avalonia.Threading;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Labs.Gif;
 using Avalonia.Media;
 using d2c_launcher.Models;
 
 namespace d2c_launcher.Views.Components;
+
+public sealed class PlayerLinkClickedEventArgs : RoutedEventArgs
+{
+    public string Steam32Id { get; }
+    public PlayerLinkClickedEventArgs(RoutedEvent routedEvent, object source, string steam32Id)
+        : base(routedEvent, source) => Steam32Id = steam32Id;
+}
 
 /// <summary>
 /// Renders a list of <see cref="RichSegment"/> items as mixed inline content
@@ -24,9 +32,21 @@ public class RichMessageBlock : UserControl
 {
     private static readonly HttpClient s_http = new();
 
+    public static readonly RoutedEvent<PlayerLinkClickedEventArgs> PlayerLinkClickedEvent =
+        RoutedEvent.Register<RichMessageBlock, PlayerLinkClickedEventArgs>(
+            nameof(PlayerLinkClicked), RoutingStrategies.Bubble);
+
+    public event EventHandler<PlayerLinkClickedEventArgs> PlayerLinkClicked
+    {
+        add => AddHandler(PlayerLinkClickedEvent, value);
+        remove => RemoveHandler(PlayerLinkClickedEvent, value);
+    }
+
     private readonly TextBlock _textBlock;
     // Maps character ranges to URLs for click detection.
     private readonly List<(int Start, int End, string Url)> _urlRanges = new();
+    // Maps character ranges to steam32 IDs for player link click detection.
+    private readonly List<(int Start, int End, string Steam32Id)> _playerLinkRanges = new();
 
     public static readonly StyledProperty<IReadOnlyList<RichSegment>?> SegmentsProperty =
         AvaloniaProperty.Register<RichMessageBlock, IReadOnlyList<RichSegment>?>(nameof(Segments));
@@ -56,11 +76,21 @@ public class RichMessageBlock : UserControl
 
     private void OnTextBlockPointerReleased(object? sender, PointerReleasedEventArgs e)
     {
-        if (_urlRanges.Count == 0) return;
+        if (_urlRanges.Count == 0 && _playerLinkRanges.Count == 0) return;
         var pos = e.GetPosition(_textBlock);
         var hit = _textBlock.TextLayout?.HitTestPoint(pos);
         if (hit == null) return;
         var charPos = hit.Value.TextPosition;
+
+        foreach (var (start, end, steam32Id) in _playerLinkRanges)
+        {
+            if (charPos >= start && charPos < end)
+            {
+                RaiseEvent(new PlayerLinkClickedEventArgs(PlayerLinkClickedEvent, this, steam32Id));
+                return;
+            }
+        }
+
         foreach (var (start, end, url) in _urlRanges)
         {
             if (charPos >= start && charPos < end)
@@ -74,17 +104,24 @@ public class RichMessageBlock : UserControl
 
     private void OnTextBlockPointerMoved(object? sender, PointerEventArgs e)
     {
-        if (_urlRanges.Count == 0) return;
+        if (_urlRanges.Count == 0 && _playerLinkRanges.Count == 0) return;
         var pos = e.GetPosition(_textBlock);
         var hit = _textBlock.TextLayout?.HitTestPoint(pos);
         if (hit == null) return;
         var charPos = hit.Value.TextPosition;
-        var overUrl = false;
-        foreach (var (start, end, _) in _urlRanges)
+        var overLink = false;
+        foreach (var (start, end, _) in _playerLinkRanges)
         {
-            if (charPos >= start && charPos < end) { overUrl = true; break; }
+            if (charPos >= start && charPos < end) { overLink = true; break; }
         }
-        _textBlock.Cursor = new Cursor(overUrl ? StandardCursorType.Hand : StandardCursorType.Arrow);
+        if (!overLink)
+        {
+            foreach (var (start, end, _) in _urlRanges)
+            {
+                if (charPos >= start && charPos < end) { overLink = true; break; }
+            }
+        }
+        _textBlock.Cursor = new Cursor(overLink ? StandardCursorType.Hand : StandardCursorType.Arrow);
     }
 
     private void ApplyFontSize()
@@ -105,6 +142,7 @@ public class RichMessageBlock : UserControl
         _textBlock.Inlines ??= new InlineCollection();
         _textBlock.Inlines.Clear();
         _urlRanges.Clear();
+        _playerLinkRanges.Clear();
 
         var segments = Segments;
         if (segments == null) return;
@@ -156,7 +194,7 @@ public class RichMessageBlock : UserControl
                     {
                         Foreground = new SolidColorBrush(Color.Parse("#3a90d6")),
                     });
-                    _urlRanges.Add((plsStart, plsStart + pls.DisplayName.Length, pls.Url));
+                    _playerLinkRanges.Add((plsStart, plsStart + pls.DisplayName.Length, pls.SteamId));
                     charPos += pls.DisplayName.Length;
                     break;
 

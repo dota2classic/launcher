@@ -47,7 +47,15 @@
                    </Grid>
                </Grid>
 
-               <!-- PROFILE tab content -->
+               <!-- LIVE tab content -->
+              <Grid Grid.Row="1" Margin="20,8,20,10"
+                    IsVisible="{Binding IsLiveTabActive}">
+                  <TextBlock Text="Live — скоро" Foreground="#4a5668"
+                             HorizontalAlignment="Center" VerticalAlignment="Center"
+                             FontSize="{DynamicResource FontSizeMD}"/>
+              </Grid>
+
+              <!-- PROFILE tab content -->
                <Grid Grid.Row="1" Margin="20,8,20,10"
                      IsVisible="{Binding IsProfileTabActive}">
                    <components:ProfilePanel DataContext="{Binding Profile}"/>

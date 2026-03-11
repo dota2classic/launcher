@@ -1,6 +1,8 @@
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Threading;
+using d2c_launcher.Models;
 using d2c_launcher.ViewModels;
 
 namespace d2c_launcher.Views.Components;
@@ -10,6 +12,19 @@ public partial class ChatPanel : UserControl
     public ChatPanel()
     {
         InitializeComponent();
+        AddHandler(RichMessageBlock.PlayerLinkClickedEvent, OnPlayerLinkClicked);
+    }
+
+    private void OnPlayerLinkClicked(object? sender, PlayerLinkClickedEventArgs e)
+    {
+        if (DataContext is ChatViewModel vm)
+            vm.OpenPlayerProfileByIdCommand.Execute(e.Steam32Id);
+    }
+
+    private void OnAuthorClicked(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button { DataContext: ChatMessageView msg } && DataContext is ChatViewModel vm)
+            vm.OpenPlayerProfileByIdCommand.Execute(msg.AuthorSteamId);
     }
 
     protected override void OnDataContextChanged(System.EventArgs e)

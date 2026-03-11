@@ -42,6 +42,12 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
     public event Action? MessagesUpdated;
 
+    /// <summary>Set by the parent ViewModel to navigate to a player's profile. Receives steam32 ID.</summary>
+    public Action<string>? OpenPlayerProfile { get; set; }
+
+    [RelayCommand]
+    private void OpenPlayerProfileById(string steam32Id) => OpenPlayerProfile?.Invoke(steam32Id);
+
     private readonly IWindowService _windowService;
 
     public ChatViewModel(string threadId, IBackendApiService backendApiService, IHttpImageService imageService, IEmoticonService emoticonService, IQueueSocketService queueSocketService, IWindowService windowService)

@@ -208,3 +208,9 @@ internal sealed class StubWindowService : IWindowService
 #pragma warning restore CS0067
     public void ShowAndActivate() { }
 }
+
+internal sealed class StubChatViewModelFactory : IChatViewModelFactory
+{
+    public d2c_launcher.ViewModels.ChatViewModel Create(string threadId)
+        => new(threadId, new StubBackendApiService(), new StubHttpImageService(), new StubEmoticonService(), new StubQueueSocketService(), new StubWindowService());
+}

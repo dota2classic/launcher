@@ -13,7 +13,7 @@ using d2c_launcher.Util;
 
 namespace d2c_launcher.ViewModels;
 
-public enum LauncherTab { Play, Settings, Profile }
+public enum LauncherTab { Play, Live, Settings, Profile }
 
 public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 {
@@ -55,6 +55,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     private LauncherTab _activeTab = LauncherTab.Play;
 
     public bool IsPlayTabActive => ActiveTab == LauncherTab.Play;
+    public bool IsLiveTabActive => ActiveTab == LauncherTab.Live;
     public bool IsSettingsTabActive => _isSettingsOpen;
     public bool IsProfileTabActive => ActiveTab == LauncherTab.Profile;
 
@@ -128,6 +129,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Settings.PushCvar = PushCvarIfGameRunning;
         Settings.OnDlcChanged = removedIds => OnDlcChanged?.Invoke(removedIds);
         Chat = chatViewModelFactory.Create("17aa3530-d152-462e-a032-909ae69019ed");
+        Chat.OpenPlayerProfile = OpenPlayerProfile;
         _ = Chat.StartAsync();
         Profile = new ProfileViewModel(backendApiService);
 
@@ -216,6 +218,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     partial void OnActiveTabChanged(LauncherTab value)
     {
         OnPropertyChanged(nameof(IsPlayTabActive));
+        OnPropertyChanged(nameof(IsLiveTabActive));
         OnPropertyChanged(nameof(IsSettingsTabActive));
         OnPropertyChanged(nameof(IsProfileTabActive));
     }
@@ -254,6 +257,13 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public void CloseSettings() => NavigateTo(LauncherTab.Play);
     public void OpenProfile() => NavigateTo(LauncherTab.Profile);
     public void CloseProfile() => NavigateTo(LauncherTab.Play);
+
+    /// <summary>Navigates to the profile tab and loads the specified player. Receives steam32 ID.</summary>
+    public void OpenPlayerProfile(string steam32Id)
+    {
+        _ = Profile.LoadAsync(steam32Id);
+        ActiveTab = LauncherTab.Profile;
+    }
 
     // ── Intro ─────────────────────────────────────────────────────────────────
 

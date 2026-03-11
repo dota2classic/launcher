@@ -42,45 +42,66 @@
                                     <Grid ColumnDefinitions="30,10,*">
 
                                         <!-- Avatar (header only) -->
-                                        <Grid Grid.Column="0"
-                                              Width="30" Height="30"
-                                              VerticalAlignment="Top"
-                                              IsVisible="{Binding ShowHeader}">
-                                            <!-- Fallback initials circle -->
-                                            <Border Width="30" Height="30" CornerRadius="15"
-                                                    Background="#1e2a3a"
-                                                    BorderBrush="#2d3842" BorderThickness="1">
-                                                <TextBlock Text="{Binding Initials}"
-                                                           FontSize="{DynamicResource FontSizeXS}" Foreground="#3a90d6"
-                                                           HorizontalAlignment="Center"
-                                                           VerticalAlignment="Center"/>
-                                            </Border>
-                                            <!-- Actual avatar (overlays initials while loading) -->
-                                            <Border Width="30" Height="30" CornerRadius="15"
-                                                    ClipToBounds="True">
-                                                <Image Stretch="UniformToFill"
-                                                       asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}"/>
-                                            </Border>
-                                            <!-- Online indicator dot (20% of 30px avatar, 2px outline) -->
-                                            <Grid Width="10" Height="10"
-                                                  IsVisible="{Binding IsOnline}"
-                                                  HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                                                  Margin="0,0,-1,-1">
-                                                <Ellipse Width="10" Height="10" Fill="#1c2024"/>
-                                                <Ellipse Width="6" Height="6" Fill="#22ce22"
-                                                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <Button Grid.Column="0"
+                                                Width="30" Height="30"
+                                                Padding="0"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                VerticalAlignment="Top"
+                                                IsVisible="{Binding ShowHeader}"
+                                                Click="OnAuthorClicked">
+                                            <Button.Styles>
+                                                <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                                    <Setter Property="Background" Value="Transparent"/>
+                                                    <Setter Property="Opacity" Value="0.8"/>
+                                                </Style>
+                                            </Button.Styles>
+                                            <Grid Width="30" Height="30">
+                                                <!-- Fallback initials circle -->
+                                                <Border Width="30" Height="30" CornerRadius="15"
+                                                        Background="#1e2a3a"
+                                                        BorderBrush="#2d3842" BorderThickness="1">
+                                                    <TextBlock Text="{Binding Initials}"
+                                                               FontSize="{DynamicResource FontSizeXS}" Foreground="#3a90d6"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"/>
+                                                </Border>
+                                                <!-- Actual avatar (overlays initials while loading) -->
+                                                <Border Width="30" Height="30" CornerRadius="15"
+                                                        ClipToBounds="True">
+                                                    <Image Stretch="UniformToFill"
+                                                           asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}"/>
+                                                </Border>
+                                                <!-- Online indicator dot (20% of 30px avatar, 2px outline) -->
+                                                <Grid Width="10" Height="10"
+                                                      IsVisible="{Binding IsOnline}"
+                                                      HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                                      Margin="0,0,-1,-1">
+                                                    <Ellipse Width="10" Height="10" Fill="#1c2024"/>
+                                                    <Ellipse Width="6" Height="6" Fill="#22ce22"
+                                                             HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Grid>
                                             </Grid>
-                                        </Grid>
+                                        </Button>
 
                                         <!-- Body -->
                                         <StackPanel Grid.Column="2" Spacing="2">
                                             <!-- Name + time (header only) -->
                                             <Grid ColumnDefinitions="*,Auto"
                                                   IsVisible="{Binding ShowHeader}">
-                                                <TextBlock Text="{Binding AuthorName}"
-                                                           FontSize="{DynamicResource FontSizeBase}" FontWeight="SemiBold"
-                                                           Foreground="#d9dde0"
-                                                           TextTrimming="CharacterEllipsis"/>
+                                                <Button Padding="0" Background="Transparent" BorderThickness="0"
+                                                        HorizontalAlignment="Left"
+                                                        Click="OnAuthorClicked">
+                                                    <Button.Styles>
+                                                        <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                                            <Setter Property="Background" Value="Transparent"/>
+                                                        </Style>
+                                                    </Button.Styles>
+                                                    <TextBlock Text="{Binding AuthorName}"
+                                                               FontSize="{DynamicResource FontSizeBase}" FontWeight="SemiBold"
+                                                               Foreground="#d9dde0"
+                                                               TextTrimming="CharacterEllipsis"/>
+                                                </Button>
                                                 <TextBlock Grid.Column="1"
                                                            Text="{Binding TimeText}"
                                                            FontSize="{DynamicResource FontSizeXS}" Foreground="#48525a"

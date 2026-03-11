@@ -18,6 +18,24 @@ public static class PreviewRegistry
     private static readonly Dictionary<string, Func<(Control View, object? ViewModel)>> Registry =
         new(StringComparer.OrdinalIgnoreCase)
         {
+            ["LauncherHeader"] = () =>
+            {
+                var stub = new StubQueueSocketService();
+                var api = new StubBackendApiService();
+                var vm = new MainLauncherViewModel(
+                    new d2c_launcher.Integration.SteamManager(),
+                    new StubSettingsStorage(),
+                    new StubGameLaunchSettingsStorage(),
+                    new StubCvarSettingsProvider(),
+                    new StubVideoSettingsProvider(),
+                    api,
+                    stub,
+                    new StubContentRegistryService(),
+                    new StubChatViewModelFactory(),
+                    new StubWindowService());
+                var view = new LauncherHeader { Width = 900, Height = 48, DataContext = vm };
+                return (view, null);
+            },
             ["ProfilePanel"] = () =>
             {
                 var api = new StubBackendApiService();
