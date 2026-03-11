@@ -25,6 +25,15 @@
     <Style Selector="Button.nav-tab.active /template/ ContentPresenter">
       <Setter Property="Background" Value="#141820"/>
     </Style>
+    <Style Selector="Button#SettingsButton.active materialIcons|MaterialIcon">
+      <Setter Property="Foreground" Value="White"/>
+    </Style>
+    <Style Selector="Button#SettingsButton:pointerover materialIcons|MaterialIcon">
+      <Setter Property="Foreground" Value="#b0bac6"/>
+    </Style>
+    <Style Selector="Button#SettingsButton:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#141820"/>
+    </Style>
   </UserControl.Styles>
 
   <Border BorderBrush="#1e2530" BorderThickness="0,0,0,1">
@@ -34,9 +43,6 @@
       <StackPanel Grid.Column="0" Orientation="Horizontal">
         <Button x:Name="PlayTabButton" Classes="nav-tab" Classes.active="{Binding IsPlayTabActive}" Click="OnPlayTabClicked">
           ИГРА
-        </Button>
-        <Button x:Name="SettingsTabButton" Classes="nav-tab" Classes.active="{Binding IsSettingsTabActive}" Click="OnSettingsTabClicked">
-          НАСТРОЙКИ
         </Button>
         <Button Classes="nav-tab" Classes.active="{Binding IsProfileTabActive}" Click="OnProfileTabClicked">
           ПРОФИЛЬ
@@ -59,7 +65,14 @@
         </StackPanel>
       </Border>
 
-      <!-- Right: user avatar -->
+      <!-- Right: settings gear + user avatar -->
+      <StackPanel Grid.Column="2" Orientation="Horizontal">
+      <Button x:Name="SettingsButton" VerticalAlignment="Stretch" Padding="10,8"
+              Background="Transparent" BorderThickness="0" CornerRadius="0"
+              Cursor="Hand" Click="OnSettingsTabClicked"
+              Classes.active="{Binding IsSettingsTabActive}">
+        <materialIcons:MaterialIcon Kind="Cog" Width="20" Height="20" Foreground="#7a8a9a"/>
+      </Button>
       <Button Grid.Column="2" x:Name="ProfileButton" VerticalAlignment="Stretch" Padding="10,8"
               Background="Transparent" BorderThickness="0" CornerRadius="0"
               Cursor="Hand" Click="OnProfileTabClicked">
@@ -83,6 +96,7 @@
                      VerticalAlignment="Center"/>
         </StackPanel>
       </Button>
+      </StackPanel>
 
     </Grid>
   </Border>
