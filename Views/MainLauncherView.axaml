@@ -68,7 +68,9 @@
                                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                <components:ModalOverlay.ModalContent>
                    <components:SettingsPanel x:Name="SettingsPanelControl"
-                                             DataContext="{Binding Settings}"/>
+                                             DataContext="{Binding Settings}"
+                                             Width="500"
+                                             Height="500"/>
                </components:ModalOverlay.ModalContent>
            </components:ModalOverlay>
 
