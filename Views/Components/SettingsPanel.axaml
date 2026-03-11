@@ -28,52 +28,6 @@
             <Setter Property="FontSize" Value="{DynamicResource FontSizeSM}"/>
         </Style>
 
-        <!-- ── TabControl: transparent, no outer border ── -->
-        <Style Selector="TabControl">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="0"/>
-        </Style>
-        <Style Selector="TabControl /template/ Border">
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Padding" Value="0"/>
-        </Style>
-
-        <!-- ── Tab items ── -->
-        <Style Selector="TabItem">
-            <Setter Property="Foreground" Value="#505860"/>
-            <Setter Property="FontSize" Value="{DynamicResource FontSizeSM}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="0,0,24,0"/>
-            <Setter Property="Padding" Value="0,10"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="Template">
-                <ControlTemplate>
-                    <Border Background="Transparent"
-                            BorderThickness="0,0,0,2"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            Padding="{TemplateBinding Padding}">
-                        <ContentPresenter Name="PART_HeaderPresenter"
-                                          Content="{TemplateBinding Header}"
-                                          ContentTemplate="{TemplateBinding HeaderTemplate}"
-                                          Foreground="{TemplateBinding Foreground}"/>
-                    </Border>
-                </ControlTemplate>
-            </Setter>
-        </Style>
-        <Style Selector="TabItem:selected">
-            <Setter Property="Foreground" Value="#c8a84b"/>
-            <Setter Property="BorderBrush" Value="#c8a84b"/>
-        </Style>
-        <Style Selector="TabItem:pointerover">
-            <Setter Property="Foreground" Value="#9a9ea4"/>
-        </Style>
-        <Style Selector="TabItem:selected:pointerover">
-            <Setter Property="Foreground" Value="#c8a84b"/>
-        </Style>
-
         <!-- ── ComboBox dark style ── -->
         <Style Selector="ComboBox">
             <Setter Property="Background" Value="#0c0e12"/>

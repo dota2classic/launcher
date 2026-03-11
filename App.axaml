@@ -108,6 +108,73 @@
             <Setter Property="Background" Value="#1c2024"/>
         </Style>
 
+        <!-- ── TabControl: transparent, no outer border ── -->
+        <Style Selector="TabControl">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+        <Style Selector="TabControl /template/ Border">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+
+        <!-- ── TabItem: gold underline on selected ── -->
+        <Style Selector="TabItem">
+            <Setter Property="Foreground" Value="#505860"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSizeSM}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,0,24,0"/>
+            <Setter Property="Padding" Value="0,10"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Background="Transparent"
+                            BorderThickness="0,0,0,2"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter Name="PART_HeaderPresenter"
+                                          Content="{TemplateBinding Header}"
+                                          ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                          Foreground="{TemplateBinding Foreground}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+        <Style Selector="TabItem:selected">
+            <Setter Property="Foreground" Value="#C8A84B"/>
+            <Setter Property="BorderBrush" Value="#C8A84B"/>
+        </Style>
+        <Style Selector="TabItem:pointerover">
+            <Setter Property="Foreground" Value="#9a9ea4"/>
+        </Style>
+        <Style Selector="TabItem:selected:pointerover">
+            <Setter Property="Foreground" Value="#C8A84B"/>
+        </Style>
+
+        <!-- ── SubTab: manual border-based tabs (e.g. ProfilePanel) ── -->
+        <Style Selector="Border.SubTab">
+            <Setter Property="Padding" Value="18,10"/>
+            <Setter Property="BorderThickness" Value="0,0,0,2"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Border.SubTabActive">
+            <Setter Property="BorderBrush" Value="#C8A84B"/>
+        </Style>
+        <Style Selector="TextBlock.SubTabText">
+            <Setter Property="FontSize" Value="{DynamicResource FontSizeXS}"/>
+            <Setter Property="LetterSpacing" Value="1.5"/>
+            <Setter Property="Foreground" Value="#556070"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        <Style Selector="TextBlock.SubTabTextActive">
+            <Setter Property="Foreground" Value="#C8A84B"/>
+        </Style>
+
         <!-- ── Reusable panel block styles ── -->
         <Style Selector="Border.Block">
             <Setter Property="Background" Value="#13171D"/>

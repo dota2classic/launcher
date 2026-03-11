@@ -165,13 +165,81 @@ AddHandler(ModalHeader.CloseRequestedEvent, (s, e) => {
 
 ---
 
-## Sub-tab Bar (Profile page)
+## Tabs
 
-Scoped to `ProfilePanel.axaml` — not global.
+Two tab systems are defined globally in `App.axaml`. Both use the same gold accent color (`#C8A84B`) and the same inactive color (`#556070`).
 
-| Class | Element | Notes |
-|-------|---------|-------|
-| `SubTab` | `Border` | Tab item container, `Hand` cursor |
-| `SubTabActive` | `Border` | Adds `#D4A843` bottom underline |
-| `SubTabText` | `TextBlock` | Muted label (`#556070`, NotoSans) |
-| `SubTabTextActive` | `TextBlock` | Active label color (`#D4A843`) |
+---
+
+### Native TabControl (functional tabs with content switching)
+
+Use when the tab selection must switch visible content (e.g. SettingsPanel).
+
+```xml
+<TabControl>
+    <TabItem Header="ПЕРВАЯ ВКЛАДКА">
+        <!-- content -->
+    </TabItem>
+    <TabItem Header="ВТОРАЯ ВКЛАДКА">
+        <!-- content -->
+    </TabItem>
+</TabControl>
+```
+
+The global styles make `TabControl` transparent/borderless and give `TabItem` a gold bottom underline on `:selected`. No local styles needed.
+
+#### Visual tokens
+
+| State | Foreground | Bottom border |
+|-------|-----------|---------------|
+| Default | `#505860` | transparent |
+| `:pointerover` | `#9a9ea4` | transparent |
+| `:selected` | `#C8A84B` | `#C8A84B` / 2px |
+| `:selected:pointerover` | `#C8A84B` | `#C8A84B` / 2px |
+
+#### Current usages
+
+| View | File |
+|------|------|
+| Настройки (ВИЗУАЛЬНЫЕ / ГЕЙМПЛЕЙ / ЛАУНЧЕР / ДЛС) | `Views/Components/SettingsPanel.axaml` |
+
+---
+
+### SubTab (manual border-based tabs)
+
+Use when tab switching is handled in code-behind or a ViewModel, not by `TabControl` (e.g. a full-page view where each tab loads different content dynamically).
+
+```xml
+<!-- Tab bar -->
+<StackPanel Orientation="Horizontal">
+    <Border Classes="SubTab SubTabActive" Margin="0,0,0,-1">
+        <TextBlock Classes="SubTabText SubTabTextActive" Text="ОБЩЕЕ"/>
+    </Border>
+    <Border Classes="SubTab" Margin="0,0,0,-1">
+        <TextBlock Classes="SubTabText" Text="МАТЧИ"/>
+    </Border>
+</StackPanel>
+```
+
+Toggle `SubTabActive` / `SubTabTextActive` to change the active tab.
+
+#### Visual tokens
+
+| Class | Property | Value |
+|-------|----------|-------|
+| `SubTab` | Padding | `18,10` |
+| `SubTab` | BorderThickness | `0,0,0,2` |
+| `SubTab` | Default BorderBrush | transparent |
+| `SubTab` | Cursor | Hand |
+| `SubTabActive` | BorderBrush | `#C8A84B` |
+| `SubTabText` | FontSize | `FontSizeXS` (10) |
+| `SubTabText` | LetterSpacing | `1.5` |
+| `SubTabText` | Default Foreground | `#556070` |
+| `SubTabText` | FontWeight | Bold |
+| `SubTabTextActive` | Foreground | `#C8A84B` |
+
+#### Current usages
+
+| View | File |
+|------|------|
+| Профиль (ОБЩЕЕ / МАТЧИ / …) | `Views/Components/ProfilePanel.axaml` |
