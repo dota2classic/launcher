@@ -29,9 +29,23 @@ internal static class Program
                 return 0;
             }
 
-            if (!SteamAPI.Init())
+            bool initOk = false;
+            for (var attempt = 0; attempt < 3; attempt++)
             {
-                Log("error", "SteamAPI.Init() failed — Steam is running but init returned false.");
+                if (SteamAPI.Init())
+                {
+                    initOk = true;
+                    break;
+                }
+                if (attempt < 2)
+                {
+                    Log("warn", $"SteamAPI.Init() failed (attempt {attempt + 1}/3), retrying in 1 s...");
+                    Thread.Sleep(1000);
+                }
+            }
+            if (!initOk)
+            {
+                Log("error", "SteamAPI.Init() failed after 3 attempts — Steam is running but init returned false.");
                 WriteSnapshot(new Snapshot("InitFailed"));
                 return 0;
             }
