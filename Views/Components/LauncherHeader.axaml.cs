@@ -34,6 +34,12 @@ public partial class LauncherHeader : UserControl
             vm.OpenProfile();
     }
 
+    private void OnConnectClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is MainLauncherViewModel vm)
+            vm.Launch.ConnectToGame();
+    }
+
     private void OnLaunchGameClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         if (DataContext is MainLauncherViewModel vm)

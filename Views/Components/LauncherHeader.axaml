@@ -81,21 +81,48 @@
         </Button>
       </StackPanel>
 
-      <!-- Center: queue searching indicator -->
-      <Border Grid.Column="1" IsVisible="{Binding Queue.IsSearching}"
-              HorizontalAlignment="Center" VerticalAlignment="Center"
-              Background="#0d2a1a" BorderBrush="#27AE60" BorderThickness="1"
-              CornerRadius="0" Padding="12,6">
-        <StackPanel Orientation="Horizontal" Spacing="10">
-          <Ellipse Width="8" Height="8" Fill="#27AE60" VerticalAlignment="Center"/>
-          <TextBlock Text="Поиск игры" Foreground="#27AE60"
-                     FontSize="{DynamicResource FontSizeBase}" FontWeight="SemiBold"
-                     VerticalAlignment="Center"/>
-          <TextBlock Text="{Binding Queue.QueueButtonTimeText}"
-                     Foreground="#7ab57a" FontSize="{DynamicResource FontSizeBase}"
-                     VerticalAlignment="Center"/>
-        </StackPanel>
-      </Border>
+      <!-- Center: game found → connect button; or searching indicator (hidden on Play tab which has its own) -->
+      <Panel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"
+             IsVisible="{Binding !IsPlayTabActive}">
+
+        <!-- Game found: connect button -->
+        <Button x:Name="ConnectButton"
+                IsVisible="{Binding Launch.HasServerUrl}"
+                Click="OnConnectClicked"
+                VerticalAlignment="Center"
+                Padding="20,6" CornerRadius="2" BorderThickness="0" Cursor="Hand">
+          <Button.Styles>
+            <Style Selector="Button#ConnectButton">
+              <Setter Property="Background" Value="#1A5276"/>
+            </Style>
+            <Style Selector="Button#ConnectButton:pointerover /template/ ContentPresenter">
+              <Setter Property="Background" Value="#2E86C1"/>
+            </Style>
+          </Button.Styles>
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Ellipse Width="8" Height="8" Fill="#5dade2" VerticalAlignment="Center"/>
+            <TextBlock Text="ПОДКЛЮЧИТЬСЯ" Foreground="White"
+                       FontSize="{DynamicResource FontSizeBase}" FontWeight="Bold"
+                       LetterSpacing="1" VerticalAlignment="Center"/>
+          </StackPanel>
+        </Button>
+
+        <!-- Searching indicator (only when not game found) -->
+        <Border IsVisible="{Binding Queue.IsSearching}"
+                Background="#0d2a1a" BorderBrush="#27AE60" BorderThickness="1"
+                CornerRadius="0" Padding="12,6">
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <Ellipse Width="8" Height="8" Fill="#27AE60" VerticalAlignment="Center"/>
+            <TextBlock Text="Поиск игры" Foreground="#27AE60"
+                       FontSize="{DynamicResource FontSizeBase}" FontWeight="SemiBold"
+                       VerticalAlignment="Center"/>
+            <TextBlock Text="{Binding Queue.QueueButtonTimeText}"
+                       Foreground="#7ab57a" FontSize="{DynamicResource FontSizeBase}"
+                       VerticalAlignment="Center"/>
+          </StackPanel>
+        </Border>
+
+      </Panel>
 
       <!-- Right: launch button + settings gear + user avatar -->
       <StackPanel Grid.Column="2" Orientation="Horizontal">
