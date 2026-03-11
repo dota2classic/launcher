@@ -58,7 +58,7 @@
                           IsVisible="{Binding AvatarUrl, Converter={x:Static StringConverters.IsNullOrEmpty}}">
                     <TextBlock Text="{Binding PlayerInitial}"
                                HorizontalAlignment="Center" VerticalAlignment="Center"
-                               FontSize="22" FontWeight="Bold" Foreground="#4A9EE0"/>
+                               FontSize="{DynamicResource FontSize3XL}" FontWeight="Bold" Foreground="#4A9EE0"/>
                   </Border>
                   <!-- Online dot -->
                   <Ellipse Width="9" Height="9" Fill="#52B847"
@@ -70,7 +70,7 @@
               <!-- Name + match count -->
               <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="5">
                 <TextBlock Text="{Binding PlayerName}"
-                           FontSize="20" FontWeight="Bold"
+                           FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold"
                            Foreground="#FFFFFF"/>
                 <StackPanel Orientation="Horizontal" Spacing="4">
                   <TextBlock Text="{Binding TotalGames}"
@@ -92,15 +92,15 @@
                     <StackPanel HorizontalAlignment="Center" Spacing="6">
                       <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="0">
                         <TextBlock Text="{Binding Wins}"
-                                   FontSize="18" FontWeight="Bold" Foreground="#E2E6EA"/>
+                                   FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold" Foreground="#E2E6EA"/>
                         <TextBlock Text="–"
-                                   FontSize="18" FontWeight="Bold" Foreground="#556070"/>
+                                   FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold" Foreground="#556070"/>
                         <TextBlock Text="{Binding Losses}"
-                                   FontSize="18" FontWeight="Bold" Foreground="#D04535"/>
+                                   FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold" Foreground="#D04535"/>
                         <TextBlock Text="–"
-                                   FontSize="18" FontWeight="Bold" Foreground="#556070"/>
+                                   FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold" Foreground="#556070"/>
                         <TextBlock Text="{Binding Abandons}"
-                                   FontSize="18" FontWeight="Bold" Foreground="#556070"/>
+                                   FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold" Foreground="#556070"/>
                       </StackPanel>
                       <TextBlock Text="МАТЧИ"
                                  FontSize="9" LetterSpacing="2"
@@ -112,7 +112,7 @@
                   <Border BorderBrush="#252E3A" BorderThickness="0,0,1,0" Padding="26,16" MinWidth="100">
                     <StackPanel HorizontalAlignment="Center" Spacing="6">
                       <TextBlock Text="{Binding WinRateText}"
-                                 FontSize="18" FontWeight="Bold" Foreground="#52B847"
+                                 FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold" Foreground="#52B847"
                                  HorizontalAlignment="Center"/>
                       <TextBlock Text="ДОЛЯ ПОБЕД"
                                  FontSize="9" LetterSpacing="2"
@@ -124,7 +124,7 @@
                   <Border BorderBrush="#252E3A" BorderThickness="0,0,1,0" Padding="26,16" MinWidth="100">
                     <StackPanel HorizontalAlignment="Center" Spacing="6">
                       <TextBlock Text="{Binding Mmr}"
-                                 FontSize="18" FontWeight="Bold" Foreground="#D4A843"
+                                 FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold" Foreground="#D4A843"
                                  HorizontalAlignment="Center"/>
                       <TextBlock Text="РЕЙТИНГ"
                                  FontSize="9" LetterSpacing="2"
@@ -136,7 +136,7 @@
                   <Border Padding="26,16" MinWidth="100">
                     <StackPanel HorizontalAlignment="Center" Spacing="6">
                       <TextBlock Text="{Binding Rank}"
-                                 FontSize="18" FontWeight="Bold" Foreground="#E2E6EA"
+                                 FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold" Foreground="#E2E6EA"
                                  HorizontalAlignment="Center"/>
                       <TextBlock Text="РАНГ"
                                  FontSize="9" LetterSpacing="2"
@@ -212,27 +212,27 @@
 
                 <!-- KDA group -->
                 <Border Classes="StatRow">
-                  <Grid ColumnDefinitions="96,*">
+                  <Grid ColumnDefinitions="110,*">
                     <TextBlock Grid.Column="0" Text="{Binding AvgKills}"
-                               FontSize="19" FontWeight="SemiBold" Foreground="#D4A843"/>
+                               FontSize="{DynamicResource FontSize2XL}" FontWeight="SemiBold" Foreground="#D4A843"/>
                     <TextBlock Grid.Column="1" Text="Убийств" Foreground="#99A8B4"
-                               FontSize="13" VerticalAlignment="Center"/>
+                               FontSize="{DynamicResource FontSizeMD}" VerticalAlignment="Center"/>
                   </Grid>
                 </Border>
                 <Border Classes="StatRow">
-                  <Grid ColumnDefinitions="96,*">
+                  <Grid ColumnDefinitions="110,*">
                     <TextBlock Grid.Column="0" Text="{Binding AvgDeaths}"
-                               FontSize="19" FontWeight="SemiBold" Foreground="#4A9EE0"/>
+                               FontSize="{DynamicResource FontSize2XL}" FontWeight="SemiBold" Foreground="#4A9EE0"/>
                     <TextBlock Grid.Column="1" Text="Смертей" Foreground="#99A8B4"
-                               FontSize="13" VerticalAlignment="Center"/>
+                               FontSize="{DynamicResource FontSizeMD}" VerticalAlignment="Center"/>
                   </Grid>
                 </Border>
                 <Border Classes="StatRow">
-                  <Grid ColumnDefinitions="96,*">
+                  <Grid ColumnDefinitions="110,*">
                     <TextBlock Grid.Column="0" Text="{Binding AvgAssists}"
-                               FontSize="19" FontWeight="SemiBold" Foreground="#D4A843"/>
+                               FontSize="{DynamicResource FontSize2XL}" FontWeight="SemiBold" Foreground="#D4A843"/>
                     <TextBlock Grid.Column="1" Text="Помощи" Foreground="#99A8B4"
-                               FontSize="13" VerticalAlignment="Center"/>
+                               FontSize="{DynamicResource FontSizeMD}" VerticalAlignment="Center"/>
                   </Grid>
                 </Border>
 
@@ -240,35 +240,35 @@
                 <Border Height="1" Background="#252E3A" Margin="0,4"/>
                 <!-- General group -->
                 <Border Classes="StatRow">
-                  <Grid ColumnDefinitions="96,*">
+                  <Grid ColumnDefinitions="110,*">
                     <TextBlock Grid.Column="0" Text="{Binding TotalGames}"
-                               FontSize="15" FontWeight="SemiBold" Foreground="#E2E6EA"/>
+                               FontSize="{DynamicResource FontSizeXL}" FontWeight="SemiBold" Foreground="#E2E6EA"/>
                     <TextBlock Grid.Column="1" Text="Игр сыграно" Foreground="#99A8B4"
-                               FontSize="13" VerticalAlignment="Center"/>
+                               FontSize="{DynamicResource FontSizeMD}" VerticalAlignment="Center"/>
                   </Grid>
                 </Border>
                 <Border Classes="StatRow">
-                  <Grid ColumnDefinitions="96,*">
+                  <Grid ColumnDefinitions="110,*">
                     <TextBlock Grid.Column="0" Text="{Binding WinRateText}"
-                               FontSize="15" FontWeight="SemiBold" Foreground="#52B847"/>
+                               FontSize="{DynamicResource FontSizeXL}" FontWeight="SemiBold" Foreground="#52B847"/>
                     <TextBlock Grid.Column="1" Text="Доля побед" Foreground="#99A8B4"
-                               FontSize="13" VerticalAlignment="Center"/>
+                               FontSize="{DynamicResource FontSizeMD}" VerticalAlignment="Center"/>
                   </Grid>
                 </Border>
                 <Border Classes="StatRow">
-                  <Grid ColumnDefinitions="96,*">
+                  <Grid ColumnDefinitions="110,*">
                     <TextBlock Grid.Column="0" Text="{Binding AbandonRateText}"
-                               FontSize="15" FontWeight="SemiBold" Foreground="#556070"/>
+                               FontSize="{DynamicResource FontSizeXL}" FontWeight="SemiBold" Foreground="#556070"/>
                     <TextBlock Grid.Column="1" Text="Покинутых игр" Foreground="#99A8B4"
-                               FontSize="13" VerticalAlignment="Center"/>
+                               FontSize="{DynamicResource FontSizeMD}" VerticalAlignment="Center"/>
                   </Grid>
                 </Border>
                 <Border BorderBrush="#181F28" BorderThickness="0,0,0,0" Padding="18,10">
-                  <Grid ColumnDefinitions="96,*">
+                  <Grid ColumnDefinitions="110,*">
                     <TextBlock Grid.Column="0" Text="{Binding PlaytimeText}"
-                               FontSize="14" FontWeight="SemiBold" Foreground="#E2E6EA"/>
+                               FontSize="{DynamicResource FontSizeLG}" FontWeight="SemiBold" Foreground="#E2E6EA"/>
                     <TextBlock Grid.Column="1" Text="Времени в игре" Foreground="#99A8B4"
-                               FontSize="13" VerticalAlignment="Center"/>
+                               FontSize="{DynamicResource FontSizeMD}" VerticalAlignment="Center"/>
                   </Grid>
                 </Border>
 
@@ -285,7 +285,7 @@
                 <Grid>
                   <TextBlock Classes="BlockTitle" Text="ЛУЧШИЕ ГЕРОИ" VerticalAlignment="Center"/>
                   <TextBlock Text="Показать все →" Foreground="#4A9EE0"
-                             FontSize="11" HorizontalAlignment="Right"
+                             FontSize="{DynamicResource FontSizeSM}" HorizontalAlignment="Right"
                              VerticalAlignment="Center" Cursor="Hand"/>
                 </Grid>
               </Border>
@@ -329,21 +329,21 @@
                           </Border>
                           <TextBlock Text="{Binding HeroName}"
                                      Foreground="#4A9EE0"
-                                     FontSize="12" FontWeight="SemiBold"
+                                     FontSize="{DynamicResource FontSizeBase}" FontWeight="SemiBold"
                                      VerticalAlignment="Center"/>
                         </StackPanel>
 
                         <!-- Match count -->
                         <TextBlock Grid.Column="1" Text="{Binding Games}"
                                    Foreground="#E2E6EA"
-                                   FontSize="13" FontWeight="SemiBold"
+                                   FontSize="{DynamicResource FontSizeMD}" FontWeight="SemiBold"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         <!-- Win rate + bar -->
                         <StackPanel Grid.Column="2" HorizontalAlignment="Center"
                                     VerticalAlignment="Center" Spacing="4">
                           <TextBlock Text="{Binding WinRateText}"
                                      Foreground="{Binding WinRateBrush}"
-                                     FontSize="12" FontWeight="SemiBold"
+                                     FontSize="{DynamicResource FontSizeBase}" FontWeight="SemiBold"
                                      HorizontalAlignment="Center"/>
                           <Border Height="2" Width="52" Background="#252E3A" HorizontalAlignment="Center">
                             <Border HorizontalAlignment="Left" Height="2"
@@ -355,7 +355,7 @@
                         <!-- KDA -->
                         <TextBlock Grid.Column="3" Text="{Binding KdaText}"
                                    Foreground="#D4A843"
-                                   FontSize="13" FontWeight="SemiBold"
+                                   FontSize="{DynamicResource FontSizeMD}" FontWeight="SemiBold"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                       </Grid>
                     </Border>
