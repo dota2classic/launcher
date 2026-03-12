@@ -319,7 +319,20 @@ public partial class SettingsViewModel : ViewModelBase
             s.CameraDistance = clamped;
             _cvarProvider.Update(s);
             OnPropertyChanged();
+            OnPropertyChanged(nameof(CameraDistanceText));
             PushCvar?.Invoke("dota_camera_distance", clamped.ToString());
+        }
+    }
+
+    public string CameraDistanceText
+    {
+        get => CameraDistance.ToString();
+        set
+        {
+            if (int.TryParse(value, out var n))
+                CameraDistance = n;
+            else
+                OnPropertyChanged(); // reset to current value
         }
     }
 

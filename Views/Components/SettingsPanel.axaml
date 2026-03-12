@@ -212,7 +212,8 @@
                 <!-- ─── Tab 2: Геймплей ─── -->
                 <TabItem Header="ГЕЙМПЛЕЙ">
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                                  VerticalScrollBarVisibility="Auto">
+                                  VerticalScrollBarVisibility="Auto"
+                                  PointerPressed="OnGameplayTabPointerPressed">
                         <StackPanel Spacing="0" Margin="0,12,12,12">
 
                             <!-- Auto-attack -->
@@ -276,14 +277,14 @@
                                         <TextBlock Text="⚠ Значения выше 1134 делают часть экрана некликабельной"
                                                    Classes="setting-desc" Foreground="#c8a84b"/>
                                     </StackPanel>
-                                    <TextBlock Grid.Column="1"
-                                               Text="{Binding CameraDistance}"
-                                               Classes="setting-label"
-                                               VerticalAlignment="Center"
-                                               HorizontalAlignment="Right"
-                                               Width="52"
-                                               Margin="0,0,6,0"
-                                               TextAlignment="Center"/>
+                                    <TextBox Grid.Column="1"
+                                             Text="{Binding CameraDistanceText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                             VerticalAlignment="Center"
+                                             HorizontalAlignment="Right"
+                                             Width="60"
+                                             Margin="0,0,6,0"
+                                             TextAlignment="Center"
+                                             KeyDown="OnCameraDistanceKeyDown"/>
                                 </Grid>
                                 <Slider Minimum="1000" Maximum="1600"
                                         Value="{Binding CameraDistance}"
