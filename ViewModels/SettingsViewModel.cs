@@ -221,6 +221,20 @@ public partial class SettingsViewModel : ViewModelBase
         }
     }
 
+    public string ExtraArgs
+    {
+        get => _launchStorage.Get().ExtraArgs ?? "";
+        set
+        {
+            var s = _launchStorage.Get();
+            var trimmed = string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+            if (s.ExtraArgs == trimmed) return;
+            s.ExtraArgs = trimmed;
+            _launchStorage.Save(s);
+            OnPropertyChanged();
+        }
+    }
+
     public bool Fullscreen
     {
         get => _videoProvider.Get().Fullscreen;

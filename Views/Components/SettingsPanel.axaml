@@ -334,6 +334,14 @@
                                         IsSnapToTickEnabled="True"/>
                             </StackPanel>
 
+                            <!-- Custom launch args -->
+                            <StackPanel Margin="0,0,0,16" Spacing="6">
+                                <TextBlock Text="Параметры запуска" Classes="setting-label"/>
+                                <TextBlock Text="Добавляются перед стандартными аргументами лаунчера" Classes="setting-desc"/>
+                                <TextBox Text="{Binding ExtraArgs, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                         Watermark="-dx9 -console"/>
+                            </StackPanel>
+
                             <!-- Auto-update -->
                             <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
                                 <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
