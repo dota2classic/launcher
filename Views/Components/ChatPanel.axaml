@@ -17,6 +17,23 @@
             <Border Grid.Row="0" Classes="BlockHead">
                 <Grid ColumnDefinitions="*,Auto">
                     <TextBlock Classes="BlockTitle" Text="ЧАТ"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="2">
+                        <Button Background="Transparent" BorderThickness="0" Padding="4"
+                                Cursor="Hand" Click="OnTelegramClicked"
+                                ToolTip.Tip="Telegram">
+                            <Image Source="avares://d2c-launcher/Assets/Images/telegram.png" Width="18" Height="18"/>
+                        </Button>
+                        <Button Background="Transparent" BorderThickness="0" Padding="4"
+                                Cursor="Hand" Click="OnDiscordClicked"
+                                ToolTip.Tip="Discord">
+                            <Image Source="avares://d2c-launcher/Assets/Images/discord.png" Width="18" Height="18"/>
+                        </Button>
+                        <Button Background="Transparent" BorderThickness="0" Padding="4"
+                                Cursor="Hand" Click="OnSiteClicked"
+                                ToolTip.Tip="Сайт">
+                            <materialIcons:MaterialIcon Kind="Web" Width="18" Height="18" Foreground="#4a5668"/>
+                        </Button>
+                    </StackPanel>
                 </Grid>
             </Border>
 
