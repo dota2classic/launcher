@@ -374,6 +374,19 @@ public partial class SettingsViewModel : ViewModelBase
         }
     }
 
+    public bool AutoConnectToGame
+    {
+        get => _settingsStorage.Get().AutoConnectToGame;
+        set
+        {
+            var s = _settingsStorage.Get();
+            if (s.AutoConnectToGame == value) return;
+            s.AutoConnectToGame = value;
+            _settingsStorage.Save(s);
+            OnPropertyChanged();
+        }
+    }
+
     public int UiScale
     {
         get => _settingsStorage.Get().UiScale;

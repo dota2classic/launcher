@@ -353,6 +353,16 @@
                                              VerticalAlignment="Center" HorizontalAlignment="Right"/>
                             </Grid>
 
+                            <!-- Auto-connect to game -->
+                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
+                                    <TextBlock Text="Автоподключение к серверу" Classes="setting-label"/>
+                                    <TextBlock Text="Автоматически подключаться к игре при нахождении сервера" Classes="setting-desc"/>
+                                </StackPanel>
+                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoConnectToGame}"
+                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                            </Grid>
+
                             <!-- Defender exclusion -->
                             <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
                                 <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">

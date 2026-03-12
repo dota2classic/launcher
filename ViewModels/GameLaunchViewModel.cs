@@ -83,11 +83,29 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
 
         queueSocketService.PlayerGameStateUpdated += msg =>
             Dispatcher.UIThread.Post(() => UpdateServerUrl(msg));
+        queueSocketService.ServerSearchingUpdated += msg =>
+            Dispatcher.UIThread.Post(() => OnServerSearchingUpdated(msg));
+    }
+
+    private bool _isExpectingServerAddress;
+
+    private void OnServerSearchingUpdated(PlayerServerSearchingMessage msg)
+    {
+        _isExpectingServerAddress = msg.Searching;
+        AppLog.Info($"GameLaunchViewModel: isExpectingServerAddress={_isExpectingServerAddress}");
     }
 
     private void UpdateServerUrl(PlayerGameStateMessage? msg)
     {
         ServerUrl = msg?.ServerUrl;
+
+        if (_isExpectingServerAddress && !string.IsNullOrEmpty(msg?.ServerUrl) &&
+            _settingsStorage.Get().AutoConnectToGame)
+        {
+            AppLog.Info("GameLaunchViewModel: auto-connecting to server (first time)");
+            _isExpectingServerAddress = false;
+            ConnectToGame();
+        }
     }
 
     public void SetGameDirectory(string? path)
