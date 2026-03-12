@@ -66,6 +66,49 @@ public static class PreviewRegistry
                 var vm = new RoomViewModel(new StubQueueSocketService(), new StubBackendApiService());
                 return (new AcceptGameModal(), vm);
             },
+            ["AcceptGameModal1"] = () =>
+            {
+                var vm = new RoomViewModel(new StubQueueSocketService(), new StubBackendApiService());
+                vm.RoomPlayers.Add(new RoomPlayerView("1", "SoloPlayer", null, d2c_launcher.Services.ReadyState.Pending));
+                vm.IsAcceptGameModalOpen = true;
+                var host = new Panel { Width = 900, Height = 400, Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#1a1f26")) };
+                host.Children.Add(new AcceptGameModal { DataContext = vm });
+                return (host, null);
+            },
+            ["AcceptGameModal2"] = () =>
+            {
+                var vm = new RoomViewModel(new StubQueueSocketService(), new StubBackendApiService());
+                vm.RoomPlayers.Add(new RoomPlayerView("1", "PlayerOne", null, d2c_launcher.Services.ReadyState.Ready));
+                vm.RoomPlayers.Add(new RoomPlayerView("2", "PlayerTwo", null, d2c_launcher.Services.ReadyState.Pending));
+                vm.IsAcceptGameModalOpen = true;
+                var host = new Panel { Width = 900, Height = 400, Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#1a1f26")) };
+                host.Children.Add(new AcceptGameModal { DataContext = vm });
+                return (host, null);
+            },
+            ["AcceptGameModal5"] = () =>
+            {
+                var vm = new RoomViewModel(new StubQueueSocketService(), new StubBackendApiService());
+                vm.RoomPlayers.Add(new RoomPlayerView("1", "PlayerOne",   null, d2c_launcher.Services.ReadyState.Ready));
+                vm.RoomPlayers.Add(new RoomPlayerView("2", "PlayerTwo",   null, d2c_launcher.Services.ReadyState.Ready));
+                vm.RoomPlayers.Add(new RoomPlayerView("3", "PlayerThree", null, d2c_launcher.Services.ReadyState.Pending));
+                vm.RoomPlayers.Add(new RoomPlayerView("4", "PlayerFour",  null, d2c_launcher.Services.ReadyState.Decline));
+                vm.RoomPlayers.Add(new RoomPlayerView("5", "PlayerFive",  null, d2c_launcher.Services.ReadyState.Pending));
+                vm.IsAcceptGameModalOpen = true;
+                var host = new Panel { Width = 900, Height = 400, Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#1a1f26")) };
+                host.Children.Add(new AcceptGameModal { DataContext = vm });
+                return (host, null);
+            },
+            ["AcceptGameModal10"] = () =>
+            {
+                var vm = new RoomViewModel(new StubQueueSocketService(), new StubBackendApiService());
+                for (int i = 1; i <= 10; i++)
+                    vm.RoomPlayers.Add(new RoomPlayerView(i.ToString(), $"Player{i}", null,
+                        i % 3 == 0 ? d2c_launcher.Services.ReadyState.Ready : d2c_launcher.Services.ReadyState.Pending));
+                vm.IsAcceptGameModalOpen = true;
+                var host = new Panel { Width = 1200, Height = 400, Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#1a1f26")) };
+                host.Children.Add(new AcceptGameModal { DataContext = vm });
+                return (host, null);
+            },
             ["NotificationArea"] = () =>
             {
                 var vm = new NotificationAreaViewModel(new StubQueueSocketService());

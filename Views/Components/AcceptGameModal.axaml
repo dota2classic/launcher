@@ -16,7 +16,7 @@
                Padding="24" CornerRadius="0"
                Background="#121315" BorderBrush="#2d3842" BorderThickness="1"
                BoxShadow="0 12 28 0 #80000000">
-           <StackPanel Spacing="16" MaxWidth="580">
+           <StackPanel Spacing="16">
                <StackPanel Spacing="4" HorizontalAlignment="Center">
                    <TextBlock Text="Игра найдена!" FontSize="{DynamicResource FontSize3XL}" FontWeight="Bold"
                               HorizontalAlignment="Center" Foreground="#D9D9D9"/>
@@ -27,35 +27,23 @@
                <ItemsControl ItemsSource="{Binding RoomPlayers}">
                    <ItemsControl.ItemsPanel>
                        <ItemsPanelTemplate>
-                           <WrapPanel HorizontalAlignment="Center" Orientation="Horizontal"/>
+                           <StackPanel HorizontalAlignment="Center" Orientation="Horizontal"/>
                        </ItemsPanelTemplate>
                    </ItemsControl.ItemsPanel>
                    <ItemsControl.ItemTemplate>
                        <DataTemplate x:DataType="m:RoomPlayerView">
-                           <StackPanel Spacing="4" Margin="8,6" Width="74" HorizontalAlignment="Center">
-                               <Panel Width="58" Height="58" HorizontalAlignment="Center">
-                                   <Ellipse Width="58" Height="58"
-                                            Stroke="{Binding StateColor}" StrokeThickness="3"
-                                            Fill="Transparent"/>
-                                   <Border Width="52" Height="52" CornerRadius="26" ClipToBounds="True"
-                                           Background="#242c34"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center">
-                                       <Panel>
-                                           <TextBlock Text="{Binding Initials}"
-                                                      HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                      FontSize="{DynamicResource FontSize2XL}" FontWeight="SemiBold" Foreground="#D9D9D9"/>
-                                           <Image Stretch="UniformToFill"
-                                                  asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}"/>
-                                       </Panel>
-                                   </Border>
+                           <Border Margin="3,3" Width="52" Height="52"
+                                   BorderBrush="{Binding StateColor}" BorderThickness="3"
+                                   CornerRadius="0" ClipToBounds="True"
+                                   Background="#242c34">
+                               <Panel>
+                                   <TextBlock Text="{Binding Initials}"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"
+                                              FontSize="{DynamicResource FontSizeMD}" FontWeight="SemiBold" Foreground="#D9D9D9"/>
+                                   <Image Stretch="UniformToFill"
+                                          asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}"/>
                                </Panel>
-                               <TextBlock Text="{Binding Name}" HorizontalAlignment="Center"
-                                          FontSize="{DynamicResource FontSizeSM}" TextTrimming="CharacterEllipsis" MaxWidth="74"
-                                          TextAlignment="Center" Foreground="#D9D9D9"/>
-                               <TextBlock Text="{Binding StateText}" HorizontalAlignment="Center"
-                                          Foreground="{Binding StateColor}" FontSize="{DynamicResource FontSizeXS}"
-                                          TextAlignment="Center"/>
-                           </StackPanel>
+                           </Border>
                        </DataTemplate>
                    </ItemsControl.ItemTemplate>
                </ItemsControl>

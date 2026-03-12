@@ -37,7 +37,7 @@ public sealed partial class RoomPlayerView : ObservableObject
         ReadyState.Ready => new SolidColorBrush(Color.Parse("#44D46F")),
         ReadyState.Decline => new SolidColorBrush(Color.Parse("#E74C3C")),
         ReadyState.Timeout => new SolidColorBrush(Color.Parse("#95A5A6")),
-        ReadyState.Pending => new SolidColorBrush(Color.Parse("#F39C12")),
+        ReadyState.Pending => new SolidColorBrush(Color.Parse("#3a4550")),
         _ => new SolidColorBrush(Colors.Gray)
     };
 
