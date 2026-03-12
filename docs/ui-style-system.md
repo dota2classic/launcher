@@ -4,6 +4,65 @@ This document covers the shared visual language for the launcher's panel blocks 
 
 ---
 
+## Init Screens
+
+All four full-screen transition views (`LoadingView`, `LaunchSteamFirstView`, `SelectGameView`, `GameDownloadView`) share three classes defined globally in `App.axaml`.
+
+### Classes
+
+| Class | Element | What it does |
+|-------|---------|--------------|
+| `InitScreen` | `UserControl` | Diagonal dark gradient background |
+| `InitScreenTitle` | `TextBlock` | TrajanPro3 hero title — `FontSize4XL`, Bold, centered, `#D9D9D9` |
+| `InitScreenContent` | `StackPanel` | Centered content container — HCenter/VCenter, Spacing=16, MaxWidth=420, Margin=24,0 |
+
+### Token values
+
+| Token | Value |
+|-------|-------|
+| Background gradient start | `#0c0c0c` |
+| Background gradient mid | `#1c2024` |
+| Background gradient end | `#0c0c0c` |
+| Title font family | `TrajanPro3` |
+| Title font size | `FontSize4XL` (28) |
+| Title foreground | `#D9D9D9` |
+
+### Usage
+
+```xml
+<UserControl ... Classes="InitScreen">
+    <StackPanel Classes="InitScreenContent">
+        <TextBlock Classes="InitScreenTitle" Text="Dotaclassic"/>
+        <!-- screen-specific content -->
+    </StackPanel>
+</UserControl>
+```
+
+When a screen needs a root `Panel` (e.g. for overlay modals), place `InitScreenContent` on the inner `StackPanel`:
+
+```xml
+<UserControl ... Classes="InitScreen">
+    <Panel>
+        <StackPanel Classes="InitScreenContent">
+            <TextBlock Classes="InitScreenTitle" Text="Dotaclassic"/>
+            ...
+        </StackPanel>
+        <!-- overlay modal at ZIndex=200 -->
+    </Panel>
+</UserControl>
+```
+
+### Current usages
+
+| Screen | File |
+|--------|------|
+| Loading / Steam connect | `Views/LoadingView.axaml` |
+| Launch Steam first | `Views/LaunchSteamFirstView.axaml` |
+| Select game folder | `Views/SelectGameView.axaml` |
+| Game download / verify | `Views/GameDownloadView.axaml` |
+
+---
+
 ## Panel Blocks
 
 Every content panel (chat, party, game search, profile stats, etc.) is built from three composable classes defined globally in `App.axaml`.

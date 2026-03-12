@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -44,6 +45,15 @@ public partial class ChatPanel : UserControl
             _ = vm.SendMessageCommand.ExecuteAsync(null);
         }
     }
+
+    private void OnTelegramClicked(object? sender, RoutedEventArgs e) =>
+        Process.Start(new ProcessStartInfo("https://t.me/dota2classicru") { UseShellExecute = true });
+
+    private void OnDiscordClicked(object? sender, RoutedEventArgs e) =>
+        Process.Start(new ProcessStartInfo("https://discord.gg/36D4WdNquT") { UseShellExecute = true });
+
+    private void OnSiteClicked(object? sender, RoutedEventArgs e) =>
+        Process.Start(new ProcessStartInfo("https://dotaclassic.ru/") { UseShellExecute = true });
 
     private void ScrollToBottom()
     {

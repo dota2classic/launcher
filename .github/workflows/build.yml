@@ -62,6 +62,7 @@ jobs:
             --packDir publish/ `
             --mainExe d2c-launcher.exe `
             --packTitle "dotaclassic" `
+            --packAuthors "dotaclassic" `
             --icon Assets/icon.ico
 
       - name: Delete existing nightly release
@@ -95,6 +96,7 @@ jobs:
             --packDir publish/ `
             --mainExe d2c-launcher.exe `
             --packTitle "dotaclassic" `
+            --packAuthors "dotaclassic" `
             --icon Assets/icon.ico
 
       - name: Publish stable release

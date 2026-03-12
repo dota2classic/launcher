@@ -2,30 +2,16 @@
             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
             xmlns:vm="using:d2c_launcher.ViewModels"
             x:Class="d2c_launcher.Views.SelectGameView"
-            x:DataType="vm:SelectGameViewModel">
-
-   <UserControl.Background>
-       <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-           <GradientStop Color="#0c0c0c" Offset="0"/>
-           <GradientStop Color="#141820" Offset="0.35"/>
-           <GradientStop Color="#1c2024" Offset="0.5"/>
-           <GradientStop Color="#141820" Offset="0.65"/>
-           <GradientStop Color="#0c0c0c" Offset="1"/>
-       </LinearGradientBrush>
-   </UserControl.Background>
+            x:DataType="vm:SelectGameViewModel"
+            Classes="InitScreen">
 
    <Panel>
 
        <!-- ═══ Main panel: pick folder ═══ -->
-       <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Spacing="16" MaxWidth="420" Margin="24,0"
+       <StackPanel Classes="InitScreenContent"
                    IsVisible="{Binding !IsChoosingDlc}">
 
-           <TextBlock Text="Dotaclassic"
-                      FontFamily="{StaticResource TrajanPro3}"
-                      FontSize="{DynamicResource FontSize4XL}" FontWeight="Bold"
-                      HorizontalAlignment="Center"
-                      Foreground="#D9D9D9"/>
+           <TextBlock Classes="InitScreenTitle" Text="Dotaclassic"/>
 
            <TextBlock Text="Выберите папку для установки игры"
                       FontSize="{DynamicResource FontSizeLG}" HorizontalAlignment="Center"
