@@ -54,6 +54,10 @@ public static class PreviewRegistry
             ["QueueButton"] = () =>
             {
                 var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService());
+                vm.IsSearching = true;
+                vm.SetEnterQueueAt(DateTimeOffset.UtcNow);
+                vm.SetQueuedModeNames(new[] { "Против ботов" });
+                vm.UpdateQueueButtonState();
                 return (new QueueButton(), vm);
             },
             ["GameSearchPanel"] = () =>

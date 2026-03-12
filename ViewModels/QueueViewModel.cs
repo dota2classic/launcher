@@ -17,17 +17,21 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
 {
     // Static brushes — allocated once; avoid new allocations on every property read.
     private static readonly IBrush BrushReady         = new SolidColorBrush(Color.Parse("#1A5276"));
-    private static readonly IBrush BrushSearching     = new SolidColorBrush(Color.Parse("#27AE60"));
-    private static readonly IBrush BrushIdle          = new SolidColorBrush(Color.Parse("#1F8B4C"));
+    private static readonly IBrush BrushSearching     = new SolidColorBrush(Color.Parse("#1B5E2A"));
+    private static readonly IBrush BrushIdle          = new SolidColorBrush(Color.Parse("#1B5E2A"));
     private static readonly IBrush BrushReadyHover    = new SolidColorBrush(Color.Parse("#2E86C1"));
-    private static readonly IBrush BrushSearchingHover = new SolidColorBrush(Color.Parse("#2ECC71"));
-    private static readonly IBrush BrushIdleHover     = new SolidColorBrush(Color.Parse("#27AE60"));
+    private static readonly IBrush BrushSearchingHover = new SolidColorBrush(Color.Parse("#246B32"));
+    private static readonly IBrush BrushIdleHover     = new SolidColorBrush(Color.Parse("#246B32"));
+    private static readonly IBrush BrushBorderReady     = new SolidColorBrush(Color.Parse("#2874A6"));
+    private static readonly IBrush BrushBorderSearching = new SolidColorBrush(Color.Parse("#2E7A38"));
+    private static readonly IBrush BrushBorderIdle      = new SolidColorBrush(Color.Parse("#2E7A38"));
     private readonly IQueueSocketService _queueSocketService;
     private readonly IBackendApiService _backendApiService;
     private readonly DispatcherTimer _queueTimer;
     private DateTimeOffset? _enterQueueAt;
     private int _queuedModeCount;
     private MatchmakingMode[]? _queuedModes;
+    private string[] _queuedModeNames = Array.Empty<string>();
     private bool _hasServerUrl;
 
     [ObservableProperty]
@@ -58,6 +62,10 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
     /// <summary>Lighter version for hover state.</summary>
     public IBrush QueueButtonHoverBackground => _hasServerUrl ? BrushReadyHover
         : IsSearching ? BrushSearchingHover : BrushIdleHover;
+
+    /// <summary>Subtle lighter border to give the button a framed look.</summary>
+    public IBrush QueueButtonBorderBrush => _hasServerUrl ? BrushBorderReady
+        : IsSearching ? BrushBorderSearching : BrushBorderIdle;
 
     public QueueViewModel(IQueueSocketService queueSocketService, IBackendApiService backendApiService)
     {
@@ -165,6 +173,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
                 .Where(m => msg.Modes!.Any(x => (int)x == m.ModeId))
                 .Select(m => m.Name)
                 .ToArray();
+            _queuedModeNames = names;
             SearchingModesText = names.Length > 0
                 ? $"В поиске: {string.Join(", ", names)}"
                 : "В поиске";
@@ -173,6 +182,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         {
             _queuedModes = null;
             _queuedModeCount = 0;
+            _queuedModeNames = Array.Empty<string>();
             SearchingModesText = "Не в поиске";
         }
 
@@ -191,7 +201,9 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         else if (IsSearching)
         {
             QueueButtonMainText = "ОТМЕНИТЬ ПОИСК";
-            QueueButtonModeCountText = _queuedModeCount > 0 ? FormatModeCount(_queuedModeCount) : "";
+            QueueButtonModeCountText = _queuedModeNames.Length == 1
+                ? _queuedModeNames[0].ToUpperInvariant()
+                : (_queuedModeCount > 0 ? FormatModeCount(_queuedModeCount) : "");
             var elapsed = _enterQueueAt.HasValue
                 ? DateTimeOffset.UtcNow.Subtract(_enterQueueAt.Value.UtcDateTime)
                 : TimeSpan.Zero;
@@ -205,9 +217,16 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         }
         OnPropertyChanged(nameof(QueueButtonBackground));
         OnPropertyChanged(nameof(QueueButtonHoverBackground));
+        OnPropertyChanged(nameof(QueueButtonBorderBrush));
     }
 
     public void SetEnterQueueAt(DateTimeOffset? time) => _enterQueueAt = time;
+
+    public void SetQueuedModeNames(string[] names)
+    {
+        _queuedModeNames = names;
+        _queuedModeCount = names.Length;
+    }
 
     // Priority mirrors getLobbyTypePriority from the web client (lower = shown first)
     private static int GetModePriority(int modeId) => modeId + modeId switch
