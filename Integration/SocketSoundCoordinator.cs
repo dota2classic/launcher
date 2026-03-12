@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Threading;
 using d2c_launcher.Services;
 using d2c_launcher.Util;
@@ -9,29 +10,34 @@ namespace d2c_launcher.Integration;
 /// Wires socket events to sound playback, floating invite notifications,
 /// and window restoration from tray on match-critical events.
 /// </summary>
-public sealed class SocketSoundCoordinator
+public sealed class SocketSoundCoordinator : IDisposable
 {
+    private readonly IQueueSocketService _queueSocketService;
+    private readonly Action<PartyInviteReceivedMessage> _onPartyInviteReceived;
+    private readonly Action<PartyInviteExpiredMessage> _onPartyInviteExpired;
+    private readonly Action<PlayerRoomStateMessage?> _onPlayerRoomFound;
+    private readonly Action<PlayerGameStateMessage?> _onPlayerGameStateUpdated;
+
     public SocketSoundCoordinator(
         IQueueSocketService queueSocketService,
         NotificationAreaViewModel notificationArea,
         IWindowService windowService)
     {
-        queueSocketService.PartyInviteReceived += msg =>
+        _queueSocketService = queueSocketService;
+
+        _onPartyInviteReceived = msg =>
         {
             SoundPlayer.Play("party_invite.mp3");
             Dispatcher.UIThread.Post(() => notificationArea.AddInvite(msg));
         };
-
-        queueSocketService.PartyInviteExpired += msg =>
+        _onPartyInviteExpired = msg =>
             Dispatcher.UIThread.Post(() => notificationArea.RemoveByInviteId(msg.InviteId));
-
-        queueSocketService.PlayerRoomFound += _ =>
+        _onPlayerRoomFound = _ =>
         {
             SoundPlayer.Play("match_found.mp3");
             Dispatcher.UIThread.Post(windowService.ShowAndActivate);
         };
-
-        queueSocketService.PlayerGameStateUpdated += msg =>
+        _onPlayerGameStateUpdated = msg =>
         {
             if (!string.IsNullOrEmpty(msg?.ServerUrl))
             {
@@ -39,5 +45,18 @@ public sealed class SocketSoundCoordinator
                 Dispatcher.UIThread.Post(windowService.ShowAndActivate);
             }
         };
+
+        queueSocketService.PartyInviteReceived += _onPartyInviteReceived;
+        queueSocketService.PartyInviteExpired += _onPartyInviteExpired;
+        queueSocketService.PlayerRoomFound += _onPlayerRoomFound;
+        queueSocketService.PlayerGameStateUpdated += _onPlayerGameStateUpdated;
+    }
+
+    public void Dispose()
+    {
+        _queueSocketService.PartyInviteReceived -= _onPartyInviteReceived;
+        _queueSocketService.PartyInviteExpired -= _onPartyInviteExpired;
+        _queueSocketService.PlayerRoomFound -= _onPlayerRoomFound;
+        _queueSocketService.PlayerGameStateUpdated -= _onPlayerGameStateUpdated;
     }
 }

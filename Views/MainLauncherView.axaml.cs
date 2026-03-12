@@ -11,6 +11,7 @@ namespace d2c_launcher.Views;
 public partial class MainLauncherView : UserControl
 {
     private System.ComponentModel.PropertyChangedEventHandler? _vmPropertyChangedHandler;
+    private MainLauncherViewModel? _currentVm;
 
     public MainLauncherView()
     {
@@ -24,13 +25,15 @@ public partial class MainLauncherView : UserControl
     {
         base.OnDataContextChanged(e);
 
-        if (_vmPropertyChangedHandler != null && DataContext is MainLauncherViewModel oldVm)
-            oldVm.PropertyChanged -= _vmPropertyChangedHandler;
+        if (_vmPropertyChangedHandler != null && _currentVm != null)
+            _currentVm.PropertyChanged -= _vmPropertyChangedHandler;
 
         _vmPropertyChangedHandler = null;
+        _currentVm = null;
 
         if (DataContext is MainLauncherViewModel vm)
         {
+            _currentVm = vm;
             _vmPropertyChangedHandler = (_, args) =>
             {
                 if (args.PropertyName is nameof(MainLauncherViewModel.IntroStep)

@@ -33,6 +33,10 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     /// </summary>
     public Action<List<string>>? OnDlcChanged { get; set; }
     private readonly DispatcherTimer _onlineStatsTimer;
+    private readonly SocketSoundCoordinator _soundCoordinator;
+    private readonly Action<OnlineUpdateMessage> _onlineUpdatedHandler;
+    private readonly Action<User?> _onUserUpdatedHandler;
+    private readonly Action<string?> _tokenAppliedHandler;
 
     // ── Child ViewModels ──────────────────────────────────────────────────────
     public GameLaunchViewModel Launch { get; }
@@ -129,10 +133,10 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Settings.OnDlcChanged = removedIds => OnDlcChanged?.Invoke(removedIds);
         Chat = chatViewModelFactory.Create("17aa3530-d152-462e-a032-909ae69019ed");
         Chat.OpenPlayerProfile = OpenPlayerProfile;
-        _ = Chat.StartAsync();
+        FireAndForget(Chat.StartAsync(), "Chat.StartAsync");
         Profile = new ProfileViewModel(backendApiService);
 
-        _ = new SocketSoundCoordinator(queueSocketService, NotificationArea, windowService);
+        _soundCoordinator = new SocketSoundCoordinator(queueSocketService, NotificationArea, windowService);
 
         // Wire delegates into children that need auth state
         Room.GetCurrentUser = () => CurrentUser;
@@ -146,21 +150,22 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Party.PartyMembersChanged += members => Queue.ApplyPartyRestrictions(members);
 
         // на сайте: updated from socket events
-        queueSocketService.OnlineUpdated += msg => Dispatcher.UIThread.Post(() =>
+        _onlineUpdatedHandler = msg => Dispatcher.UIThread.Post(() =>
         {
             OnlineSessions = msg.Online?.Length ?? 0;
             OnPropertyChanged(nameof(OnlineStatsText));
             Queue.OnlineStatsText = OnlineStatsText;
         });
+        queueSocketService.OnlineUpdated += _onlineUpdatedHandler;
 
         // в игре: polled from API every 5 seconds
         _onlineStatsTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
-        _onlineStatsTimer.Tick += (_, _) => { _ = RefreshInGameCountAsync(); };
+        _onlineStatsTimer.Tick += (_, _) => FireAndForget(RefreshInGameCountAsync(), "RefreshInGameCountAsync (timer)");
         _onlineStatsTimer.Start();
-        _ = RefreshInGameCountAsync();
+        FireAndForget(RefreshInGameCountAsync(), "RefreshInGameCountAsync (startup)");
 
         // Steam user profile events
-        _steamManager.OnUserUpdated += u => Dispatcher.UIThread.Post(() =>
+        _onUserUpdatedHandler = u => Dispatcher.UIThread.Post(() =>
         {
             var oldBitmap = AvatarImage;
             CurrentUser = u;
@@ -168,12 +173,13 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
             oldBitmap?.Dispose();
             OnPropertyChanged(nameof(LoggedInAsText));
         });
+        _steamManager.OnUserUpdated += _onUserUpdatedHandler;
 
-        _authCoordinator.TokenApplied += token =>
+        _tokenAppliedHandler = token =>
         {
             if (token != null)
             {
-                _ = Party.RefreshPartyAsync();
+                FireAndForget(Party.RefreshPartyAsync(), "RefreshPartyAsync (TokenApplied)");
                 Chat.RestartSse();
             }
             else
@@ -181,14 +187,21 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
                 Party.ClearParty();
             }
         };
+        _authCoordinator.TokenApplied += _tokenAppliedHandler;
         _authCoordinator.Start(settings.BackendAccessToken);
 
         // When cvar state changes (e.g. config.cfg re-read after game exit), refresh UI
         _cvarProvider.CvarChanged += OnCvarChanged;
 
-        _ = Party.RefreshPartyAsync();
-        _ = Queue.RefreshMatchmakingModesAsync();
+        FireAndForget(Party.RefreshPartyAsync(), "Party.RefreshPartyAsync (startup)");
+        FireAndForget(Queue.RefreshMatchmakingModesAsync(), "Queue.RefreshMatchmakingModesAsync (startup)");
 
+    }
+
+    private static async void FireAndForget(Task task, string context)
+    {
+        try { await task; }
+        catch (Exception ex) { AppLog.Error($"FireAndForget({context})", ex); }
     }
 
     private void OnCvarChanged()
@@ -236,7 +249,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
                 _videoProvider.LoadFromVideoTxt(gameDir);
                 Settings.RefreshFromVideoProvider();
             }
-            _ = Settings.LoadDlcPackagesAsync();
+            FireAndForget(Settings.LoadDlcPackagesAsync(), "Settings.LoadDlcPackagesAsync");
         }
     }
 
@@ -257,7 +270,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     /// <summary>Navigates to the profile tab and loads the specified player. Receives steam32 ID.</summary>
     public void OpenPlayerProfile(string steam32Id)
     {
-        _ = Profile.LoadAsync(steam32Id);
+        FireAndForget(Profile.LoadAsync(steam32Id), "Profile.LoadAsync");
         ActiveTab = LauncherTab.Profile;
     }
 
@@ -322,6 +335,11 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public void Dispose()
     {
         _onlineStatsTimer.Stop();
+        _queueSocketService.OnlineUpdated -= _onlineUpdatedHandler;
+        _steamManager.OnUserUpdated -= _onUserUpdatedHandler;
+        _authCoordinator.TokenApplied -= _tokenAppliedHandler;
+        _cvarProvider.CvarChanged -= OnCvarChanged;
+        _soundCoordinator.Dispose();
         _authCoordinator.Dispose();
         Launch.Dispose();
         Queue.Dispose();
