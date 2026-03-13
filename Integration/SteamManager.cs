@@ -23,10 +23,13 @@ public class SteamManager : IDisposable
     public event Action<User?>? OnUserUpdated;
     public event Action<SteamStatus>? OnSteamStatusUpdated;
     public event Action<string?>? OnSteamAuthorizationChanged;
+    public event Action? OnSteamPolled;
 
     public User? CurrentUser { get; private set; }
     public SteamStatus SteamStatus { get; private set; } = SteamStatus.Checking;
     public string? CurrentAuthTicket => _steamAuthTicket;
+    public int BridgeFailStreak => _bridgeFailStreak;
+    public string? LastBridgeStatus { get; private set; }
 
     public SteamManager()
     {
@@ -44,6 +47,7 @@ public class SteamManager : IDisposable
         {
             try
             {
+                OnSteamPolled?.Invoke();
                 var steamRunning = IsSteamProcessRunning();
                 var activeUser = steamRunning ? TryReadActiveUserSteamId() : 0UL;
 
@@ -98,6 +102,7 @@ public class SteamManager : IDisposable
                         // Bridge returned no user — may be a normal transient state or a real error.
                         _bridgeFailStreak++;
                         var bridgeStatus = snapshot?.Status;
+                        LastBridgeStatus = bridgeStatus;
                         // These statuses mean Steam/bridge isn't ready yet — expected, not errors.
                         var isExpected = bridgeStatus is null or "NotRunning" or "NotLoggedIn" or "InitFailed" or "AuthTicketTimeout" or "AuthTicketFailed";
                         if (isExpected)

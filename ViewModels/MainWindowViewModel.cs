@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -10,6 +12,7 @@ using d2c_launcher.Integration;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
 using d2c_launcher.Util;
+using Microsoft.Win32;
 
 namespace d2c_launcher.ViewModels;
 
@@ -34,6 +37,9 @@ public partial class MainWindowViewModel : ViewModelBase
 
     /// <summary>Pending spectate match ID received before the Launcher state was entered.</summary>
     private int? _pendingSpectateMatchId;
+
+    /// <summary>Cleanup action to run when the current content VM is disposed.</summary>
+    private Action? _currentVmCleanup;
 
     /// <summary>Error message to display on the SelectGame screen after an invalid directory reset.</summary>
     private string? _pendingSelectGameError;
@@ -185,10 +191,14 @@ public partial class MainWindowViewModel : ViewModelBase
             case AppState.SteamNotRunning:
             case AppState.SteamOffline:
                 DisposeCurrentVm();
-                CurrentContentViewModel = new LaunchSteamFirstViewModel
+                var steamFirstVm = new LaunchSteamFirstViewModel
                 {
-                    TryAgainCallback = TransitionOnSteamUpdate
+                    TryAgainCallback = TransitionOnSteamUpdate,
+                    GetDiagnostics = CollectSteamDiagnostics
                 };
+                _steamManager.OnSteamPolled += steamFirstVm.FireCheck;
+                _currentVmCleanup = () => _steamManager.OnSteamPolled -= steamFirstVm.FireCheck;
+                CurrentContentViewModel = steamFirstVm;
                 break;
 
             case AppState.SelectGameDirectory:
@@ -341,8 +351,67 @@ public partial class MainWindowViewModel : ViewModelBase
             _pendingSpectateMatchId = matchId;
     }
 
+    private Dictionary<string, string> CollectSteamDiagnostics()
+    {
+        var attrs = new Dictionary<string, string>();
+
+        // Steam process
+        var steamProcs = Process.GetProcessesByName("steam");
+        attrs["steam_process_count"] = steamProcs.Length.ToString();
+        foreach (var p in steamProcs) p.Dispose();
+
+        // Registry: ActiveUser
+        try
+        {
+            using var key = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam\ActiveProcess", false);
+            var raw = key?.GetValue("ActiveUser");
+            attrs["active_user_registry"] = raw?.ToString() ?? "null";
+        }
+        catch (Exception ex)
+        {
+            attrs["active_user_registry"] = $"error:{ex.GetType().Name}";
+        }
+
+        // Registry: Steam install path
+        try
+        {
+            using var key = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam", false);
+            var path = key?.GetValue("SteamPath")?.ToString();
+            attrs["steam_path_registry"] = path ?? "null";
+        }
+        catch (Exception ex)
+        {
+            attrs["steam_path_registry"] = $"error:{ex.GetType().Name}";
+        }
+
+        // Bridge exe
+        var bridgePath = Path.Combine(AppContext.BaseDirectory, "d2c-steam-bridge.exe");
+        attrs["bridge_exe_exists"] = File.Exists(bridgePath).ToString();
+
+        // SteamManager state
+        attrs["steam_status"] = _steamManager.SteamStatus.ToString();
+        attrs["bridge_fail_streak"] = _steamManager.BridgeFailStreak.ToString();
+        attrs["bridge_last_status"] = _steamManager.LastBridgeStatus ?? "null";
+
+        // Elevation (running as admin breaks HKCU reads when Steam runs non-elevated)
+        try
+        {
+            using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
+            var principal = new System.Security.Principal.WindowsPrincipal(identity);
+            attrs["is_elevated"] = principal.IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator).ToString();
+        }
+        catch
+        {
+            attrs["is_elevated"] = "unknown";
+        }
+
+        return attrs;
+    }
+
     private void DisposeCurrentVm()
     {
+        _currentVmCleanup?.Invoke();
+        _currentVmCleanup = null;
         (CurrentContentViewModel as System.IDisposable)?.Dispose();
         CurrentContentViewModel = null;
     }
