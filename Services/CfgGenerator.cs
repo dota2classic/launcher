@@ -83,12 +83,12 @@ public static class CfgGenerator
     {
         var parts = new List<string>();
 
-        if (!string.IsNullOrWhiteSpace(settings.ExtraArgs))
-            parts.Add(settings.ExtraArgs.Trim());
         if (settings.NoVid)
             parts.Add("-novid");
         if (!string.IsNullOrWhiteSpace(settings.Language))
             parts.Add($"-language {settings.Language}");
+        if (!string.IsNullOrWhiteSpace(settings.ExtraArgs))
+            parts.Add(settings.ExtraArgs.Trim());
 
         return string.Join(" ", parts);
     }

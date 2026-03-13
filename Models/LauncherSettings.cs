@@ -66,10 +66,15 @@ public class LauncherSettings
     public bool NightlyUpdates { get; set; } = false;
 
     /// <summary>
-    /// UI font scale step. 0 = default (no change), each step adds 1pt to every font size tier.
-    /// Range: 0–4.
+    /// IDs of matchmaking modes the user has selected for queue.
+    /// Null means the user has never saved a selection — defaults to mode 7 (Bots).
     /// </summary>
-    /// <summary>Null means the field was absent in JSON — treated as default (1).</summary>
+    public List<int>? SelectedModeIds { get; set; }
+
+    /// <summary>
+    /// UI font scale step. 0 = default (no change), each step adds 1pt to every font size tier.
+    /// Range: 0–4. Null means the field was absent in JSON — treated as default (3).
+    /// </summary>
     public int? UiScaleRaw { get; set; }
 
     [System.Text.Json.Serialization.JsonIgnore]

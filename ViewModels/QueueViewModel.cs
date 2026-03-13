@@ -25,8 +25,11 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
     private static readonly IBrush BrushBorderReady     = new SolidColorBrush(Color.Parse("#2874A6"));
     private static readonly IBrush BrushBorderSearching = new SolidColorBrush(Color.Parse("#2E7A38"));
     private static readonly IBrush BrushBorderIdle      = new SolidColorBrush(Color.Parse("#2E7A38"));
+    private static readonly IReadOnlyList<int> DefaultSelectedModeIds = new[] { 7 };
+
     private readonly IQueueSocketService _queueSocketService;
     private readonly IBackendApiService _backendApiService;
+    private readonly ISettingsStorage _settingsStorage;
     private readonly DispatcherTimer _queueTimer;
     private DateTimeOffset? _enterQueueAt;
     private int _queuedModeCount;
@@ -70,10 +73,11 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
     /// <summary>Called when the user presses queue with no modes selected. Set by the parent VM.</summary>
     public Action? ShowNoModesSelectedToast { get; set; }
 
-    public QueueViewModel(IQueueSocketService queueSocketService, IBackendApiService backendApiService)
+    public QueueViewModel(IQueueSocketService queueSocketService, IBackendApiService backendApiService, ISettingsStorage settingsStorage)
     {
         _queueSocketService = queueSocketService;
         _backendApiService = backendApiService;
+        _settingsStorage = settingsStorage;
 
         _queueTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _queueTimer.Tick += (_, _) => UpdateQueueButtonState();
@@ -134,14 +138,24 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         try
         {
             var modes = await _backendApiService.GetEnabledMatchmakingModesAsync();
+            var settings = _settingsStorage.Get();
+            var savedIds = settings.SelectedModeIds ?? (IReadOnlyList<int>)DefaultSelectedModeIds;
+
             var next = new ObservableCollection<MatchmakingModeView>();
 
             foreach (var mode in modes)
             {
                 var existing = MatchmakingModes.FirstOrDefault(m => m.ModeId == mode.ModeId);
-                var view = new MatchmakingModeView(mode.ModeId, mode.Name, existing?.IsSelected ?? false)
+                // Prefer in-memory state if already loaded; otherwise use persisted selection.
+                bool isSelected = existing?.IsSelected ?? savedIds.Contains(mode.ModeId);
+                var view = new MatchmakingModeView(mode.ModeId, mode.Name, isSelected)
                 {
                     InQueue = existing?.InQueue ?? 0
+                };
+                view.PropertyChanged += (_, e) =>
+                {
+                    if (e.PropertyName == nameof(MatchmakingModeView.IsSelected))
+                        PersistSelectedModes();
                 };
                 next.Add(view);
             }
@@ -153,6 +167,21 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         catch (Exception ex)
         {
             AppLog.Error("Failed to load matchmaking modes.", ex);
+        }
+    }
+
+    private void PersistSelectedModes()
+    {
+        try
+        {
+            var settings = _settingsStorage.Get();
+            var ids = MatchmakingModes.Where(m => m.IsSelected).Select(m => m.ModeId).ToList();
+            settings.SelectedModeIds = ids.Count > 0 ? ids : null;
+            _settingsStorage.Save(settings);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("Failed to persist selected matchmaking modes.", ex);
         }
     }
 

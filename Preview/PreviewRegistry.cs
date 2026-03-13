@@ -53,7 +53,7 @@ public static class PreviewRegistry
             },
             ["QueueButton"] = () =>
             {
-                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService());
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage());
                 vm.IsSearching = true;
                 vm.SetEnterQueueAt(DateTimeOffset.UtcNow);
                 vm.SetQueuedModeNames(new[] { "Против ботов" });
@@ -62,7 +62,7 @@ public static class PreviewRegistry
             },
             ["GameSearchPanel"] = () =>
             {
-                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService());
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage());
                 return (new GameSearchPanel(), vm);
             },
             ["AcceptGameModal"] = () =>
