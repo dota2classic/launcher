@@ -3,10 +3,28 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using d2c_launcher.Api;
+using d2c_launcher.Integration;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
 
 namespace d2c_launcher.Preview;
+
+internal sealed class StubSteamManager : ISteamManager
+{
+    public User? CurrentUser => null;
+    public SteamStatus SteamStatus => SteamStatus.NotRunning;
+    public string? CurrentAuthTicket => null;
+    public int BridgeFailStreak => 0;
+    public string? LastBridgeStatus => null;
+#pragma warning disable CS0067
+    public event Action<User?>? OnUserUpdated;
+    public event Action<SteamStatus>? OnSteamStatusUpdated;
+    public event Action<string?>? OnSteamAuthorizationChanged;
+    public event Action? OnSteamPolled;
+#pragma warning restore CS0067
+    public void PollSteamState() { }
+    public void Dispose() { }
+}
 
 internal sealed class StubQueueSocketService : IQueueSocketService
 {

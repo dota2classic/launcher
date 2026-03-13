@@ -17,7 +17,7 @@ public enum LauncherTab { Play, Live, Profile }
 
 public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 {
-    private readonly SteamManager _steamManager;
+    private readonly ISteamManager _steamManager;
     private readonly ISettingsStorage _settingsStorage;
     private readonly IQueueSocketService _queueSocketService;
     private readonly IBackendApiService _backendApiService;
@@ -86,7 +86,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         : "Steam offline or not logged in.";
 
     public MainLauncherViewModel(
-        SteamManager steamManager,
+        ISteamManager steamManager,
         ISettingsStorage settingsStorage,
         IGameLaunchSettingsStorage launchSettingsStorage,
         ICvarSettingsProvider cvarProvider,

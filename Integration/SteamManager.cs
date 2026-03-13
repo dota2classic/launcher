@@ -11,7 +11,7 @@ using d2c_launcher.Util;
 namespace d2c_launcher.Integration;
 
 [SupportedOSPlatform("windows")]
-public class SteamManager : IDisposable
+public class SteamManager : ISteamManager
 {
     private const string BridgeExeName = "d2c-steam-bridge.exe";
     private readonly CancellationTokenSource _shutdown = new();

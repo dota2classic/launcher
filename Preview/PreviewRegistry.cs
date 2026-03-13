@@ -23,7 +23,7 @@ public static class PreviewRegistry
                 var stub = new StubQueueSocketService();
                 var api = new StubBackendApiService();
                 var vm = new MainLauncherViewModel(
-                    new d2c_launcher.Integration.SteamManager(),
+                    new StubSteamManager(),
                     new StubSettingsStorage(),
                     new StubGameLaunchSettingsStorage(),
                     new StubCvarSettingsProvider(),

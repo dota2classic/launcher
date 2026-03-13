@@ -18,9 +18,9 @@ namespace d2c_launcher.Services;
 
 public sealed class BackendApiService : IBackendApiService, IDisposable
 {
-    // TODO: Read base URL from an environment variable (e.g. D2C_API_URL) for parity with
-    // QueueSocketService, which already uses D2C_SOCKET_URL. Hardcoding makes staging impossible.
-    private static readonly Uri BaseUri = new("https://api.dotaclassic.ru/");
+    private const string DefaultApiUrl = "https://api.dotaclassic.ru/";
+    private const string ApiUrlEnvVar = "D2C_API_URL";
+    private static readonly Uri BaseUri = new(Environment.GetEnvironmentVariable(ApiUrlEnvVar) ?? DefaultApiUrl);
     // Shared client for unauthenticated requests (modes, online stats, avatar loading).
     private readonly HttpClient _httpClient = new HttpClient
     {

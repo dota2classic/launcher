@@ -2,6 +2,30 @@
 
 ## Current Focus
 
+**Integration testing research** — completed. Plan saved to `docs/integration-testing-plan.md`.
+
+Key findings:
+- 195 unit tests, all passing; no mocking library yet (need NSubstitute)
+- Most services have interfaces already; `SteamManager` is the main blocker (no `ISteamManager`)
+- Layered plan: Layer 1 = service-level fakes (no Avalonia), Layer 2 = ViewModel tests with `Avalonia.Headless.XUnit`, Layer 3 = full HTTP/WS mocks
+- Next steps: add NSubstitute, extract `ISteamManager`, add `D2C_API_URL` env var, write `FakeQueueSocketService`
+
+---
+
+## Previous Focus
+
+**Issue #71: Persist selected game modes** — implemented.
+
+### What Was Changed
+- `Models/LauncherSettings.cs` — added `List<int>? SelectedModeIds`; null = first run, defaults to mode 7 (Bots)
+- `ViewModels/QueueViewModel.cs` — injected `ISettingsStorage`; `RefreshMatchmakingModesAsync` loads initial selection from settings (or defaults to `[7]`); each `MatchmakingModeView.IsSelected` change triggers `PersistSelectedModes()` which saves to settings
+- `ViewModels/MainLauncherViewModel.cs` — passes `settingsStorage` to `QueueViewModel` constructor
+- `Preview/PreviewRegistry.cs` — updated two `QueueViewModel` instantiations to pass `StubSettingsStorage`
+
+---
+
+## Previous Focus
+
 **Issue #66: Toast/notification system** — implemented.
 
 ### What Was Changed

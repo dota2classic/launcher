@@ -200,6 +200,7 @@ Project documentation lives in the `docs/` directory. Current files:
 | [docs/computer-use-workflow.md](docs/computer-use-workflow.md) | Step-by-step workflow for implementing and visually verifying UI changes using the computer-use MCP |
 | [docs/release-cycle.md](docs/release-cycle.md) | Release channels (nightly/stable), CI workflow, Velopack channel mechanics, opting into nightly updates |
 | [docs/ui-style-system.md](docs/ui-style-system.md) | Global style classes (`Block`, `BlockHead`, `BlockTitle`), font size tokens, font families, sub-tab styles |
+| [docs/integration-testing-plan.md](docs/integration-testing-plan.md) | Integration testing strategy: what's mockable, blockers (`ISteamManager`), layered plan (NSubstitute → Avalonia.Headless.XUnit → WireMock), concrete next steps |
 
 When you discover new domain knowledge, architectural decisions, or non-trivial technical details during implementation, **write them up as a new `.md` file in `docs/`** and add an entry to this table. Keep docs focused — one topic per file.
 

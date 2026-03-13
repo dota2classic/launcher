@@ -18,7 +18,7 @@ namespace d2c_launcher.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    private readonly SteamManager _steamManager;
+    private readonly ISteamManager _steamManager;
     private readonly ISettingsStorage _settingsStorage;
     private readonly IGameLaunchSettingsStorage _launchSettingsStorage;
     private readonly ISteamAuthApi _steamAuthApi;
@@ -72,7 +72,7 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     public MainWindowViewModel(
-        SteamManager steamManager,
+        ISteamManager steamManager,
         ISettingsStorage settingsStorage,
         IGameLaunchSettingsStorage launchSettingsStorage,
         ISteamAuthApi steamAuthApi,

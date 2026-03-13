@@ -122,6 +122,10 @@
 | `CvarMapping` tests | ✅ Done |
 | `DotaCfgWriter` tests (issue #0e31d40) | ✅ Done |
 | CI test step | ✅ Done |
+| Integration testing research | ✅ Done — see `docs/integration-testing-plan.md` |
+| NSubstitute + `ISteamManager` extraction | 🔲 Planned |
+| `FakeQueueSocketService` | 🔲 Planned |
+| ViewModel integration tests (Avalonia.Headless.XUnit) | 🔲 Planned |
 
 
 ### CI/CD

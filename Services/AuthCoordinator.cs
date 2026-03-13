@@ -10,11 +10,11 @@ namespace d2c_launcher.Services;
 /// <summary>
 /// Coordinates backend JWT token application: sets it on the API client,
 /// connects/disconnects the queue socket, and persists it to settings.
-/// Subscribes to <see cref="SteamManager.OnSteamAuthorizationChanged"/>.
+/// Subscribes to <see cref="ISteamManager.OnSteamAuthorizationChanged"/>.
 /// </summary>
 public sealed class AuthCoordinator : IDisposable
 {
-    private readonly SteamManager _steamManager;
+    private readonly ISteamManager _steamManager;
     private readonly IBackendApiService _backendApiService;
     private readonly IQueueSocketService _queueSocketService;
     private readonly ISettingsStorage _settingsStorage;
@@ -30,7 +30,7 @@ public sealed class AuthCoordinator : IDisposable
     public string? CurrentToken { get; private set; }
 
     public AuthCoordinator(
-        SteamManager steamManager,
+        ISteamManager steamManager,
         IBackendApiService backendApiService,
         IQueueSocketService queueSocketService,
         ISettingsStorage settingsStorage)

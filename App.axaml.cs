@@ -54,7 +54,7 @@ public partial class App : Application
             };
 
             var services = new ServiceCollection();
-            services.AddSingleton<SteamManager>();
+            services.AddSingleton<ISteamManager, SteamManager>();
             services.AddSingleton<ISettingsStorage, SettingsStorage>();
             services.AddSingleton<IGameLaunchSettingsStorage, GameLaunchSettingsStorage>();
             services.AddSingleton<ICvarSettingsProvider, CvarSettingsProvider>();
@@ -78,7 +78,7 @@ public partial class App : Application
 
             ProtocolRegistrationService.EnsureRegistered();
 
-            var steamManager = _services.GetRequiredService<SteamManager>();
+            var steamManager = _services.GetRequiredService<ISteamManager>();
             var queueSocket = _services.GetRequiredService<IQueueSocketService>();
             var mainVm = _services.GetRequiredService<MainWindowViewModel>();
             var windowService = (WindowService)_services.GetRequiredService<IWindowService>();
