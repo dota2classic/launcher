@@ -2,66 +2,113 @@
             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
             xmlns:vm="using:d2c_launcher.ViewModels"
             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+            xmlns:components="using:d2c_launcher.Views.Components"
             x:Class="d2c_launcher.Views.Components.NotificationArea"
             x:DataType="vm:NotificationAreaViewModel">
 
-   <ItemsControl ItemsSource="{Binding Invites}">
-       <ItemsControl.ItemTemplate>
-           <DataTemplate x:DataType="vm:PartyInviteNotificationViewModel">
+   <ItemsControl ItemsSource="{Binding Notifications}">
+       <ItemsControl.DataTemplates>
+
+           <!-- Party invite toast -->
+           <DataTemplate DataType="vm:PartyInviteNotificationViewModel">
                <Border Background="#1c2024"
                        BorderBrush="#2d3842" BorderThickness="1"
-                       CornerRadius="0" Padding="14"
-                       Margin="0,0,0,8" Width="290">
-                   <StackPanel Spacing="12">
+                       CornerRadius="0" Margin="0,0,0,8" Width="290"
+                       ClipToBounds="True">
+                   <Grid RowDefinitions="Auto,3">
 
-                       <!-- Inviter info + countdown -->
-                       <Grid ColumnDefinitions="Auto,*,Auto">
-                           <Border Grid.Column="0"
-                                   Width="42" Height="42"
-                                   CornerRadius="0" ClipToBounds="True"
-                                   Background="#242c34">
-                               <Image Stretch="UniformToFill"
-                                      asyncImageLoader:ImageLoader.Source="{Binding InviterAvatarUrl}"/>
-                           </Border>
-                           <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                               <TextBlock Text="{Binding InviterName}"
-                                          FontWeight="SemiBold" Foreground="#4DA9F3"
-                                          TextTrimming="CharacterEllipsis"/>
-                               <TextBlock Text="Приглашает в группу"
-                                          FontSize="{DynamicResource FontSizeSM}" Foreground="#AAAAAA"/>
-                           </StackPanel>
-                           <TextBlock Grid.Column="2"
-                                      Text="{Binding RemainingSeconds}"
-                                      Foreground="#535252" FontSize="{DynamicResource FontSizeSM}"
-                                      VerticalAlignment="Top"/>
-                       </Grid>
+                       <StackPanel Grid.Row="0" Spacing="12" Margin="14">
 
-                       <!-- Accept / Decline -->
-                       <Grid ColumnDefinitions="*,6,*">
-                           <Button Grid.Column="0"
-                                   Content="ПРИНЯТЬ"
-                                   Command="{Binding AcceptCommand}"
-                                   Background="#1a5aaa" Foreground="White"
-                                   FontSize="{DynamicResource FontSizeBase}" FontWeight="Bold"
-                                   CornerRadius="0" BorderThickness="0"
-                                   HorizontalAlignment="Stretch"
-                                   HorizontalContentAlignment="Center"
-                                   Padding="0,8"/>
-                           <Button Grid.Column="2"
-                                   Content="ОТКЛОНИТЬ"
-                                   Command="{Binding DeclineCommand}"
-                                   Background="#6e2222" Foreground="White"
-                                   FontSize="{DynamicResource FontSizeBase}" FontWeight="Bold"
-                                   CornerRadius="0" BorderThickness="0"
-                                   HorizontalAlignment="Stretch"
-                                   HorizontalContentAlignment="Center"
-                                   Padding="0,8"/>
-                       </Grid>
+                           <!-- Inviter info + close -->
+                           <Grid ColumnDefinitions="Auto,*,Auto">
+                               <Border Grid.Column="0"
+                                       Width="42" Height="42"
+                                       CornerRadius="0" ClipToBounds="True"
+                                       Background="#242c34">
+                                   <Image Stretch="UniformToFill"
+                                          asyncImageLoader:ImageLoader.Source="{Binding InviterAvatarUrl}"/>
+                               </Border>
+                               <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                   <TextBlock Text="{Binding InviterName}"
+                                              FontWeight="SemiBold" Foreground="#4DA9F3"
+                                              TextTrimming="CharacterEllipsis"/>
+                                   <TextBlock Text="Приглашает в группу"
+                                              FontSize="{DynamicResource FontSizeSM}" Foreground="#AAAAAA"/>
+                               </StackPanel>
+                               <Button Grid.Column="2"
+                                       Content="✕"
+                                       Command="{Binding DismissCommand}"
+                                       Background="Transparent" Foreground="#535252"
+                                       FontSize="{DynamicResource FontSizeSM}"
+                                       BorderThickness="0" Padding="0"
+                                       VerticalAlignment="Top" HorizontalAlignment="Right"
+                                       Cursor="Hand"/>
+                           </Grid>
 
-                   </StackPanel>
+                           <!-- Accept / Decline -->
+                           <Grid ColumnDefinitions="*,6,*">
+                               <Button Grid.Column="0"
+                                       Content="ПРИНЯТЬ"
+                                       Command="{Binding AcceptCommand}"
+                                       Background="#1a5aaa" Foreground="White"
+                                       FontSize="{DynamicResource FontSizeBase}" FontWeight="Bold"
+                                       CornerRadius="0" BorderThickness="0"
+                                       HorizontalAlignment="Stretch"
+                                       HorizontalContentAlignment="Center"
+                                       Padding="0,8"/>
+                               <Button Grid.Column="2"
+                                       Content="ОТКЛОНИТЬ"
+                                       Command="{Binding DeclineCommand}"
+                                       Background="#6e2222" Foreground="White"
+                                       FontSize="{DynamicResource FontSizeBase}" FontWeight="Bold"
+                                       CornerRadius="0" BorderThickness="0"
+                                       HorizontalAlignment="Stretch"
+                                       HorizontalContentAlignment="Center"
+                                       Padding="0,8"/>
+                           </Grid>
+
+                       </StackPanel>
+
+                       <!-- Duration bar -->
+                       <components:ToastTimerBar Grid.Row="1"/>
+
+                   </Grid>
                </Border>
            </DataTemplate>
-       </ItemsControl.ItemTemplate>
+
+           <!-- Simple text toast -->
+           <DataTemplate DataType="vm:SimpleToastViewModel">
+               <Border Background="#1c2024"
+                       BorderBrush="#2d3842" BorderThickness="1"
+                       CornerRadius="0" Margin="0,0,0,8" Width="290"
+                       ClipToBounds="True">
+                   <Grid RowDefinitions="Auto,3">
+
+                       <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="14">
+                           <TextBlock Grid.Column="0"
+                                      Text="{Binding Message}"
+                                      Foreground="#DDDDDD"
+                                      FontSize="{DynamicResource FontSizeSM}"
+                                      TextWrapping="Wrap"
+                                      VerticalAlignment="Center"/>
+                           <Button Grid.Column="1"
+                                   Content="✕"
+                                   Command="{Binding DismissCommand}"
+                                   Background="Transparent" Foreground="#535252"
+                                   FontSize="{DynamicResource FontSizeSM}"
+                                   BorderThickness="0" Padding="0" Margin="10,0,0,0"
+                                   VerticalAlignment="Top" HorizontalAlignment="Right"
+                                   Cursor="Hand"/>
+                       </Grid>
+
+                       <!-- Duration bar -->
+                       <components:ToastTimerBar Grid.Row="1"/>
+
+                   </Grid>
+               </Border>
+           </DataTemplate>
+
+       </ItemsControl.DataTemplates>
    </ItemsControl>
 
 </UserControl>

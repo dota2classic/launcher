@@ -9,17 +9,17 @@ public sealed class NotificationAreaViewModel
 {
     private readonly IQueueSocketService _queueSocketService;
 
-    public ObservableCollection<PartyInviteNotificationViewModel> Invites { get; } = new();
+    public ObservableCollection<NotificationViewModel> Notifications { get; } = new();
 
     public NotificationAreaViewModel(IQueueSocketService queueSocketService)
     {
         _queueSocketService = queueSocketService;
     }
 
-    public void AddInvite(Services.PartyInviteReceivedMessage msg)
+    public void AddInvite(PartyInviteReceivedMessage msg)
     {
         // Don't show duplicates
-        if (Invites.Any(v => v.InviteId == msg.InviteId))
+        if (Notifications.OfType<PartyInviteNotificationViewModel>().Any(v => v.InviteId == msg.InviteId))
             return;
 
         var avatarUrl = msg.Inviter?.AvatarSmall ?? msg.Inviter?.Avatar;
@@ -29,14 +29,22 @@ public sealed class NotificationAreaViewModel
             avatarUrl,
             (id, accept) => _queueSocketService.AcceptPartyInviteAsync(id, accept));
 
-        vm.Closed += v => Dispatcher.UIThread.Post(() => Invites.Remove(v));
-
-        Invites.Add(vm);
+        vm.Closed += v => Dispatcher.UIThread.Post(() => Notifications.Remove(v));
+        Notifications.Add(vm);
     }
 
     public void RemoveByInviteId(string inviteId)
     {
-        var vm = Invites.FirstOrDefault(v => v.InviteId == inviteId);
+        var vm = Notifications.OfType<PartyInviteNotificationViewModel>()
+            .FirstOrDefault(v => v.InviteId == inviteId);
         vm?.ForceClose();
+    }
+
+    /// <summary>Shows a simple text toast that auto-dismisses.</summary>
+    public void AddToast(string message, int displaySeconds = 4)
+    {
+        var vm = new SimpleToastViewModel(message, displaySeconds);
+        vm.Closed += v => Dispatcher.UIThread.Post(() => Notifications.Remove(v));
+        Dispatcher.UIThread.Post(() => Notifications.Add(vm));
     }
 }
