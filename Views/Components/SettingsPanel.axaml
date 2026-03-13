@@ -199,10 +199,28 @@
                                     <TextBlock Text="Разрешение" Classes="setting-label"/>
                                     <TextBlock Text="Разрешение экрана игры" Classes="setting-desc"/>
                                 </StackPanel>
-                                <ComboBox Grid.Column="1" Width="140"
-                                          ItemsSource="{Binding AvailableResolutions}"
-                                          SelectedIndex="{Binding SelectedResolutionIndex}"
-                                          VerticalAlignment="Center"/>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                    <ComboBox Width="80"
+                                              ItemsSource="{Binding AvailableAspectRatios}"
+                                              SelectedIndex="{Binding SelectedAspectRatioIndex}"/>
+                                    <ComboBox Width="140"
+                                              ItemsSource="{Binding AvailableResolutions}"
+                                              SelectedItem="{Binding SelectedResolution}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:ResolutionItem">
+                                                <Grid ColumnDefinitions="*,Auto">
+                                                    <TextBlock Grid.Column="0" Text="{Binding Label}" VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="1" Text="монитор"
+                                                               IsVisible="{Binding IsNative}"
+                                                               Foreground="#66FFFFFF"
+                                                               FontSize="11"
+                                                               Margin="8,0,0,0"
+                                                               VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </StackPanel>
                             </Grid>
 
                         </StackPanel>

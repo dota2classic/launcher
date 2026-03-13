@@ -2,6 +2,8 @@ using System;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia;
+using d2c_launcher.ViewModels;
 
 namespace d2c_launcher.Views.Components;
 
@@ -24,6 +26,28 @@ public partial class SettingsPanel : UserControl
     public SettingsPanel()
     {
         InitializeComponent();
+    }
+
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        ApplyMonitorSize();
+    }
+
+    protected override void OnDataContextChanged(EventArgs e)
+    {
+        base.OnDataContextChanged(e);
+        ApplyMonitorSize();
+    }
+
+    private void ApplyMonitorSize()
+    {
+        var screen = TopLevel.GetTopLevel(this)?.Screens?.Primary;
+        if (screen != null && DataContext is SettingsViewModel vm)
+        {
+            var b = screen.Bounds;
+            vm.SetMonitorSize((int)b.Width, (int)b.Height);
+        }
     }
 
     private void OnSelectDirectoryClicked(object? sender, RoutedEventArgs e)
