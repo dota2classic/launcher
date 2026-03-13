@@ -41,9 +41,14 @@ public sealed class NotificationAreaViewModel
     }
 
     /// <summary>Shows a simple text toast that auto-dismisses.</summary>
-    public void AddToast(string message, int displaySeconds = 4)
+    public void AddToast(string message, int displaySeconds = 4) =>
+        AddNotification(new SimpleToastViewModel(message, displaySeconds));
+
+    /// <summary>Shows an invite-sent toast (with player avatar) that auto-dismisses.</summary>
+    public void AddInviteSentToast(InviteSentToastViewModel vm) => AddNotification(vm);
+
+    private void AddNotification(NotificationViewModel vm)
     {
-        var vm = new SimpleToastViewModel(message, displaySeconds);
         vm.Closed += v => Dispatcher.UIThread.Post(() => Notifications.Remove(v));
         Dispatcher.UIThread.Post(() => Notifications.Add(vm));
     }

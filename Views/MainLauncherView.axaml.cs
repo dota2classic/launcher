@@ -132,7 +132,7 @@ public partial class MainLauncherView : UserControl
 
         try
         {
-            await vm.InvitePlayerAsync(candidate.SteamId);
+            await vm.InvitePlayerAsync(candidate);
             vm.CloseInviteModal();
         }
         catch (Exception ex)

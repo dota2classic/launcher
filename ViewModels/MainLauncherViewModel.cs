@@ -130,6 +130,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         NotificationArea = new NotificationAreaViewModel(queueSocketService);
         Queue.ShowNoModesSelectedToast = () =>
             NotificationArea.AddToast("Выберите хотя бы один режим игры для поиска");
+        Party.ShowInviteSentToast = (name, initials, avatarUrl) =>
+            NotificationArea.AddInviteSentToast(new InviteSentToastViewModel(name, initials, avatarUrl));
         Settings = new SettingsViewModel(launchSettingsStorage, cvarProvider, settingsStorage, videoProvider, registryService);
         Settings.PushCvar = PushCvarIfGameRunning;
         Settings.OnDlcChanged = removedIds => OnDlcChanged?.Invoke(removedIds);
@@ -332,7 +334,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public bool IsGameDirectorySet => Launch.IsGameDirectorySet;
     public void OpenInviteModal() => Party.OpenInviteModal();
     public void CloseInviteModal() => Party.CloseInviteModal();
-    public async Task InvitePlayerAsync(string steamId) => await Party.InvitePlayerAsync(steamId);
+    public async Task InvitePlayerAsync(d2c_launcher.Models.InviteCandidateView candidate) => await Party.InvitePlayerAsync(candidate);
 
     public void Dispose()
     {

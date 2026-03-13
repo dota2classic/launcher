@@ -11,26 +11,7 @@
 
            <!-- Party invite toast -->
            <DataTemplate DataType="vm:PartyInviteNotificationViewModel">
-               <Border Background="#1c2024"
-                       BorderBrush="#2d3842" BorderThickness="1"
-                       CornerRadius="0" Margin="0,0,0,8" Width="290"
-                       MaxHeight="500"
-                       Classes.closing="{Binding IsClosing}"
-                       ClipToBounds="True">
-                   <Border.Styles>
-                       <Style Selector="Border.closing">
-                           <Setter Property="MaxHeight" Value="0"/>
-                           <Setter Property="Margin" Value="0"/>
-                           <Setter Property="Opacity" Value="0"/>
-                       </Style>
-                   </Border.Styles>
-                   <Border.Transitions>
-                       <Transitions>
-                           <DoubleTransition Property="MaxHeight" Duration="0:0:0.2" Easing="CubicEaseIn"/>
-                           <ThicknessTransition Property="Margin" Duration="0:0:0.2" Easing="CubicEaseIn"/>
-                           <DoubleTransition Property="Opacity" Duration="0:0:0.15"/>
-                       </Transitions>
-                   </Border.Transitions>
+               <Border Classes="ToastShell" Classes.closing="{Binding IsClosing}">
                    <Grid RowDefinitions="Auto,3">
 
                        <StackPanel Grid.Row="0" Spacing="12" Margin="14">
@@ -39,7 +20,7 @@
                            <Grid ColumnDefinitions="Auto,*,Auto">
                                <Border Grid.Column="0"
                                        Width="42" Height="42"
-                                       CornerRadius="0" ClipToBounds="True"
+                                       ClipToBounds="True"
                                        Background="#242c34">
                                    <Image Stretch="UniformToFill"
                                           asyncImageLoader:ImageLoader.Source="{Binding InviterAvatarUrl}"/>
@@ -92,28 +73,49 @@
                </Border>
            </DataTemplate>
 
+           <!-- Invite sent toast -->
+           <DataTemplate DataType="vm:InviteSentToastViewModel">
+               <Border Classes="ToastShell" Classes.closing="{Binding IsClosing}">
+                   <Grid RowDefinitions="Auto,3">
+
+                       <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="14">
+                           <!-- Avatar -->
+                           <Border Grid.Column="0"
+                                   Width="36" Height="36"
+                                   ClipToBounds="True"
+                                   Background="#242c34">
+                               <Image Stretch="UniformToFill"
+                                      asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}"/>
+                           </Border>
+                           <!-- Name + label -->
+                           <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                               <TextBlock Text="{Binding PlayerName}"
+                                          FontWeight="SemiBold" Foreground="#4DA9F3"
+                                          TextTrimming="CharacterEllipsis"/>
+                               <TextBlock Text="приглашён в вашу группу"
+                                          FontSize="{DynamicResource FontSizeSM}" Foreground="#AAAAAA"/>
+                           </StackPanel>
+                           <!-- Dismiss -->
+                           <Button Grid.Column="2"
+                                   Content="✕"
+                                   Command="{Binding DismissCommand}"
+                                   Background="Transparent" Foreground="#535252"
+                                   FontSize="{DynamicResource FontSizeSM}"
+                                   BorderThickness="0" Padding="0" Margin="10,0,0,0"
+                                   VerticalAlignment="Top" HorizontalAlignment="Right"
+                                   Cursor="Hand"/>
+                       </Grid>
+
+                       <!-- Duration bar -->
+                       <components:ToastTimerBar Grid.Row="1"/>
+
+                   </Grid>
+               </Border>
+           </DataTemplate>
+
            <!-- Simple text toast -->
            <DataTemplate DataType="vm:SimpleToastViewModel">
-               <Border Background="#1c2024"
-                       BorderBrush="#2d3842" BorderThickness="1"
-                       CornerRadius="0" Margin="0,0,0,8" Width="290"
-                       MaxHeight="500"
-                       Classes.closing="{Binding IsClosing}"
-                       ClipToBounds="True">
-                   <Border.Styles>
-                       <Style Selector="Border.closing">
-                           <Setter Property="MaxHeight" Value="0"/>
-                           <Setter Property="Margin" Value="0"/>
-                           <Setter Property="Opacity" Value="0"/>
-                       </Style>
-                   </Border.Styles>
-                   <Border.Transitions>
-                       <Transitions>
-                           <DoubleTransition Property="MaxHeight" Duration="0:0:0.2" Easing="CubicEaseIn"/>
-                           <ThicknessTransition Property="Margin" Duration="0:0:0.2" Easing="CubicEaseIn"/>
-                           <DoubleTransition Property="Opacity" Duration="0:0:0.15"/>
-                       </Transitions>
-                   </Border.Transitions>
+               <Border Classes="ToastShell" Classes.closing="{Binding IsClosing}">
                    <Grid RowDefinitions="Auto,3">
 
                        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="14">

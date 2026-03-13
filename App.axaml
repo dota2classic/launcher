@@ -204,6 +204,29 @@
             <Setter Property="Margin" Value="24,0"/>
         </Style>
 
+        <!-- ── Toast notification shell ── -->
+        <Style Selector="Border.ToastShell">
+            <Setter Property="Background" Value="#1c2024"/>
+            <Setter Property="BorderBrush" Value="#2d3842"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="Width" Value="290"/>
+            <Setter Property="MaxHeight" Value="500"/>
+            <Setter Property="ClipToBounds" Value="True"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="MaxHeight" Duration="0:0:0.2" Easing="CubicEaseIn"/>
+                    <ThicknessTransition Property="Margin" Duration="0:0:0.2" Easing="CubicEaseIn"/>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.15"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Border.ToastShell.closing">
+            <Setter Property="MaxHeight" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Opacity" Value="0"/>
+        </Style>
+
         <!-- ── Reusable panel block styles ── -->
         <Style Selector="Border.Block">
             <Setter Property="Background" Value="#13171D"/>

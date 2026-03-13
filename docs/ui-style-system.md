@@ -63,6 +63,54 @@ When a screen needs a root `Panel` (e.g. for overlay modals), place `InitScreenC
 
 ---
 
+## Toast Shell
+
+All toast notifications in `Views/Components/NotificationArea.axaml` share a common `Border.ToastShell` style defined globally in `App.axaml`. It handles the dark background, border, width, and the closing animation.
+
+### Classes
+
+| Class | Element | What it does |
+|-------|---------|--------------|
+| `ToastShell` | `Border` | Outer toast container — dark background, border, fixed width, closing transitions |
+| `ToastShell.closing` | `Border` | Collapses `MaxHeight` to 0, removes `Margin`, fades `Opacity` to 0 |
+
+### Token values
+
+| Token | Value |
+|-------|-------|
+| Background | `#1c2024` |
+| BorderBrush | `#2d3842` / 1px |
+| Width | `290` |
+| MaxHeight (open) | `500` |
+| MaxHeight (closing) | `0` |
+| Margin (open) | `0,0,0,8` |
+| Margin (closing) | `0` |
+| Collapse duration | `0:0:0.2` `CubicEaseIn` |
+| Fade duration | `0:0:0.15` |
+
+### Usage
+
+```xml
+<Border Classes="ToastShell" Classes.closing="{Binding IsClosing}">
+    <Grid RowDefinitions="Auto,3">
+        <!-- toast-specific content -->
+        <components:ToastTimerBar Grid.Row="1"/>
+    </Grid>
+</Border>
+```
+
+The `IsClosing` property comes from `NotificationViewModel` (base class for all toast VMs). Always pair with a `ToastTimerBar` at `Grid.Row="1"` (3px tall).
+
+### Current usages
+
+| Toast type | VM | File |
+|-----------|-----|------|
+| Входящее приглашение в группу | `PartyInviteNotificationViewModel` | `Views/Components/NotificationArea.axaml` |
+| Приглашение отправлено | `InviteSentToastViewModel` | `Views/Components/NotificationArea.axaml` |
+| Простое текстовое уведомление | `SimpleToastViewModel` | `Views/Components/NotificationArea.axaml` |
+
+---
+
 ## Panel Blocks
 
 Every content panel (chat, party, game search, profile stats, etc.) is built from three composable classes defined globally in `App.axaml`.

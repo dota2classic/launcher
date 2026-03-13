@@ -136,15 +136,19 @@ public partial class PartyViewModel : ViewModelBase, IDisposable
             candidate.IsOnline = _onlineUsers.Contains(candidate.SteamId);
     }
 
-    public async Task InvitePlayerAsync(string steamId)
+    /// <summary>Called after a successful invite with (playerName, initials, avatarUrl).</summary>
+    public Action<string, string, string?>? ShowInviteSentToast { get; set; }
+
+    public async Task InvitePlayerAsync(d2c_launcher.Models.InviteCandidateView candidate)
     {
-        if (string.IsNullOrWhiteSpace(steamId))
+        if (string.IsNullOrWhiteSpace(candidate.SteamId))
             return;
         try
         {
-            await _queueSocketService.InviteToPartyAsync(steamId);
-            AppLog.Info($"Invite sent for steamId: {steamId}");
+            await _queueSocketService.InviteToPartyAsync(candidate.SteamId);
+            AppLog.Info($"Invite sent for steamId: {candidate.SteamId}");
             d2c_launcher.Services.FaroTelemetryService.TrackEvent("party_invite_sent");
+            ShowInviteSentToast?.Invoke(candidate.Name, candidate.Initials, candidate.AvatarUrl);
         }
         catch (Exception ex)
         {
