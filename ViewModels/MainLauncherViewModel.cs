@@ -128,6 +128,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Room = new RoomViewModel(queueSocketService, backendApiService);
         Party = new PartyViewModel(queueSocketService, backendApiService);
         NotificationArea = new NotificationAreaViewModel(queueSocketService);
+        Queue.ShowNoModesSelectedToast = () =>
+            NotificationArea.AddToast("Выберите хотя бы один режим игры для поиска");
         Settings = new SettingsViewModel(launchSettingsStorage, cvarProvider, settingsStorage, videoProvider, registryService);
         Settings.PushCvar = PushCvarIfGameRunning;
         Settings.OnDlcChanged = removedIds => OnDlcChanged?.Invoke(removedIds);

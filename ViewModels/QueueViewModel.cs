@@ -67,6 +67,9 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
     public IBrush QueueButtonBorderBrush => _hasServerUrl ? BrushBorderReady
         : IsSearching ? BrushBorderSearching : BrushBorderIdle;
 
+    /// <summary>Called when the user presses queue with no modes selected. Set by the parent VM.</summary>
+    public Action? ShowNoModesSelectedToast { get; set; }
+
     public QueueViewModel(IQueueSocketService queueSocketService, IBackendApiService backendApiService)
     {
         _queueSocketService = queueSocketService;
@@ -115,7 +118,10 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
             .Select(m => (MatchmakingMode)m.ModeId)
             .ToArray();
         if (selected.Length == 0)
+        {
+            ShowNoModesSelectedToast?.Invoke();
             return;
+        }
 
         await _queueSocketService.EnterQueueAsync(selected);
         var modesStr = string.Join(",", selected.Select(m => ((int)m).ToString()));

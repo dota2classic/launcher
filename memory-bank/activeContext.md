@@ -2,6 +2,21 @@
 
 ## Current Focus
 
+**Issue #66: Toast/notification system** — implemented.
+
+### What Was Changed
+- `ViewModels/NotificationViewModel.cs` — new abstract base: auto-dismiss timer, `RemainingSeconds`, `Closed` event, `ForceClose()`, `StopTimer()`
+- `ViewModels/SimpleToastViewModel.cs` — new: plain text toast, inherits base, auto-dismisses
+- `ViewModels/PartyInviteNotificationViewModel.cs` — now inherits `NotificationViewModel`; removed its own timer, delegates timer/close to base
+- `ViewModels/NotificationAreaViewModel.cs` — collection changed from `ObservableCollection<PartyInviteNotificationViewModel> Invites` to `ObservableCollection<NotificationViewModel> Notifications`; added `AddToast(message, seconds)` method
+- `Views/Components/NotificationArea.axaml` — uses `ItemsControl.DataTemplates` with type-keyed templates for `PartyInviteNotificationViewModel` and `SimpleToastViewModel`
+- `ViewModels/QueueViewModel.cs` — added `Action? ShowNoModesSelectedToast` property; fires it when queue pressed with 0 modes
+- `ViewModels/MainLauncherViewModel.cs` — wires `Queue.ShowNoModesSelectedToast` → `NotificationArea.AddToast("Выберите хотя бы один режим игры для поиска")`
+
+---
+
+## Previous Focus
+
 **Issue #57: Profile page** — implemented.
 
 ### What Was Changed

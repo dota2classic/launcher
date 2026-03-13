@@ -14,7 +14,23 @@
                <Border Background="#1c2024"
                        BorderBrush="#2d3842" BorderThickness="1"
                        CornerRadius="0" Margin="0,0,0,8" Width="290"
+                       MaxHeight="500"
+                       Classes.closing="{Binding IsClosing}"
                        ClipToBounds="True">
+                   <Border.Styles>
+                       <Style Selector="Border.closing">
+                           <Setter Property="MaxHeight" Value="0"/>
+                           <Setter Property="Margin" Value="0"/>
+                           <Setter Property="Opacity" Value="0"/>
+                       </Style>
+                   </Border.Styles>
+                   <Border.Transitions>
+                       <Transitions>
+                           <DoubleTransition Property="MaxHeight" Duration="0:0:0.2" Easing="CubicEaseIn"/>
+                           <ThicknessTransition Property="Margin" Duration="0:0:0.2" Easing="CubicEaseIn"/>
+                           <DoubleTransition Property="Opacity" Duration="0:0:0.15"/>
+                       </Transitions>
+                   </Border.Transitions>
                    <Grid RowDefinitions="Auto,3">
 
                        <StackPanel Grid.Row="0" Spacing="12" Margin="14">
@@ -81,7 +97,23 @@
                <Border Background="#1c2024"
                        BorderBrush="#2d3842" BorderThickness="1"
                        CornerRadius="0" Margin="0,0,0,8" Width="290"
+                       MaxHeight="500"
+                       Classes.closing="{Binding IsClosing}"
                        ClipToBounds="True">
+                   <Border.Styles>
+                       <Style Selector="Border.closing">
+                           <Setter Property="MaxHeight" Value="0"/>
+                           <Setter Property="Margin" Value="0"/>
+                           <Setter Property="Opacity" Value="0"/>
+                       </Style>
+                   </Border.Styles>
+                   <Border.Transitions>
+                       <Transitions>
+                           <DoubleTransition Property="MaxHeight" Duration="0:0:0.2" Easing="CubicEaseIn"/>
+                           <ThicknessTransition Property="Margin" Duration="0:0:0.2" Easing="CubicEaseIn"/>
+                           <DoubleTransition Property="Opacity" Duration="0:0:0.15"/>
+                       </Transitions>
+                   </Border.Transitions>
                    <Grid RowDefinitions="Auto,3">
 
                        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="14">
