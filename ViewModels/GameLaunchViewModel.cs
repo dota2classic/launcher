@@ -144,6 +144,20 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         }
     }
 
+    private static async Task ApplyWindowIconAsync(string exePath)
+    {
+        var deadline = DateTimeOffset.UtcNow.AddSeconds(60);
+        while (DateTimeOffset.UtcNow < deadline)
+        {
+            await Task.Delay(1500);
+            if (DotaConsoleConnector.IsWindowOpen())
+            {
+                DotaConsoleConnector.SetWindowIcon(exePath);
+                return;
+            }
+        }
+    }
+
     private async Task MonitorProcessAsync(Process process, string gameDirectory)
     {
         try
@@ -210,11 +224,12 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
                 FileName = exePath,
                 Arguments = arguments,
                 WorkingDirectory = GameDirectory,
-                UseShellExecute = false,
+                UseShellExecute = true,
             });
             d2c_launcher.Services.FaroTelemetryService.TrackEvent("game_launched");
             if (process != null)
                 _ = MonitorProcessAsync(process, GameDirectory);
+            _ = ApplyWindowIconAsync(exePath);
 
             // After first launch, enable -novid to skip the intro on subsequent launches
             if (!launchSettings.NoVid)

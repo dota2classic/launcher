@@ -1,6 +1,8 @@
 ﻿using Avalonia;
 using System;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using d2c_launcher.Services;
 using Velopack;
 
@@ -17,6 +19,13 @@ sealed class Program
         // Disable Velopack's "auto-apply on startup" (it is ON by default).
         // We download updates silently but only apply them when the user clicks
         // "Restart and update" in the launcher UI.
+        // Give the launcher a stable explicit AppUserModelID so the taskbar treats
+        // it as a distinct group from any child process it spawns (e.g. dota.exe).
+        // Without this, Windows may merge the game's window into the launcher's
+        // taskbar button, showing no icon for the game.
+        // Must be called before any window is created.
+        SetCurrentProcessExplicitAppUserModelID("DotaClassic.Launcher");
+
         VelopackApp.Build().SetAutoApplyOnStartup(false).Run();
 
         // Skip single-instance enforcement in preview mode so the preview tool
@@ -59,6 +68,11 @@ sealed class Program
         // threads running, which would otherwise keep the process alive indefinitely.
         Environment.Exit(0);
     }
+
+    [DllImport("shell32.dll", SetLastError = true)]
+    [SupportedOSPlatform("windows")]
+    private static extern int SetCurrentProcessExplicitAppUserModelID(
+        [MarshalAs(UnmanagedType.LPWStr)] string appID);
 
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
