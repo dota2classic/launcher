@@ -32,6 +32,9 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     /// package IDs to remove. The parent ViewModel uses this to re-enter VerifyingGame.
     /// </summary>
     public Action<List<string>>? OnDlcChanged { get; set; }
+
+    /// <summary>Called when the user requests game re-verification (e.g. after corrupted files detected).</summary>
+    public Action? RequestReverify { get; set; }
     private readonly DispatcherTimer _onlineStatsTimer;
     private readonly SocketSoundCoordinator _soundCoordinator;
     private readonly Action<OnlineUpdateMessage> _onlineUpdatedHandler;
@@ -131,6 +134,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         NotificationArea = new NotificationAreaViewModel(queueSocketService);
         Queue.ShowNoModesSelectedToast = () =>
             NotificationArea.AddToast("Выберите хотя бы один режим игры для поиска");
+        Launch.OnExeNotFound = () =>
+            NotificationArea.AddCorruptedFilesToast(() => RequestReverify?.Invoke());
         Party.ShowInviteSentToast = (name, initials, avatarUrl) =>
             NotificationArea.AddInviteSentToast(new InviteSentToastViewModel(name, initials, avatarUrl));
         Settings = new SettingsViewModel(launchSettingsStorage, cvarProvider, settingsStorage, videoProvider, registryService);

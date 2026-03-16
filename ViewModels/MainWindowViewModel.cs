@@ -310,6 +310,11 @@ public partial class MainWindowViewModel : ViewModelBase
             AppState = AppState.VerifyingGame;
             EnterVerifyingGame(removedIds);
         });
+        vm.RequestReverify = () => Dispatcher.UIThread.Post(() =>
+        {
+            AppState = AppState.VerifyingGame;
+            EnterVerifyingGame();
+        });
         CurrentContentViewModel = vm;
 
         if (_pendingSpectateMatchId.HasValue)

@@ -113,6 +113,49 @@
                </Border>
            </DataTemplate>
 
+           <!-- Corrupted files toast (dota.exe missing) -->
+           <DataTemplate DataType="vm:CorruptedFilesToastViewModel">
+               <Border Classes="ToastShell" Classes.closing="{Binding IsClosing}">
+                   <Grid RowDefinitions="Auto,3">
+
+                       <StackPanel Grid.Row="0" Spacing="10" Margin="14">
+
+                           <Grid ColumnDefinitions="*,Auto">
+                               <TextBlock Grid.Column="0"
+                                          Text="{Binding Message}"
+                                          Foreground="#DDDDDD"
+                                          FontSize="{DynamicResource FontSizeSM}"
+                                          TextWrapping="Wrap"
+                                          VerticalAlignment="Center"/>
+                               <Button Grid.Column="1"
+                                       Content="✕"
+                                       Command="{Binding DismissCommand}"
+                                       Background="Transparent" Foreground="#535252"
+                                       FontSize="{DynamicResource FontSizeSM}"
+                                       BorderThickness="0" Padding="0" Margin="10,0,0,0"
+                                       VerticalAlignment="Top" HorizontalAlignment="Right"
+                                       Cursor="Hand"/>
+                           </Grid>
+
+                           <Button Content="ПРОВЕРИТЬ ЦЕЛОСТНОСТЬ"
+                                   Command="{Binding VerifyCommand}"
+                                   Background="#1a5aaa" Foreground="White"
+                                   FontSize="{DynamicResource FontSizeBase}" FontWeight="Bold"
+                                   CornerRadius="0" BorderThickness="0"
+                                   HorizontalAlignment="Stretch"
+                                   HorizontalContentAlignment="Center"
+                                   Padding="0,8"
+                                   Cursor="Hand"/>
+
+                       </StackPanel>
+
+                       <!-- Duration bar -->
+                       <components:ToastTimerBar Grid.Row="1"/>
+
+                   </Grid>
+               </Border>
+           </DataTemplate>
+
            <!-- Simple text toast -->
            <DataTemplate DataType="vm:SimpleToastViewModel">
                <Border Classes="ToastShell" Classes.closing="{Binding IsClosing}">

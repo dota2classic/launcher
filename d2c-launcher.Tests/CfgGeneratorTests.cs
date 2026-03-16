@@ -96,7 +96,7 @@ public class CfgGeneratorTests : IDisposable
         var settings = new GameLaunchSettings();
         // Defaults: NoVid=false, Language="russian", ExtraArgs=null
         var result = CfgGenerator.BuildCliArgs(settings);
-        Assert.Equal("-language russian", result);
+        Assert.Equal("-language russian -condebug", result);
     }
 
     [Fact]
@@ -144,7 +144,7 @@ public class CfgGeneratorTests : IDisposable
     {
         var settings = new GameLaunchSettings { Language = "", ExtraArgs = "  -dx11  " };
         var result = CfgGenerator.BuildCliArgs(settings);
-        Assert.Equal("-dx11", result);
+        Assert.Equal("-dx11 -condebug", result);
     }
 
     [Fact]
@@ -157,7 +157,7 @@ public class CfgGeneratorTests : IDisposable
             ExtraArgs = "-dx11",
         };
         var result = CfgGenerator.BuildCliArgs(settings);
-        Assert.Equal("-novid -language english -dx11", result);
+        Assert.Equal("-novid -language english -dx11 -condebug", result);
     }
 
     [Fact]
@@ -165,6 +165,6 @@ public class CfgGeneratorTests : IDisposable
     {
         var settings = new GameLaunchSettings { NoVid = false, Language = "", ExtraArgs = null };
         var result = CfgGenerator.BuildCliArgs(settings);
-        Assert.Equal("", result);
+        Assert.Equal("-condebug", result);
     }
 }

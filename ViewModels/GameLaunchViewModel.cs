@@ -44,6 +44,9 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
 
     public bool IsGameDirectorySet => !string.IsNullOrWhiteSpace(GameDirectory);
 
+    /// <summary>Fired when dota.exe is not found at launch (e.g. deleted by antivirus).</summary>
+    public Action? OnExeNotFound { get; set; }
+
     public string LaunchButtonText => RunState switch
     {
         _ when !IsGameDirectorySet => "Select game",
@@ -167,17 +170,18 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         }
     }
 
-    public void LaunchGame()
+    public bool LaunchGame()
     {
         if (string.IsNullOrEmpty(GameDirectory))
-            return;
+            return false;
         try
         {
             var exePath = Path.Combine(GameDirectory, "dota.exe");
             if (!File.Exists(exePath))
             {
                 AppLog.Info($"LaunchGame: dota.exe not found at {exePath}");
-                return;
+                OnExeNotFound?.Invoke();
+                return false;
             }
 
             var launchSettings = _launchSettingsStorage.Get();
@@ -221,8 +225,10 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         catch (Exception ex)
         {
             AppLog.Error("LaunchGame failed.", ex);
+            return false;
         }
         RefreshRunState();
+        return true;
     }
 
     public void ConnectToGame() => _ = ConnectToGameAsync();
@@ -253,7 +259,8 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
             }
 
             AppLog.Info("ConnectToGame: launching our Dota");
-            LaunchGame();
+            if (!LaunchGame())
+                return;
         }
 
         AppLog.Info("ConnectToGame: waiting for DOTA 2 window...");

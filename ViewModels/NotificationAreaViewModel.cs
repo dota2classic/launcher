@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia.Threading;
@@ -43,6 +44,10 @@ public sealed class NotificationAreaViewModel
     /// <summary>Shows a simple text toast that auto-dismisses.</summary>
     public void AddToast(string message, int displaySeconds = 4) =>
         AddNotification(new SimpleToastViewModel(message, displaySeconds));
+
+    /// <summary>Shows the "corrupted files" toast with a verify-integrity button.</summary>
+    public void AddCorruptedFilesToast(Action onVerify) =>
+        AddNotification(new CorruptedFilesToastViewModel(onVerify));
 
     /// <summary>Shows an invite-sent toast (with player avatar) that auto-dismisses.</summary>
     public void AddInviteSentToast(InviteSentToastViewModel vm) => AddNotification(vm);
