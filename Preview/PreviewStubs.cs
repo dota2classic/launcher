@@ -67,6 +67,9 @@ internal sealed class StubBackendApiService : IBackendApiService
             new PartyMemberView("76561198000000002", "Player Two", null),
         ], null));
 
+    public PartySnapshot MapPartyDto(d2c_launcher.Api.PartyDto party)
+        => new PartySnapshot(Array.Empty<PartyMemberView>(), null);
+
     public Task<IReadOnlyList<MatchmakingModeInfo>> GetEnabledMatchmakingModesAsync(CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<MatchmakingModeInfo>>([
             new MatchmakingModeInfo(8,  "Highroom 5x5"),

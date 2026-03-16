@@ -11,6 +11,7 @@ public interface IBackendApiService
     /// <summary>Sets the bearer token used for all authenticated API calls. Pass null to clear.</summary>
     void SetBearerToken(string? token);
     Task<PartySnapshot> GetMyPartySnapshotAsync(CancellationToken cancellationToken = default);
+    PartySnapshot MapPartyDto(d2c_launcher.Api.PartyDto party);
     Task<IReadOnlyList<MatchmakingModeInfo>> GetEnabledMatchmakingModesAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<InviteCandidateView>> SearchPlayersAsync(string name, int count = 25, CancellationToken cancellationToken = default);
     Task<(string? Name, string? AvatarUrl)?> GetUserInfoAsync(string steamId, CancellationToken cancellationToken = default);

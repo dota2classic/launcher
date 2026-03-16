@@ -2,6 +2,18 @@
 
 ## Current Focus
 
+**Issue #78: Handle PLAYER_PARTY_STATE socket event** — implemented.
+
+### What Was Changed
+- `Services/IBackendApiService.cs` — added `PartySnapshot MapPartyDto(PartyDto party)`
+- `Services/BackendApiService.cs` — extracted `MapPartyDto(PartyDto)` from `GetMyPartySnapshotAsync`; `GetMyPartySnapshotAsync` now delegates to it
+- `ViewModels/PartyViewModel.cs` — extracted `ApplyPartySnapshot(PartySnapshot)` from `RefreshPartyAsync`; `PartyUpdated` handler now calls `ApplyPartySnapshot(_backendApiService.MapPartyDto(party))` directly instead of making an extra HTTP call
+- `Preview/PreviewStubs.cs` — added stub `MapPartyDto`
+
+---
+
+## Previous Focus
+
 **Issue #23: Abandon game support** — implemented.
 
 ### What Was Changed

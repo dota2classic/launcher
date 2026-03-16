@@ -49,7 +49,7 @@ public partial class PartyViewModel : ViewModelBase, IDisposable
         _partyRefreshTimer.Tick += (_, _) => { _ = RefreshPartyAsync(); };
         _partyRefreshTimer.Start();
 
-        queueSocketService.PartyUpdated += party => Dispatcher.UIThread.Post(() => { _ = RefreshPartyAsync(); });
+        queueSocketService.PartyUpdated += party => Dispatcher.UIThread.Post(() => ApplyPartySnapshot(_backendApiService.MapPartyDto(party)));
         queueSocketService.OnlineUpdated += msg => Dispatcher.UIThread.Post(() => UpdateOnlineUsers(msg));
 
         CloseInviteModalCommand = new RelayCommand(CloseInviteModal);
@@ -82,20 +82,7 @@ public partial class PartyViewModel : ViewModelBase, IDisposable
         try
         {
             var partySnapshot = await _backendApiService.GetMyPartySnapshotAsync();
-            var newIds = partySnapshot.Members.Select(m => m.SteamId).ToList();
-            var oldIds = PartyMembers.Select(m => m.SteamId).ToList();
-            if (!newIds.SequenceEqual(oldIds))
-            {
-                PartyMembers.Clear();
-                foreach (var m in partySnapshot.Members)
-                    PartyMembers.Add(m);
-            }
-
-            // Notify parent to update queue timer and restrictions
-            EnterQueueAtChanged?.Invoke(partySnapshot.EnterQueueAt);
-            PartyMembersChanged?.Invoke(partySnapshot.Members);
-            OnPropertyChanged(nameof(CanInviteToParty));
-            OnPropertyChanged(nameof(CanLeaveParty));
+            ApplyPartySnapshot(partySnapshot);
         }
         catch (Exception ex)
         {
@@ -106,6 +93,24 @@ public partial class PartyViewModel : ViewModelBase, IDisposable
         {
             Interlocked.Exchange(ref _partyRefreshRunning, 0);
         }
+    }
+
+    private void ApplyPartySnapshot(PartySnapshot partySnapshot)
+    {
+        var newIds = partySnapshot.Members.Select(m => m.SteamId).ToList();
+        var oldIds = PartyMembers.Select(m => m.SteamId).ToList();
+        if (!newIds.SequenceEqual(oldIds))
+        {
+            PartyMembers.Clear();
+            foreach (var m in partySnapshot.Members)
+                PartyMembers.Add(m);
+        }
+
+        // Notify parent to update queue timer and restrictions
+        EnterQueueAtChanged?.Invoke(partySnapshot.EnterQueueAt);
+        PartyMembersChanged?.Invoke(partySnapshot.Members);
+        OnPropertyChanged(nameof(CanInviteToParty));
+        OnPropertyChanged(nameof(CanLeaveParty));
     }
 
     /// <summary>Raised when the queue start timestamp changes, so QueueViewModel can update its timer.</summary>

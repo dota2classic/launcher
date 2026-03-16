@@ -83,6 +83,11 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
             return new PartySnapshot(Array.Empty<PartyMemberView>(), null);
         }
 
+        return MapPartyDto(party);
+    }
+
+    public PartySnapshot MapPartyDto(d2c_launcher.Api.PartyDto party)
+    {
         var map = new Dictionary<string, PartyMemberView>(StringComparer.Ordinal);
 
         if (party.Leader != null && !string.IsNullOrWhiteSpace(party.Leader.SteamId))
@@ -131,8 +136,7 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
             enterQueueAt = parsed;
         }
 
-        var result = map.Values.ToList();
-        return new PartySnapshot(result, enterQueueAt);
+        return new PartySnapshot(map.Values.ToList(), enterQueueAt);
     }
 
     public async Task<IReadOnlyList<MatchmakingModeInfo>> GetEnabledMatchmakingModesAsync(CancellationToken cancellationToken = default)
