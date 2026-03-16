@@ -150,7 +150,8 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         {
             await process.WaitForExitAsync();
             var exitCode = process.ExitCode;
-            if (exitCode != 0)
+            // Exit code 0 = normal exit; -1 = killed by user (launcher stop button or Task Manager)
+            if (exitCode != 0 && exitCode != -1)
             {
                 AppLog.Error($"GameLaunchViewModel: dota.exe exited with code {exitCode}");
                 var tail = TailConsoleLog(gameDirectory);

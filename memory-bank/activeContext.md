@@ -2,6 +2,19 @@
 
 ## Current Focus
 
+**Issue #23: Abandon game support** — implemented.
+
+### What Was Changed
+- `Services/IBackendApiService.cs` — added `AbandonGameAsync()`
+- `Services/BackendApiService.cs` — implemented via `PlayerController_abandonGameAsync`
+- `ViewModels/MainLauncherViewModel.cs` — added `CanAbandonGame` (excludes mode 1=unranked 5x5 and mode 8=highroom), `IsAbandonConfirmOpen`, `RequestAbandonGameCommand`, `CancelAbandonGameCommand`, `ConfirmAbandonGameCommand`; subscribes to `Launch.HasServerUrl` and `Room.RoomMode` changes
+- `Views/MainLauncherView.axaml` — removed "Сервер: {url}" hint border; added "X" abandon button (red, 52×80) to the right of QueueButton (visible only when `CanAbandonGame`); added abandon confirmation overlay (ZIndex=210)
+- `Preview/PreviewStubs.cs` — added stub `AbandonGameAsync`
+
+---
+
+## Previous Focus
+
 **Integration testing research** — completed. Plan saved to `docs/integration-testing-plan.md`.
 
 Key findings:
