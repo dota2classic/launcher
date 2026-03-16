@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -125,6 +126,47 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         RefreshRunState();
     }
 
+    private static string[] TailConsoleLog(string gameDirectory, int lines = 40)
+    {
+        var logPath = Path.Combine(gameDirectory, "dota", "console.log");
+        if (!File.Exists(logPath))
+            return [];
+        try
+        {
+            return File.ReadLines(logPath).TakeLast(lines).ToArray();
+        }
+        catch
+        {
+            return [];
+        }
+    }
+
+    private async Task MonitorProcessAsync(Process process, string gameDirectory)
+    {
+        try
+        {
+            await process.WaitForExitAsync();
+            var exitCode = process.ExitCode;
+            if (exitCode != 0)
+            {
+                AppLog.Error($"GameLaunchViewModel: dota.exe exited with code {exitCode}");
+                var tail = TailConsoleLog(gameDirectory);
+                if (tail.Length > 0)
+                    AppLog.Error($"GameLaunchViewModel: console.log tail:\n{string.Join("\n", tail)}");
+                else
+                    AppLog.Error("GameLaunchViewModel: console.log not found or empty");
+            }
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("GameLaunchViewModel: MonitorProcessAsync failed", ex);
+        }
+        finally
+        {
+            process.Dispose();
+        }
+    }
+
     public void LaunchGame()
     {
         if (string.IsNullOrEmpty(GameDirectory))
@@ -158,7 +200,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
             var arguments = string.Join(" ", parts);
 
             AppLog.Info($"LaunchGame: starting {exePath} {arguments}");
-            using var _ = Process.Start(new ProcessStartInfo
+            var process = Process.Start(new ProcessStartInfo
             {
                 FileName = exePath,
                 Arguments = arguments,
@@ -166,6 +208,8 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
                 UseShellExecute = false,
             });
             d2c_launcher.Services.FaroTelemetryService.TrackEvent("game_launched");
+            if (process != null)
+                _ = MonitorProcessAsync(process, GameDirectory);
 
             // After first launch, enable -novid to skip the intro on subsequent launches
             if (!launchSettings.NoVid)
@@ -224,6 +268,14 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         if (!DotaConsoleConnector.IsWindowOpen())
         {
             AppLog.Info("ConnectToGame: timed out waiting for DOTA 2 window");
+            if (!string.IsNullOrWhiteSpace(GameDirectory))
+            {
+                var tail = TailConsoleLog(GameDirectory);
+                if (tail.Length > 0)
+                    AppLog.Error($"ConnectToGame: console.log tail:\n{string.Join("\n", tail)}");
+                else
+                    AppLog.Error("ConnectToGame: console.log not found or empty");
+            }
             return;
         }
 

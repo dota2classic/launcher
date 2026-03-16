@@ -89,6 +89,7 @@ public static class CfgGenerator
             parts.Add($"-language {settings.Language}");
         if (!string.IsNullOrWhiteSpace(settings.ExtraArgs))
             parts.Add(settings.ExtraArgs.Trim());
+        parts.Add("-condebug");
 
         return string.Join(" ", parts);
     }
