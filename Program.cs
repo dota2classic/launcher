@@ -40,7 +40,6 @@ sealed class Program
         // Expose the service so App can wire protocol handling after DI is set up.
         App.SingleInstance = singleInstance;
 
-        var hw = HardwareInfoService.Collect();
         var asm = Assembly.GetExecutingAssembly();
         // AssemblyInformationalVersion keeps the full semver (e.g. "0.0.97-pre+abc123").
         // AssemblyVersion is numeric-only (e.g. "0.0.97.0"), losing the pre-release suffix.
@@ -49,7 +48,11 @@ sealed class Program
                           ?.Split('+')[0])           // strip build metadata hash
                       ?? asm.GetName().Version?.ToString(3)
                       ?? "0.0.0";
-        FaroTelemetryService.Init(version, hw);
+        // Init Faro before collecting hardware so any errors during collection
+        // are reported with the correct app version instead of "0.0.0".
+        FaroTelemetryService.Init(version);
+        var hw = HardwareInfoService.Collect();
+        FaroTelemetryService.SetHardware(hw);
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         FaroTelemetryService.ShutdownAsync().GetAwaiter().GetResult();
         // Force-exit in case any third-party library (e.g. SocketIOClient) left foreground

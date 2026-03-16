@@ -81,7 +81,7 @@ public static class HardwareInfoService
         }
         catch (Exception ex)
         {
-            AppLog.Error("[HW] Failed to collect hardware info", ex);
+            AppLog.Error($"[HW] Couldn't get hardware information: {ex.GetType().Name}: {ex.Message}", ex);
             return new HardwareSnapshot("unknown", "Unknown", "?", "?", 0, "Windows", "?", "Unknown", []);
         }
     }

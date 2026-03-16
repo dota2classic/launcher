@@ -47,6 +47,8 @@ public static class FaroTelemetryService
 
     public static void SetUser(string steamId) => _steamId = steamId;
 
+    public static void SetHardware(HardwareSnapshot hw) => ApplyHardware(hw);
+
     public static void TrackEvent(string name, Dictionary<string, string>? attributes = null)
     {
         EventQueue.Enqueue(new FaroEvent(name, "d2c", attributes ?? [], Now()));
