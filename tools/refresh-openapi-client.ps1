@@ -92,4 +92,12 @@ dotnet --roll-forward-on-no-candidate-fx 2 $nswag openapi2csclient `
     /GenerateExceptionClasses:true `
     /OperationGenerationMode:SingleClientFromOperationId
 
+Write-Host "Patching empty-body POST content headers..."
+# NSwag always emits `request_.Content = new StringContent(string.Empty, ..., "application/json")`
+# for POST endpoints with no request body. Servers that enforce Content-Type reject this with 400.
+# Remove these lines so no Content-Type header is sent when there is no body.
+$generated = Get-Content $OutputPath -Raw
+$patched = $generated -replace '(?m)^\s*request_\.Content = new System\.Net\.Http\.StringContent\(string\.Empty, System\.Text\.Encoding\.UTF8, "application/json"\);\r?\n', ''
+Set-Content -Path $OutputPath -Value $patched -NoNewline
+
 Write-Host "OpenAPI client refreshed at $OutputPath"

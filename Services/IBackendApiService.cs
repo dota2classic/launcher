@@ -23,4 +23,5 @@ public interface IBackendApiService
     Task<LiveMatchInfo?> GetLiveMatchAsync(int matchId, CancellationToken cancellationToken = default);
     Task<PlayerProfileData?> GetPlayerSummaryAsync(string steamId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<HeroProfileData>> GetHeroStatsAsync(string steamId, CancellationToken cancellationToken = default);
+    Task AbandonGameAsync(CancellationToken cancellationToken = default);
 }

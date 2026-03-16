@@ -123,6 +123,8 @@ internal sealed class StubBackendApiService : IBackendApiService
             new Models.HeroProfileData("Pudge", 25, 56.00, 3.08),
         ]);
 
+    public Task AbandonGameAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+
     public async IAsyncEnumerable<ChatMessageData> SubscribeChatAsync(
         string threadId,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)

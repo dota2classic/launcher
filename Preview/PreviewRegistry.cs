@@ -61,6 +61,19 @@ public static class PreviewRegistry
                 vm.UpdateQueueButtonState();
                 return (new QueueButton(), vm);
             },
+            ["QueueButtonSingle"] = () =>
+            {
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage());
+                vm.UpdateQueueButtonState(); // default idle = ИГРАТЬ, height=52
+                var btn = new QueueButton { DataContext = vm, Width = 360 };
+                var host = new Border
+                {
+                    Background = new SolidColorBrush(Color.Parse("#FF00FF")), // magenta so we see bounds
+                    Padding = new Thickness(20),
+                    Child = btn,
+                };
+                return (host, null);
+            },
             ["GameSearchPanel"] = () =>
             {
                 var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage());
@@ -206,6 +219,109 @@ public static class PreviewRegistry
                     Width = 500,
                     Background = new SolidColorBrush(Color.Parse("#060708")),
                     Child = stack,
+                };
+                return (host, null);
+            },
+            ["AbandonButtonConnect"] = () =>
+            {
+                // Single-line state: QueueButtonHeight = 52, abandon X visible
+                var queueVm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage());
+                queueVm.UpdateQueueButtonState(); // default = ИГРАТЬ, height=52
+
+                var queueBtn = new QueueButton { DataContext = queueVm };
+
+                var abandonBtn = new Button
+                {
+                    Width = 52,
+                    Height = queueVm.QueueButtonHeight,
+                    Padding = new Thickness(0),
+                    Margin = new Thickness(6, 0, 0, 0),
+                    Background = new SolidColorBrush(Color.Parse("#1a0f0f")),
+                    BorderBrush = new SolidColorBrush(Color.Parse("#C62626")),
+                    BorderThickness = new Thickness(1),
+                    CornerRadius = new CornerRadius(0),
+                    VerticalContentAlignment = VerticalAlignment.Center,
+                    HorizontalContentAlignment = HorizontalAlignment.Center,
+                    Content = new PathIcon
+                    {
+                        Data = Avalonia.Media.Geometry.Parse("M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"),
+                        Foreground = new SolidColorBrush(Color.Parse("#C62626")),
+                        Width = 16,
+                        Height = 16,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                    },
+                };
+
+                var grid = new Grid
+                {
+                    ColumnDefinitions = new ColumnDefinitions("*,Auto"),
+                    Margin = new Thickness(16),
+                    Width = 360,
+                };
+                Grid.SetColumn(queueBtn, 0);
+                Grid.SetColumn(abandonBtn, 1);
+                grid.Children.Add(queueBtn);
+                grid.Children.Add(abandonBtn);
+
+                var host = new Border
+                {
+                    Background = new SolidColorBrush(Color.Parse("#1a1f26")),
+                    Padding = new Thickness(16),
+                    Child = grid,
+                };
+                return (host, null);
+            },
+            ["AbandonButtonSearching"] = () =>
+            {
+                // Searching state: QueueButtonHeight = 80, abandon X visible
+                var queueVm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage());
+                queueVm.IsSearching = true;
+                queueVm.SetEnterQueueAt(DateTimeOffset.UtcNow);
+                queueVm.SetQueuedModeNames(new[] { "Против ботов" });
+                queueVm.UpdateQueueButtonState();
+
+                var queueBtn = new QueueButton { DataContext = queueVm };
+
+                var abandonBtn = new Button
+                {
+                    Width = 52,
+                    Height = queueVm.QueueButtonHeight,
+                    Padding = new Thickness(0),
+                    Margin = new Thickness(6, 0, 0, 0),
+                    Background = new SolidColorBrush(Color.Parse("#1a0f0f")),
+                    BorderBrush = new SolidColorBrush(Color.Parse("#C62626")),
+                    BorderThickness = new Thickness(1),
+                    CornerRadius = new CornerRadius(0),
+                    VerticalContentAlignment = VerticalAlignment.Center,
+                    HorizontalContentAlignment = HorizontalAlignment.Center,
+                    Content = new PathIcon
+                    {
+                        Data = Avalonia.Media.Geometry.Parse("M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"),
+                        Foreground = new SolidColorBrush(Color.Parse("#C62626")),
+                        Width = 16,
+                        Height = 16,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                    },
+                };
+
+                var grid = new Grid
+                {
+                    ColumnDefinitions = new ColumnDefinitions("*,Auto"),
+                    Margin = new Thickness(16),
+                    Width = 360,
+                };
+                Grid.SetColumn(queueBtn, 0);
+                Grid.SetColumn(abandonBtn, 1);
+                grid.Children.Add(queueBtn);
+                grid.Children.Add(abandonBtn);
+
+                var host = new Border
+                {
+                    Background = new SolidColorBrush(Color.Parse("#1a1f26")),
+                    Padding = new Thickness(16),
+                    Child = grid,
                 };
                 return (host, null);
             },

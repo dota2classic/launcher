@@ -253,7 +253,11 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(QueueButtonBackground));
         OnPropertyChanged(nameof(QueueButtonHoverBackground));
         OnPropertyChanged(nameof(QueueButtonBorderBrush));
+        OnPropertyChanged(nameof(QueueButtonHeight));
     }
+
+    /// <summary>80px when searching (2-row content), 52px for single-line states.</summary>
+    public double QueueButtonHeight => IsSearching && !_hasServerUrl ? 80 : 52;
 
     public void SetEnterQueueAt(DateTimeOffset? time) => _enterQueueAt = time;
 

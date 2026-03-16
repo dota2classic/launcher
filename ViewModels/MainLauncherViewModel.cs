@@ -77,6 +77,23 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public int IntroStepCount => 4;
 
     [ObservableProperty]
+    private bool _isAbandonConfirmOpen;
+
+    /// <summary>True when a game server URL is active AND the mode allows abandoning (not unranked 5x5 or highroom).</summary>
+    public bool CanAbandonGame
+    {
+        get
+        {
+            if (!Launch.HasServerUrl) return false;
+            var mode = Room.RoomMode;
+            if (mode == null) return true;
+            var modeId = (int)mode.Value;
+            // Unranked 5x5 (1) and Highroom (8) do not allow abandoning
+            return modeId != 1 && modeId != 8;
+        }
+    }
+
+    [ObservableProperty]
     private int _onlineInGame;
 
     [ObservableProperty]
@@ -147,6 +164,17 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Profile = new ProfileViewModel(backendApiService);
 
         _soundCoordinator = new SocketSoundCoordinator(queueSocketService, NotificationArea, windowService);
+
+        Launch.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(GameLaunchViewModel.HasServerUrl))
+                OnPropertyChanged(nameof(CanAbandonGame));
+        };
+        Room.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(RoomViewModel.RoomMode))
+                OnPropertyChanged(nameof(CanAbandonGame));
+        };
 
         // Wire delegates into children that need auth state
         Room.GetCurrentUser = () => CurrentUser;
@@ -235,6 +263,28 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
             return;
         }
         await Queue.ToggleSearchAsync();
+    }
+
+    [RelayCommand]
+    private void RequestAbandonGame() => IsAbandonConfirmOpen = true;
+
+    [RelayCommand]
+    private void CancelAbandonGame() => IsAbandonConfirmOpen = false;
+
+    [RelayCommand]
+    private async Task ConfirmAbandonGameAsync()
+    {
+        IsAbandonConfirmOpen = false;
+        try
+        {
+            await _backendApiService.AbandonGameAsync();
+            AppLog.Info("AbandonGame: success");
+            FaroTelemetryService.TrackEvent("game_abandoned");
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("AbandonGame failed", ex);
+        }
     }
 
     partial void OnActiveTabChanged(LauncherTab value)

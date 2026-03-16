@@ -485,6 +485,12 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         return string.Join(" ", words.Select(w => w.Length > 0 ? char.ToUpper(w[0]) + w.Substring(1) : w));
     }
 
+    public async Task AbandonGameAsync(CancellationToken cancellationToken = default)
+    {
+        var api = new DotaclassicApiClient(_authHttpClient);
+        await api.PlayerController_abandonGameAsync(cancellationToken).ConfigureAwait(false);
+    }
+
     public void Dispose()
     {
         _httpClient.Dispose();
