@@ -182,6 +182,9 @@ internal sealed class StubSteamAuthApi : ISteamAuthApi
 {
     public Task<string?> ExchangeSteamSessionTicketAsync(string ticket, CancellationToken cancellationToken = default)
         => Task.FromResult<string?>(null);
+
+    public Task<string?> RefreshTokenAsync(string currentToken, CancellationToken cancellationToken = default)
+        => Task.FromResult<string?>(null);
 }
 
 internal sealed class StubLocalManifestService : ILocalManifestService

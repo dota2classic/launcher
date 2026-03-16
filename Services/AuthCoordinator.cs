@@ -11,15 +11,20 @@ namespace d2c_launcher.Services;
 /// Coordinates backend JWT token application: sets it on the API client,
 /// connects/disconnects the queue socket, and persists it to settings.
 /// Subscribes to <see cref="ISteamManager.OnSteamAuthorizationChanged"/>.
+/// Periodically refreshes the token so it never goes stale (TTL ~4-5 days).
 /// </summary>
 public sealed class AuthCoordinator : IDisposable
 {
+    private static readonly TimeSpan RefreshInterval = TimeSpan.FromMinutes(10);
+
     private readonly ISteamManager _steamManager;
     private readonly IBackendApiService _backendApiService;
     private readonly IQueueSocketService _queueSocketService;
     private readonly ISettingsStorage _settingsStorage;
+    private readonly ISteamAuthApi _steamAuthApi;
 
     private CancellationTokenSource? _cts;
+    private CancellationTokenSource? _refreshCts;
 
     /// <summary>
     /// Raised on the UI thread after a token is successfully applied or cleared.
@@ -33,12 +38,14 @@ public sealed class AuthCoordinator : IDisposable
         ISteamManager steamManager,
         IBackendApiService backendApiService,
         IQueueSocketService queueSocketService,
-        ISettingsStorage settingsStorage)
+        ISettingsStorage settingsStorage,
+        ISteamAuthApi steamAuthApi)
     {
         _steamManager = steamManager;
         _backendApiService = backendApiService;
         _queueSocketService = queueSocketService;
         _settingsStorage = settingsStorage;
+        _steamAuthApi = steamAuthApi;
     }
 
     /// <summary>
@@ -60,7 +67,10 @@ public sealed class AuthCoordinator : IDisposable
         if (!string.IsNullOrWhiteSpace(currentTicket))
             _ = ApplyTokenAsync(currentTicket);
         else if (!string.IsNullOrWhiteSpace(persistedToken))
+        {
             _ = EnsureQueueConnectionAsync(persistedToken, CancellationToken.None);
+            StartRefreshLoop(persistedToken);
+        }
     }
 
     private async Task ApplyTokenAsync(string? token)
@@ -88,6 +98,7 @@ public sealed class AuthCoordinator : IDisposable
             _backendApiService.SetBearerToken(token);
             PersistToken(token);
             await EnsureQueueConnectionAsync(token, ct);
+            StartRefreshLoop(token);
             TokenApplied?.Invoke(token);
         }
         catch (OperationCanceledException)
@@ -115,6 +126,56 @@ public sealed class AuthCoordinator : IDisposable
             await _queueSocketService.ConnectAsync(token, ct);
     }
 
+    private void StartRefreshLoop(string token)
+    {
+        _refreshCts?.Cancel();
+        _refreshCts?.Dispose();
+        _refreshCts = new CancellationTokenSource();
+        _ = RefreshLoopAsync(token, _refreshCts.Token);
+    }
+
+    private async Task RefreshLoopAsync(string initialToken, CancellationToken ct)
+    {
+        var token = initialToken;
+        try
+        {
+            while (!ct.IsCancellationRequested)
+            {
+                await Task.Delay(RefreshInterval, ct).ConfigureAwait(false);
+
+                AppLog.Info("Attempting periodic token refresh...");
+                var newToken = await _steamAuthApi.RefreshTokenAsync(token, ct).ConfigureAwait(false);
+
+                if (!string.IsNullOrWhiteSpace(newToken))
+                {
+                    token = newToken;
+                    CurrentToken = token;
+                    _backendApiService.SetBearerToken(token);
+                    PersistToken(token);
+                    await _queueSocketService.ConnectAsync(token, ct).ConfigureAwait(false);
+                    AppLog.Info("Token refreshed and applied.");
+                }
+                else
+                {
+                    // Refresh failed — try re-authenticating via SteamBridge if a ticket is available
+                    AppLog.Info("Token refresh returned null; attempting Steam re-auth.");
+                    var ticket = _steamManager.CurrentAuthTicket;
+                    if (!string.IsNullOrWhiteSpace(ticket))
+                        Dispatcher.UIThread.Post(() => _ = ApplyTokenAsync(ticket));
+                    return; // ApplyTokenAsync will restart the loop
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Normal shutdown
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("Token refresh loop failed unexpectedly.", ex);
+        }
+    }
+
     private void PersistToken(string? token)
     {
         var settings = _settingsStorage.Get();
@@ -122,5 +183,10 @@ public sealed class AuthCoordinator : IDisposable
         _settingsStorage.Save(settings);
     }
 
-    public void Dispose() => _cts?.Dispose();
+    public void Dispose()
+    {
+        _cts?.Dispose();
+        _refreshCts?.Cancel();
+        _refreshCts?.Dispose();
+    }
 }

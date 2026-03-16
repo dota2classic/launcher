@@ -301,7 +301,8 @@ public partial class MainWindowViewModel : ViewModelBase
         DisposeCurrentVm();
         var vm = new MainLauncherViewModel(
             _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider, _videoProvider,
-            _backendApiService, _queueSocketService, _registryService, _chatViewModelFactory, _windowService);
+            _backendApiService, _queueSocketService, _registryService, _chatViewModelFactory, _windowService,
+            _steamAuthApi);
         vm.OnGameDirectoryChanged = _ => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirChanged(AppState)));
         vm.RequestGameDirectoryChange = () => Dispatcher.UIThread.Post(() => EnterState(AppState.SelectGameDirectory));
         vm.OnDlcChanged = removedIds => Dispatcher.UIThread.Post(() =>

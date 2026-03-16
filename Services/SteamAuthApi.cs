@@ -15,6 +15,44 @@ public sealed class SteamAuthApi : ISteamAuthApi
         BaseAddress = new Uri("https://api.dotaclassic.ru/"),
         Timeout = TimeSpan.FromSeconds(10)
     };
+    public async Task<string?> RefreshTokenAsync(string currentToken, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(currentToken))
+            return null;
+
+        try
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Post, "v1/auth/steam/refresh_token");
+            request.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", currentToken);
+
+            using var response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                AppLog.Error($"Token refresh failed: {(int)response.StatusCode} {response.ReasonPhrase}");
+                return null;
+            }
+
+            var body = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+            if (string.IsNullOrWhiteSpace(body))
+                return null;
+
+            string? token;
+            try { token = JsonSerializer.Deserialize<string>(body); }
+            catch { token = body.Trim().Trim('"'); }
+
+            AppLog.Info($"Token refreshed successfully.");
+            return string.IsNullOrWhiteSpace(token) ? null : token;
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("Token refresh failed", ex);
+            return null;
+        }
+    }
+
     public async Task<string?> ExchangeSteamSessionTicketAsync(string ticket, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(ticket))

@@ -32,7 +32,8 @@ public static class PreviewRegistry
                     stub,
                     new StubContentRegistryService(),
                     new StubChatViewModelFactory(),
-                    new StubWindowService());
+                    new StubWindowService(),
+                    new StubSteamAuthApi());
                 var view = new LauncherHeader { Width = 900, Height = 48, DataContext = vm };
                 return (view, null);
             },

@@ -6,4 +6,5 @@ namespace d2c_launcher.Services;
 public interface ISteamAuthApi
 {
     Task<string?> ExchangeSteamSessionTicketAsync(string ticket, CancellationToken cancellationToken = default);
+    Task<string?> RefreshTokenAsync(string currentToken, CancellationToken cancellationToken = default);
 }
