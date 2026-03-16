@@ -31,6 +31,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
     private readonly IBackendApiService _backendApiService;
     private readonly ISettingsStorage _settingsStorage;
     private readonly DispatcherTimer _queueTimer;
+    private readonly DispatcherTimer _modesRefreshTimer;
     private DateTimeOffset? _enterQueueAt;
     private int _queuedModeCount;
     private MatchmakingMode[]? _queuedModes;
@@ -82,6 +83,10 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         _queueTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _queueTimer.Tick += (_, _) => UpdateQueueButtonState();
         _queueTimer.Start();
+
+        _modesRefreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+        _modesRefreshTimer.Tick += (_, _) => _ = RefreshMatchmakingModesAsync();
+        _modesRefreshTimer.Start();
 
         queueSocketService.QueueStateUpdated += msg =>
             Dispatcher.UIThread.Post(() => UpdateQueueCounts(msg));
@@ -357,5 +362,9 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         return $"{n} РЕЖИМОВ";
     }
 
-    public void Dispose() => _queueTimer.Stop();
+    public void Dispose()
+    {
+        _queueTimer.Stop();
+        _modesRefreshTimer.Stop();
+    }
 }
