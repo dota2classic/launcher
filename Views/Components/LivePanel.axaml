@@ -11,7 +11,7 @@
         <util:TeamColorConverter x:Key="TeamColorConverter"/>
     </UserControl.Resources>
 
-    <Grid ColumnDefinitions="150,*">
+    <Grid ColumnDefinitions="320,*">
 
         <!-- ── Sidebar: match list ─────────────────────────────── -->
         <Grid Grid.Column="0" RowDefinitions="Auto,*" Margin="0,0,12,0">
@@ -37,27 +37,84 @@
                      IsVisible="{Binding !HasNoMatches}">
                 <ListBox.Styles>
                     <Style Selector="ListBoxItem">
-                        <Setter Property="Padding" Value="8,6"/>
-                        <Setter Property="Margin" Value="0,0,0,2"/>
-                        <Setter Property="Background" Value="#0a0e14"/>
-                        <Setter Property="CornerRadius" Value="3"/>
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Margin" Value="0,0,0,6"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="CornerRadius" Value="4"/>
                     </Style>
                     <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
-                        <Setter Property="Background" Value="#182030"/>
+                        <Setter Property="Background" Value="Transparent"/>
                     </Style>
                     <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
-                        <Setter Property="Background" Value="#111820"/>
+                        <Setter Property="Background" Value="Transparent"/>
                     </Style>
                 </ListBox.Styles>
                 <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="vm:LiveMatchCardViewModel">
-                        <StackPanel Spacing="2">
-                            <TextBlock Text="{Binding MatchId, StringFormat='Матч \#{0}'}"
-                                       FontSize="{DynamicResource FontSizeSM}"
-                                       Foreground="#b8c8d8" FontWeight="SemiBold"/>
-                            <TextBlock Text="{Binding Duration}"
-                                       FontSize="11" Foreground="#3a4a5a"/>
-                        </StackPanel>
+                        <!-- Card preview: minimap + info -->
+                        <Border Background="#0a0e14" CornerRadius="4"
+                                BorderThickness="1" BorderBrush="#1a2a3a">
+                            <Grid ColumnDefinitions="110,*">
+                                <!-- Small minimap -->
+                                <Panel Grid.Column="0" Width="110" Height="110">
+                                    <asyncImageLoader:AdvancedImage
+                                        Source="https://dotaclassic.ru/minimap.webp"
+                                        Width="110" Height="110" Stretch="Fill"/>
+                                    <ItemsControl ItemsSource="{Binding Heroes}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <Panel Width="110" Height="110" IsHitTestVisible="False"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:HeroOnMapViewModel">
+                                                <!-- Scale hero icons from 370px space to 110px: factor ~0.297 → icon 10px -->
+                                                <Border Width="10" Height="10"
+                                                        HorizontalAlignment="Left" VerticalAlignment="Top"
+                                                        Margin="{Binding HeroMarginSmall}">
+                                                    <asyncImageLoader:AdvancedImage
+                                                        Source="{Binding HeroImageUrl}"
+                                                        Stretch="UniformToFill">
+                                                        <asyncImageLoader:AdvancedImage.Effect>
+                                                            <DropShadowEffect BlurRadius="1" OffsetX="0" OffsetY="0"
+                                                                              Color="{Binding Team, Converter={StaticResource TeamColorConverter}}"/>
+                                                        </asyncImageLoader:AdvancedImage.Effect>
+                                                    </asyncImageLoader:AdvancedImage>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Panel>
+
+                                <!-- Match info -->
+                                <StackPanel Grid.Column="1" Spacing="3" Margin="10,8">
+                                    <!-- Title: Матч N - Состояние -->
+                                    <TextBlock Text="{Binding Title}"
+                                               FontSize="11" FontWeight="SemiBold"
+                                               Foreground="#c8a84a"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <!-- Mode -->
+                                    <TextBlock Text="{Binding ModeLabel}"
+                                               FontSize="10" Foreground="#8899aa"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <!-- Score -->
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <TextBlock Text="Счет:" FontSize="10" Foreground="#8899aa" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding RadiantScore}"
+                                                   FontSize="10" FontWeight="Bold" Foreground="#6db442" VerticalAlignment="Center"/>
+                                        <TextBlock Text=":" FontSize="10" Foreground="#8899aa" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding DireScore}"
+                                                   FontSize="10" FontWeight="Bold" Foreground="#c83c2c" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <!-- Duration -->
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <TextBlock Text="Время:" FontSize="10" Foreground="#8899aa" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Duration}"
+                                                   FontSize="10" Foreground="#b8c8d8" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
@@ -102,7 +159,6 @@
                             <DataTemplate x:DataType="vm:LivePlayerRowViewModel">
                                 <Border Background="#0a0e14" Margin="0,1" Padding="6,6">
                                     <Grid RowDefinitions="Auto,6,Auto">
-                                        <!-- Row 1: portrait + name + kda -->
                                         <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
                                             <Panel Grid.Column="0" Width="32" Height="32" Margin="0,0,7,0">
                                                 <asyncImageLoader:AdvancedImage
@@ -132,7 +188,6 @@
                                                                    Height="3" MinWidth="60"/>
                                             </StackPanel>
                                         </Grid>
-                                        <!-- Row 2: items -->
                                         <components:DotaItemRow Grid.Row="2"
                                                                  ItemUrls="{Binding ItemUrls}"
                                                                  ItemWidth="30" ItemHeight="21"/>
@@ -192,7 +247,6 @@
                             <DataTemplate x:DataType="vm:LivePlayerRowViewModel">
                                 <Border Background="#0a0e14" Margin="0,1" Padding="6,6">
                                     <Grid RowDefinitions="Auto,6,Auto">
-                                        <!-- Row 1: kda + name + portrait -->
                                         <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
                                             <StackPanel Grid.Column="0" Spacing="2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,7,0">
                                                 <TextBlock Text="{Binding KdaText}"
@@ -224,7 +278,6 @@
                                                 </Border>
                                             </Panel>
                                         </Grid>
-                                        <!-- Row 2: items -->
                                         <components:DotaItemRow Grid.Row="2"
                                                                  ItemUrls="{Binding ItemUrls}"
                                                                  ItemWidth="30" ItemHeight="21"
@@ -238,7 +291,7 @@
             </Grid>
         </Grid>
 
-        <!-- Empty state -->
+        <!-- Empty state when no match selected -->
         <TextBlock Grid.Column="1"
                    Text="Нет активных игр"
                    Foreground="#3a4a5a"

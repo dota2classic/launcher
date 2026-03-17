@@ -9,6 +9,7 @@ public partial class HeroOnMapViewModel : ObservableObject
     public int Team { get; }
 
     [ObservableProperty] private Thickness _heroMargin;
+    [ObservableProperty] private Thickness _heroMarginSmall;
     [ObservableProperty] private bool _isDead;
 
     private readonly string _shortHeroName;
@@ -25,18 +26,26 @@ public partial class HeroOnMapViewModel : ObservableObject
             ? heroName["npc_dota_hero_".Length..]
             : heroName;
         _heroMargin = ComputeMargin(posX, posY);
+        _heroMarginSmall = ComputeMarginSmall(posX, posY);
         _isDead = isDead;
     }
 
     public void UpdatePosition(double posX, double posY, bool isDead)
     {
         HeroMargin = ComputeMargin(posX, posY);
+        HeroMarginSmall = ComputeMarginSmall(posX, posY);
         IsDead = isDead;
     }
+
+    private const double SmallCanvasSize = 110;
+    private const double SmallHalfSize = 5;
 
     private static double Remap(double v) => v * 0.94 + 0.02;
     private static double ComputeLeft(double posX) => Remap(posX) * CanvasSize - HalfSize;
     private static double ComputeTop(double posY) => (1.0 - Remap(posY)) * CanvasSize - HalfSize;
     private static Thickness ComputeMargin(double posX, double posY)
         => new Thickness(ComputeLeft(posX), ComputeTop(posY), 0, 0);
+    private static Thickness ComputeMarginSmall(double posX, double posY)
+        => new Thickness(Remap(posX) * SmallCanvasSize - SmallHalfSize,
+                         (1.0 - Remap(posY)) * SmallCanvasSize - SmallHalfSize, 0, 0);
 }

@@ -229,7 +229,7 @@ public static class PreviewRegistry
                 var dto = System.Text.Json.JsonSerializer.Deserialize<d2c_launcher.Api.LiveMatchDto>(json,
                     new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
                 var card = new d2c_launcher.ViewModels.LiveMatchCardViewModel((int)dto.MatchId);
-                card.UpdateFrom(dto);
+                card.UpdateFrom(dto, "Против ботов");
                 var vm = new d2c_launcher.ViewModels.LiveViewModel(new StubBackendApiService());
                 vm.Matches.Add(card);
                 vm.HasNoMatches = false;

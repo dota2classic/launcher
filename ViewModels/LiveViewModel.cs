@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
@@ -14,7 +15,8 @@ public partial class LiveViewModel : ObservableObject, IDisposable
 {
     private readonly IBackendApiService _backendApiService;
     private readonly DispatcherTimer _pollTimer;
-    private CancellationTokenSource? _detailCts;
+
+    private Dictionary<int, string> _modeNames = new();
 
     [ObservableProperty] private LiveMatchCardViewModel? _selectedMatch;
     [ObservableProperty] private bool _isLoading = true;
@@ -28,18 +30,26 @@ public partial class LiveViewModel : ObservableObject, IDisposable
         _pollTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
         _pollTimer.Tick += (_, _) => FireAndForget(RefreshListAsync(), "LiveViewModel.RefreshListAsync");
         _pollTimer.Start();
-        FireAndForget(RefreshListAsync(), "LiveViewModel.RefreshListAsync (startup)");
+        FireAndForget(InitAsync(), "LiveViewModel.InitAsync");
     }
 
-    partial void OnSelectedMatchChanged(LiveMatchCardViewModel? value)
+
+    private async Task InitAsync()
     {
-        _detailCts?.Cancel();
-        _detailCts?.Dispose();
-        _detailCts = null;
-        if (value == null) return;
-        _detailCts = new CancellationTokenSource();
-        FireAndForget(RunDetailLoopAsync(value.MatchId, _detailCts.Token), "LiveViewModel.RunDetailLoopAsync");
+        try
+        {
+            var modes = await _backendApiService.GetEnabledMatchmakingModesAsync();
+            _modeNames = modes.ToDictionary(m => m.ModeId, m => m.Name);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("LiveViewModel.InitAsync (modes)", ex);
+        }
+        await RefreshListAsync();
     }
+
+    private string ResolveModeNane(int modeId) =>
+        _modeNames.TryGetValue(modeId, out var name) ? name : $"Режим {modeId}";
 
     private async Task RefreshListAsync()
     {
@@ -62,7 +72,7 @@ public partial class LiveViewModel : ObservableObject, IDisposable
                     card = new LiveMatchCardViewModel(id);
                     Matches.Add(card);
                 }
-                card.UpdateFrom(dto);
+                card.UpdateFrom(dto, ResolveModeNane((int)dto.MatchmakingMode));
             }
 
             HasNoMatches = Matches.Count == 0;
@@ -79,22 +89,6 @@ public partial class LiveViewModel : ObservableObject, IDisposable
         }
     }
 
-    private async Task RunDetailLoopAsync(int matchId, CancellationToken ct)
-    {
-        try
-        {
-            await foreach (var dto in _backendApiService.SubscribeLiveMatchAsync(matchId, ct))
-            {
-                Dispatcher.UIThread.Post(() =>
-                {
-                    if (SelectedMatch?.MatchId == matchId)
-                        SelectedMatch.UpdateFrom(dto);
-                });
-            }
-        }
-        catch (OperationCanceledException) { }
-        catch (Exception ex) { AppLog.Error($"LiveViewModel.RunDetailLoopAsync({matchId})", ex); }
-    }
 
     private static async void FireAndForget(Task task, string context)
     {
@@ -105,7 +99,5 @@ public partial class LiveViewModel : ObservableObject, IDisposable
     public void Dispose()
     {
         _pollTimer.Stop();
-        _detailCts?.Cancel();
-        _detailCts?.Dispose();
     }
 }

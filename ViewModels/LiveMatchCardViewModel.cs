@@ -8,12 +8,47 @@ namespace d2c_launcher.ViewModels;
 
 public partial class LiveMatchCardViewModel : ObservableObject
 {
+    private static readonly Dictionary<int, string> GameModeNames = new()
+    {
+        { 0, "Нет" },
+        { 1, "All Pick" },
+        { 2, "Captains Mode" },
+        { 3, "Random Draft" },
+        { 4, "Single Draft" },
+        { 5, "All Random" },
+        { 8, "Reverse CM" },
+        { 9, "Greeviling" },
+        { 11, "All Draft" },
+        { 12, "Least Played" },
+        { 13, "New Player Pool" },
+        { 16, "Captains Draft" },
+        { 18, "Ability Draft" },
+        { 20, "All Random Deathmatch" },
+        { 21, "1v1 Mid" },
+        { 22, "All Pick Ranked" },
+        { 23, "Turbo" },
+    };
+
+    private static readonly Dictionary<int, string> GameStateLabels = new()
+    {
+        { 1, "Ожидание игроков" },
+        { 2, "Выбор стратегии" },
+        { 3, "Загрузка игроков" },
+        { 4, "Начало игры" },
+        { 5, "Игра идет" },
+        { 6, "Послеигровой экран" },
+    };
+
     public int MatchId { get; }
 
     [ObservableProperty] private string _duration = "0:00";
     [ObservableProperty] private int _playerCount;
     [ObservableProperty] private int _radiantScore;
     [ObservableProperty] private int _direScore;
+    [ObservableProperty] private string _modeLabel = "";
+    [ObservableProperty] private string _gameStateLabel = "Игра идет";
+    [ObservableProperty] private string _server = "";
+    [ObservableProperty] private string _title = "";
 
     public ObservableCollection<HeroOnMapViewModel> Heroes { get; } = [];
     public ObservableCollection<LivePlayerRowViewModel> RadiantPlayers { get; } = [];
@@ -22,14 +57,15 @@ public partial class LiveMatchCardViewModel : ObservableObject
     public LiveMatchCardViewModel(int matchId)
     {
         MatchId = matchId;
+        Title = $"Матч {matchId}";
     }
 
     /// <summary>Full update: heroes on map + player rows + summary fields.</summary>
-    public void UpdateFrom(LiveMatchDto dto)
+    public void UpdateFrom(LiveMatchDto dto, string matchmakingModeName)
     {
-        UpdateSummaryFrom(dto);
+        UpdateSummaryFrom(dto, matchmakingModeName);
 
-        // Update hero map positions in place to keep Avalonia transitions firing
+        // Update hero map positions in place
         var presentIds = new HashSet<string>();
         foreach (var slot in dto.Heroes)
         {
@@ -47,7 +83,7 @@ public partial class LiveMatchCardViewModel : ObservableObject
             if (!presentIds.Contains(Heroes[i].SteamId))
                 Heroes.RemoveAt(i);
 
-        // Update player rows in place (keyed by SteamId) to avoid collection Reset flicker
+        // Update player rows in place
         int radiantKills = 0, direKills = 0;
         foreach (var slot in dto.Heroes.OrderBy(s => s.User.Name))
         {
@@ -66,7 +102,6 @@ public partial class LiveMatchCardViewModel : ObservableObject
             if (team == 2) radiantKills += kills;
             else direKills += kills;
         }
-        // Remove rows for players no longer in the match
         var allIds = dto.Heroes.Select(s => s.User.SteamId).ToHashSet();
         for (int i = RadiantPlayers.Count - 1; i >= 0; i--)
             if (!allIds.Contains(RadiantPlayers[i].SteamId)) RadiantPlayers.RemoveAt(i);
@@ -77,11 +112,19 @@ public partial class LiveMatchCardViewModel : ObservableObject
         DireScore = direKills;
     }
 
-    /// <summary>Updates only the sidebar summary fields (duration, score). Used by the list poll.</summary>
-    public void UpdateSummaryFrom(LiveMatchDto dto)
+    /// <summary>Updates summary fields only (used by list poll).</summary>
+    public void UpdateSummaryFrom(LiveMatchDto dto, string matchmakingModeName)
     {
         Duration = FormatDuration((int)dto.Duration);
         PlayerCount = dto.Heroes.Count;
+        Server = dto.Server;
+
+        var gameModeName = GameModeNames.TryGetValue((int)dto.GameMode, out var gmn) ? gmn : $"Режим {(int)dto.GameMode}";
+        ModeLabel = $"{matchmakingModeName}, {gameModeName}";
+
+        var stateLabel = GameStateLabels.TryGetValue((int)dto.GameState, out var sl) ? sl : "Игра идет";
+        GameStateLabel = stateLabel;
+        Title = $"Матч {MatchId} - {stateLabel}";
     }
 
     private static string FormatDuration(int seconds)
