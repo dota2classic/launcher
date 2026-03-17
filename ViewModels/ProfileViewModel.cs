@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
 using d2c_launcher.Util;
@@ -70,10 +71,17 @@ public partial class ProfileViewModel : ViewModelBase
 
     [ObservableProperty] private IReadOnlyList<Models.AspectData>? _aspects;
 
+    [ObservableProperty] private bool _canGoBack;
+
+    public Action? GoBackAction { get; set; }
+
     public ProfileViewModel(IBackendApiService api)
     {
         _api = api;
     }
+
+    [RelayCommand]
+    private void GoBack() => GoBackAction?.Invoke();
 
     private static string FormatPlaytime(double seconds)
     {

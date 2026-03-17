@@ -62,6 +62,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     [ObservableProperty]
     private LauncherTab _activeTab = LauncherTab.Play;
 
+    private LauncherTab? _previousTab;
+
     public bool IsPlayTabActive => ActiveTab == LauncherTab.Play;
     public bool IsLiveTabActive => ActiveTab == LauncherTab.Live;
     public bool IsProfileTabActive => ActiveTab == LauncherTab.Profile;
@@ -327,6 +329,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public void OpenProfile()
     {
         if (CurrentUser == null) return;
+        _previousTab = null;
         var steam32 = (CurrentUser.SteamId - 76561197960265728UL).ToString();
         OpenPlayerProfile(steam32);
     }
@@ -334,7 +337,12 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     /// <summary>Navigates to the profile tab and loads the specified player. Receives steam32 ID.</summary>
     public void OpenPlayerProfile(string steam32Id)
     {
+        _previousTab = ActiveTab != LauncherTab.Profile ? ActiveTab : _previousTab;
         FireAndForget(Profile.LoadAsync(steam32Id), "Profile.LoadAsync");
+        Profile.CanGoBack = _previousTab.HasValue;
+        Profile.GoBackAction = _previousTab.HasValue
+            ? () => NavigateTo(_previousTab.Value)
+            : null;
         ActiveTab = LauncherTab.Profile;
     }
 

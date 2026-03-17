@@ -69,6 +69,17 @@
 
               <!-- Name + match count -->
               <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="5">
+                <!-- Back button (only when navigated from another tab) -->
+                <Button IsVisible="{Binding CanGoBack}"
+                        Command="{Binding GoBackCommand}"
+                        Background="Transparent" BorderThickness="0"
+                        Padding="0" Cursor="Hand"
+                        HorizontalAlignment="Left">
+                  <StackPanel Orientation="Horizontal" Spacing="4">
+                    <TextBlock Text="←" Foreground="#4A9EE0" FontSize="{DynamicResource FontSizeBase}"/>
+                    <TextBlock Text="Назад" Foreground="#4A9EE0" FontSize="{DynamicResource FontSizeBase}"/>
+                  </StackPanel>
+                </Button>
                 <TextBlock Text="{Binding PlayerName}"
                            FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold"
                            Foreground="#FFFFFF"/>
