@@ -31,12 +31,31 @@ public partial class LiveMatchCardViewModel : ObservableObject
 
     private static readonly Dictionary<int, string> GameStateLabels = new()
     {
-        { 1, "Ожидание игроков" },
-        { 2, "Выбор стратегии" },
-        { 3, "Загрузка игроков" },
+        { 0, "Инициализация" },
+        { 1, "Загрузка игроков" },
+        { 2, "Выбор героев" },
+        { 3, "Выбор героев" },
         { 4, "Начало игры" },
         { 5, "Игра идет" },
-        { 6, "Послеигровой экран" },
+        { 6, "Игра завершена" },
+        { 7, "Ошибка загрузки" },
+    };
+
+    private static readonly Dictionary<int, string> MatchmakingModeNames = new()
+    {
+        { 0, "Рейтинг" },
+        { 1, "Обычная 5х5" },
+        { 2, "1х1 мид" },
+        { 3, "Diretide" },
+        { 4, "Гряволы" },
+        { 5, "Ability Draft" },
+        { 6, "Турнир" },
+        { 7, "Против ботов" },
+        { 8, "Highroom 5x5" },
+        { 10, "Captains Mode" },
+        { 11, "Лобби" },
+        { 12, "2х2 с ботами" },
+        { 13, "Турбо" },
     };
 
     public int MatchId { get; }
@@ -120,7 +139,10 @@ public partial class LiveMatchCardViewModel : ObservableObject
         Server = dto.Server;
 
         var gameModeName = GameModeNames.TryGetValue((int)dto.GameMode, out var gmn) ? gmn : $"Режим {(int)dto.GameMode}";
-        ModeLabel = $"{matchmakingModeName}, {gameModeName}";
+        var mmName = string.IsNullOrWhiteSpace(matchmakingModeName) || matchmakingModeName.StartsWith("Режим ")
+            ? MatchmakingModeNames.TryGetValue((int)dto.MatchmakingMode, out var mmn) ? mmn : matchmakingModeName
+            : matchmakingModeName;
+        ModeLabel = $"{mmName}, {gameModeName}";
 
         var stateLabel = GameStateLabels.TryGetValue((int)dto.GameState, out var sl) ? sl : "Игра идет";
         GameStateLabel = stateLabel;

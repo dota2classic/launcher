@@ -11,7 +11,7 @@
         <util:TeamColorConverter x:Key="TeamColorConverter"/>
     </UserControl.Resources>
 
-    <Grid ColumnDefinitions="280,*">
+    <Grid ColumnDefinitions="350,*">
 
         <!-- ── Sidebar: match list ─────────────────────────────── -->
         <Border Grid.Column="0"
@@ -52,6 +52,7 @@
                             <Setter Property="Margin" Value="0"/>
                             <Setter Property="Background" Value="Transparent"/>
                             <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Cursor" Value="Hand"/>
                         </Style>
                         <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
                             <Setter Property="Background" Value="#0d1520"/>
@@ -86,10 +87,9 @@
                                             </ItemsControl.ItemsPanel>
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate x:DataType="vm:HeroOnMapViewModel">
-                                                    <!-- HeroOnMapViewModel.SmallHeroIconSize = HeroIconSize * CanvasSize / SmallDisplaySize = 64 -->
                                                     <Border Width="64" Height="64"
                                                             HorizontalAlignment="Left" VerticalAlignment="Top"
-                                                            Margin="{Binding HeroMargin}">
+                                                            Margin="{Binding SmallHeroMargin}">
                                                         <Border.Transitions>
                                                             <Transitions>
                                                                 <ThicknessTransition Property="Margin"
@@ -108,38 +108,42 @@
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
-                                        <!-- Duration badge -->
-                                        <Border HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                                                Background="#cc000000" Padding="4,2" Margin="0">
-                                            <TextBlock Text="{Binding Duration}"
-                                                       FontSize="9" Foreground="#c0d0e0"/>
-                                        </Border>
                                     </Panel>
                                     </Viewbox>
 
                                     <!-- Info -->
-                                    <StackPanel Grid.Column="1" Spacing="4" Margin="8,8,8,8"
+                                    <StackPanel Grid.Column="1" Spacing="6" Margin="10,10,8,10"
                                                 VerticalAlignment="Center">
-                                        <!-- Mode -->
-                                        <TextBlock Text="{Binding ModeLabel}"
-                                                   FontSize="9" Foreground="#5a7a8a"
-                                                   TextTrimming="CharacterEllipsis"/>
                                         <!-- Score -->
-                                        <StackPanel Orientation="Horizontal" Spacing="5">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
                                             <TextBlock Text="{Binding RadiantScore}"
-                                                       FontSize="16" FontWeight="Bold"
+                                                       FontSize="20" FontWeight="Bold"
                                                        Foreground="#6db442"/>
-                                            <TextBlock Text="-"
-                                                       FontSize="14" Foreground="#4a5a6a"
+                                            <TextBlock Text="—"
+                                                       FontSize="16" Foreground="#2e3e4e"
                                                        VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding DireScore}"
-                                                       FontSize="16" FontWeight="Bold"
+                                                       FontSize="20" FontWeight="Bold"
                                                        Foreground="#c83c2c"/>
                                         </StackPanel>
-                                        <!-- State -->
-                                        <TextBlock Text="{Binding GameStateLabel}"
-                                                   FontSize="9" Foreground="#4a6070"
+                                        <!-- Mode -->
+                                        <TextBlock Text="{Binding ModeLabel}"
+                                                   FontSize="11" Foreground="#7a9ab0"
                                                    TextTrimming="CharacterEllipsis"/>
+                                        <!-- Duration -->
+                                        <TextBlock Text="{Binding Duration}"
+                                                   FontSize="11" FontWeight="SemiBold"
+                                                   Foreground="#8899aa"/>
+                                        <!-- State dot + label -->
+                                        <StackPanel Orientation="Horizontal" Spacing="5"
+                                                    VerticalAlignment="Center">
+                                            <Ellipse Width="6" Height="6"
+                                                     Fill="#3a9a3a" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding GameStateLabel}"
+                                                       FontSize="10" Foreground="#4a7060"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
                                     </StackPanel>
                                 </Grid>
                             </Grid>
