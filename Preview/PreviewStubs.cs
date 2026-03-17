@@ -246,6 +246,11 @@ internal sealed class StubWindowService : IWindowService
     public void ShowAndActivate() { }
 }
 
+internal sealed class StubUiDispatcher : IUiDispatcher
+{
+    public void Post(Action action) => action();
+}
+
 internal sealed class StubChatViewModelFactory : IChatViewModelFactory
 {
     public d2c_launcher.ViewModels.ChatViewModel Create(string threadId)

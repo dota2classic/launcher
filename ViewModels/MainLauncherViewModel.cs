@@ -121,7 +121,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         IContentRegistryService registryService,
         IChatViewModelFactory chatViewModelFactory,
         IWindowService windowService,
-        ISteamAuthApi steamAuthApi)
+        ISteamAuthApi steamAuthApi,
+        IUiDispatcher dispatcher)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -135,7 +136,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         var settings = settingsStorage.Get();
         _isIntroOpen = !settings.IntroShown;
 
-        _authCoordinator = new AuthCoordinator(steamManager, backendApiService, queueSocketService, settingsStorage, steamAuthApi);
+        _authCoordinator = new AuthCoordinator(steamManager, backendApiService, queueSocketService, settingsStorage, steamAuthApi, dispatcher);
         _currentUser = steamManager.CurrentUser;
         _avatarImage = SteamAvatarHelper.FromUser(_currentUser);
 

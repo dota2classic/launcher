@@ -1,12 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Threading;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 using d2c_launcher.Api;
 using d2c_launcher.Util;
-using SocketIOClient;
-using SocketIOClient.Transport;
 
 namespace d2c_launcher.Services;
 
@@ -21,7 +18,9 @@ public sealed class QueueSocketService : IQueueSocketService
 {
     private const string DefaultSocketUrl = "wss://api.dotaclassic.ru";
     private const string SocketUrlEnvVar = "D2C_SOCKET_URL";
-    private SocketIOClient.SocketIO? _socket;
+
+    private readonly ISocketFactory _socketFactory;
+    private ISocket? _socket;
     private string? _token;
 
     public GameCoordinatorState State { get; private set; } = GameCoordinatorState.Disconnected;
@@ -40,6 +39,11 @@ public sealed class QueueSocketService : IQueueSocketService
     public event Action<NotificationCreatedMessage>? NotificationCreated;
     public event Action<PleaseEnterQueueMessage>? PleaseEnterQueue;
 
+    public QueueSocketService(ISocketFactory socketFactory)
+    {
+        _socketFactory = socketFactory;
+    }
+
     public async Task ConnectAsync(string token, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(token))
@@ -53,56 +57,36 @@ public sealed class QueueSocketService : IQueueSocketService
         _token = token;
         var (origin, path) = GetSocketEndpoint();
 
-        var options = new SocketIOOptions
-        {
-            Path = path,
-            Transport = TransportProtocol.WebSocket,
-            AutoUpgrade = true,
-            ConnectionTimeout = TimeSpan.FromSeconds(10),
-            Auth = new Dictionary<string, string>
-            {
-                ["token"] = token,
-                ["clientType"] = "launcher"
-            }
-        };
-
-        var socket = new SocketIOClient.SocketIO(origin, options);
+        var socket = _socketFactory.Create(origin, path, token);
         _socket = socket;
 
-        socket.OnConnected += (_, _) =>
-        {
-            UpdateState(GameCoordinatorState.Connected);
-        };
+        socket.OnConnected += (_, _) => UpdateState(GameCoordinatorState.Connected);
+        socket.OnDisconnected += (_, _) => UpdateState(GameCoordinatorState.Disconnected);
 
-        socket.OnDisconnected += (_, _) =>
+        socket.On("CONNECTION_COMPLETE", () => UpdateState(GameCoordinatorState.ConnectionComplete));
+        socket.On<QueueStateMessage>("QUEUE_STATE", msg => QueueStateUpdated?.Invoke(msg));
+        socket.On<PlayerQueueStateMessage>("PLAYER_QUEUE_STATE", msg => PlayerQueueStateUpdated?.Invoke(msg));
+        socket.OnNullable<PlayerRoomStateMessage>("PLAYER_ROOM_STATE", msg =>
         {
-            UpdateState(GameCoordinatorState.Disconnected);
-        };
-
-        socket.On("CONNECTION_COMPLETE", _ => UpdateState(GameCoordinatorState.ConnectionComplete));
-        socket.On("QUEUE_STATE", response => RaiseParsed("QUEUE_STATE", response, QueueStateUpdated));
-        socket.On("PLAYER_QUEUE_STATE", response => RaiseParsed("PLAYER_QUEUE_STATE", response, PlayerQueueStateUpdated));
-        socket.On("PLAYER_ROOM_STATE", response =>
-        {
-            AppLog.Info($"PLAYER_ROOM_STATE raw: {response}");
-            RaiseParsedNullable("PLAYER_ROOM_STATE", response, PlayerRoomStateUpdated);
+            AppLog.Info($"PLAYER_ROOM_STATE: {msg}");
+            PlayerRoomStateUpdated?.Invoke(msg);
         });
-        socket.On("PLAYER_ROOM_FOUND", response =>
+        socket.OnNullable<PlayerRoomStateMessage>("PLAYER_ROOM_FOUND", msg =>
         {
-            AppLog.Info($"PLAYER_ROOM_FOUND raw: {response}");
-            RaiseParsedNullable("PLAYER_ROOM_FOUND", response, PlayerRoomFound);
-            RaiseParsedNullable("PLAYER_ROOM_FOUND", response, PlayerRoomStateUpdated);
+            AppLog.Info($"PLAYER_ROOM_FOUND: {msg}");
+            PlayerRoomFound?.Invoke(msg);
+            PlayerRoomStateUpdated?.Invoke(msg);
         });
-        socket.On("PLAYER_PARTY_STATE", response => RaiseParsed("PLAYER_PARTY_STATE", response, PartyUpdated));
-        socket.On("PLAYER_GAME_STATE", response => RaiseParsedNullable("PLAYER_GAME_STATE", response, PlayerGameStateUpdated));
-        socket.On("PLAYER_GAME_READY", response => RaiseParsedNullable("PLAYER_GAME_READY", response, PlayerGameStateUpdated));
-        socket.On("PLAYER_SERVER_SEARCHING", response => RaiseParsed("PLAYER_SERVER_SEARCHING", response, ServerSearchingUpdated));
-        socket.On("ONLINE_UPDATE", response => RaiseParsed("ONLINE_UPDATE", response, OnlineUpdated));
-        socket.On("PLAYER_PARTY_INVITES_STATE", response => RaiseParsed("PLAYER_PARTY_INVITES_STATE", response, PartyInvitationsUpdated));
-        socket.On("PARTY_INVITE_RECEIVED", response => RaiseParsed("PARTY_INVITE_RECEIVED", response, PartyInviteReceived));
-        socket.On("PARTY_INVITE_EXPIRED", response => RaiseParsed("PARTY_INVITE_EXPIRED", response, PartyInviteExpired));
-        socket.On("NOTIFICATION_CREATED", response => RaiseParsed("NOTIFICATION_CREATED", response, NotificationCreated));
-        socket.On("GO_QUEUE", response => RaiseParsed("GO_QUEUE", response, PleaseEnterQueue));
+        socket.On<PartyDto>("PLAYER_PARTY_STATE", msg => PartyUpdated?.Invoke(msg));
+        socket.OnNullable<PlayerGameStateMessage>("PLAYER_GAME_STATE", msg => PlayerGameStateUpdated?.Invoke(msg));
+        socket.OnNullable<PlayerGameStateMessage>("PLAYER_GAME_READY", msg => PlayerGameStateUpdated?.Invoke(msg));
+        socket.On<PlayerServerSearchingMessage>("PLAYER_SERVER_SEARCHING", msg => ServerSearchingUpdated?.Invoke(msg));
+        socket.On<OnlineUpdateMessage>("ONLINE_UPDATE", msg => OnlineUpdated?.Invoke(msg));
+        socket.On<PlayerPartyInvitationsMessage>("PLAYER_PARTY_INVITES_STATE", msg => PartyInvitationsUpdated?.Invoke(msg));
+        socket.On<PartyInviteReceivedMessage>("PARTY_INVITE_RECEIVED", msg => PartyInviteReceived?.Invoke(msg));
+        socket.On<PartyInviteExpiredMessage>("PARTY_INVITE_EXPIRED", msg => PartyInviteExpired?.Invoke(msg));
+        socket.On<NotificationCreatedMessage>("NOTIFICATION_CREATED", msg => NotificationCreated?.Invoke(msg));
+        socket.On<PleaseEnterQueueMessage>("GO_QUEUE", msg => PleaseEnterQueue?.Invoke(msg));
 
         await socket.ConnectAsync().ConfigureAwait(false);
     }
@@ -131,41 +115,41 @@ public sealed class QueueSocketService : IQueueSocketService
     }
 
     public Task EnterQueueAsync(MatchmakingMode[] modes, CancellationToken cancellationToken = default) =>
-        EmitAsync("ENTER_QUEUE", new EnterQueueMessage(modes), cancellationToken);
+        EmitAsync("ENTER_QUEUE", new EnterQueueMessage(modes));
 
     public Task LeaveAllQueuesAsync(CancellationToken cancellationToken = default) =>
-        EmitAsync("LEAVE_ALL_QUEUES", null, cancellationToken);
+        EmitAsync("LEAVE_ALL_QUEUES");
 
     public Task SetReadyCheckAsync(string roomId, bool accept, CancellationToken cancellationToken = default) =>
-        EmitAsync("SET_READY_CHECK", new SetReadyCheckMessage(roomId, accept), cancellationToken);
+        EmitAsync("SET_READY_CHECK", new SetReadyCheckMessage(roomId, accept));
 
     public Task InviteToPartyAsync(string invitedPlayerId, CancellationToken cancellationToken = default) =>
-        EmitAsync("INVITE_TO_PARTY", new InviteToPartyMessage(invitedPlayerId), cancellationToken);
+        EmitAsync("INVITE_TO_PARTY", new InviteToPartyMessage(invitedPlayerId));
 
     public Task AcceptPartyInviteAsync(string inviteId, bool accept, CancellationToken cancellationToken = default) =>
-        EmitAsync("ACCEPT_PARTY_INVITE", new AcceptPartyInviteMessage(inviteId, accept), cancellationToken);
+        EmitAsync("ACCEPT_PARTY_INVITE", new AcceptPartyInviteMessage(inviteId, accept));
 
     public Task LeavePartyAsync(CancellationToken cancellationToken = default) =>
-        EmitAsync("LEAVE_PARTY", null, cancellationToken);
+        EmitAsync("LEAVE_PARTY");
 
-    private async Task EmitAsync(string eventName, object? payload, CancellationToken cancellationToken)
+    private Task EmitAsync(string eventName)
     {
         if (_socket == null || !_socket.Connected)
-            return;
+            return Task.CompletedTask;
+        return _socket.EmitAsync(eventName);
+    }
 
-        // TODO: SocketIOClient.EmitAsync overloads accept a CancellationToken — pass it here
-        // so callers can actually cancel in-flight emits.
-        if (payload == null)
-            await _socket.EmitAsync(eventName).ConfigureAwait(false);
-        else
-            await _socket.EmitAsync(eventName, payload).ConfigureAwait(false);
+    private Task EmitAsync(string eventName, object payload)
+    {
+        if (_socket == null || !_socket.Connected)
+            return Task.CompletedTask;
+        return _socket.EmitAsync(eventName, payload);
     }
 
     private void UpdateState(GameCoordinatorState state)
     {
         if (State == state)
             return;
-
         State = state;
         StateChanged?.Invoke(state);
     }
@@ -189,9 +173,6 @@ public sealed class QueueSocketService : IQueueSocketService
 
         try
         {
-            // TODO: Task.Run+.Wait blocks the calling thread (often the UI thread) for up to 2 s.
-            // Replace with async disposal: implement IAsyncDisposable and await DisconnectAsync()
-            // directly, or at minimum fire-and-forget with a short timeout using ConfigureAwait(false).
             if (_socket.Connected)
                 Task.Run(() => _socket.DisconnectAsync()).Wait(TimeSpan.FromSeconds(2));
         }
@@ -199,67 +180,6 @@ public sealed class QueueSocketService : IQueueSocketService
 
         _socket.Dispose();
         _socket = null;
-    }
-
-    private static void RaiseParsed<T>(string eventName, SocketIOResponse response, Action<T>? handler)
-    {
-        if (handler == null)
-        {
-            return;
-        }
-
-        if (TryGetPayload(response, out T? payload) && payload != null)
-        {
-            handler(payload);
-        }
-        else
-        {
-            AppLog.Error($"Socket event parse failed: {eventName}");
-        }
-    }
-
-    /// <summary>
-    /// Like RaiseParsed but invokes the handler with null when the payload is null or fails to parse.
-    /// Used for events where null means "state cleared" (e.g. PLAYER_ROOM_STATE).
-    /// </summary>
-    private static void RaiseParsedNullable<T>(string eventName, SocketIOResponse response, Action<T?>? handler) where T : class
-    {
-        if (handler == null)
-        {
-            return;
-        }
-
-        if (TryGetPayload(response, out T? payload))
-        {
-            handler(payload);
-        }
-        else
-        {
-            handler(null);
-        }
-    }
-
-    private static bool TryGetPayload<T>(SocketIOResponse response, out T? payload)
-    {
-        try
-        {
-            payload = response.GetValue<T>();
-            return true;
-        }
-        catch
-        {
-            try
-            {
-                payload = response.GetValue<T>(0);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                AppLog.Error($"Socket event parse failed", ex);
-                payload = default;
-                return false;
-            }
-        }
     }
 }
 

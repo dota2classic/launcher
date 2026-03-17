@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Threading;
 using d2c_launcher.Integration;
 using d2c_launcher.Util;
 
@@ -22,6 +21,7 @@ public sealed class AuthCoordinator : IDisposable
     private readonly IQueueSocketService _queueSocketService;
     private readonly ISettingsStorage _settingsStorage;
     private readonly ISteamAuthApi _steamAuthApi;
+    private readonly IUiDispatcher _dispatcher;
 
     private CancellationTokenSource? _cts;
     private CancellationTokenSource? _refreshCts;
@@ -39,13 +39,15 @@ public sealed class AuthCoordinator : IDisposable
         IBackendApiService backendApiService,
         IQueueSocketService queueSocketService,
         ISettingsStorage settingsStorage,
-        ISteamAuthApi steamAuthApi)
+        ISteamAuthApi steamAuthApi,
+        IUiDispatcher dispatcher)
     {
         _steamManager = steamManager;
         _backendApiService = backendApiService;
         _queueSocketService = queueSocketService;
         _settingsStorage = settingsStorage;
         _steamAuthApi = steamAuthApi;
+        _dispatcher = dispatcher;
     }
 
     /// <summary>
@@ -61,7 +63,7 @@ public sealed class AuthCoordinator : IDisposable
         }
 
         _steamManager.OnSteamAuthorizationChanged += token =>
-            Dispatcher.UIThread.Post(() => _ = ApplyTokenAsync(token));
+            _dispatcher.Post(() => _ = ApplyTokenAsync(token));
 
         var currentTicket = _steamManager.CurrentAuthTicket;
         if (!string.IsNullOrWhiteSpace(currentTicket))
@@ -161,7 +163,7 @@ public sealed class AuthCoordinator : IDisposable
                     AppLog.Info("Token refresh returned null; attempting Steam re-auth.");
                     var ticket = _steamManager.CurrentAuthTicket;
                     if (!string.IsNullOrWhiteSpace(ticket))
-                        Dispatcher.UIThread.Post(() => _ = ApplyTokenAsync(ticket));
+                        _dispatcher.Post(() => _ = ApplyTokenAsync(ticket));
                     return; // ApplyTokenAsync will restart the loop
                 }
             }

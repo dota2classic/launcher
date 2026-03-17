@@ -34,6 +34,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly RedistInstallService _redistInstallService;
     private readonly IContentRegistryService _registryService;
     private readonly IWindowService _windowService;
+    private readonly IUiDispatcher _uiDispatcher;
 
     /// <summary>Pending spectate match ID received before the Launcher state was entered.</summary>
     private int? _pendingSpectateMatchId;
@@ -87,7 +88,8 @@ public partial class MainWindowViewModel : ViewModelBase
         IGameDownloadService gameDownloadService,
         RedistInstallService redistInstallService,
         IContentRegistryService registryService,
-        IWindowService windowService)
+        IWindowService windowService,
+        IUiDispatcher uiDispatcher)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -105,6 +107,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _redistInstallService = redistInstallService;
         _registryService = registryService;
         _windowService = windowService;
+        _uiDispatcher = uiDispatcher;
 
         // Eagerly prefetch the registry so it's cached by the time GameDownloadViewModel needs it.
         var initialGameDir = _settingsStorage.Get().GameDirectory;
@@ -302,7 +305,7 @@ public partial class MainWindowViewModel : ViewModelBase
         var vm = new MainLauncherViewModel(
             _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider, _videoProvider,
             _backendApiService, _queueSocketService, _registryService, _chatViewModelFactory, _windowService,
-            _steamAuthApi);
+            _steamAuthApi, _uiDispatcher);
         vm.OnGameDirectoryChanged = _ => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirChanged(AppState)));
         vm.RequestGameDirectoryChange = () => Dispatcher.UIThread.Post(() => EnterState(AppState.SelectGameDirectory));
         vm.OnDlcChanged = removedIds => Dispatcher.UIThread.Post(() =>

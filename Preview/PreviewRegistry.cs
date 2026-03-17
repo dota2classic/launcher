@@ -33,7 +33,8 @@ public static class PreviewRegistry
                     new StubContentRegistryService(),
                     new StubChatViewModelFactory(),
                     new StubWindowService(),
-                    new StubSteamAuthApi());
+                    new StubSteamAuthApi(),
+                    new StubUiDispatcher());
                 var view = new LauncherHeader { Width = 900, Height = 48, DataContext = vm };
                 return (view, null);
             },
@@ -44,7 +45,8 @@ public static class PreviewRegistry
                     new StubGameLaunchSettingsStorage(), new StubCvarSettingsProvider(),
                     new StubVideoSettingsProvider(), new StubBackendApiService(),
                     new StubQueueSocketService(), new StubContentRegistryService(),
-                    new StubChatViewModelFactory(), new StubWindowService(), new StubSteamAuthApi());
+                    new StubChatViewModelFactory(), new StubWindowService(), new StubSteamAuthApi(),
+                    new StubUiDispatcher());
                 // Play state: game not running
                 vm.Launch.RunState = GameRunState.None;
                 var stack = new StackPanel { Spacing = 2, Background = new SolidColorBrush(Color.Parse("#1a1f26")) };
@@ -59,7 +61,8 @@ public static class PreviewRegistry
                     new StubGameLaunchSettingsStorage(), new StubCvarSettingsProvider(),
                     new StubVideoSettingsProvider(), new StubBackendApiService(),
                     new StubQueueSocketService(), new StubContentRegistryService(),
-                    new StubChatViewModelFactory(), new StubWindowService(), new StubSteamAuthApi());
+                    new StubChatViewModelFactory(), new StubWindowService(), new StubSteamAuthApi(),
+                    new StubUiDispatcher());
                 // Stop state: our game is running
                 vm.Launch.RunState = GameRunState.OurGameRunning;
                 var stack = new StackPanel { Spacing = 2, Background = new SolidColorBrush(Color.Parse("#1a1f26")) };
