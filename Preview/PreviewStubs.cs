@@ -109,7 +109,7 @@ internal sealed class StubBackendApiService : IBackendApiService
 
     public Task<Models.PlayerProfileData?> GetPlayerSummaryAsync(string steamId, CancellationToken cancellationToken = default)
         => Task.FromResult<Models.PlayerProfileData?>(new Models.PlayerProfileData(
-            "PreviewPlayer", null, 120, 80, 5, 3250, 42, 8.5, 5.2, 10.1, 0.0, 9 * 3600 + 32 * 60,
+            "PreviewPlayer", null, 120, 80, 5, 205, 3250, 42, 8.5, 5.2, 10.1, 0.0, 9 * 3600 + 32 * 60,
             new List<Models.AspectData>
             {
                 new("OPTIMIST", 45),

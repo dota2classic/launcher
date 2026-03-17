@@ -483,6 +483,7 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
                 summary.User?.Name ?? steamId,
                 avatarUrl,
                 wins, losses, abandons,
+                (int)overall.Games_played,
                 (int)season.Mmr, (int)season.Rank,
                 season.Kills, season.Deaths, season.Assists,
                 abandonRate,

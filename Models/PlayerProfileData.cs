@@ -8,6 +8,7 @@ public record PlayerProfileData(
     int Wins,
     int Losses,
     int Abandons,
+    int TotalGames,
     int Mmr,
     int Rank,
     double AvgKills,

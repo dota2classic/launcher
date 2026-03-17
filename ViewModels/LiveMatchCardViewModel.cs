@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -56,6 +57,9 @@ public partial class LiveMatchCardViewModel : ObservableObject
     public ObservableCollection<LivePlayerRowViewModel> RadiantPlayers { get; } = [];
     public ObservableCollection<LivePlayerRowViewModel> DirePlayers { get; } = [];
 
+    /// <summary>Called when a non-bot player name is clicked. Receives steam32 ID.</summary>
+    public Action<string>? OnOpenProfile { get; set; }
+
     public LiveMatchCardViewModel(long matchId)
     {
         MatchId = matchId;
@@ -88,7 +92,7 @@ public partial class LiveMatchCardViewModel : ObservableObject
 
         // Update player rows in place
         int radiantKills = 0, direKills = 0;
-        foreach (var slot in dto.Heroes.OrderBy(s => s.User?.Name))
+        foreach (var slot in dto.Heroes)
         {
             var id = slot.User?.SteamId;
             if (string.IsNullOrEmpty(id)) continue;
@@ -100,7 +104,10 @@ public partial class LiveMatchCardViewModel : ObservableObject
             if (existing != null)
                 existing.UpdateFrom(slot);
             else
-                collection.Add(new LivePlayerRowViewModel(slot));
+            {
+                var row = new LivePlayerRowViewModel(slot) { OpenProfileAction = OnOpenProfile };
+                collection.Add(row);
+            }
 
             var kills = (int)(slot.HeroData?.Kills ?? 0);
             if (team == 2) radiantKills += kills;

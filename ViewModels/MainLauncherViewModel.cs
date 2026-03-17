@@ -165,6 +165,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Profile = new ProfileViewModel(backendApiService);
         Live = new LiveViewModel(backendApiService);
         Live.OnSpectate = matchId => Launch.SpectateMatch((int)matchId);
+        Live.OnOpenProfile = steam32Id => OpenPlayerProfile(steam32Id);
 
         _soundCoordinator = new SocketSoundCoordinator(queueSocketService, NotificationArea, windowService);
 

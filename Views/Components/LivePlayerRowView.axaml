@@ -26,10 +26,30 @@
                 </Panel>
 
                 <!-- col 1: name -->
-                <TextBlock x:Name="NameBlock" Grid.Column="1"
+                <Button x:Name="NameBlock" Grid.Column="1"
+                        Command="{Binding OpenProfileCommand}"
+                        IsVisible="{Binding !IsBot}"
+                        Padding="0" Background="Transparent" BorderThickness="0"
+                        Cursor="Hand" VerticalAlignment="Center"
+                        VerticalContentAlignment="Center">
+                    <Button.Styles>
+                        <Style Selector="Button:pointerover /template/ ContentPresenter">
+                            <Setter Property="Background" Value="Transparent"/>
+                        </Style>
+                        <Style Selector="Button:pointerover TextBlock">
+                            <Setter Property="TextDecorations" Value="Underline"/>
+                        </Style>
+                    </Button.Styles>
+                    <TextBlock Text="{Binding Name}"
+                               FontSize="12" FontWeight="SemiBold"
+                               Foreground="#d8e8f4"
+                               TextTrimming="CharacterEllipsis"/>
+                </Button>
+                <TextBlock x:Name="BotNameBlock" Grid.Column="1"
                            Text="{Binding Name}"
+                           IsVisible="{Binding IsBot}"
                            FontSize="12" FontWeight="SemiBold"
-                           Foreground="#d8e8f4"
+                           Foreground="#7a8898"
                            TextTrimming="CharacterEllipsis"
                            VerticalAlignment="Center"/>
 

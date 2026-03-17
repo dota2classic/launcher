@@ -281,28 +281,24 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
 
         AppLog.Info("ConnectToGame: waiting for DOTA 2 window...");
         var deadline = DateTimeOffset.UtcNow.AddSeconds(90);
-        while (DateTimeOffset.UtcNow < deadline)
+        while (!DotaConsoleConnector.IsWindowOpen())
         {
-            await Task.Delay(1500);
-            if (DotaConsoleConnector.IsWindowOpen())
-                break;
-        }
-
-        if (!DotaConsoleConnector.IsWindowOpen())
-        {
-            AppLog.Info("ConnectToGame: timed out waiting for DOTA 2 window");
-            if (!string.IsNullOrWhiteSpace(GameDirectory))
+            if (DateTimeOffset.UtcNow >= deadline)
             {
-                var tail = TailConsoleLog(GameDirectory);
-                if (tail.Length > 0)
-                    AppLog.Error($"ConnectToGame: console.log tail:\n{string.Join("\n", tail)}");
-                else
-                    AppLog.Error("ConnectToGame: console.log not found or empty");
+                AppLog.Info("ConnectToGame: timed out waiting for DOTA 2 window");
+                if (!string.IsNullOrWhiteSpace(GameDirectory))
+                {
+                    var tail = TailConsoleLog(GameDirectory);
+                    if (tail.Length > 0)
+                        AppLog.Error($"ConnectToGame: console.log tail:\n{string.Join("\n", tail)}");
+                    else
+                        AppLog.Error("ConnectToGame: console.log not found or empty");
+                }
+                return;
             }
-            return;
+            await Task.Delay(500);
         }
 
-        await Task.Delay(3000);
         AppLog.Info($"ConnectToGame: sending 'connect {url}'");
         DotaConsoleConnector.SendCommand($"connect {url}");
     }

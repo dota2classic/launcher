@@ -102,7 +102,7 @@ public partial class ProfileViewModel : ViewModelBase
                 PlayerName = summary.Name;
                 PlayerInitial = summary.Name.Length > 0 ? summary.Name[0].ToString().ToUpper() : "?";
                 AvatarUrl = summary.AvatarUrl;
-                int total = summary.Wins + summary.Losses + summary.Abandons;
+                int total = summary.TotalGames;
                 TotalGames = total;
                 WinsLossesText = $"{summary.Wins}–{summary.Losses}–{summary.Abandons}";
                 Wins = summary.Wins;

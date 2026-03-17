@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using d2c_launcher.Api;
 using d2c_launcher.Util;
 
@@ -9,6 +11,11 @@ public partial class LivePlayerRowViewModel : ObservableObject
 {
     public string SteamId { get; }
     public string Name { get; }
+    public bool IsBot { get; }
+
+    /// <summary>Called when user clicks the player name. Receives steam32 ID. Null for bots.</summary>
+    public Action<string>? OpenProfileAction { get; set; }
+
     [ObservableProperty] private string _heroImageUrl = "";
 
     [ObservableProperty] private int _kills;
@@ -29,9 +36,15 @@ public partial class LivePlayerRowViewModel : ObservableObject
     {
         SteamId = slot.User.SteamId;
         long.TryParse(slot.User.SteamId, out var sid);
-        var isBot = slot.HeroData?.Bot == true || sid <= 10;
-        Name = isBot ? $"Бот #{sid + 1}" : slot.User.Name;
+        IsBot = slot.HeroData?.Bot == true || sid <= 10;
+        Name = IsBot ? $"Бот #{sid + 1}" : slot.User.Name;
         UpdateFrom(slot);
+    }
+
+    [RelayCommand]
+    private void OpenProfile()
+    {
+        if (!IsBot) OpenProfileAction?.Invoke(SteamId);
     }
 
     private static string ResolveHeroUrl(string? heroName)

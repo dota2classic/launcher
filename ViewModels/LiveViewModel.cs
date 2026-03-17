@@ -20,6 +20,9 @@ public partial class LiveViewModel : ObservableObject, IDisposable
     /// <summary>Called when the user clicks "Spectate" on the selected match.</summary>
     public Action<long>? OnSpectate { get; set; }
 
+    /// <summary>Called when the user clicks a non-bot player name. Receives steam32 ID.</summary>
+    public Action<string>? OnOpenProfile { get; set; }
+
     private Dictionary<int, string> _modeNames = new();
 
     [ObservableProperty] private LiveMatchCardViewModel? _selectedMatch;
@@ -81,7 +84,7 @@ public partial class LiveViewModel : ObservableObject, IDisposable
                 var card = Matches.FirstOrDefault(m => m.MatchId == id);
                 if (card == null)
                 {
-                    card = new LiveMatchCardViewModel(id);
+                    card = new LiveMatchCardViewModel(id) { OnOpenProfile = OnOpenProfile };
                     Matches.Add(card);
                 }
                 card.UpdateFrom(dto, ResolveModeNamе((int)dto.MatchmakingMode));
