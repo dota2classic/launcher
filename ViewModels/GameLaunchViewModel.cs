@@ -90,7 +90,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
             Dispatcher.UIThread.Post(() => UpdateServerUrl(msg));
     }
 
-    private string? _lastServerUrl;
+    private readonly ServerUrlTracker _serverUrlTracker = new();
     private CancellationTokenSource? _connectCts;
 
     private void UpdateServerUrl(PlayerGameStateMessage? msg)
@@ -98,15 +98,8 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         var serverUrl = msg?.ServerUrl;
         ServerUrl = serverUrl;
 
-        if (string.IsNullOrEmpty(serverUrl))
+        if (_serverUrlTracker.ShouldConnect(serverUrl) && _settingsStorage.Get().AutoConnectToGame)
         {
-            _lastServerUrl = null;
-            return;
-        }
-
-        if (serverUrl != _lastServerUrl && _settingsStorage.Get().AutoConnectToGame)
-        {
-            _lastServerUrl = serverUrl;
             AppLog.Info("GameLaunchViewModel: auto-connecting to server");
             ConnectToGame();
         }

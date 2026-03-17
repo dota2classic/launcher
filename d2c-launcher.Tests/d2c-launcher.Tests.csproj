@@ -43,6 +43,7 @@
     <Compile Include="..\Models\SteamStatus.cs" Link="Models\SteamStatus.cs" />
     <Compile Include="..\Models\AppState.cs" Link="Models\AppState.cs" />
     <Compile Include="..\ViewModels\AppStateMachine.cs" Link="ViewModels\AppStateMachine.cs" />
+    <Compile Include="..\ViewModels\ServerUrlTracker.cs" Link="ViewModels\ServerUrlTracker.cs" />
     <!-- Tray close policy (pure logic, no Avalonia deps) -->
     <Compile Include="..\Views\TrayClosePolicy.cs" Link="Views\TrayClosePolicy.cs" />
     <!-- Telemetry (needed by AppLog) -->
