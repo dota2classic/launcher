@@ -73,21 +73,23 @@
                                       Margin="0,0,0,1">
 
                                     <!-- Small minimap -->
-                                    <Panel Grid.Column="0" Width="140" Height="140" ClipToBounds="True">
+                                    <Viewbox Grid.Column="0" Width="140" Height="140" Stretch="Uniform">
+                                    <Panel Width="320" Height="320" ClipToBounds="True">
                                         <asyncImageLoader:AdvancedImage
                                             Source="https://dotaclassic.ru/minimap.webp"
-                                            Width="140" Height="140" Stretch="Fill"/>
+                                            Width="320" Height="320" Stretch="Fill"/>
                                         <ItemsControl ItemsSource="{Binding Heroes}">
                                             <ItemsControl.ItemsPanel>
                                                 <ItemsPanelTemplate>
-                                                    <Panel Width="140" Height="140" IsHitTestVisible="False"/>
+                                                    <Panel Width="320" Height="320" IsHitTestVisible="False"/>
                                                 </ItemsPanelTemplate>
                                             </ItemsControl.ItemsPanel>
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate x:DataType="vm:HeroOnMapViewModel">
-                                                    <Border Width="24" Height="24"
+                                                    <!-- HeroOnMapViewModel.SmallHeroIconSize = HeroIconSize * CanvasSize / SmallDisplaySize = 64 -->
+                                                    <Border Width="64" Height="64"
                                                             HorizontalAlignment="Left" VerticalAlignment="Top"
-                                                            Margin="{Binding HeroMarginSmall}">
+                                                            Margin="{Binding HeroMargin}">
                                                         <Border.Transitions>
                                                             <Transitions>
                                                                 <ThicknessTransition Property="Margin"
@@ -114,6 +116,7 @@
                                                        FontSize="9" Foreground="#c0d0e0"/>
                                         </Border>
                                     </Panel>
+                                    </Viewbox>
 
                                     <!-- Info -->
                                     <StackPanel Grid.Column="1" Spacing="4" Margin="8,8,8,8"
@@ -231,10 +234,11 @@
                                         <Border Background="#0a0e14" Margin="0,1" Padding="6,5">
                                             <Grid RowDefinitions="Auto,5,Auto">
                                                 <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
-                                                    <Panel Grid.Column="0" Width="32" Height="32" Margin="0,0,8,0">
+                                                    <Panel Grid.Column="0" Width="57" Height="32" Margin="0,0,8,0"
+                                                           ClipToBounds="True">
                                                         <asyncImageLoader:AdvancedImage
                                                             Source="{Binding HeroImageUrl}"
-                                                            Width="32" Height="32" Stretch="UniformToFill"/>
+                                                            Width="57" Height="32" Stretch="UniformToFill"/>
                                                         <Border Background="#dd000000"
                                                                 HorizontalAlignment="Left" VerticalAlignment="Bottom"
                                                                 Padding="2,0">
@@ -287,7 +291,7 @@
                                     <DataTemplate x:DataType="vm:HeroOnMapViewModel">
                                         <Border Width="28" Height="28"
                                                 HorizontalAlignment="Left" VerticalAlignment="Top"
-                                                Margin="{Binding HeroMarginMedium}">
+                                                Margin="{Binding HeroMargin}">
                                             <Border.Transitions>
                                                 <Transitions>
                                                     <ThicknessTransition Property="Margin"
@@ -352,10 +356,11 @@
                                                                TextTrimming="CharacterEllipsis"
                                                                HorizontalAlignment="Right"
                                                                VerticalAlignment="Center"/>
-                                                    <Panel Grid.Column="2" Width="32" Height="32" Margin="8,0,0,0">
+                                                    <Panel Grid.Column="2" Width="57" Height="32" Margin="8,0,0,0"
+                                                           ClipToBounds="True">
                                                         <asyncImageLoader:AdvancedImage
                                                             Source="{Binding HeroImageUrl}"
-                                                            Width="32" Height="32" Stretch="UniformToFill"/>
+                                                            Width="57" Height="32" Stretch="UniformToFill"/>
                                                         <Border Background="#dd000000"
                                                                 HorizontalAlignment="Right" VerticalAlignment="Bottom"
                                                                 Padding="2,0">

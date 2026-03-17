@@ -35,13 +35,13 @@ public partial class LivePlayerRowViewModel : ObservableObject
 
     private static string ResolveHeroUrl(string? heroName)
     {
-        if (string.IsNullOrEmpty(heroName)) return "";
+        if (string.IsNullOrEmpty(heroName)) return "avares://d2c-launcher/Assets/Images/Heroes/default.webp";
         var shortName = heroName.StartsWith("npc_dota_hero_", System.StringComparison.Ordinal)
             ? heroName["npc_dota_hero_".Length..]
             : heroName;
         return string.IsNullOrEmpty(shortName)
-            ? ""
-            : $"https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/icons/{shortName}.png";
+            ? "avares://d2c-launcher/Assets/Images/Heroes/default.webp"
+            : $"avares://d2c-launcher/Assets/Images/Heroes/{shortName}.webp";
     }
 
     public void UpdateFrom(MatchSlotInfo slot)

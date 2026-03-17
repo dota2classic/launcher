@@ -9,14 +9,22 @@ public partial class HeroOnMapViewModel : ObservableObject
     public int Team { get; }
 
     [ObservableProperty] private Thickness _heroMargin;
-    [ObservableProperty] private Thickness _heroMarginSmall;
-    [ObservableProperty] private Thickness _heroMarginMedium;
     [ObservableProperty] private bool _isDead;
 
     [ObservableProperty] private string _heroImageUrl = "";
 
-    private const double CanvasSize = 380;
-    private const double HalfSize = 16;
+    // Canonical canvas: both minimaps render at 320×320, scaled by a Viewbox to their display size.
+    public const double CanvasSize = 320;
+
+    // Hero icon size in the large (detail) minimap, in canvas pixels.
+    public const double HeroIconSize = 28;
+
+    // Small card displays the canvas at this size via Viewbox.
+    // Small-card icon size in XAML = HeroIconSize * CanvasSize / SmallDisplaySize = 64.
+    public const double SmallDisplaySize = 140;
+    public const double SmallHeroIconSize = HeroIconSize * CanvasSize / SmallDisplaySize; // = 64
+
+    private const double HalfSize = HeroIconSize / 2;
 
     public HeroOnMapViewModel(string steamId, string heroName, int team, double posX, double posY, bool isDead)
     {
@@ -24,8 +32,6 @@ public partial class HeroOnMapViewModel : ObservableObject
         Team = team;
         _heroImageUrl = ResolveHeroUrl(heroName);
         _heroMargin = ComputeMargin(posX, posY);
-        _heroMarginSmall = ComputeMarginSmall(posX, posY);
-        _heroMarginMedium = ComputeMarginMedium(posX, posY);
         _isDead = isDead;
     }
 
@@ -34,8 +40,6 @@ public partial class HeroOnMapViewModel : ObservableObject
         var url = ResolveHeroUrl(heroName);
         if (url != HeroImageUrl) HeroImageUrl = url;
         HeroMargin = ComputeMargin(posX, posY);
-        HeroMarginSmall = ComputeMarginSmall(posX, posY);
-        HeroMarginMedium = ComputeMarginMedium(posX, posY);
         IsDead = isDead;
     }
 
@@ -45,25 +49,12 @@ public partial class HeroOnMapViewModel : ObservableObject
             ? heroName["npc_dota_hero_".Length..]
             : heroName;
         return string.IsNullOrEmpty(shortName)
-            ? ""
-            : $"https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/icons/{shortName}.png";
+            ? "avares://d2c-launcher/Assets/Images/Heroes/default.webp"
+            : $"avares://d2c-launcher/Assets/Images/Heroes/{shortName}.webp";
     }
 
-    private const double SmallCanvasSize = 140;
-    private const double SmallHalfSize = 12;
-
-    private const double MediumCanvasSize = 320;
-    private const double MediumHalfSize = 14;
-
     private static double Remap(double v) => v * 0.94 + 0.02;
-    private static double ComputeLeft(double posX) => Remap(posX) * CanvasSize - HalfSize;
-    private static double ComputeTop(double posY) => (1.0 - Remap(posY)) * CanvasSize - HalfSize;
     private static Thickness ComputeMargin(double posX, double posY)
-        => new Thickness(ComputeLeft(posX), ComputeTop(posY), 0, 0);
-    private static Thickness ComputeMarginSmall(double posX, double posY)
-        => new Thickness(Remap(posX) * SmallCanvasSize - SmallHalfSize,
-                         (1.0 - Remap(posY)) * SmallCanvasSize - SmallHalfSize, 0, 0);
-    private static Thickness ComputeMarginMedium(double posX, double posY)
-        => new Thickness(Remap(posX) * MediumCanvasSize - MediumHalfSize,
-                         (1.0 - Remap(posY)) * MediumCanvasSize - MediumHalfSize, 0, 0);
+        => new Thickness(Remap(posX) * CanvasSize - HalfSize,
+                         (1.0 - Remap(posY)) * CanvasSize - HalfSize, 0, 0);
 }

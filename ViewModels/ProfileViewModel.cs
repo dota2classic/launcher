@@ -30,7 +30,7 @@ public partial class HeroRowViewModel : ViewModelBase
         HeroName = Models.HeroNames.GetLocalizedName(data.HeroName);
         Games = data.Games;
         var heroKey = Models.HeroNames.GetImageKey(data.HeroName);
-        HeroImageUrl = $"https://dotaclassic.ru/heroes/{heroKey}.webp";
+        HeroImageUrl = $"avares://d2c-launcher/Assets/Images/Heroes/{heroKey}.webp";
         WinRateText = $"{data.WinRate:0.00}%";
         KdaText = $"{data.Kda:0.00}";
         GamesBarWidth = maxGames > 0 ? (double)data.Games / maxGames * 52 : 0;
