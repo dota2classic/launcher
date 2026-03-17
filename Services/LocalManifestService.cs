@@ -87,7 +87,7 @@ public class LocalManifestService : ILocalManifestService
     private static string ComputeMd5(string filePath)
     {
         using var stream = new FileStream(
-            filePath, FileMode.Open, FileAccess.Read, FileShare.Read, 131072);
+            filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 131072);
         using var md5 = MD5.Create();
         return Convert.ToHexString(md5.ComputeHash(stream)).ToLowerInvariant();
     }

@@ -74,7 +74,7 @@ public partial class LiveMatchCardViewModel : ObservableObject
             presentIds.Add(id);
             var existing = Heroes.FirstOrDefault(h => h.SteamId == id);
             if (existing != null)
-                existing.UpdatePosition(slot.HeroData.Pos_x, slot.HeroData.Pos_y, slot.HeroData.Respawn_time > 0);
+                existing.UpdatePosition(slot.HeroData.Hero, slot.HeroData.Pos_x, slot.HeroData.Pos_y, slot.HeroData.Respawn_time > 0);
             else
                 Heroes.Add(new HeroOnMapViewModel(id, slot.HeroData.Hero, (int)slot.Team,
                     slot.HeroData.Pos_x, slot.HeroData.Pos_y, slot.HeroData.Respawn_time > 0));

@@ -9,7 +9,7 @@ public partial class LivePlayerRowViewModel : ObservableObject
 {
     public string SteamId { get; }
     public string Name { get; }
-    public string HeroImageUrl { get; }
+    [ObservableProperty] private string _heroImageUrl = "";
 
     [ObservableProperty] private int _kills;
     [ObservableProperty] private int _deaths;
@@ -30,18 +30,24 @@ public partial class LivePlayerRowViewModel : ObservableObject
         SteamId = slot.User.SteamId;
         var isBot = long.TryParse(slot.User.SteamId, out var sid) && sid <= 10;
         Name = isBot ? $"Бот #{sid + 1}" : slot.User.Name;
-        var heroName = slot.HeroData?.Hero ?? "";
+        UpdateFrom(slot);
+    }
+
+    private static string ResolveHeroUrl(string? heroName)
+    {
+        if (string.IsNullOrEmpty(heroName)) return "";
         var shortName = heroName.StartsWith("npc_dota_hero_", System.StringComparison.Ordinal)
             ? heroName["npc_dota_hero_".Length..]
             : heroName;
-        HeroImageUrl = string.IsNullOrEmpty(shortName)
+        return string.IsNullOrEmpty(shortName)
             ? ""
             : $"https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/icons/{shortName}.png";
-        UpdateFrom(slot);
     }
 
     public void UpdateFrom(MatchSlotInfo slot)
     {
+        var url = ResolveHeroUrl(slot.HeroData?.Hero);
+        if (url != HeroImageUrl) HeroImageUrl = url;
         Kills = (int)(slot.HeroData?.Kills ?? 0);
         Deaths = (int)(slot.HeroData?.Deaths ?? 0);
         Assists = (int)(slot.HeroData?.Assists ?? 0);
