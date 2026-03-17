@@ -37,7 +37,7 @@ public partial class LivePlayerRowViewModel : ObservableObject
         SteamId = slot.User.SteamId;
         long.TryParse(slot.User.SteamId, out var sid);
         IsBot = slot.HeroData?.Bot == true || sid <= 10;
-        Name = IsBot ? $"Бот #{sid + 1}" : slot.User.Name;
+        Name = IsBot ? "Бот" : slot.User.Name;
         UpdateFrom(slot);
     }
 

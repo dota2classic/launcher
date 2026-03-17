@@ -77,22 +77,22 @@ public class BuildingOnMapViewModel
 
     private static readonly Pos[] RadiantBarracks =
     [
-        new(0.105, 0.243, 0),
-        new(0.075, 0.243, 1),
-        new(0.168, 0.179, 2),
-        new(0.143, 0.204, 3),
-        new(0.2, 0.049, 4),
-        new(0.2, 0.085, 5),
+        new(0.103, 0.243, 0),
+        new(0.083, 0.243, 1),
+        new(0.168, 0.189, 2),
+        new(0.153, 0.204, 3),
+        new(0.205, 0.055, 4),
+        new(0.205, 0.085, 5),
     ];
 
     private static readonly Pos[] DireBarracks =
     [
         new(0.768, 0.887, 0),
-        new(0.768, 0.925, 1),
-        new(0.821, 0.766, 2),
+        new(0.768, 0.915, 1),
+        new(0.816, 0.776, 2),
         new(0.795, 0.792, 3),
         new(0.898, 0.735, 4),
-        new(0.929, 0.735, 5),
+        new(0.919, 0.735, 5),
     ];
 
     private static readonly Pos RadiantAncient = new(0.083, 0.118, 0);
