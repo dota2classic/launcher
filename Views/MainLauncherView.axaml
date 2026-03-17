@@ -94,7 +94,7 @@
                    <StackPanel Spacing="20">
                        <TextBlock Text="Покинуть игру?" FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold"
                                   HorizontalAlignment="Center" Foreground="#D9D9D9"/>
-                       <TextBlock Text="Вы уверены, что хотите покинуть игру?&#x0a;Это может повлечь штраф за abandonment."
+                       <TextBlock Text="Вы точно хотите покинуть игру?&#x0a;В режимах 5х5 это может привести к временному запрету на поиск игры."
                                   HorizontalAlignment="Center" TextAlignment="Center"
                                   Foreground="#AAAAAA" FontSize="{DynamicResource FontSizeMD}"/>
                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12">

@@ -41,7 +41,8 @@
                         IsVisible="{Binding !IsBot}"
                         Padding="0" Background="Transparent" BorderThickness="0"
                         Cursor="Hand" VerticalAlignment="Center"
-                        VerticalContentAlignment="Center">
+                        VerticalContentAlignment="Center"
+                        MaxWidth="110" HorizontalAlignment="Left" HorizontalContentAlignment="Left">
                     <Button.Styles>
                         <Style Selector="Button:pointerover /template/ ContentPresenter">
                             <Setter Property="Background" Value="Transparent"/>
@@ -61,6 +62,7 @@
                            FontSize="12" FontWeight="SemiBold"
                            Foreground="#7a8898"
                            TextTrimming="CharacterEllipsis"
+                           MaxWidth="110"
                            VerticalAlignment="Center"/>
 
                 <!-- col 2: KDA (Radiant) or hero image (Dire) -->
