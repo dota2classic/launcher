@@ -104,6 +104,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
     public string OnlineStatsText => $"{OnlineInGame} в игре, {OnlineSessions} на сайте";
 
+    public bool AnyLiveGame => OnlineInGame > 0;
+
     public string LoggedInAsText => CurrentUser != null
         ? "Logged in as: " + CurrentUser.PersonaName
         : "Steam offline or not logged in.";
@@ -394,6 +396,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         var (inGame, _) = await _backendApiService.GetOnlineStatsAsync();
         OnlineInGame = inGame;
         OnPropertyChanged(nameof(OnlineStatsText));
+        OnPropertyChanged(nameof(AnyLiveGame));
         Queue.OnlineStatsText = OnlineStatsText;
     }
 

@@ -170,21 +170,6 @@
           <Border Classes="SubTab SubTabActive" Margin="0,0,0,-1">
             <TextBlock Classes="SubTabText SubTabTextActive" Text="ОБЩЕЕ"/>
           </Border>
-          <Border Classes="SubTab" Margin="0,0,0,-1">
-            <TextBlock Classes="SubTabText" Text="МАТЧИ"/>
-          </Border>
-          <Border Classes="SubTab" Margin="0,0,0,-1">
-            <TextBlock Classes="SubTabText" Text="ДОСТИЖЕНИЯ"/>
-          </Border>
-          <Border Classes="SubTab" Margin="0,0,0,-1">
-            <TextBlock Classes="SubTabText" Text="СОЮЗНИКИ"/>
-          </Border>
-          <Border Classes="SubTab" Margin="0,0,0,-1">
-            <TextBlock Classes="SubTabText" Text="ГЕРОИ"/>
-          </Border>
-          <Border Classes="SubTab" Margin="0,0,0,-1">
-            <TextBlock Classes="SubTabText" Text="РЕКОРДЫ"/>
-          </Border>
         </StackPanel>
       </Border>
 

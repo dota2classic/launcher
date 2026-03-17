@@ -72,7 +72,8 @@
         <Button x:Name="LiveTabButton" Classes="nav-tab" Classes.active="{Binding IsLiveTabActive}" Click="OnLiveTabClicked">
           <Grid RowDefinitions="*,2">
             <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">
-              <Ellipse Width="7" Height="7" Fill="#27AE60" VerticalAlignment="Center"/>
+              <Ellipse Width="7" Height="7" Fill="#27AE60" VerticalAlignment="Center"
+                       IsVisible="{Binding AnyLiveGame}"/>
               <TextBlock Classes="nav-label" Text="LIVE" LetterSpacing="2"/>
             </StackPanel>
             <Rectangle Grid.Row="1" Classes="nav-indicator"
@@ -126,28 +127,60 @@
 
       <!-- Right: launch button + settings gear + user avatar -->
       <StackPanel Grid.Column="2" Orientation="Horizontal">
-        <Button x:Name="LaunchGameButton" VerticalAlignment="Stretch" Margin="0,6,8,6"
-                Padding="20,8" CornerRadius="2" Cursor="Hand"
+        <Button x:Name="LaunchGameButton" VerticalAlignment="Center" Margin="0,0,6,0"
+                Padding="12,6" CornerRadius="2" Cursor="Hand"
                 Click="OnLaunchGameClicked"
                 Classes.stop="{Binding Launch.PlayButtonIsStop}"
-                BorderThickness="0">
+                BorderThickness="1">
           <Button.Styles>
             <Style Selector="Button#LaunchGameButton">
-              <Setter Property="Background" Value="#1a6b35"/>
+              <Setter Property="Background" Value="#0d2a1a"/>
+              <Setter Property="BorderBrush" Value="#27AE60"/>
+            </Style>
+            <Style Selector="Button#LaunchGameButton /template/ ContentPresenter">
+              <Setter Property="Background" Value="#0d2a1a"/>
             </Style>
             <Style Selector="Button#LaunchGameButton:pointerover /template/ ContentPresenter">
-              <Setter Property="Background" Value="#22884a"/>
+              <Setter Property="Background" Value="#123520"/>
             </Style>
+            <Style Selector="Button#LaunchGameButton materialIcons|MaterialIcon">
+              <Setter Property="Foreground" Value="#27AE60"/>
+            </Style>
+            <Style Selector="Button#LaunchGameButton TextBlock">
+              <Setter Property="Foreground" Value="#27AE60"/>
+            </Style>
+            <!-- Stop state -->
             <Style Selector="Button#LaunchGameButton.stop">
-              <Setter Property="Background" Value="#7b1e1e"/>
+              <Setter Property="Background" Value="#2a0d0d"/>
+              <Setter Property="BorderBrush" Value="#c0392b"/>
+            </Style>
+            <Style Selector="Button#LaunchGameButton.stop /template/ ContentPresenter">
+              <Setter Property="Background" Value="#2a0d0d"/>
             </Style>
             <Style Selector="Button#LaunchGameButton.stop:pointerover /template/ ContentPresenter">
-              <Setter Property="Background" Value="#9e2828"/>
+              <Setter Property="Background" Value="#38110f"/>
+            </Style>
+            <Style Selector="Button#LaunchGameButton.stop materialIcons|MaterialIcon">
+              <Setter Property="Foreground" Value="#e74c3c"/>
+            </Style>
+            <Style Selector="Button#LaunchGameButton.stop TextBlock">
+              <Setter Property="Foreground" Value="#e74c3c"/>
             </Style>
           </Button.Styles>
-          <TextBlock Text="{Binding Launch.PlayButtonText}"
-                     FontWeight="SemiBold" FontSize="{DynamicResource FontSizeMD}"
-                     Foreground="White" VerticalAlignment="Center"/>
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <materialIcons:MaterialIcon Kind="PlayArrow" Width="16" Height="16"
+                                        VerticalAlignment="Center"
+                                        IsVisible="{Binding !Launch.PlayButtonIsStop}"/>
+            <materialIcons:MaterialIcon Kind="Stop" Width="14" Height="14"
+                                        VerticalAlignment="Center"
+                                        IsVisible="{Binding Launch.PlayButtonIsStop}"/>
+            <TextBlock Text="ИГРАТЬ" FontSize="{DynamicResource FontSizeBase}"
+                       FontWeight="SemiBold" LetterSpacing="1" VerticalAlignment="Center"
+                       IsVisible="{Binding !Launch.PlayButtonIsStop}"/>
+            <TextBlock Text="СТОП" FontSize="{DynamicResource FontSizeBase}"
+                       FontWeight="SemiBold" LetterSpacing="1" VerticalAlignment="Center"
+                       IsVisible="{Binding Launch.PlayButtonIsStop}"/>
+          </StackPanel>
         </Button>
         <Button x:Name="SettingsButton" VerticalAlignment="Stretch" Padding="10,8"
                 Background="Transparent" BorderThickness="0" CornerRadius="0"
