@@ -133,7 +133,8 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
             }
             catch (Exception ex)
             {
-                AppLog.Error($"Chat SSE disconnected: {ex.Message}", ex);
+                if (ex is not System.Net.Http.HttpIOException)
+                    AppLog.Error($"Chat SSE disconnected: {ex.Message}", ex);
                 try { await Task.Delay(3000, ct).ConfigureAwait(false); }
                 catch (OperationCanceledException) { break; }
             }

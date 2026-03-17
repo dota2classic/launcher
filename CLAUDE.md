@@ -197,7 +197,7 @@ Project documentation lives in the `docs/` directory. Current files:
 | [docs/settings-architecture.md](docs/settings-architecture.md) | Settings system: CvarMapping, CompositeCvarMapping, BindMapping, SettingsViewModel, adding new settings |
 | [docs/game-update-manifest.md](docs/game-update-manifest.md) | Game update manifest format, `exact`/`existing` modes, `LocalManifestService`, `ManifestDiffService`, update flow |
 | [docs/client-dll-patching.md](docs/client-dll-patching.md) | Binary patching of `client.dll`: FCVAR_CHEAT removal, default value patch, PE layout, sync strategy |
-| [docs/computer-use-workflow.md](docs/computer-use-workflow.md) | Step-by-step workflow for implementing and visually verifying UI changes using the computer-use MCP |
+| [docs/preview-workflow.md](docs/preview-workflow.md) | Visual verification workflow: component preview tool and HTML screenshot tool |
 | [docs/release-cycle.md](docs/release-cycle.md) | Release channels (nightly/stable), CI workflow, Velopack channel mechanics, opting into nightly updates |
 | [docs/ui-style-system.md](docs/ui-style-system.md) | Global style classes (`Block`, `BlockHead`, `BlockTitle`), font size tokens, font families, sub-tab styles |
 | [docs/integration-testing-plan.md](docs/integration-testing-plan.md) | Integration testing strategy: what's mockable, blockers (`ISteamManager`), layered plan (NSubstitute → Avalonia.Headless.XUnit → WireMock), concrete next steps |
