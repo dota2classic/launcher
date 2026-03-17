@@ -73,6 +73,14 @@ public static class DotaConsoleConnector
         }
     }
 
+    /// <summary>Brings the Dota 2 window to the foreground if it is open.</summary>
+    public static void FocusWindow()
+    {
+        var hwnd = WinApi.FindWindowA(null, DotaWindowTitle);
+        if (hwnd != IntPtr.Zero)
+            WinApi.SetForegroundWindow(hwnd);
+    }
+
     /// <summary>Sends a console command string to the Dota 2 window. Returns false if the window was not found.</summary>
     public static bool SendCommand(string command)
     {

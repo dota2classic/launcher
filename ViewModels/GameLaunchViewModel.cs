@@ -301,6 +301,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
 
         AppLog.Info($"ConnectToGame: sending 'connect {url}'");
         DotaConsoleConnector.SendCommand($"connect {url}");
+        DotaConsoleConnector.FocusWindow();
     }
 
     /// <summary>

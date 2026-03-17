@@ -23,6 +23,10 @@ internal static class WinApi
     [DllImport("user32.dll", CharSet = CharSet.Ansi)]
     public static extern IntPtr SendMessageA(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
 
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool SetForegroundWindow(IntPtr hWnd);
+
     // --- IPropertyStore COM interop for taskbar icon control ---
 
     [DllImport("shell32.dll", SetLastError = true)]
