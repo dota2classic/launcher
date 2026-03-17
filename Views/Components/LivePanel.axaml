@@ -100,7 +100,7 @@
                                                         <components:HeroMinimapIcon
                                                             HeroName="{Binding HeroShortName}">
                                                             <components:HeroMinimapIcon.Effect>
-                                                                <DropShadowEffect BlurRadius="1" OffsetX="0" OffsetY="0"
+                                                                <DropShadowEffect BlurRadius="8" OffsetX="0" OffsetY="0"
                                                                                   Color="{Binding Team, Converter={StaticResource TeamColorConverter}}"/>
                                                             </components:HeroMinimapIcon.Effect>
                                                         </components:HeroMinimapIcon>
@@ -301,7 +301,7 @@
                                             <components:HeroMinimapIcon
                                                 HeroName="{Binding HeroShortName}">
                                                 <components:HeroMinimapIcon.Effect>
-                                                    <DropShadowEffect BlurRadius="2" OffsetX="0" OffsetY="0"
+                                                    <DropShadowEffect BlurRadius="8" OffsetX="0" OffsetY="0"
                                                                       Color="{Binding Team, Converter={StaticResource TeamColorConverter}}"/>
                                                 </components:HeroMinimapIcon.Effect>
                                             </components:HeroMinimapIcon>

@@ -48,7 +48,7 @@ public partial class HeroOnMapViewModel : ObservableObject
             ? heroName["npc_dota_hero_".Length..]
             : heroName;
 
-    private static double Remap(double v) => v * 0.94 + 0.02;
+    private static double Remap(double v) => v * 0.90 + 0.06;
     private static Thickness ComputeMargin(double posX, double posY)
         => new Thickness(Remap(posX) * CanvasSize - HalfSize,
                          (1.0 - Remap(posY)) * CanvasSize - HalfSize, 0, 0);
