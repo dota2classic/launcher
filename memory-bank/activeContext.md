@@ -2,6 +2,35 @@
 
 ## Current Focus
 
+**Issue #80: Live matches tab** — implemented.
+
+### What Was Changed
+- `Services/IBackendApiService.cs` — added `GetLiveMatchesAsync()` and `SubscribeLiveMatchAsync(matchId, ct)`
+- `Services/BackendApiService.cs` — implemented both: `GetLiveMatchesAsync` wraps generated `LiveMatchController_listMatchesAsync`; `SubscribeLiveMatchAsync` polls `LiveMatchController_liveMatchAsync` every 3s as an `IAsyncEnumerable`
+- `ViewModels/HeroOnMapViewModel.cs` — new; `CanvasLeft`/`CanvasTop` computed from `pos_x`/`pos_y` using same remap as webapp; hero icon URL from Steamstatic CDN
+- `ViewModels/LivePlayerRowViewModel.cs` — new; flat row for player list (name, hero icon, K/D/A, level)
+- `ViewModels/LiveMatchCardViewModel.cs` — new; holds heroes + player lists; `UpdateFrom(LiveMatchDto)` mutates existing `HeroOnMapViewModel` instances in place so Avalonia transitions fire
+- `ViewModels/LiveViewModel.cs` — new; polls match list every 5s; runs detail polling loop for selected match; auto-selects first match
+- `ViewModels/MainLauncherViewModel.cs` — added `Live` child VM; disposed in `Dispose()`
+- `Views/Components/LivePanel.axaml/.cs` — new; match sidebar + minimap Canvas + team player lists; hero borders have `DoubleTransition` on `Canvas.Left`/`Canvas.Top` for smooth 1s position animation
+- `Util/TeamColorConverter.cs` — new; team 2 → radiant yellow-green, team 3 → dire red (border color)
+- `Views/MainLauncherView.axaml` — replaced "Live — скоро" placeholder with `<components:LivePanel>`
+- `Preview/PreviewStubs.cs` — added stub `GetLiveMatchesAsync` and `SubscribeLiveMatchAsync`
+- `Preview/PreviewRegistry.cs` — added `LivePanel` entry
+
+---
+
+## Previous Focus
+
+**Issue #76: Handle failed game mode loading** — implemented.
+
+### What Was Changed
+- `ViewModels/QueueViewModel.cs` — added `_modesRefreshTimer` (`DispatcherTimer`, 30s interval) that calls `RefreshMatchmakingModesAsync()` on each tick; stopped in `Dispose()`. The existing method already merges in-memory selection state (`existing?.IsSelected`) so re-fetching is safe.
+
+---
+
+## Previous Focus
+
 **Issue #78: Handle PLAYER_PARTY_STATE socket event** — implemented.
 
 ### What Was Changed

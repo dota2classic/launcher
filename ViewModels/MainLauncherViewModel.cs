@@ -50,6 +50,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public SettingsViewModel Settings { get; }
     public ChatViewModel Chat { get; }
     public ProfileViewModel Profile { get; }
+    public LiveViewModel Live { get; }
 
     // ── Auth / user state ─────────────────────────────────────────────────────
     [ObservableProperty]
@@ -162,6 +163,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Chat.OpenPlayerProfile = OpenPlayerProfile;
         FireAndForget(Chat.StartAsync(), "Chat.StartAsync");
         Profile = new ProfileViewModel(backendApiService);
+        Live = new LiveViewModel(backendApiService);
 
         _soundCoordinator = new SocketSoundCoordinator(queueSocketService, NotificationArea, windowService);
 
@@ -405,5 +407,6 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Queue.Dispose();
         Party.Dispose();
         Chat.Dispose();
+        Live.Dispose();
     }
 }

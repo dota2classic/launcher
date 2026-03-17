@@ -222,6 +222,21 @@ public static class PreviewRegistry
                 };
                 return (host, null);
             },
+            ["LivePanel"] = () =>
+            {
+                var json = System.IO.File.ReadAllText(
+                    System.IO.Path.Combine(AppContext.BaseDirectory, "Preview", "livematch.json"));
+                var dto = System.Text.Json.JsonSerializer.Deserialize<d2c_launcher.Api.LiveMatchDto>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+                var card = new d2c_launcher.ViewModels.LiveMatchCardViewModel((int)dto.MatchId);
+                card.UpdateFrom(dto);
+                var vm = new d2c_launcher.ViewModels.LiveViewModel(new StubBackendApiService());
+                vm.Matches.Add(card);
+                vm.HasNoMatches = false;
+                vm.IsLoading = false;
+                vm.SelectedMatch = card;
+                return (new d2c_launcher.Views.Components.LivePanel { Width = 1250, Height = 650 }, vm);
+            },
             ["AbandonButtonConnect"] = () =>
             {
                 // Single-line state: QueueButtonHeight = 52, abandon X visible

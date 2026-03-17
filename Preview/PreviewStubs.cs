@@ -128,6 +128,17 @@ internal sealed class StubBackendApiService : IBackendApiService
 
     public Task AbandonGameAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
+    public Task<IReadOnlyList<d2c_launcher.Api.LiveMatchDto>> GetLiveMatchesAsync(CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<d2c_launcher.Api.LiveMatchDto>>([]);
+
+    public async IAsyncEnumerable<d2c_launcher.Api.LiveMatchDto> SubscribeLiveMatchAsync(
+        int matchId,
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        await Task.CompletedTask;
+        yield break;
+    }
+
     public async IAsyncEnumerable<ChatMessageData> SubscribeChatAsync(
         string threadId,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)

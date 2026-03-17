@@ -420,6 +420,45 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         }
     }
 
+    public async Task<IReadOnlyList<Api.LiveMatchDto>> GetLiveMatchesAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var api = new DotaclassicApiClient(_httpClient);
+            var result = await api.LiveMatchController_listMatchesAsync(cancellationToken).ConfigureAwait(false);
+            return result?.ToList() ?? [];
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("GetLiveMatchesAsync failed", ex);
+            return [];
+        }
+    }
+
+    public async IAsyncEnumerable<Api.LiveMatchDto> SubscribeLiveMatchAsync(
+        int matchId,
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        var api = new DotaclassicApiClient(_httpClient);
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            Api.LiveMatchDto? dto = null;
+            try
+            {
+                var result = await api.LiveMatchController_liveMatchAsync(matchId, cancellationToken).ConfigureAwait(false);
+                dto = result?.Data;
+            }
+            catch (OperationCanceledException) { yield break; }
+            catch (Exception ex) { AppLog.Error($"SubscribeLiveMatchAsync({matchId})", ex); }
+
+            if (dto != null)
+                yield return dto;
+
+            try { await Task.Delay(TimeSpan.FromSeconds(3), cancellationToken).ConfigureAwait(false); }
+            catch (OperationCanceledException) { yield break; }
+        }
+    }
+
     public async Task<Models.PlayerProfileData?> GetPlayerSummaryAsync(string steamId, CancellationToken cancellationToken = default)
     {
         try

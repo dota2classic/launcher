@@ -9,6 +9,14 @@
              RequestedThemeVariant="Dark">
 
     <Application.Resources>
+        <!-- ── Brand colors ── -->
+        <Color x:Key="ColorGreen">#92a525</Color>
+        <Color x:Key="ColorRed">#c23c2a</Color>
+        <Color x:Key="ColorGrey">#979797</Color>
+        <SolidColorBrush x:Key="BrushGreen" Color="{StaticResource ColorGreen}"/>
+        <SolidColorBrush x:Key="BrushRed"   Color="{StaticResource ColorRed}"/>
+        <SolidColorBrush x:Key="BrushGrey"  Color="{StaticResource ColorGrey}"/>
+
         <FontFamily x:Key="TrajanPro3">avares://d2c-launcher/Assets/Fonts#Trajan Pro 3</FontFamily>
         <FontFamily x:Key="NotoSans">avares://d2c-launcher/Assets/Fonts#Noto Sans</FontFamily>
         <x:Double x:Key="FontSizeXS">10</x:Double>

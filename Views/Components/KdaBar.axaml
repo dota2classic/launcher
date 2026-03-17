@@ -1,0 +1,10 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="d2c_launcher.Views.Components.KdaBar"
+             Height="3">
+    <Grid>
+        <Rectangle x:Name="KillsRect"  Fill="{StaticResource BrushRed}"   HorizontalAlignment="Left"/>
+        <Rectangle x:Name="DeathsRect" Fill="{StaticResource BrushGrey}"  HorizontalAlignment="Left"/>
+        <Rectangle x:Name="AssistsRect" Fill="{StaticResource BrushGreen}" HorizontalAlignment="Left"/>
+    </Grid>
+</UserControl>

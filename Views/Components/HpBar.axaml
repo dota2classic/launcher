@@ -1,0 +1,9 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="d2c_launcher.Views.Components.HpBar"
+             Height="3">
+    <Grid>
+        <Rectangle Fill="#1e2a38" HorizontalAlignment="Stretch"/>
+        <Rectangle x:Name="FillRect" Fill="#4a9c28" HorizontalAlignment="Left"/>
+    </Grid>
+</UserControl>

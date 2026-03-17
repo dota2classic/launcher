@@ -1,0 +1,8 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:components="using:d2c_launcher.Views.Components"
+             x:Class="d2c_launcher.Views.Components.DotaItemRow">
+
+    <!-- 6 item slots in a horizontal row -->
+    <StackPanel x:Name="ItemsPanel" Orientation="Horizontal" Spacing="2"/>
+</UserControl>

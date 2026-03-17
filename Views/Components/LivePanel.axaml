@@ -1,0 +1,249 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:d2c_launcher.ViewModels"
+             xmlns:util="using:d2c_launcher.Util"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:components="using:d2c_launcher.Views.Components"
+             x:Class="d2c_launcher.Views.Components.LivePanel"
+             x:DataType="vm:LiveViewModel">
+
+    <UserControl.Resources>
+        <util:TeamColorConverter x:Key="TeamColorConverter"/>
+    </UserControl.Resources>
+
+    <Grid ColumnDefinitions="150,*">
+
+        <!-- ── Sidebar: match list ─────────────────────────────── -->
+        <Grid Grid.Column="0" RowDefinitions="Auto,*" Margin="0,0,12,0">
+            <TextBlock Grid.Row="0"
+                       Text="ТРАНСЛЯЦИИ"
+                       FontSize="10" FontWeight="Bold" LetterSpacing="2"
+                       Foreground="#3a4a5a"
+                       Margin="0,0,0,8"/>
+
+            <TextBlock Grid.Row="1" Text="Загрузка…"
+                       Foreground="#3a4a5a" FontSize="{DynamicResource FontSizeSM}"
+                       IsVisible="{Binding IsLoading}" VerticalAlignment="Top"/>
+
+            <TextBlock Grid.Row="1" Text="Нет активных игр"
+                       Foreground="#3a4a5a" FontSize="{DynamicResource FontSizeSM}"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding HasNoMatches}" VerticalAlignment="Top"/>
+
+            <ListBox Grid.Row="1"
+                     ItemsSource="{Binding Matches}"
+                     SelectedItem="{Binding SelectedMatch}"
+                     Background="Transparent" BorderThickness="0" Padding="0"
+                     IsVisible="{Binding !HasNoMatches}">
+                <ListBox.Styles>
+                    <Style Selector="ListBoxItem">
+                        <Setter Property="Padding" Value="8,6"/>
+                        <Setter Property="Margin" Value="0,0,0,2"/>
+                        <Setter Property="Background" Value="#0a0e14"/>
+                        <Setter Property="CornerRadius" Value="3"/>
+                    </Style>
+                    <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+                        <Setter Property="Background" Value="#182030"/>
+                    </Style>
+                    <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+                        <Setter Property="Background" Value="#111820"/>
+                    </Style>
+                </ListBox.Styles>
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:LiveMatchCardViewModel">
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="{Binding MatchId, StringFormat='Матч \#{0}'}"
+                                       FontSize="{DynamicResource FontSizeSM}"
+                                       Foreground="#b8c8d8" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding Duration}"
+                                       FontSize="11" Foreground="#3a4a5a"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+
+        <!-- ── Match detail ───────────────────────────────────── -->
+        <Grid Grid.Column="1"
+              IsVisible="{Binding SelectedMatch, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <Grid RowDefinitions="Auto,*" HorizontalAlignment="Center">
+
+                <!-- Score header -->
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto,*" Margin="0,0,0,10">
+                    <TextBlock Grid.Column="0"
+                               Text="{Binding SelectedMatch.RadiantScore}"
+                               FontSize="22" FontWeight="Bold" Foreground="#6db442"
+                               HorizontalAlignment="Right" VerticalAlignment="Center"
+                               Margin="0,0,16,0"/>
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding SelectedMatch.Duration}"
+                               FontSize="16" FontWeight="Bold" Foreground="#8899aa"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="2"
+                               Text="{Binding SelectedMatch.DireScore}"
+                               FontSize="22" FontWeight="Bold" Foreground="#c83c2c"
+                               HorizontalAlignment="Left" VerticalAlignment="Center"
+                               Margin="16,0,0,0"/>
+                </Grid>
+
+                <!-- Players + minimap -->
+                <Grid Grid.Row="1" ColumnDefinitions="*,Auto,*" VerticalAlignment="Center">
+
+                    <!-- ── Radiant ──────────────────────────── -->
+                    <ItemsControl Grid.Column="0"
+                                  ItemsSource="{Binding SelectedMatch.RadiantPlayers}"
+                                  Height="370">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Rows="5"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:LivePlayerRowViewModel">
+                                <Border Background="#0a0e14" Margin="0,1" Padding="6,6">
+                                    <Grid RowDefinitions="Auto,6,Auto">
+                                        <!-- Row 1: portrait + name + kda -->
+                                        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
+                                            <Panel Grid.Column="0" Width="32" Height="32" Margin="0,0,7,0">
+                                                <asyncImageLoader:AdvancedImage
+                                                    Source="{Binding HeroImageUrl}"
+                                                    Width="32" Height="32" Stretch="UniformToFill"/>
+                                                <Border Background="#dd000000"
+                                                        HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                                                        Padding="2,0">
+                                                    <TextBlock Text="{Binding Level}"
+                                                               FontSize="8" FontWeight="Bold"
+                                                               Foreground="#d0e0f0"/>
+                                                </Border>
+                                            </Panel>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding Name}"
+                                                       FontSize="12" FontWeight="SemiBold"
+                                                       Foreground="#d8e8f4"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       VerticalAlignment="Center"/>
+                                            <StackPanel Grid.Column="2" Spacing="2" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="7,0,0,0">
+                                                <TextBlock Text="{Binding KdaText}"
+                                                           FontSize="11" Foreground="{StaticResource BrushGreen}"
+                                                           HorizontalAlignment="Right"/>
+                                                <components:KdaBar Kills="{Binding KillsD}"
+                                                                   Deaths="{Binding DeathsD}"
+                                                                   Assists="{Binding AssistsD}"
+                                                                   Height="3" MinWidth="60"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <!-- Row 2: items -->
+                                        <components:DotaItemRow Grid.Row="2"
+                                                                 ItemUrls="{Binding ItemUrls}"
+                                                                 ItemWidth="30" ItemHeight="21"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- ── Minimap ──────────────────────────── -->
+                    <Panel Grid.Column="1" Width="370" Height="370" Margin="8,0">
+                        <asyncImageLoader:AdvancedImage
+                            Source="https://dotaclassic.ru/minimap.webp"
+                            Width="370" Height="370" Stretch="Fill"/>
+                        <ItemsControl ItemsSource="{Binding SelectedMatch.Heroes}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <Panel Width="370" Height="370" IsHitTestVisible="False"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:HeroOnMapViewModel">
+                                    <Border Width="32" Height="32"
+                                            HorizontalAlignment="Left" VerticalAlignment="Top"
+                                            Margin="{Binding HeroMargin}">
+                                        <Border.Transitions>
+                                            <Transitions>
+                                                <ThicknessTransition Property="Margin"
+                                                                      Duration="0:0:1"
+                                                                      Easing="CubicEaseInOut"/>
+                                            </Transitions>
+                                        </Border.Transitions>
+                                        <asyncImageLoader:AdvancedImage
+                                            Source="{Binding HeroImageUrl}"
+                                            Stretch="UniformToFill">
+                                            <asyncImageLoader:AdvancedImage.Effect>
+                                                <DropShadowEffect BlurRadius="2" OffsetX="0" OffsetY="0"
+                                                                  Color="{Binding Team, Converter={StaticResource TeamColorConverter}}"/>
+                                            </asyncImageLoader:AdvancedImage.Effect>
+                                        </asyncImageLoader:AdvancedImage>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Panel>
+
+                    <!-- ── Dire ────────────────────────────── -->
+                    <ItemsControl Grid.Column="2"
+                                  ItemsSource="{Binding SelectedMatch.DirePlayers}"
+                                  Height="370">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Rows="5"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:LivePlayerRowViewModel">
+                                <Border Background="#0a0e14" Margin="0,1" Padding="6,6">
+                                    <Grid RowDefinitions="Auto,6,Auto">
+                                        <!-- Row 1: kda + name + portrait -->
+                                        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
+                                            <StackPanel Grid.Column="0" Spacing="2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,7,0">
+                                                <TextBlock Text="{Binding KdaText}"
+                                                           FontSize="11" Foreground="{StaticResource BrushGreen}"
+                                                           HorizontalAlignment="Left"/>
+                                                <components:KdaBar Kills="{Binding KillsD}"
+                                                                   Deaths="{Binding DeathsD}"
+                                                                   Assists="{Binding AssistsD}"
+                                                                   Height="3" MinWidth="60"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding Name}"
+                                                       FontSize="12" FontWeight="SemiBold"
+                                                       Foreground="#d8e8f4"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       MaxWidth="90"
+                                                       HorizontalAlignment="Right"
+                                                       VerticalAlignment="Center"/>
+                                            <Panel Grid.Column="2" Width="32" Height="32" Margin="7,0,0,0">
+                                                <asyncImageLoader:AdvancedImage
+                                                    Source="{Binding HeroImageUrl}"
+                                                    Width="32" Height="32" Stretch="UniformToFill"/>
+                                                <Border Background="#dd000000"
+                                                        HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                                        Padding="2,0">
+                                                    <TextBlock Text="{Binding Level}"
+                                                               FontSize="8" FontWeight="Bold"
+                                                               Foreground="#d0e0f0"/>
+                                                </Border>
+                                            </Panel>
+                                        </Grid>
+                                        <!-- Row 2: items -->
+                                        <components:DotaItemRow Grid.Row="2"
+                                                                 ItemUrls="{Binding ItemUrls}"
+                                                                 ItemWidth="30" ItemHeight="21"
+                                                                 HorizontalAlignment="Right"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <!-- Empty state -->
+        <TextBlock Grid.Column="1"
+                   Text="Нет активных игр"
+                   Foreground="#3a4a5a"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   FontSize="{DynamicResource FontSizeMD}"
+                   IsVisible="{Binding SelectedMatch, Converter={x:Static ObjectConverters.IsNull}}"/>
+    </Grid>
+</UserControl>

@@ -82,6 +82,16 @@
 | Emoticon disk cache (issue #33) | ✅ Done | `IEmoticonService`/`EmoticonService`; `%LocalAppData%\d2c-launcher\emoticons\`; 24h TTL |
 | Chat scrolling | 🔲 Open | Issue #13 |
 
+### Live Matches (issue #80)
+
+| Feature | Status | Notes |
+| ------- | ------ | ----- |
+| Live match list (`GET /v1/live/list`) | ✅ Done | `LiveViewModel` polls every 5s |
+| Per-match detail polling (`GET /v1/live/{id}`) | ✅ Done | `SubscribeLiveMatchAsync` polls every 3s via `IAsyncEnumerable` |
+| Minimap with animated hero positions | ✅ Done | `LivePanel.axaml` Canvas + Avalonia Transitions on `Canvas.Left`/`Canvas.Top` (1s ease) |
+| Radiant/Dire player lists | ✅ Done | Hero icon, name, K/D/A, level |
+| Preview component | ✅ Done | `LivePanel` in `PreviewRegistry` |
+
 ### UI / UX
 
 | Feature | Status | Notes |

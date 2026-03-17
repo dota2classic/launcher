@@ -22,6 +22,10 @@ public interface IBackendApiService
     Task<IReadOnlyList<EmoticonData>> GetEmoticonsAsync(CancellationToken cancellationToken = default);
     /// <summary>Returns the live match with the given ID, or null if not found.</summary>
     Task<LiveMatchInfo?> GetLiveMatchAsync(int matchId, CancellationToken cancellationToken = default);
+    /// <summary>Returns all currently live matches.</summary>
+    Task<IReadOnlyList<d2c_launcher.Api.LiveMatchDto>> GetLiveMatchesAsync(CancellationToken cancellationToken = default);
+    /// <summary>Polls the live match with the given ID every 3 seconds, yielding each snapshot.</summary>
+    IAsyncEnumerable<d2c_launcher.Api.LiveMatchDto> SubscribeLiveMatchAsync(int matchId, CancellationToken cancellationToken = default);
     Task<PlayerProfileData?> GetPlayerSummaryAsync(string steamId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<HeroProfileData>> GetHeroStatsAsync(string steamId, CancellationToken cancellationToken = default);
     Task AbandonGameAsync(CancellationToken cancellationToken = default);
