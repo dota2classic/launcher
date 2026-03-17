@@ -1,4 +1,5 @@
 using System.IO;
+using d2c_launcher.Resources;
 using d2c_launcher.Util;
 
 namespace d2c_launcher.Services;
@@ -39,7 +40,7 @@ public static class GameDirectoryValidator
                         AppLog.Info($"[GameDirValidator] PatchVersion={value} (expected {ExpectedPatchVersion})");
                         if (!int.TryParse(value, out var patchVersion) || patchVersion != ExpectedPatchVersion)
                         {
-                            error = $"Выбранная папка содержит другой патч Dota 2 (версия {value}). Dotaclassic использует патч 6.84. Выберите правильную папку или скачайте игру заново.";
+                            error = string.Format(Strings.WrongPatchVersionFormat, value);
                             AppLog.Info($"[GameDirValidator] Rejected: wrong PatchVersion.");
                             return false;
                         }

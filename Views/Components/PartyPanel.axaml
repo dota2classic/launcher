@@ -5,6 +5,7 @@
             xmlns:util="using:d2c_launcher.Util"
             xmlns:materialIcons="using:Material.Icons.Avalonia"
             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+            xmlns:res="clr-namespace:d2c_launcher.Resources"
             x:Class="d2c_launcher.Views.Components.PartyPanel"
             x:DataType="vm:PartyViewModel">
 
@@ -35,12 +36,12 @@
            <!-- Header: title + leave button -->
            <Border Classes="BlockHead">
                <Grid ColumnDefinitions="*,Auto">
-                   <TextBlock Classes="BlockTitle" Text="ГРУППА"/>
+                   <TextBlock Classes="BlockTitle" Text="{x:Static res:Strings.GroupLabel}"/>
                    <Button Grid.Column="1"
                            IsVisible="{Binding CanLeaveParty}"
                            Command="{Binding LeavePartyCommand}"
                            Background="Transparent" BorderThickness="0"
-                           Padding="4" ToolTip.Tip="Покинуть группу">
+                           Padding="4" ToolTip.Tip="{x:Static res:Strings.LeaveParty}">
                        <materialIcons:MaterialIcon Kind="ExitToApp" Width="18" Height="18" Foreground="#AAAAAA"/>
                    </Button>
                </Grid>

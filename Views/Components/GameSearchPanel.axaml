@@ -4,6 +4,7 @@
              xmlns:m="using:d2c_launcher.Models"
              xmlns:util="using:d2c_launcher.Util"
              xmlns:materialIcons="using:Material.Icons.Avalonia"
+             xmlns:res="clr-namespace:d2c_launcher.Resources"
              x:Class="d2c_launcher.Views.Components.GameSearchPanel"
              x:DataType="vm:QueueViewModel">
   <UserControl.Resources>
@@ -17,7 +18,7 @@
           <!-- Header -->
           <Border Classes="BlockHead">
               <Grid>
-                  <TextBlock Classes="BlockTitle" Text="ПОИСК ИГРЫ"/>
+                  <TextBlock Classes="BlockTitle" Text="{x:Static res:Strings.SearchGame}"/>
                   <TextBlock Text="{Binding OnlineStatsText}" HorizontalAlignment="Right"
                              Foreground="#888888" FontWeight="Normal" FontSize="{DynamicResource FontSizeXS}"
                              LetterSpacing="1" VerticalAlignment="Center"/>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using d2c_launcher.Api;
+using d2c_launcher.Resources;
 using d2c_launcher.Util;
 
 namespace d2c_launcher.ViewModels;
@@ -37,7 +38,7 @@ public partial class LivePlayerRowViewModel : ObservableObject
         SteamId = slot.User.SteamId;
         long.TryParse(slot.User.SteamId, out var sid);
         IsBot = slot.HeroData?.Bot == true || sid <= 10;
-        Name = IsBot ? "Бот" : slot.User.Name;
+        Name = IsBot ? Strings.Bot : slot.User.Name;
         UpdateFrom(slot);
     }
 

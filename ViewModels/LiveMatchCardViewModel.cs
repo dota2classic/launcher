@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using d2c_launcher.Api;
+using d2c_launcher.Resources;
 
 namespace d2c_launcher.ViewModels;
 
@@ -11,7 +12,7 @@ public partial class LiveMatchCardViewModel : ObservableObject
 {
     private static readonly Dictionary<int, string> GameModeNames = new()
     {
-        { 0, "Нет" },
+        { 0, Strings.No },
         { 1, "All Pick" },
         { 2, "Captains Mode" },
         { 3, "Random Draft" },
@@ -32,14 +33,14 @@ public partial class LiveMatchCardViewModel : ObservableObject
 
     private static readonly Dictionary<int, string> GameStateLabels = new()
     {
-        { 0, "Инициализация" },
-        { 1, "Загрузка игроков" },
-        { 2, "Выбор героев" },
-        { 3, "Выбор героев" },
-        { 4, "Начало игры" },
-        { 5, "Игра идет" },
-        { 6, "Игра завершена" },
-        { 7, "Ошибка загрузки" },
+        { 0, Strings.Initializing },
+        { 1, Strings.LoadingPlayers },
+        { 2, Strings.HeroPicking },
+        { 3, Strings.HeroPicking },
+        { 4, Strings.GameStarting },
+        { 5, Strings.GameInProgress },
+        { 6, Strings.GameFinished },
+        { 7, Strings.LoadingError },
     };
 
     public long MatchId { get; }
@@ -49,7 +50,7 @@ public partial class LiveMatchCardViewModel : ObservableObject
     [ObservableProperty] private int _radiantScore;
     [ObservableProperty] private int _direScore;
     [ObservableProperty] private string _modeLabel = "";
-    [ObservableProperty] private string _gameStateLabel = "Игра идет";
+    [ObservableProperty] private string _gameStateLabel = Strings.GameInProgress;
     [ObservableProperty] private string _server = "";
     [ObservableProperty] private string _title = "";
 
@@ -146,7 +147,7 @@ public partial class LiveMatchCardViewModel : ObservableObject
         var gameModeName = GameModeNames.TryGetValue((int)dto.GameMode, out var gmn) ? gmn : $"Режим {(int)dto.GameMode}";
         ModeLabel = $"{matchmakingModeName}, {gameModeName}";
 
-        var stateLabel = GameStateLabels.TryGetValue((int)dto.GameState, out var sl) ? sl : "Игра идет";
+        var stateLabel = GameStateLabels.TryGetValue((int)dto.GameState, out var sl) ? sl : Strings.GameInProgress;
         GameStateLabel = stateLabel;
         Title = $"Матч {MatchId} - {stateLabel}";
     }

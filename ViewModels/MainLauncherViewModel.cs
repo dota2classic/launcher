@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.Input;
 using d2c_launcher.Integration;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
+using d2c_launcher.Resources;
 using d2c_launcher.Util;
 
 namespace d2c_launcher.ViewModels;
@@ -156,7 +157,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Party = new PartyViewModel(queueSocketService, backendApiService);
         NotificationArea = new NotificationAreaViewModel(queueSocketService);
         Queue.ShowNoModesSelectedToast = () =>
-            NotificationArea.AddToast("Выберите хотя бы один режим игры для поиска");
+            NotificationArea.AddToast(Strings.SelectAtLeastOneMode);
         Launch.OnExeNotFound = () =>
             NotificationArea.AddCorruptedFilesToast(() => RequestReverify?.Invoke());
         Party.ShowInviteSentToast = (name, initials, avatarUrl) =>

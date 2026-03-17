@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using d2c_launcher.Api;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
+using d2c_launcher.Resources;
 using d2c_launcher.Util;
 
 namespace d2c_launcher.ViewModels;
@@ -42,13 +43,13 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
     private bool _isSearching;
 
     [ObservableProperty]
-    private string _searchingModesText = "Не в поиске";
+    private string _searchingModesText = Strings.NotInQueue;
 
     [ObservableProperty]
     private ObservableCollection<MatchmakingModeView> _matchmakingModes = new();
 
     [ObservableProperty]
-    private string _queueButtonMainText = "ИГРАТЬ";
+    private string _queueButtonMainText = Strings.Play;
 
     [ObservableProperty]
     private string _queueButtonModeCountText = "";
@@ -215,15 +216,15 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
                 .ToArray();
             _queuedModeNames = names;
             SearchingModesText = names.Length > 0
-                ? $"В поиске: {string.Join(", ", names)}"
-                : "В поиске";
+                ? $"{Strings.InQueue}: {string.Join(", ", names)}"
+                : Strings.InQueue;
         }
         else
         {
             _queuedModes = null;
             _queuedModeCount = 0;
             _queuedModeNames = Array.Empty<string>();
-            SearchingModesText = "Не в поиске";
+            SearchingModesText = Strings.NotInQueue;
         }
 
         IsSearching = msg.InQueue;
@@ -234,13 +235,13 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
     {
         if (_hasServerUrl)
         {
-            QueueButtonMainText = "ПОДКЛЮЧИТЬСЯ";
+            QueueButtonMainText = Strings.Connect;
             QueueButtonModeCountText = "";
             QueueButtonTimeText = "";
         }
         else if (IsSearching)
         {
-            QueueButtonMainText = "ОТМЕНИТЬ ПОИСК";
+            QueueButtonMainText = Strings.CancelSearch;
             QueueButtonModeCountText = _queuedModeNames.Length == 1
                 ? _queuedModeNames[0].ToUpperInvariant()
                 : (_queuedModeCount > 0 ? FormatModeCount(_queuedModeCount) : "");
@@ -251,7 +252,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         }
         else
         {
-            QueueButtonMainText = "ИГРАТЬ";
+            QueueButtonMainText = Strings.Play;
             QueueButtonModeCountText = "";
             QueueButtonTimeText = "";
         }
@@ -320,7 +321,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         if (member.IsBanned)
         {
             if (IsPermaban(member.BannedUntil))
-                return "Аккаунт заблокирован навсегда";
+                return Strings.AccountPermabanned;
             // Regular ban blocks human 5×5 modes only
             if (HumanGameModeIds.Contains(modeId))
             {
@@ -331,11 +332,11 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         }
 
         if (HumanGameModeIds.Contains(modeId) && !member.CanPlayHumanGames)
-            return "Для доступа выиграйте хотя бы одну игру";
+            return Strings.NeedOneWinForAccess;
         if (SimpleModeIds.Contains(modeId) && !member.CanPlaySimpleModes)
-            return "Сыграйте против ботов для открытия режима";
+            return Strings.NeedBotsGameForMode;
         if (EducationModeIds.Contains(modeId) && !member.CanPlayEducation)
-            return "Нет доступа к режиму";
+            return Strings.NoModeAccess;
 
         // Highroom requires minimum MMR across the party
         if (modeId == 8 && member.Mmr.HasValue && member.Mmr.Value < HighroomMmrRequired)

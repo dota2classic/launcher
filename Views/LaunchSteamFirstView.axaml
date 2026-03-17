@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:d2c_launcher.ViewModels"
+             xmlns:res="clr-namespace:d2c_launcher.Resources"
              x:Class="d2c_launcher.Views.LaunchSteamFirstView"
              x:DataType="vm:LaunchSteamFirstViewModel"
              Classes="InitScreen">
@@ -35,14 +36,14 @@
                    TextWrapping="Wrap"
                    TextAlignment="Center">
             <TextBlock.Inlines>
-                <Run Text="Для запуска лаунчера необходим&#10;запущенный и авторизованный "/>
+                <Run Text="{x:Static res:Strings.SteamRequiredText}"/>
                 <Run Text="Steam" Foreground="#6c9bcf" FontWeight="SemiBold"/>
             </TextBlock.Inlines>
         </TextBlock>
 
         <Rectangle Height="1" Fill="#1e1e1e" HorizontalAlignment="Stretch"/>
 
-        <TextBlock Text="Убедитесь, что Steam запущен и вы вошли в аккаунт. Окно обновится автоматически."
+        <TextBlock Text="{x:Static res:Strings.SteamNotRunningHint}"
                    FontSize="{DynamicResource FontSizeBase}" HorizontalAlignment="Center"
                    Foreground="#888888"
                    TextWrapping="Wrap"
@@ -61,7 +62,7 @@
                     <GradientStop Color="#1a5aaa" Offset="1"/>
                 </LinearGradientBrush>
             </Button.Background>
-            <TextBlock Text="Открыть Steam"
+            <TextBlock Text="{x:Static res:Strings.OpenSteam}"
                        FontSize="{DynamicResource FontSizeXL}" FontWeight="SemiBold" Foreground="White"
                        HorizontalAlignment="Center"/>
         </Button>
@@ -71,7 +72,7 @@
                 Padding="0,4" CornerRadius="0"
                 Background="Transparent" BorderThickness="0"
                 Command="{Binding TryAgainCommand}">
-            <TextBlock Text="Попробовать снова"
+            <TextBlock Text="{x:Static res:Strings.TryAgain}"
                        FontSize="{DynamicResource FontSizeMD}" Foreground="#888888"
                        TextDecorations="Underline"/>
         </Button>
@@ -89,11 +90,11 @@
                     Background="#1e2a38" BorderBrush="#2d3e52" BorderThickness="1"
                     Command="{Binding SendDebugInfoCommand}"
                     IsEnabled="{Binding !DebugInfoSent}">
-                <TextBlock Text="Отправить отладочную информацию"
+                <TextBlock Text="{x:Static res:Strings.SendDebugInfo}"
                            FontSize="{DynamicResource FontSizeSM}" Foreground="#aaaaaa"/>
             </Button>
             <TextBlock IsVisible="{Binding DebugInfoSent}"
-                       Text="Отладочная информация отправлена"
+                       Text="{x:Static res:Strings.DebugInfoSent}"
                        FontSize="{DynamicResource FontSizeSM}"
                        Foreground="#4caf50"
                        HorizontalAlignment="Center"/>

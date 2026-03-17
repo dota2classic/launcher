@@ -4,6 +4,7 @@
             xmlns:m="using:d2c_launcher.Models"
             xmlns:util="using:d2c_launcher.Util"
             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+            xmlns:res="clr-namespace:d2c_launcher.Resources"
             x:Class="d2c_launcher.Views.Components.AcceptGameModal"
             x:DataType="vm:RoomViewModel">
    <UserControl.Resources>
@@ -18,7 +19,7 @@
                BoxShadow="0 12 28 0 #80000000">
            <StackPanel Spacing="16">
                <StackPanel Spacing="4" HorizontalAlignment="Center">
-                   <TextBlock Text="Игра найдена!" FontSize="{DynamicResource FontSize3XL}" FontWeight="Bold"
+                   <TextBlock Text="{x:Static res:Strings.GameFound}" FontSize="{DynamicResource FontSize3XL}" FontWeight="Bold"
                               HorizontalAlignment="Center" Foreground="#D9D9D9"/>
                    <TextBlock Text="{Binding RoomModeText}" HorizontalAlignment="Center"
                               Foreground="#AAAAAA" FontSize="{DynamicResource FontSizeMD}"/>
@@ -49,7 +50,7 @@
                </ItemsControl>
 
                <!-- Server searching state -->
-               <TextBlock Text="Идёт поиск игрового сервера..." HorizontalAlignment="Center"
+               <TextBlock Text="{x:Static res:Strings.SearchingGameServer}" HorizontalAlignment="Center"
                           Foreground="#AAAAAA" FontSize="{DynamicResource FontSizeMD}"
                           IsVisible="{Binding IsServerSearchingModalOpen}"/>
 
@@ -57,7 +58,7 @@
                <StackPanel IsVisible="{Binding IsServerSearchingModalOpen, Converter={StaticResource InverseBoolConverter}}">
                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12"
                                IsVisible="{Binding HasMyPlayerResponded, Converter={StaticResource InverseBoolConverter}}">
-                       <Button Content="Принять" Command="{Binding AcceptGameCommand}"
+                       <Button Content="{x:Static res:Strings.Accept}" Command="{Binding AcceptGameCommand}"
                                Foreground="White" FontWeight="Bold" Padding="28,10"
                                CornerRadius="0" BorderThickness="0">
                            <Button.Background>
@@ -67,12 +68,12 @@
                                </LinearGradientBrush>
                            </Button.Background>
                        </Button>
-                       <Button Content="Отклонить" Command="{Binding DeclineGameCommand}"
+                       <Button Content="{x:Static res:Strings.Decline}" Command="{Binding DeclineGameCommand}"
                                Background="#1a0f0f" Foreground="#C62626" FontWeight="Bold"
                                Padding="28,10" CornerRadius="0" BorderBrush="#C62626" BorderThickness="1"/>
                    </StackPanel>
 
-                   <TextBlock Text="Ожидание других игроков..." HorizontalAlignment="Center"
+                   <TextBlock Text="{x:Static res:Strings.WaitingForPlayers}" HorizontalAlignment="Center"
                               Foreground="#AAAAAA" FontSize="{DynamicResource FontSizeMD}"
                               IsVisible="{Binding HasMyPlayerAccepted}"/>
                </StackPanel>

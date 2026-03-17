@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:d2c_launcher.ViewModels"
+             xmlns:res="clr-namespace:d2c_launcher.Resources"
              x:Class="d2c_launcher.Views.Components.SettingsPanel"
              x:DataType="vm:SettingsViewModel">
 
@@ -116,7 +117,7 @@
 
             <!-- ═══ Directory block ═══ -->
             <StackPanel Grid.Row="0" Spacing="8" Margin="18,14,18,0">
-                <TextBlock Text="ДИРЕКТОРИЯ ИГРЫ" Classes="section-label"/>
+                <TextBlock Text="{x:Static res:Strings.GameDirectory}" Classes="section-label"/>
 
                 <!-- Path row: folder icon + path + Изменить -->
                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
@@ -132,7 +133,7 @@
                                    VerticalAlignment="Center"/>
                     </Border>
                     <Button Grid.Column="2" Classes="dir-btn" Click="OnSelectDirectoryClicked"
-                            Content="Изменить"/>
+                            Content="{x:Static res:Strings.Change}"/>
                 </Grid>
 
                 <!-- Folder size -->
@@ -146,7 +147,7 @@
             <TabControl Grid.Row="1" Margin="18,10,18,0">
 
                 <!-- ─── Tab 1: Визуальные ─── -->
-                <TabItem Header="ВИЗУАЛЬНЫЕ">
+                <TabItem Header="{x:Static res:Strings.TabVisuals}">
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                                   VerticalScrollBarVisibility="Auto">
                         <StackPanel Spacing="0" Margin="0,12,12,12">
@@ -154,8 +155,8 @@
                             <!-- Language -->
                             <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
                                 <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="Язык игры" Classes="setting-label"/>
-                                    <TextBlock Text="Язык интерфейса и озвучки" Classes="setting-desc"/>
+                                    <TextBlock Text="{x:Static res:Strings.GameLanguage}" Classes="setting-label"/>
+                                    <TextBlock Text="{x:Static res:Strings.GameLanguageDescription}" Classes="setting-desc"/>
                                 </StackPanel>
                                 <ComboBox Grid.Column="1" Width="140"
                                           ItemsSource="{Binding AvailableLanguages}"
@@ -166,8 +167,8 @@
                             <!-- Skip intro -->
                             <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
                                 <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="Пропускать интро" Classes="setting-label"/>
-                                    <TextBlock Text="Пропускать заставку при запуске" Classes="setting-desc"/>
+                                    <TextBlock Text="{x:Static res:Strings.SkipIntro}" Classes="setting-label"/>
+                                    <TextBlock Text="{x:Static res:Strings.SkipIntroDescription}" Classes="setting-desc"/>
                                 </StackPanel>
                                 <ToggleSwitch Grid.Column="1" IsChecked="{Binding NoVid}"
                                              VerticalAlignment="Center" HorizontalAlignment="Right"/>
@@ -176,8 +177,8 @@
                             <!-- Fullscreen -->
                             <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
                                 <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="Полноэкранный режим" Classes="setting-label"/>
-                                    <TextBlock Text="Запускать игру в полном экране" Classes="setting-desc"/>
+                                    <TextBlock Text="{x:Static res:Strings.FullscreenMode}" Classes="setting-label"/>
+                                    <TextBlock Text="{x:Static res:Strings.LaunchFullscreenDescription}" Classes="setting-desc"/>
                                 </StackPanel>
                                 <ToggleSwitch Grid.Column="1" IsChecked="{Binding Fullscreen}"
                                              VerticalAlignment="Center" HorizontalAlignment="Right"/>
@@ -186,8 +187,8 @@
                             <!-- Borderless window -->
                             <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
                                 <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="Безрамочный режим" Classes="setting-label"/>
-                                    <TextBlock Text="Запускать игру без рамки окна" Classes="setting-desc"/>
+                                    <TextBlock Text="{x:Static res:Strings.BorderlessMode}" Classes="setting-label"/>
+                                    <TextBlock Text="{x:Static res:Strings.LaunchBorderlessDescription}" Classes="setting-desc"/>
                                 </StackPanel>
                                 <ToggleSwitch Grid.Column="1" IsChecked="{Binding NoWindowBorder}"
                                              VerticalAlignment="Center" HorizontalAlignment="Right"/>
@@ -196,8 +197,8 @@
                             <!-- Resolution -->
                             <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,0">
                                 <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="Разрешение" Classes="setting-label"/>
-                                    <TextBlock Text="Разрешение экрана игры" Classes="setting-desc"/>
+                                    <TextBlock Text="{x:Static res:Strings.Resolution}" Classes="setting-label"/>
+                                    <TextBlock Text="{x:Static res:Strings.ScreenResolutionGame}" Classes="setting-desc"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                                     <ComboBox Width="80"
@@ -210,7 +211,7 @@
                                             <DataTemplate x:DataType="vm:ResolutionItem">
                                                 <Grid ColumnDefinitions="*,Auto">
                                                     <TextBlock Grid.Column="0" Text="{Binding Label}" VerticalAlignment="Center"/>
-                                                    <TextBlock Grid.Column="1" Text="монитор"
+                                                    <TextBlock Grid.Column="1" Text="{x:Static res:Strings.Monitor}"
                                                                IsVisible="{Binding IsNative}"
                                                                Foreground="#66FFFFFF"
                                                                FontSize="11"
@@ -228,7 +229,7 @@
                 </TabItem>
 
                 <!-- ─── Tab 2: Геймплей ─── -->
-                <TabItem Header="ГЕЙМПЛЕЙ">
+                <TabItem Header="{x:Static res:Strings.TabGameplay}">
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                                   VerticalScrollBarVisibility="Auto"
                                   PointerPressed="OnGameplayTabPointerPressed">
@@ -237,8 +238,8 @@
                             <!-- Auto-attack -->
                             <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
                                 <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="Автоатака" Classes="setting-label"/>
-                                    <TextBlock Text="Режим автоматической атаки" Classes="setting-desc"/>
+                                    <TextBlock Text="{x:Static res:Strings.AutoAttack}" Classes="setting-label"/>
+                                    <TextBlock Text="{x:Static res:Strings.AutoAttackMode}" Classes="setting-desc"/>
                                 </StackPanel>
                                 <ComboBox Grid.Column="1" Width="180"
                                           ItemsSource="{Binding AutoAttackOptions}"
@@ -249,8 +250,8 @@
                             <!-- Right-click attack -->
                             <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
                                 <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="Атака правой кнопкой" Classes="setting-label"/>
-                                    <TextBlock Text="Атаковать врагов правой кнопкой мыши" Classes="setting-desc"/>
+                                    <TextBlock Text="{x:Static res:Strings.RightClickAttack}" Classes="setting-label"/>
+                                    <TextBlock Text="{x:Static res:Strings.RightClickAttackDescription}" Classes="setting-desc"/>
                                 </StackPanel>
                                 <ToggleSwitch Grid.Column="1" IsChecked="{Binding ForceRightClickAttack}"
                                              VerticalAlignment="Center" HorizontalAlignment="Right"/>
@@ -259,8 +260,8 @@
                             <!-- Disable camera zoom -->
                             <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
                                 <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="Отключить приближение колесиком" Classes="setting-label"/>
-                                    <TextBlock Text="Нельзя будет изменять масштаб камеры колесом мыши" Classes="setting-desc"/>
+                                    <TextBlock Text="{x:Static res:Strings.DisableScrollZoom}" Classes="setting-label"/>
+                                    <TextBlock Text="{x:Static res:Strings.DisableScrollZoomHint}" Classes="setting-desc"/>
                                 </StackPanel>
                                 <ToggleSwitch Grid.Column="1" IsChecked="{Binding DisableCameraZoom}"
                                              VerticalAlignment="Center" HorizontalAlignment="Right"/>
@@ -269,8 +270,8 @@
                             <!-- Right mouse auto-repeat -->
                             <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
                                 <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="Автоповтор правой кнопки" Classes="setting-label"/>
-                                    <TextBlock Text="Удерживание ПКМ повторяет команду" Classes="setting-desc"/>
+                                    <TextBlock Text="{x:Static res:Strings.AutoRepeatRMB}" Classes="setting-label"/>
+                                    <TextBlock Text="{x:Static res:Strings.RmbHoldDescription}" Classes="setting-desc"/>
                                 </StackPanel>
                                 <ToggleSwitch Grid.Column="1" IsChecked="{Binding RightMouseAutoRepeat}"
                                              VerticalAlignment="Center" HorizontalAlignment="Right"/>
@@ -279,8 +280,8 @@
                             <!-- Teleport requires halt -->
                             <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
                                 <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="Телепорт требует остановки" Classes="setting-label"/>
-                                    <TextBlock Text="Для отмены телепорта нужно нажать «Отменить»" Classes="setting-desc"/>
+                                    <TextBlock Text="{x:Static res:Strings.TeleportRequiresStop}" Classes="setting-label"/>
+                                    <TextBlock Text="{x:Static res:Strings.TeleportCancelHint}" Classes="setting-desc"/>
                                 </StackPanel>
                                 <ToggleSwitch Grid.Column="1" IsChecked="{Binding TeleportRequiresHalt}"
                                              VerticalAlignment="Center" HorizontalAlignment="Right"/>
@@ -290,8 +291,8 @@
                             <StackPanel Margin="0,0,0,16" Spacing="6">
                                 <Grid ColumnDefinitions="*,Auto">
                                     <StackPanel Grid.Column="0" Spacing="3">
-                                        <TextBlock Text="Дальность камеры" Classes="setting-label"/>
-                                        <TextBlock Text="По умолчанию 1134. Диапазон: 1000–1600." Classes="setting-desc"/>
+                                        <TextBlock Text="{x:Static res:Strings.CameraDistance}" Classes="setting-label"/>
+                                        <TextBlock Text="{x:Static res:Strings.CameraDistanceHint}" Classes="setting-desc"/>
                                         <TextBlock Text="⚠ Значения выше 1134 делают часть экрана некликабельной"
                                                    Classes="setting-desc" Foreground="#c8a84b"/>
                                     </StackPanel>
@@ -313,8 +314,8 @@
                             <!-- Reset camera on spawn -->
                             <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,0">
                                 <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="Камера на героя при спавне" Classes="setting-label"/>
-                                    <TextBlock Text="Переводить камеру к герою при возрождении" Classes="setting-desc"/>
+                                    <TextBlock Text="{x:Static res:Strings.CameraOnSpawn}" Classes="setting-label"/>
+                                    <TextBlock Text="{x:Static res:Strings.CameraOnSpawnDescription}" Classes="setting-desc"/>
                                 </StackPanel>
                                 <ToggleSwitch Grid.Column="1" IsChecked="{Binding ResetCameraOnSpawn}"
                                              VerticalAlignment="Center" HorizontalAlignment="Right"/>
@@ -325,7 +326,7 @@
                 </TabItem>
 
                 <!-- ─── Tab 3: Лаунчер ─── -->
-                <TabItem Header="ЛАУНЧЕР">
+                <TabItem Header="{x:Static res:Strings.TabLauncher}">
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                                   VerticalScrollBarVisibility="Auto">
                         <StackPanel Spacing="0" Margin="0,12,12,12">
@@ -334,8 +335,8 @@
                             <StackPanel Margin="0,0,0,16" Spacing="6">
                                 <Grid ColumnDefinitions="*,Auto">
                                     <StackPanel Grid.Column="0" Spacing="3">
-                                        <TextBlock Text="Масштаб интерфейса" Classes="setting-label"/>
-                                        <TextBlock Text="Увеличивает размер шрифта во всём лаунчере" Classes="setting-desc"/>
+                                        <TextBlock Text="{x:Static res:Strings.UiScale}" Classes="setting-label"/>
+                                        <TextBlock Text="{x:Static res:Strings.UiScaleDescription}" Classes="setting-desc"/>
                                     </StackPanel>
                                     <TextBlock Grid.Column="1"
                                                Text="{Binding UiScale}"
@@ -354,16 +355,16 @@
 
                             <!-- Custom launch args -->
                             <StackPanel Margin="0,0,0,16" Spacing="6">
-                                <TextBlock Text="Параметры запуска" Classes="setting-label"/>
-                                <TextBlock Text="Добавляются перед стандартными аргументами лаунчера" Classes="setting-desc"/>
+                                <TextBlock Text="{x:Static res:Strings.LaunchParameters}" Classes="setting-label"/>
+                                <TextBlock Text="{x:Static res:Strings.ExtraArgsHint}" Classes="setting-desc"/>
                                 <TextBox Text="{Binding ExtraArgs, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
                             </StackPanel>
 
                             <!-- Auto-update -->
                             <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
                                 <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="Автообновление лаунчера" Classes="setting-label"/>
-                                    <TextBlock Text="Устанавливать обновления при запуске" Classes="setting-desc"/>
+                                    <TextBlock Text="{x:Static res:Strings.AutoUpdateLauncher}" Classes="setting-label"/>
+                                    <TextBlock Text="{x:Static res:Strings.InstallUpdatesOnStartup}" Classes="setting-desc"/>
                                 </StackPanel>
                                 <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoUpdate}"
                                              VerticalAlignment="Center" HorizontalAlignment="Right"/>
@@ -372,8 +373,8 @@
                             <!-- Close to tray -->
                             <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
                                 <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="Сворачивать в трей при закрытии" Classes="setting-label"/>
-                                    <TextBlock Text="Закрытие окна скрывает лаунчер в трей" Classes="setting-desc"/>
+                                    <TextBlock Text="{x:Static res:Strings.CloseToTray}" Classes="setting-label"/>
+                                    <TextBlock Text="{x:Static res:Strings.CloseToTrayDescription}" Classes="setting-desc"/>
                                 </StackPanel>
                                 <ToggleSwitch Grid.Column="1" IsChecked="{Binding CloseToTray}"
                                              VerticalAlignment="Center" HorizontalAlignment="Right"/>
@@ -382,8 +383,8 @@
                             <!-- Auto-connect to game -->
                             <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
                                 <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="Автоподключение к серверу" Classes="setting-label"/>
-                                    <TextBlock Text="Автоматически подключаться к игре при нахождении сервера" Classes="setting-desc"/>
+                                    <TextBlock Text="{x:Static res:Strings.AutoConnectToServer}" Classes="setting-label"/>
+                                    <TextBlock Text="{x:Static res:Strings.AutoConnectDescription}" Classes="setting-desc"/>
                                 </StackPanel>
                                 <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoConnectToGame}"
                                              VerticalAlignment="Center" HorizontalAlignment="Right"/>
@@ -392,8 +393,8 @@
                             <!-- Defender exclusion -->
                             <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
                                 <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="Исключение Windows Defender" Classes="setting-label"/>
-                                    <TextBlock Text="Папка с игрой добавлена в исключения Defender" Classes="setting-desc"/>
+                                    <TextBlock Text="{x:Static res:Strings.DefenderExclusionTitle}" Classes="setting-label"/>
+                                    <TextBlock Text="{x:Static res:Strings.DefenderExclusionAdded}" Classes="setting-desc"/>
                                 </StackPanel>
                                 <ToggleSwitch Grid.Column="1" IsChecked="{Binding DefenderExclusionEnabled}"
                                              VerticalAlignment="Center" HorizontalAlignment="Right"/>
@@ -404,12 +405,12 @@
                 </TabItem>
 
                 <!-- ─── Tab 4: ДЛС ─── -->
-                <TabItem Header="ДЛС">
+                <TabItem Header="{x:Static res:Strings.ColDlc}">
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                                   VerticalScrollBarVisibility="Auto">
                         <StackPanel Spacing="0" Margin="0,12,12,12">
 
-                            <TextBlock Text="ДОПОЛНИТЕЛЬНЫЙ КОНТЕНТ" Classes="section-label" Margin="0,0,0,10"/>
+                            <TextBlock Text="{x:Static res:Strings.AdditionalContent}" Classes="section-label" Margin="0,0,0,10"/>
 
                             <ItemsControl ItemsSource="{Binding DlcPackages}">
                                 <ItemsControl.ItemTemplate>
@@ -425,7 +426,7 @@
                             </ItemsControl>
 
                             <Button Classes="apply-btn"
-                                    Content="Применить"
+                                    Content="{x:Static res:Strings.Apply}"
                                     Margin="0,12,0,0"
                                     IsEnabled="{Binding HasDlcChanges}"
                                     Command="{Binding ApplyDlcChangesCommand}"/>

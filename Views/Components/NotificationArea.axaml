@@ -3,6 +3,7 @@
             xmlns:vm="using:d2c_launcher.ViewModels"
             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
             xmlns:components="using:d2c_launcher.Views.Components"
+            xmlns:res="clr-namespace:d2c_launcher.Resources"
             x:Class="d2c_launcher.Views.Components.NotificationArea"
             x:DataType="vm:NotificationAreaViewModel">
 
@@ -29,7 +30,7 @@
                                    <TextBlock Text="{Binding InviterName}"
                                               FontWeight="SemiBold" Foreground="#4DA9F3"
                                               TextTrimming="CharacterEllipsis"/>
-                                   <TextBlock Text="Приглашает в группу"
+                                   <TextBlock Text="{x:Static res:Strings.InvitesToParty}"
                                               FontSize="{DynamicResource FontSizeSM}" Foreground="#AAAAAA"/>
                                </StackPanel>
                                <Button Grid.Column="2"
@@ -45,7 +46,7 @@
                            <!-- Accept / Decline -->
                            <Grid ColumnDefinitions="*,6,*">
                                <Button Grid.Column="0"
-                                       Content="ПРИНЯТЬ"
+                                       Content="{x:Static res:Strings.AcceptUpper}"
                                        Command="{Binding AcceptCommand}"
                                        Background="#1a5aaa" Foreground="White"
                                        FontSize="{DynamicResource FontSizeBase}" FontWeight="Bold"
@@ -54,7 +55,7 @@
                                        HorizontalContentAlignment="Center"
                                        Padding="0,8"/>
                                <Button Grid.Column="2"
-                                       Content="ОТКЛОНИТЬ"
+                                       Content="{x:Static res:Strings.DeclineUpper}"
                                        Command="{Binding DeclineCommand}"
                                        Background="#6e2222" Foreground="White"
                                        FontSize="{DynamicResource FontSizeBase}" FontWeight="Bold"
@@ -92,7 +93,7 @@
                                <TextBlock Text="{Binding PlayerName}"
                                           FontWeight="SemiBold" Foreground="#4DA9F3"
                                           TextTrimming="CharacterEllipsis"/>
-                               <TextBlock Text="приглашён в вашу группу"
+                               <TextBlock Text="{x:Static res:Strings.InvitedToYourParty}"
                                           FontSize="{DynamicResource FontSizeSM}" Foreground="#AAAAAA"/>
                            </StackPanel>
                            <!-- Dismiss -->
@@ -137,7 +138,7 @@
                                        Cursor="Hand"/>
                            </Grid>
 
-                           <Button Content="ПРОВЕРИТЬ ЦЕЛОСТНОСТЬ"
+                           <Button Content="{x:Static res:Strings.VerifyIntegrity}"
                                    Command="{Binding VerifyCommand}"
                                    Background="#1a5aaa" Foreground="White"
                                    FontSize="{DynamicResource FontSizeBase}" FontWeight="Bold"

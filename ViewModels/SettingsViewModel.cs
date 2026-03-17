@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
+using d2c_launcher.Resources;
 using d2c_launcher.Util;
 
 namespace d2c_launcher.ViewModels;
@@ -152,13 +153,13 @@ public partial class SettingsViewModel : ViewModelBase
 
     // ── Game directory ────────────────────────────────────────────────────────
 
-    [ObservableProperty] private string _gameDirectory = "Не указано";
+    [ObservableProperty] private string _gameDirectory = Strings.NotSpecified;
     [ObservableProperty] private string _folderSizeText = "";
 
     public void RefreshGameDirectory()
     {
         var dir = _settingsStorage.Get().GameDirectory;
-        GameDirectory = dir ?? "Не указано";
+        GameDirectory = dir ?? Strings.NotSpecified;
         FolderSizeText = "";
 
         if (!string.IsNullOrEmpty(dir) && Directory.Exists(dir))
@@ -424,7 +425,7 @@ public partial class SettingsViewModel : ViewModelBase
 
     // ── Auto-attack mode ───────────────────────────────────────────────────────
 
-    public static string[] AutoAttackOptions { get; } = ["Выключена", "После заклинания", "Всегда"];
+    public static string[] AutoAttackOptions { get; } = [Strings.Disabled, Strings.AfterSpell, Strings.Always];
 
     public int AutoAttackSelectedIndex
     {

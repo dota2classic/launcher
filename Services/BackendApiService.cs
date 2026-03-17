@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using d2c_launcher.Api;
 using d2c_launcher.Models;
+using d2c_launcher.Resources;
 using d2c_launcher.Util;
 
 namespace d2c_launcher.Services;
@@ -43,20 +44,20 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
     private string? _currentToken;
     private static readonly IReadOnlyDictionary<int, string> MatchmakingModeLabels = new Dictionary<int, string>
     {
-        [0] = "Рейтинговая 5x5",
-        [1] = "Обычная 5x5",
+        [0] = Strings.Ranked5v5,
+        [1] = Strings.Mode5v5,
         [2] = "1x1 Мид",
         [3] = "Diretide",
         [4] = "Greeviling",
         [5] = "Ability Draft",
-        [6] = "Турнир",
-        [7] = "Против ботов",
+        [6] = Strings.Tournament,
+        [7] = Strings.VsBots,
         [8] = "Highroom 5x5",
-        [9] = "Турнир 1x1",
+        [9] = Strings.Tournament1v1,
         [10] = "Captains Mode",
-        [11] = "Лобби",
+        [11] = Strings.Lobby,
         [12] = "2x2 с ботами",
-        [13] = "Турбо"
+        [13] = Strings.Turbo
     };
 
     public void SetBearerToken(string? token)

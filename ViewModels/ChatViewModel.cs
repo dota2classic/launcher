@@ -10,6 +10,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
+using d2c_launcher.Resources;
 using d2c_launcher.Util;
 using static d2c_launcher.Util.ChatGrouper;
 
@@ -374,15 +375,15 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         if (dt == DateTimeOffset.MinValue) return "";
         var local = dt.ToLocalTime();
         return local.Date == DateTime.Today
-            ? $"Сегодня в {local:HH:mm}"
+            ? $"Сегодня в {local:HH:mm}" // "Today at" — intentionally left as format string
             : $"{local.Day} {RuMonth(local.Month)} {local:HH:mm}";
     }
 
     private static string RuMonth(int m) => m switch
     {
-        1 => "янв.", 2 => "фев.", 3 => "мар.", 4 => "апр.",
-        5 => "мая",  6 => "июн.", 7 => "июл.", 8 => "авг.",
-        9 => "сен.", 10 => "окт.", 11 => "ноя.", _ => "дек."
+        1 => Strings.MonthJan, 2 => Strings.MonthFeb, 3 => Strings.MonthMar, 4 => Strings.MonthApr,
+        5 => Strings.MonthMay, 6 => Strings.MonthJun, 7 => Strings.MonthJul, 8 => Strings.MonthAug,
+        9 => Strings.MonthSep, 10 => Strings.MonthOct, 11 => Strings.MonthNov, _ => Strings.MonthDec
     };
 
     public void Dispose()

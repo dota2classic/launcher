@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using d2c_launcher.Models;
+using d2c_launcher.Resources;
 
 namespace d2c_launcher.Util;
 
@@ -64,7 +65,7 @@ public static class RichMessageParser
             var steamId = m.Groups[1].Value;
             var displayName = (userNames != null && userNames.TryGetValue(steamId, out var n) && n != null)
                 ? $"@{n}"
-                : "Загрузка...";
+                : Strings.Loading;
             return new PlayerLinkSegment(steamId, m.Value, displayName);
         });
 

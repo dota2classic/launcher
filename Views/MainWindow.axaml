@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:d2c_launcher.ViewModels"
         xmlns:v="using:d2c_launcher.Views"
+        xmlns:res="clr-namespace:d2c_launcher.Resources"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
@@ -19,14 +20,14 @@
         <Border Grid.Row="0" Background="#1a6b30" IsVisible="{Binding UpdateAvailable}" Padding="12,8">
             <Grid ColumnDefinitions="*,Auto">
                 <StackPanel Grid.Column="0" Spacing="2">
-                    <TextBlock Text="Доступна новая версия, готова к установке."
+                    <TextBlock Text="{x:Static res:Strings.UpdateAvailable}"
                                Foreground="White" FontSize="{DynamicResource FontSizeMD}" FontWeight="SemiBold"/>
                     <TextBlock Text="{Binding ReleaseNotes}"
                                IsVisible="{Binding ReleaseNotes, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                                Foreground="#ccffffff" FontSize="{DynamicResource FontSizeSM}" TextWrapping="Wrap"/>
                 </StackPanel>
                 <Button Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0"
-                        Content="Перезапустить и обновить"
+                        Content="{x:Static res:Strings.RestartAndUpdate}"
                         Command="{Binding ApplyUpdateCommand}"/>
             </Grid>
         </Border>

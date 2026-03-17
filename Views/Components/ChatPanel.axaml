@@ -6,6 +6,7 @@
              xmlns:components="using:d2c_launcher.Views.Components"
              xmlns:materialIcons="using:Material.Icons.Avalonia"
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:res="clr-namespace:d2c_launcher.Resources"
              x:Class="d2c_launcher.Views.Components.ChatPanel"
              x:DataType="vm:ChatViewModel">
 
@@ -16,7 +17,7 @@
             <!-- Header -->
             <Border Grid.Row="0" Classes="BlockHead">
                 <Grid ColumnDefinitions="*,Auto">
-                    <TextBlock Classes="BlockTitle" Text="ЧАТ"/>
+                    <TextBlock Classes="BlockTitle" Text="{x:Static res:Strings.TabChat}"/>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="2">
                         <Button Background="Transparent" BorderThickness="0" Padding="4"
                                 Cursor="Hand" Click="OnTelegramClicked"
@@ -30,7 +31,7 @@
                         </Button>
                         <Button Background="Transparent" BorderThickness="0" Padding="4"
                                 Cursor="Hand" Click="OnSiteClicked"
-                                ToolTip.Tip="Сайт">
+                                ToolTip.Tip="{x:Static res:Strings.Website}">
                             <materialIcons:MaterialIcon Kind="Web" Width="18" Height="18" Foreground="#4a5668"/>
                         </Button>
                     </StackPanel>
@@ -43,7 +44,7 @@
                           VerticalScrollBarVisibility="Auto">
                 <Panel>
                     <!-- Loading placeholder -->
-                    <TextBlock Text="Загрузка..."
+                    <TextBlock Text="{x:Static res:Strings.Loading}"
                                IsVisible="{Binding IsLoading}"
                                Foreground="#48525a" FontSize="{DynamicResource FontSizeBase}"
                                HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -168,7 +169,7 @@
                         <TextBox Grid.Column="0"
                                  x:Name="MessageInput"
                                  Text="{Binding InputText}"
-                                 Watermark="Введите сообщение"
+                                 Watermark="{x:Static res:Strings.EnterMessage}"
                                  FontSize="{DynamicResource FontSizeMD}"
                                  Background="Transparent"
                                  BorderThickness="0"

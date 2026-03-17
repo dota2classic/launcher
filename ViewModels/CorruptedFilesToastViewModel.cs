@@ -1,5 +1,6 @@
 using System;
 using CommunityToolkit.Mvvm.Input;
+using d2c_launcher.Resources;
 
 namespace d2c_launcher.ViewModels;
 
@@ -9,7 +10,7 @@ namespace d2c_launcher.ViewModels;
 /// </summary>
 public sealed partial class CorruptedFilesToastViewModel : NotificationViewModel
 {
-    public string Message { get; } = "Файлы игры повреждены или удалены антивирусом.";
+    public string Message { get; } = Strings.GameFilesCorrupted;
 
     public RelayCommand VerifyCommand { get; }
 

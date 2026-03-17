@@ -10,6 +10,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
+using d2c_launcher.Resources;
 using d2c_launcher.Util;
 
 namespace d2c_launcher.ViewModels;
@@ -135,8 +136,8 @@ public partial class GameDownloadViewModel : ViewModelBase
             {
                 Phase = VerificationPhase.Failed;
                 HasError = true;
-                StatusText = "Неверная папка с игрой";
-                ErrorText = dirError ?? "Выбранная папка не является Dotaclassic.";
+                StatusText = Strings.InvalidGameFolder;
+                ErrorText = dirError ?? Strings.FolderNotDotaclassic;
                 IsIndeterminate = false;
                 OnInvalidGameDirectory?.Invoke(dirError);
             });
@@ -163,7 +164,7 @@ public partial class GameDownloadViewModel : ViewModelBase
                 await DownloadFilesAsync(toDownload, totalRemoteFiles, totalRemoteBytes, alreadyOkBytes);
             }
 
-            SetPhase(VerificationPhase.Complete, anyDownloaded ? "Готово!" : "Игра обновлена", progress: 100);
+            SetPhase(VerificationPhase.Complete, anyDownloaded ? Strings.Done : Strings.GameUpdated, progress: 100);
             await Task.Delay(500);
             await InstallRedistAsync();
             Dispatcher.UIThread.Post(() =>
@@ -179,10 +180,10 @@ public partial class GameDownloadViewModel : ViewModelBase
             {
                 Phase = VerificationPhase.Failed;
                 HasError = true;
-                StatusText = "Нет доступа к папке";
+                StatusText = Strings.NoFolderAccessTitle;
                 ErrorText = ex.Message;
                 IsIndeterminate = false;
-                OnInvalidGameDirectory?.Invoke("Нет доступа к выбранной папке. Выберите другую папку для установки.");
+                OnInvalidGameDirectory?.Invoke(Strings.NoFolderAccess);
             });
         }
         catch (Exception ex)
@@ -191,7 +192,7 @@ public partial class GameDownloadViewModel : ViewModelBase
             {
                 Phase = VerificationPhase.Failed;
                 HasError = true;
-                StatusText = "Ошибка загрузки";
+                StatusText = Strings.LoadingError;
                 ErrorText = ex.Message;
                 IsIndeterminate = false;
             });
@@ -219,7 +220,7 @@ public partial class GameDownloadViewModel : ViewModelBase
         if (PackageIdsToRemove == null || PackageIdsToRemove.Count == 0)
             return;
 
-        SetPhase(VerificationPhase.FetchingManifest, "Удаление файлов DLC...", indeterminate: true);
+        SetPhase(VerificationPhase.FetchingManifest, Strings.DeletingDlcFiles, indeterminate: true);
 
         var registry = await _registryService.GetAsync();
         if (registry == null) return;
@@ -261,12 +262,12 @@ public partial class GameDownloadViewModel : ViewModelBase
 
     private async Task<List<(ContentPackage Package, GameManifest Manifest)>> FetchAllPackageManifestsAsync()
     {
-        SetPhase(VerificationPhase.FetchingManifest, "Подключение к серверу...", indeterminate: true);
+        SetPhase(VerificationPhase.FetchingManifest, Strings.ConnectingToServer, indeterminate: true);
 
         var registry = await _registryService.GetAsync();
 
         if (registry == null || registry.Packages.Count == 0)
-            throw new Exception("Не удалось загрузить список пакетов с сервера.");
+            throw new Exception(Strings.FailedToLoadPackages);
 
         // Determine which packages to download: all required + user-selected optional
         var packagesToInstall = registry.Packages
@@ -307,14 +308,14 @@ public partial class GameDownloadViewModel : ViewModelBase
 
     private async Task<GameManifest> ScanLocalFilesAsync()
     {
-        SetPhase(VerificationPhase.ScanningFiles, "Проверка файлов...", progress: 0, indeterminate: false);
+        SetPhase(VerificationPhase.ScanningFiles, Strings.VerifyingFiles, progress: 0, indeterminate: false);
 
         var scanProgress = new Progress<(int done, int total)>(p =>
         {
             Dispatcher.UIThread.Post(() =>
             {
                 ProgressValue = p.total > 0 ? p.done * 100.0 / p.total : 0;
-                StatusText = $"Проверка файлов... ({p.done}/{p.total})";
+                StatusText = $"{Strings.VerifyingFiles} ({p.done}/{p.total})";
             });
         });
 
@@ -394,7 +395,7 @@ public partial class GameDownloadViewModel : ViewModelBase
 
     private async Task InstallRedistAsync()
     {
-        SetPhase(VerificationPhase.InstallingRedist, "Установка компонентов...", indeterminate: true);
+        SetPhase(VerificationPhase.InstallingRedist, Strings.InstallingComponents, indeterminate: true);
 
         var redistProgress = new Progress<string>(name =>
         {

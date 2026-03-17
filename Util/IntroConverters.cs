@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using Avalonia.Data.Converters;
+using d2c_launcher.Resources;
 
 namespace d2c_launcher.Util;
 
@@ -31,7 +32,7 @@ public class IntroNextButtonTextConverter : IValueConverter
     public static readonly IntroNextButtonTextConverter Instance = new();
 
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => value is int step && step >= 4 ? "Начать играть" : "Далее";
+        => value is int step && step >= 4 ? Strings.StartPlaying : Strings.Next;
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new NotSupportedException();

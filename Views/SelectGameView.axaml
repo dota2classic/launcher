@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
             xmlns:vm="using:d2c_launcher.ViewModels"
+            xmlns:res="clr-namespace:d2c_launcher.Resources"
             x:Class="d2c_launcher.Views.SelectGameView"
             x:DataType="vm:SelectGameViewModel"
             Classes="InitScreen">
@@ -13,7 +14,7 @@
 
            <TextBlock Classes="InitScreenTitle" Text="Dotaclassic"/>
 
-           <TextBlock Text="Выберите папку для установки игры"
+           <TextBlock Text="{x:Static res:Strings.SelectGameFolder}"
                       FontSize="{DynamicResource FontSizeLG}" HorizontalAlignment="Center"
                       Foreground="#AAAAAA"/>
 
@@ -32,7 +33,7 @@
                        <GradientStop Color="#1a5aaa" Offset="1"/>
                    </LinearGradientBrush>
                </Button.Background>
-               <TextBlock Text="Скачать игру"
+               <TextBlock Text="{x:Static res:Strings.DownloadGame}"
                           FontSize="{DynamicResource FontSizeXL}" FontWeight="SemiBold" Foreground="White"
                           HorizontalAlignment="Center"/>
            </Button>
@@ -56,7 +57,7 @@
                               VerticalAlignment="Center"/>
                </Border>
                <Button Grid.Column="1"
-                       Content="Изменить"
+                       Content="{x:Static res:Strings.Change}"
                        Background="#1e2530"
                        BorderBrush="#2d3842" BorderThickness="1"
                        Foreground="#888888"
@@ -68,7 +69,7 @@
            <Grid ColumnDefinitions="*,Auto,*" VerticalAlignment="Center">
                <Rectangle Grid.Column="0" Height="1" Fill="#1e1e1e" VerticalAlignment="Center"/>
                <TextBlock Grid.Column="1"
-                          Text="ИЛИ"
+                          Text="{x:Static res:Strings.Or}"
                           FontSize="{DynamicResource FontSizeSM}" Foreground="#444444"
                           LetterSpacing="1"
                           Margin="12,0"
@@ -81,7 +82,7 @@
                    Padding="8,4" CornerRadius="0"
                    Background="Transparent" BorderThickness="0"
                    Click="OnAlreadyInstalledClicked">
-               <TextBlock Text="У меня уже установлена Дота"
+               <TextBlock Text="{x:Static res:Strings.AlreadyHaveDota}"
                           FontSize="{DynamicResource FontSizeMD}" Foreground="#888888"
                           TextDecorations="Underline"/>
            </Button>
@@ -105,7 +106,7 @@
                               VerticalAlignment="Center"/>
                </Border>
                <Button Grid.Column="1"
-                       Content="Изменить"
+                       Content="{x:Static res:Strings.Change}"
                        Background="#1e2530"
                        BorderBrush="#2d3842" BorderThickness="1"
                        Foreground="#888888"
@@ -123,11 +124,11 @@
                BoxShadow="0 12 28 0 #80000000">
            <StackPanel Spacing="20">
 
-               <TextBlock Text="Выберите контент для установки"
+               <TextBlock Text="{x:Static res:Strings.SelectContentToInstall}"
                           FontSize="{DynamicResource FontSize2XL}" FontWeight="SemiBold"
                           Foreground="#D9D9D9"/>
 
-               <TextBlock Text="Обязательные пакеты отмечены и будут установлены автоматически."
+               <TextBlock Text="{x:Static res:Strings.RequiredPackagesNote}"
                           FontSize="{DynamicResource FontSizeBase}" Foreground="#AAAAAA" TextWrapping="Wrap"/>
 
                <ItemsControl ItemsSource="{Binding DlcPackages}">
@@ -145,6 +146,7 @@
                </ItemsControl>
 
                <Button Command="{Binding ConfirmDlcSelectionCommand}"
+                       Content="{x:Static res:Strings.DownloadGame}"
                        HorizontalAlignment="Right"
                        Padding="24,8" CornerRadius="0"
                        BorderThickness="0" Foreground="White"
@@ -155,7 +157,6 @@
                            <GradientStop Color="#3a90d6" Offset="1"/>
                        </LinearGradientBrush>
                    </Button.Background>
-                   Скачать
                </Button>
 
            </StackPanel>

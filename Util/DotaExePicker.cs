@@ -2,6 +2,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using d2c_launcher.Resources;
 using d2c_launcher.Services;
 
 namespace d2c_launcher.Util;
@@ -20,7 +21,7 @@ public static class DotaExePicker
     {
         var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Выберите dota.exe",
+            Title = Strings.SelectDotaExe,
             AllowMultiple = false,
             FileTypeFilter = new[]
             {

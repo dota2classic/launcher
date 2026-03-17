@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using d2c_launcher.Integration;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
+using d2c_launcher.Resources;
 using d2c_launcher.Util;
 
 namespace d2c_launcher.ViewModels;
@@ -59,8 +60,8 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
     public bool IsLaunchEnabled => !IsGameDirectorySet || RunState == GameRunState.None;
 
     public string PlayButtonText => RunState is GameRunState.OurGameRunning or GameRunState.OtherDotaRunning
-        ? "Остановить"
-        : "Запустить";
+        ? Strings.StopLabel
+        : Strings.Launch;
 
     public bool PlayButtonIsStop => RunState is GameRunState.OurGameRunning or GameRunState.OtherDotaRunning;
 

@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:d2c_launcher.ViewModels"
              xmlns:components="using:d2c_launcher.Views.Components"
+             xmlns:res="clr-namespace:d2c_launcher.Resources"
              x:Class="d2c_launcher.Views.Components.LivePanel"
              x:DataType="vm:LiveViewModel">
 
@@ -16,18 +17,18 @@
                 <!-- Header -->
                 <Border Grid.Row="0" Padding="10,10,10,8"
                         BorderBrush="#111820" BorderThickness="0,0,0,1">
-                    <TextBlock Text="ТРАНСЛЯЦИИ"
+                    <TextBlock Text="{x:Static res:Strings.Broadcasts}"
                                FontSize="10" FontWeight="Bold" LetterSpacing="2"
                                Foreground="#4a6070"/>
                 </Border>
 
                 <!-- States -->
-                <TextBlock Grid.Row="1" Text="Загрузка…"
+                <TextBlock Grid.Row="1" Text="{x:Static res:Strings.LoadingEllipsis}"
                            Foreground="#3a4a5a" FontSize="{DynamicResource FontSizeSM}"
                            IsVisible="{Binding IsLoading}"
                            VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
-                <TextBlock Grid.Row="1" Text="Нет активных игр"
+                <TextBlock Grid.Row="1" Text="{x:Static res:Strings.NoActiveGames}"
                            Foreground="#3a4a5a" FontSize="{DynamicResource FontSizeSM}"
                            TextWrapping="Wrap"
                            IsVisible="{Binding HasNoMatches}"
@@ -120,7 +121,7 @@
         <Grid Grid.Column="1">
 
             <!-- No match selected -->
-            <TextBlock Text="Нет активных игр"
+            <TextBlock Text="{x:Static res:Strings.NoActiveGames}"
                        Foreground="#3a4a5a"
                        HorizontalAlignment="Center" VerticalAlignment="Center"
                        FontSize="{DynamicResource FontSizeMD}"
@@ -137,7 +138,7 @@
                         Padding="20,12">
                     <Grid ColumnDefinitions="*,Auto">
                         <StackPanel Grid.Column="0" Spacing="2">
-                            <TextBlock Text="РЕЖИМ ИГРЫ"
+                            <TextBlock Text="{x:Static res:Strings.GameMode}"
                                        FontSize="9" FontWeight="Bold" LetterSpacing="2"
                                        Foreground="#4a6070"/>
                             <TextBlock Text="{Binding SelectedMatch.ModeLabel}"
@@ -146,7 +147,7 @@
                         </StackPanel>
                         <StackPanel Grid.Column="1" Spacing="6" HorizontalAlignment="Right"
                                     VerticalAlignment="Center" Orientation="Horizontal">
-                            <Button Content="СМОТРЕТЬ"
+                            <Button Content="{x:Static res:Strings.Watch}"
                                     Command="{Binding $parent[UserControl].((vm:LiveViewModel)DataContext).SpectateSelectedMatchCommand}"
                                     Padding="14,8"
                                     FontSize="11" FontWeight="Bold"
@@ -156,7 +157,7 @@
                                     Cursor="Hand"/>
                             <Border Width="1" Background="#1a2a3a" Margin="4,4"/>
                             <StackPanel Spacing="2">
-                                <TextBlock Text="СЧЁТ"
+                                <TextBlock Text="{x:Static res:Strings.ColScore}"
                                            FontSize="9" FontWeight="Bold" LetterSpacing="2"
                                            Foreground="#4a6070" HorizontalAlignment="Center"/>
                                 <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
@@ -169,7 +170,7 @@
                             </StackPanel>
                             <Border Width="1" Background="#1a2a3a" Margin="12,4"/>
                             <StackPanel Spacing="2">
-                                <TextBlock Text="ВРЕМЯ"
+                                <TextBlock Text="{x:Static res:Strings.ColTime}"
                                            FontSize="9" FontWeight="Bold" LetterSpacing="2"
                                            Foreground="#4a6070" HorizontalAlignment="Center"/>
                                 <TextBlock Text="{Binding SelectedMatch.Duration}"
