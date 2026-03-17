@@ -11,7 +11,7 @@ public partial class HeroOnMapViewModel : ObservableObject
     [ObservableProperty] private Thickness _heroMargin;
     [ObservableProperty] private bool _isDead;
 
-    [ObservableProperty] private string _heroImageUrl = "";
+    [ObservableProperty] private string _heroShortName = "";
 
     // Canonical canvas: both minimaps render at 320×320, scaled by a Viewbox to their display size.
     public const double CanvasSize = 320;
@@ -30,28 +30,23 @@ public partial class HeroOnMapViewModel : ObservableObject
     {
         SteamId = steamId;
         Team = team;
-        _heroImageUrl = ResolveHeroUrl(heroName);
+        _heroShortName = ResolveShortName(heroName);
         _heroMargin = ComputeMargin(posX, posY);
         _isDead = isDead;
     }
 
     public void UpdatePosition(string heroName, double posX, double posY, bool isDead)
     {
-        var url = ResolveHeroUrl(heroName);
-        if (url != HeroImageUrl) HeroImageUrl = url;
+        var url = ResolveShortName(heroName);
+        if (url != HeroShortName) HeroShortName = url;
         HeroMargin = ComputeMargin(posX, posY);
         IsDead = isDead;
     }
 
-    private static string ResolveHeroUrl(string heroName)
-    {
-        var shortName = heroName.StartsWith("npc_dota_hero_", System.StringComparison.Ordinal)
+    private static string ResolveShortName(string heroName) =>
+        heroName.StartsWith("npc_dota_hero_", System.StringComparison.Ordinal)
             ? heroName["npc_dota_hero_".Length..]
             : heroName;
-        return string.IsNullOrEmpty(shortName)
-            ? "avares://d2c-launcher/Assets/Images/Heroes/default.webp"
-            : $"avares://d2c-launcher/Assets/Images/Heroes/{shortName}.webp";
-    }
 
     private static double Remap(double v) => v * 0.94 + 0.02;
     private static Thickness ComputeMargin(double posX, double posY)
