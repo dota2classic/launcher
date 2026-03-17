@@ -88,6 +88,13 @@
                                                     <Border Width="24" Height="24"
                                                             HorizontalAlignment="Left" VerticalAlignment="Top"
                                                             Margin="{Binding HeroMarginSmall}">
+                                                        <Border.Transitions>
+                                                            <Transitions>
+                                                                <ThicknessTransition Property="Margin"
+                                                                                      Duration="0:0:1"
+                                                                                      Easing="CubicEaseInOut"/>
+                                                            </Transitions>
+                                                        </Border.Transitions>
                                                         <asyncImageLoader:AdvancedImage
                                                             Source="{Binding HeroImageUrl}"
                                                             Stretch="UniformToFill">
