@@ -3,6 +3,7 @@
              xmlns:vm="using:d2c_launcher.ViewModels"
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              xmlns:components="using:d2c_launcher.Views.Components"
+             xmlns:materialIcons="using:Material.Icons.Avalonia"
              x:Class="d2c_launcher.Views.Components.LivePlayerRowView"
              x:DataType="vm:LivePlayerRowViewModel">
 
@@ -22,6 +23,15 @@
                         <TextBlock Text="{Binding Level}"
                                    FontSize="8" FontWeight="Bold"
                                    Foreground="#d0e0f0"/>
+                    </Border>
+                    <!-- Dead overlay -->
+                    <Border Background="#aa000000"
+                            IsVisible="{Binding IsDead}"
+                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <materialIcons:MaterialIcon Kind="Skull" Width="18" Height="18"
+                                                    Foreground="#cccccc"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"/>
                     </Border>
                 </Panel>
 

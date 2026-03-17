@@ -28,12 +28,16 @@
 
         <!-- Large icons (detail panel): 28px, binds HeroMargin -->
         <DataTemplate x:Key="LargeIconTemplate" x:DataType="vm:HeroOnMapViewModel">
-            <Border Width="28" Height="28"
+            <Border Width="{Binding LargeIconDisplaySize}" Height="{Binding LargeIconDisplaySize}"
+                    Opacity="{Binding IconOpacity}"
                     HorizontalAlignment="Left" VerticalAlignment="Top"
                     Margin="{Binding HeroMargin}">
                 <Border.Transitions>
                     <Transitions>
                         <ThicknessTransition Property="Margin" Duration="0:0:1" Easing="CubicEaseInOut"/>
+                        <DoubleTransition Property="Opacity" Duration="0:0:0.3"/>
+                        <DoubleTransition Property="Width" Duration="0:0:0.3"/>
+                        <DoubleTransition Property="Height" Duration="0:0:0.3"/>
                     </Transitions>
                 </Border.Transitions>
                 <components:HeroMinimapIcon HeroName="{Binding HeroShortName}">
@@ -47,12 +51,16 @@
 
         <!-- Small icons (sidebar card): 64px canvas units, binds SmallHeroMargin -->
         <DataTemplate x:Key="SmallIconTemplate" x:DataType="vm:HeroOnMapViewModel">
-            <Border Width="64" Height="64"
+            <Border Width="{Binding SmallIconDisplaySize}" Height="{Binding SmallIconDisplaySize}"
+                    Opacity="{Binding IconOpacity}"
                     HorizontalAlignment="Left" VerticalAlignment="Top"
                     Margin="{Binding SmallHeroMargin}">
                 <Border.Transitions>
                     <Transitions>
                         <ThicknessTransition Property="Margin" Duration="0:0:1" Easing="CubicEaseInOut"/>
+                        <DoubleTransition Property="Opacity" Duration="0:0:0.3"/>
+                        <DoubleTransition Property="Width" Duration="0:0:0.3"/>
+                        <DoubleTransition Property="Height" Duration="0:0:0.3"/>
                     </Transitions>
                 </Border.Transitions>
                 <components:HeroMinimapIcon HeroName="{Binding HeroShortName}">

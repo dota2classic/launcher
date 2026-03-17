@@ -11,6 +11,9 @@ public partial class HeroOnMapViewModel : ObservableObject
     [ObservableProperty] private Thickness _heroMargin;
     [ObservableProperty] private Thickness _smallHeroMargin;
     [ObservableProperty] private bool _isDead;
+    [ObservableProperty] private double _iconOpacity = 1.0;
+    [ObservableProperty] private double _largeIconDisplaySize = HeroIconSize;
+    [ObservableProperty] private double _smallIconDisplaySize = SmallHeroIconSize;
 
     [ObservableProperty] private string _heroShortName = "";
 
@@ -34,6 +37,7 @@ public partial class HeroOnMapViewModel : ObservableObject
         _heroMargin = ComputeMargin(posX, posY, HeroIconSize);
         _smallHeroMargin = ComputeMargin(posX, posY, SmallHeroIconSize);
         _isDead = isDead;
+        ApplyDeadVisuals(isDead);
     }
 
     public void UpdatePosition(string heroName, double posX, double posY, bool isDead)
@@ -43,6 +47,15 @@ public partial class HeroOnMapViewModel : ObservableObject
         HeroMargin = ComputeMargin(posX, posY, HeroIconSize);
         SmallHeroMargin = ComputeMargin(posX, posY, SmallHeroIconSize);
         IsDead = isDead;
+    }
+
+    partial void OnIsDeadChanged(bool value) => ApplyDeadVisuals(value);
+
+    private void ApplyDeadVisuals(bool dead)
+    {
+        IconOpacity = dead ? 0.4 : 1.0;
+        LargeIconDisplaySize = dead ? HeroIconSize / 2 : HeroIconSize;
+        SmallIconDisplaySize = dead ? SmallHeroIconSize / 2 : SmallHeroIconSize;
     }
 
     private static string ResolveShortName(string? heroName)

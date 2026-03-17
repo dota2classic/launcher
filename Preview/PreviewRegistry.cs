@@ -255,6 +255,49 @@ public static class PreviewRegistry
                 vm.SelectedMatch = card;
                 return (new d2c_launcher.Views.Components.LivePanel { Width = 1250, Height = 650 }, vm);
             },
+            ["LivePlayerRowDead"] = () =>
+            {
+                var aliveSlot = new d2c_launcher.Api.MatchSlotInfo
+                {
+                    User = new d2c_launcher.Api.UserDTO { SteamId = "1", Name = "Tinker (alive)" },
+                    Team = 2,
+                    Connection = 1,
+                    HeroData = new d2c_launcher.Api.PlayerInfo
+                    {
+                        Hero = "npc_dota_hero_tinker", Level = 25, Bot = false,
+                        Kills = 5, Deaths = 2, Assists = 3,
+                        Health = 2109, Max_health = 2212,
+                        Respawn_time = -1,
+                        Item0 = 1, Item1 = 178, Item2 = 119, Item3 = 220, Item4 = 204, Item5 = 108,
+                    }
+                };
+                var deadSlot = new d2c_launcher.Api.MatchSlotInfo
+                {
+                    User = new d2c_launcher.Api.UserDTO { SteamId = "2", Name = "Axe (dead)" },
+                    Team = 2,
+                    Connection = 1,
+                    HeroData = new d2c_launcher.Api.PlayerInfo
+                    {
+                        Hero = "npc_dota_hero_axe", Level = 18, Bot = false,
+                        Kills = 3, Deaths = 7, Assists = 1,
+                        Health = 0, Max_health = 2000,
+                        Respawn_time = 42,
+                        Item0 = 116, Item1 = 112, Item2 = 0, Item3 = 63, Item4 = 46, Item5 = 0,
+                    }
+                };
+                var aliveVm = new d2c_launcher.ViewModels.LivePlayerRowViewModel(aliveSlot);
+                var deadVm = new d2c_launcher.ViewModels.LivePlayerRowViewModel(deadSlot);
+
+                var stack = new StackPanel
+                {
+                    Spacing = 4, Margin = new Thickness(16),
+                    Background = new SolidColorBrush(Color.Parse("#1a1f26")),
+                };
+                stack.Children.Add(new d2c_launcher.Views.Components.LivePlayerRowView { DataContext = aliveVm, Width = 260 });
+                stack.Children.Add(new d2c_launcher.Views.Components.LivePlayerRowView { DataContext = deadVm, Width = 260 });
+                var host = new Border { Background = new SolidColorBrush(Color.Parse("#1a1f26")), Child = stack };
+                return (host, null);
+            },
             ["AbandonButtonConnect"] = () =>
             {
                 // Single-line state: QueueButtonHeight = 52, abandon X visible
