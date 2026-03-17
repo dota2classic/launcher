@@ -47,9 +47,9 @@ public class BuildingOnMapViewModel
 
     private static readonly Pos[] RadiantTowers =
     [
-        new(0.07, 0.63, 0),
-        new(0.072, 0.441, 1),
-        new(0.052, 0.264, 2),
+        new(0.115, 0.63, 0),
+        new(0.113, 0.441, 1),
+        new(0.095, 0.264, 2),
         new(0.393, 0.405, 3),
         new(0.261, 0.296, 4),
         new(0.174, 0.21, 5),
@@ -77,8 +77,8 @@ public class BuildingOnMapViewModel
 
     private static readonly Pos[] RadiantBarracks =
     [
-        new(0.062, 0.243, 0),
-        new(0.032, 0.243, 1),
+        new(0.105, 0.243, 0),
+        new(0.075, 0.243, 1),
         new(0.168, 0.179, 2),
         new(0.143, 0.204, 3),
         new(0.2, 0.049, 4),

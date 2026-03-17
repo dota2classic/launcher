@@ -222,6 +222,24 @@ public static class PreviewRegistry
                 };
                 return (host, null);
             },
+            ["Minimap"] = () =>
+            {
+                var json = System.IO.File.ReadAllText(
+                    System.IO.Path.Combine(AppContext.BaseDirectory, "Preview", "livematch.json"));
+                var dto = System.Text.Json.JsonSerializer.Deserialize<d2c_launcher.Api.LiveMatchDto>(json,
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+                var card = new d2c_launcher.ViewModels.LiveMatchCardViewModel((int)dto.MatchId);
+                card.UpdateFrom(dto, "Против ботов");
+                var minimap = new d2c_launcher.Views.Components.MinimapPanel
+                {
+                    ItemsSource = card.Heroes,
+                    BuildingsSource = card.Buildings,
+                    UseSmallIcons = false,
+                    Width = 320,
+                    Height = 320,
+                };
+                return (minimap, null);
+            },
             ["LivePanel"] = () =>
             {
                 var json = System.IO.File.ReadAllText(
