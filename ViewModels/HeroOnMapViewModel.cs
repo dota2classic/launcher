@@ -49,8 +49,8 @@ public partial class HeroOnMapViewModel : ObservableObject
             : $"https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/icons/{shortName}.png";
     }
 
-    private const double SmallCanvasSize = 160;
-    private const double SmallHalfSize = 5;
+    private const double SmallCanvasSize = 140;
+    private const double SmallHalfSize = 12;
 
     private const double MediumCanvasSize = 320;
     private const double MediumHalfSize = 14;

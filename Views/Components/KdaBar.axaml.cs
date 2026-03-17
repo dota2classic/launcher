@@ -38,15 +38,12 @@ public partial class KdaBar : UserControl
         if (totalWidth <= 0) return;
 
         var sum = Kills + Deaths + Assists;
-        if (sum <= 0)
-        {
-            KillsRect.Width = 0; DeathsRect.Width = 0; AssistsRect.Width = 0;
-            return;
-        }
+        double k = Kills, d = Deaths, a = Assists;
+        if (sum <= 0) { k = 1; d = 1; a = 1; sum = 3; }
 
-        var kw = Kills  / sum * totalWidth;
-        var dw = Deaths / sum * totalWidth;
-        var aw = Assists / sum * totalWidth;
+        var kw = k / sum * totalWidth;
+        var dw = d / sum * totalWidth;
+        var aw = a / sum * totalWidth;
 
         KillsRect.Width   = kw;
         DeathsRect.Margin = new Thickness(kw, 0, 0, 0);

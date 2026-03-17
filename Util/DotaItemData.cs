@@ -4,7 +4,7 @@ namespace d2c_launcher.Util;
 
 public static class DotaItemData
 {
-    private const string BaseUrl = "https://dotaclassic.ru/items/";
+    private const string BaseUrl = "avares://d2c-launcher/Assets/Images/Items/";
 
     private static readonly Dictionary<int, string> ItemNames = new()
     {

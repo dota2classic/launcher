@@ -43,9 +43,9 @@
                 "item3": 220,
                 "item4": 204,
                 "item5": 108,
-                "kills": 23,
-                "deaths": 7,
-                "assists": 12,
+                "kills": 0,
+                "deaths": 0,
+                "assists": 0,
                 "respawn_time": -1
             }
         },
@@ -77,9 +77,9 @@
                 "item3": 63,
                 "item4": 46,
                 "item5": 0,
-                "kills": 2,
-                "deaths": 9,
-                "assists": 10,
+                "kills": 5,
+                "deaths": 0,
+                "assists": 3,
                 "respawn_time": -1
             }
         },
@@ -213,9 +213,9 @@
                 "item3": 116,
                 "item4": 46,
                 "item5": 10,
-                "kills": 10,
-                "deaths": 11,
-                "assists": 8,
+                "kills": 0,
+                "deaths": 0,
+                "assists": 15,
                 "respawn_time": -1
             }
         },
@@ -247,9 +247,9 @@
                 "item3": 1,
                 "item4": 73,
                 "item5": 57,
-                "kills": 8,
-                "deaths": 11,
-                "assists": 20,
+                "kills": 0,
+                "deaths": 25,
+                "assists": 0,
                 "respawn_time": -1
             }
         },
