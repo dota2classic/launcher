@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -87,27 +88,26 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
 
         queueSocketService.PlayerGameStateUpdated += msg =>
             Dispatcher.UIThread.Post(() => UpdateServerUrl(msg));
-        queueSocketService.ServerSearchingUpdated += msg =>
-            Dispatcher.UIThread.Post(() => OnServerSearchingUpdated(msg));
     }
 
-    private bool _isExpectingServerAddress;
-
-    private void OnServerSearchingUpdated(PlayerServerSearchingMessage msg)
-    {
-        _isExpectingServerAddress = msg.Searching;
-        AppLog.Info($"GameLaunchViewModel: isExpectingServerAddress={_isExpectingServerAddress}");
-    }
+    private string? _lastServerUrl;
+    private CancellationTokenSource? _connectCts;
 
     private void UpdateServerUrl(PlayerGameStateMessage? msg)
     {
-        ServerUrl = msg?.ServerUrl;
+        var serverUrl = msg?.ServerUrl;
+        ServerUrl = serverUrl;
 
-        if (_isExpectingServerAddress && !string.IsNullOrEmpty(msg?.ServerUrl) &&
-            _settingsStorage.Get().AutoConnectToGame)
+        if (string.IsNullOrEmpty(serverUrl))
         {
-            AppLog.Info("GameLaunchViewModel: auto-connecting to server (first time)");
-            _isExpectingServerAddress = false;
+            _lastServerUrl = null;
+            return;
+        }
+
+        if (serverUrl != _lastServerUrl && _settingsStorage.Get().AutoConnectToGame)
+        {
+            _lastServerUrl = serverUrl;
+            AppLog.Info("GameLaunchViewModel: auto-connecting to server");
             ConnectToGame();
         }
     }
@@ -247,9 +247,14 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         return true;
     }
 
-    public void ConnectToGame() => _ = ConnectToGameAsync();
+    public void ConnectToGame()
+    {
+        _connectCts?.Cancel();
+        _connectCts = new CancellationTokenSource();
+        _ = ConnectToGameAsync(_connectCts.Token);
+    }
 
-    private async Task ConnectToGameAsync()
+    private async Task ConnectToGameAsync(CancellationToken ct)
     {
         var url = ServerUrl;
         if (string.IsNullOrEmpty(url))
@@ -262,7 +267,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         {
             AppLog.Info("ConnectToGame: killing foreign Dota processes");
             KillAllDotaProcesses();
-            await Task.Delay(1500);
+            await Task.Delay(1500, ct);
             RefreshRunState();
         }
 
@@ -283,6 +288,11 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         var deadline = DateTimeOffset.UtcNow.AddSeconds(90);
         while (!DotaConsoleConnector.IsWindowOpen())
         {
+            if (ct.IsCancellationRequested)
+            {
+                AppLog.Info("ConnectToGame: cancelled (new connect attempt superseded this one)");
+                return;
+            }
             if (DateTimeOffset.UtcNow >= deadline)
             {
                 AppLog.Info("ConnectToGame: timed out waiting for DOTA 2 window");
@@ -296,7 +306,13 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
                 }
                 return;
             }
-            await Task.Delay(500);
+            await Task.Delay(500, ct).ConfigureAwait(false);
+        }
+
+        if (ct.IsCancellationRequested)
+        {
+            AppLog.Info("ConnectToGame: cancelled before sending connect command");
+            return;
         }
 
         AppLog.Info($"ConnectToGame: sending 'connect {url}'");
@@ -333,7 +349,9 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         FaroTelemetryService.TrackEvent("spectate_match", new() { ["match_id"] = matchId.ToString() });
 
         await Dispatcher.UIThread.InvokeAsync(() => ServerUrl = spectatorAddress);
-        await ConnectToGameAsync().ConfigureAwait(false);
+        _connectCts?.Cancel();
+        _connectCts = new CancellationTokenSource();
+        await ConnectToGameAsync(_connectCts.Token).ConfigureAwait(false);
     }
 
     public void RefreshRunState()
@@ -461,5 +479,10 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(PlayButtonIsStop));
     }
 
-    public void Dispose() => _runStateTimer.Stop();
+    public void Dispose()
+    {
+        _runStateTimer.Stop();
+        _connectCts?.Cancel();
+        _connectCts?.Dispose();
+    }
 }

@@ -77,7 +77,6 @@ public partial class RoomViewModel : ViewModelBase
     {
         if (msg == null)
         {
-            AppLog.Info("UpdatePlayerGameState (room): no action needed");
             return;
         }
 
