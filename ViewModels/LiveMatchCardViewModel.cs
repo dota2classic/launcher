@@ -56,6 +56,7 @@ public partial class LiveMatchCardViewModel : ObservableObject
     public ObservableCollection<HeroOnMapViewModel> Heroes { get; } = [];
     public ObservableCollection<LivePlayerRowViewModel> RadiantPlayers { get; } = [];
     public ObservableCollection<LivePlayerRowViewModel> DirePlayers { get; } = [];
+    public ObservableCollection<BuildingOnMapViewModel> Buildings { get; } = [];
 
     /// <summary>Called when a non-bot player name is clicked. Receives steam32 ID.</summary>
     public Action<string>? OnOpenProfile { get; set; }
@@ -70,6 +71,18 @@ public partial class LiveMatchCardViewModel : ObservableObject
     public void UpdateFrom(LiveMatchDto dto, string matchmakingModeName)
     {
         UpdateSummaryFrom(dto, matchmakingModeName);
+
+        // Update building state
+        var towerArr = dto.Towers.ToArray();
+        var barrackArr = dto.Barracks.ToArray();
+        int radiantTowers = towerArr.Length > 0 ? (int)towerArr[0] : 2047;
+        int direTowers = towerArr.Length > 1 ? (int)towerArr[1] : 2047;
+        int radiantBarracks = barrackArr.Length > 0 ? (int)barrackArr[0] : 63;
+        int direBarracks = barrackArr.Length > 1 ? (int)barrackArr[1] : 63;
+
+        Buildings.Clear();
+        foreach (var b in BuildingOnMapViewModel.BuildAll(radiantTowers, direTowers, radiantBarracks, direBarracks))
+            Buildings.Add(b);
 
         // Update hero map positions in place
         var presentIds = new HashSet<string>();

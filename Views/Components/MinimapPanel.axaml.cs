@@ -15,6 +15,9 @@ public partial class MinimapPanel : UserControl
     public static readonly StyledProperty<IEnumerable?> ItemsSourceProperty =
         AvaloniaProperty.Register<MinimapPanel, IEnumerable?>(nameof(ItemsSource));
 
+    public static readonly StyledProperty<IEnumerable?> BuildingsSourceProperty =
+        AvaloniaProperty.Register<MinimapPanel, IEnumerable?>(nameof(BuildingsSource));
+
     public static readonly StyledProperty<bool> UseSmallIconsProperty =
         AvaloniaProperty.Register<MinimapPanel, bool>(nameof(UseSmallIcons));
 
@@ -22,6 +25,12 @@ public partial class MinimapPanel : UserControl
     {
         get => GetValue(ItemsSourceProperty);
         set => SetValue(ItemsSourceProperty, value);
+    }
+
+    public IEnumerable? BuildingsSource
+    {
+        get => GetValue(BuildingsSourceProperty);
+        set => SetValue(BuildingsSourceProperty, value);
     }
 
     public bool UseSmallIcons
@@ -37,6 +46,8 @@ public partial class MinimapPanel : UserControl
         base.OnPropertyChanged(change);
         if (change.Property == ItemsSourceProperty)
             HeroesControl.ItemsSource = ItemsSource;
+        else if (change.Property == BuildingsSourceProperty)
+            BuildingsControl.ItemsSource = BuildingsSource;
         else if (change.Property == UseSmallIconsProperty)
             RefreshTemplate();
     }
@@ -45,6 +56,7 @@ public partial class MinimapPanel : UserControl
     {
         base.OnLoaded(e);
         HeroesControl.ItemsSource = ItemsSource;
+        BuildingsControl.ItemsSource = BuildingsSource;
         RefreshTemplate();
     }
 

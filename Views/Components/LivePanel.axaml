@@ -70,6 +70,7 @@
                                     <!-- Small minimap -->
                                     <Viewbox Grid.Column="0" Width="140" Height="140" Stretch="Uniform">
                                         <components:MinimapPanel ItemsSource="{Binding Heroes}"
+                                                                  BuildingsSource="{Binding Buildings}"
                                                                   UseSmallIcons="True"/>
                                     </Viewbox>
 
@@ -215,6 +216,7 @@
                         <Viewbox Grid.Column="1" Margin="12,28,12,0"
                                  VerticalAlignment="Top" Stretch="Uniform" MaxHeight="364">
                             <components:MinimapPanel ItemsSource="{Binding SelectedMatch.Heroes}"
+                                                      BuildingsSource="{Binding SelectedMatch.Buildings}"
                                                       UseSmallIcons="False"/>
                         </Viewbox>
 

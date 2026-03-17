@@ -8,6 +8,23 @@
 
     <UserControl.Resources>
         <util:TeamColorConverter x:Key="TeamColorConverter"/>
+        <util:BuildingSizeConverter x:Key="BuildingSizeConverter"/>
+
+        <util:BuildingFillConverter x:Key="BuildingFillConverter"/>
+
+        <DataTemplate x:Key="BuildingTemplate" x:DataType="vm:BuildingOnMapViewModel">
+            <Border HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Margin="{Binding Margin}"
+                    Width="{Binding Type, Converter={StaticResource BuildingSizeConverter}}"
+                    Height="{Binding Type, Converter={StaticResource BuildingSizeConverter}}"
+                    BorderThickness="1"
+                    BorderBrush="#1c2024"
+                    Background="{Binding Team, Converter={StaticResource BuildingFillConverter}}">
+                <Border.RenderTransform>
+                    <RotateTransform Angle="{Binding Tilt, Converter={x:Static util:BoolToRotationConverter.Instance}}"/>
+                </Border.RenderTransform>
+            </Border>
+        </DataTemplate>
 
         <!-- Large icons (detail panel): 28px, binds HeroMargin -->
         <DataTemplate x:Key="LargeIconTemplate" x:DataType="vm:HeroOnMapViewModel">
@@ -52,6 +69,13 @@
         <asyncImageLoader:AdvancedImage
             Source="https://dotaclassic.ru/minimap.webp"
             Width="320" Height="320" Stretch="Fill"/>
+        <ItemsControl x:Name="BuildingsControl" ItemTemplate="{StaticResource BuildingTemplate}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Panel Width="320" Height="320" IsHitTestVisible="False"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
         <ItemsControl x:Name="HeroesControl">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
