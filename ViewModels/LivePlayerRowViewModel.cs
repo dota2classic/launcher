@@ -20,15 +20,16 @@ public partial class LivePlayerRowViewModel : ObservableObject
     [ObservableProperty] private double _healthPercent;
     [ObservableProperty] private IReadOnlyList<string?> _itemUrls = [null, null, null, null, null, null];
 
-    // doubles for KDA bar proportions
-    public double KillsD   => Kills;
-    public double DeathsD  => Deaths;
-    public double AssistsD => Assists;
+    // doubles for KDA bar proportions — must be notified when the int properties change
+    [ObservableProperty] private double _killsD;
+    [ObservableProperty] private double _deathsD;
+    [ObservableProperty] private double _assistsD;
 
     public LivePlayerRowViewModel(MatchSlotInfo slot)
     {
         SteamId = slot.User.SteamId;
-        var isBot = long.TryParse(slot.User.SteamId, out var sid) && sid <= 10;
+        long.TryParse(slot.User.SteamId, out var sid);
+        var isBot = slot.HeroData?.Bot == true || sid <= 10;
         Name = isBot ? $"Бот #{sid + 1}" : slot.User.Name;
         UpdateFrom(slot);
     }
@@ -51,6 +52,9 @@ public partial class LivePlayerRowViewModel : ObservableObject
         Kills = (int)(slot.HeroData?.Kills ?? 0);
         Deaths = (int)(slot.HeroData?.Deaths ?? 0);
         Assists = (int)(slot.HeroData?.Assists ?? 0);
+        KillsD = Kills;
+        DeathsD = Deaths;
+        AssistsD = Assists;
         Level = (int)(slot.HeroData?.Level ?? 0);
         IsDead = (slot.HeroData?.Respawn_time ?? 0) > 0;
         KdaText = $"{Kills} / {Deaths} / {Assists}";

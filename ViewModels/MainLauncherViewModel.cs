@@ -164,6 +164,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         FireAndForget(Chat.StartAsync(), "Chat.StartAsync");
         Profile = new ProfileViewModel(backendApiService);
         Live = new LiveViewModel(backendApiService);
+        Live.OnSpectate = matchId => Launch.SpectateMatch((int)matchId);
 
         _soundCoordinator = new SocketSoundCoordinator(queueSocketService, NotificationArea, windowService);
 

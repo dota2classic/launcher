@@ -45,10 +45,13 @@ public partial class HeroOnMapViewModel : ObservableObject
         IsDead = isDead;
     }
 
-    private static string ResolveShortName(string heroName) =>
-        heroName.StartsWith("npc_dota_hero_", System.StringComparison.Ordinal)
+    private static string ResolveShortName(string? heroName)
+    {
+        if (string.IsNullOrEmpty(heroName)) return "";
+        return heroName.StartsWith("npc_dota_hero_", System.StringComparison.Ordinal)
             ? heroName["npc_dota_hero_".Length..]
             : heroName;
+    }
 
     private static double Remap(double v) => v * 0.90 + 0.06;
     private static Thickness ComputeMargin(double posX, double posY, double iconSize)

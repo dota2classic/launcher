@@ -41,24 +41,7 @@ public partial class LiveMatchCardViewModel : ObservableObject
         { 7, "Ошибка загрузки" },
     };
 
-    private static readonly Dictionary<int, string> MatchmakingModeNames = new()
-    {
-        { 0, "Рейтинг" },
-        { 1, "Обычная 5х5" },
-        { 2, "1х1 мид" },
-        { 3, "Diretide" },
-        { 4, "Гряволы" },
-        { 5, "Ability Draft" },
-        { 6, "Турнир" },
-        { 7, "Против ботов" },
-        { 8, "Highroom 5x5" },
-        { 10, "Captains Mode" },
-        { 11, "Лобби" },
-        { 12, "2х2 с ботами" },
-        { 13, "Турбо" },
-    };
-
-    public int MatchId { get; }
+    public long MatchId { get; }
 
     [ObservableProperty] private string _duration = "0:00";
     [ObservableProperty] private int _playerCount;
@@ -73,7 +56,7 @@ public partial class LiveMatchCardViewModel : ObservableObject
     public ObservableCollection<LivePlayerRowViewModel> RadiantPlayers { get; } = [];
     public ObservableCollection<LivePlayerRowViewModel> DirePlayers { get; } = [];
 
-    public LiveMatchCardViewModel(int matchId)
+    public LiveMatchCardViewModel(long matchId)
     {
         MatchId = matchId;
         Title = $"Матч {matchId}";
@@ -89,7 +72,8 @@ public partial class LiveMatchCardViewModel : ObservableObject
         foreach (var slot in dto.Heroes)
         {
             if (slot.HeroData == null) continue;
-            var id = slot.User.SteamId;
+            var id = slot.User?.SteamId;
+            if (string.IsNullOrEmpty(id)) continue;
             presentIds.Add(id);
             var existing = Heroes.FirstOrDefault(h => h.SteamId == id);
             if (existing != null)
@@ -104,9 +88,10 @@ public partial class LiveMatchCardViewModel : ObservableObject
 
         // Update player rows in place
         int radiantKills = 0, direKills = 0;
-        foreach (var slot in dto.Heroes.OrderBy(s => s.User.Name))
+        foreach (var slot in dto.Heroes.OrderBy(s => s.User?.Name))
         {
-            var id = slot.User.SteamId;
+            var id = slot.User?.SteamId;
+            if (string.IsNullOrEmpty(id)) continue;
             var team = (int)slot.Team;
             var collection = team == 2 ? RadiantPlayers : team == 3 ? DirePlayers : null;
             if (collection == null) continue;
@@ -139,10 +124,7 @@ public partial class LiveMatchCardViewModel : ObservableObject
         Server = dto.Server;
 
         var gameModeName = GameModeNames.TryGetValue((int)dto.GameMode, out var gmn) ? gmn : $"Режим {(int)dto.GameMode}";
-        var mmName = string.IsNullOrWhiteSpace(matchmakingModeName) || matchmakingModeName.StartsWith("Режим ")
-            ? MatchmakingModeNames.TryGetValue((int)dto.MatchmakingMode, out var mmn) ? mmn : matchmakingModeName
-            : matchmakingModeName;
-        ModeLabel = $"{mmName}, {gameModeName}";
+        ModeLabel = $"{matchmakingModeName}, {gameModeName}";
 
         var stateLabel = GameStateLabels.TryGetValue((int)dto.GameState, out var sl) ? sl : "Игра идет";
         GameStateLabel = stateLabel;

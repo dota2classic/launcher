@@ -1,9 +1,11 @@
+using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using d2c_launcher.Models;
+using d2c_launcher.Util;
 
 namespace d2c_launcher.Views.Components;
 
@@ -24,7 +26,7 @@ public class HeroMinimapIcon : Control
             using var stream = AssetLoader.Open(uri);
             Sheet = new Bitmap(stream);
         }
-        catch { /* sheet missing — icons simply won't render */ }
+        catch (Exception ex) { AppLog.Error("HeroMinimapIcon: failed to load minimap spritesheet", ex); }
     }
 
     public static readonly StyledProperty<string?> HeroNameProperty =

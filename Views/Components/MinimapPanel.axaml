@@ -1,0 +1,64 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:d2c_launcher.ViewModels"
+             xmlns:util="using:d2c_launcher.Util"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:components="using:d2c_launcher.Views.Components"
+             x:Class="d2c_launcher.Views.Components.MinimapPanel">
+
+    <UserControl.Resources>
+        <util:TeamColorConverter x:Key="TeamColorConverter"/>
+
+        <!-- Large icons (detail panel): 28px, binds HeroMargin -->
+        <DataTemplate x:Key="LargeIconTemplate" x:DataType="vm:HeroOnMapViewModel">
+            <Border Width="28" Height="28"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Margin="{Binding HeroMargin}">
+                <Border.Transitions>
+                    <Transitions>
+                        <ThicknessTransition Property="Margin" Duration="0:0:1" Easing="CubicEaseInOut"/>
+                    </Transitions>
+                </Border.Transitions>
+                <components:HeroMinimapIcon HeroName="{Binding HeroShortName}">
+                    <components:HeroMinimapIcon.Effect>
+                        <DropShadowEffect BlurRadius="8" OffsetX="0" OffsetY="0"
+                                          Color="{Binding Team, Converter={StaticResource TeamColorConverter}}"/>
+                    </components:HeroMinimapIcon.Effect>
+                </components:HeroMinimapIcon>
+            </Border>
+        </DataTemplate>
+
+        <!-- Small icons (sidebar card): 64px canvas units, binds SmallHeroMargin -->
+        <DataTemplate x:Key="SmallIconTemplate" x:DataType="vm:HeroOnMapViewModel">
+            <Border Width="64" Height="64"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Margin="{Binding SmallHeroMargin}">
+                <Border.Transitions>
+                    <Transitions>
+                        <ThicknessTransition Property="Margin" Duration="0:0:1" Easing="CubicEaseInOut"/>
+                    </Transitions>
+                </Border.Transitions>
+                <components:HeroMinimapIcon HeroName="{Binding HeroShortName}">
+                    <components:HeroMinimapIcon.Effect>
+                        <DropShadowEffect BlurRadius="8" OffsetX="0" OffsetY="0"
+                                          Color="{Binding Team, Converter={StaticResource TeamColorConverter}}"/>
+                    </components:HeroMinimapIcon.Effect>
+                </components:HeroMinimapIcon>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Panel Width="320" Height="320">
+        <asyncImageLoader:AdvancedImage
+            Source="https://dotaclassic.ru/minimap.webp"
+            Width="320" Height="320" Stretch="Fill"/>
+        <ItemsControl x:Name="HeroesControl">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Panel Width="320" Height="320" IsHitTestVisible="False"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+    </Panel>
+
+</UserControl>

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using d2c_launcher.Services;
 using d2c_launcher.Util;
 
@@ -16,11 +17,16 @@ public partial class LiveViewModel : ObservableObject, IDisposable
     private readonly IBackendApiService _backendApiService;
     private readonly DispatcherTimer _pollTimer;
 
+    /// <summary>Called when the user clicks "Spectate" on the selected match.</summary>
+    public Action<long>? OnSpectate { get; set; }
+
     private Dictionary<int, string> _modeNames = new();
 
     [ObservableProperty] private LiveMatchCardViewModel? _selectedMatch;
     [ObservableProperty] private bool _isLoading = true;
     [ObservableProperty] private bool _hasNoMatches;
+
+    private bool _isRefreshing;
 
     public ObservableCollection<LiveMatchCardViewModel> Matches { get; } = [];
 
@@ -28,8 +34,12 @@ public partial class LiveViewModel : ObservableObject, IDisposable
     {
         _backendApiService = backendApiService;
         _pollTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
-        _pollTimer.Tick += (_, _) => FireAndForget(RefreshListAsync(), "LiveViewModel.RefreshListAsync");
-        _pollTimer.Start();
+        _pollTimer.Tick += (_, _) =>
+        {
+            if (!_isRefreshing)
+                FireAndForget(RefreshListAsync(), "LiveViewModel.RefreshListAsync");
+        };
+        // Timer starts only after InitAsync so mode names are populated before first refresh
         FireAndForget(InitAsync(), "LiveViewModel.InitAsync");
     }
 
@@ -46,33 +56,35 @@ public partial class LiveViewModel : ObservableObject, IDisposable
             AppLog.Error("LiveViewModel.InitAsync (modes)", ex);
         }
         await RefreshListAsync();
+        _pollTimer.Start();
     }
 
-    private string ResolveModeNane(int modeId) =>
+    private string ResolveModeNamе(int modeId) =>
         _modeNames.TryGetValue(modeId, out var name) ? name : $"Режим {modeId}";
 
     private async Task RefreshListAsync()
     {
+        _isRefreshing = true;
         try
         {
             var matches = await _backendApiService.GetLiveMatchesAsync();
             IsLoading = false;
 
-            var liveIds = matches.Select(m => (int)m.MatchId).ToHashSet();
+            var liveIds = matches.Select(m => (long)m.MatchId).ToHashSet();
             for (int i = Matches.Count - 1; i >= 0; i--)
                 if (!liveIds.Contains(Matches[i].MatchId))
                     Matches.RemoveAt(i);
 
             foreach (var dto in matches)
             {
-                var id = (int)dto.MatchId;
+                var id = (long)dto.MatchId;
                 var card = Matches.FirstOrDefault(m => m.MatchId == id);
                 if (card == null)
                 {
                     card = new LiveMatchCardViewModel(id);
                     Matches.Add(card);
                 }
-                card.UpdateFrom(dto, ResolveModeNane((int)dto.MatchmakingMode));
+                card.UpdateFrom(dto, ResolveModeNamе((int)dto.MatchmakingMode));
             }
 
             HasNoMatches = Matches.Count == 0;
@@ -87,8 +99,19 @@ public partial class LiveViewModel : ObservableObject, IDisposable
             AppLog.Error("LiveViewModel.RefreshListAsync", ex);
             IsLoading = false;
         }
+        finally
+        {
+            _isRefreshing = false;
+        }
     }
 
+
+    [RelayCommand]
+    private void SpectateSelectedMatch()
+    {
+        if (SelectedMatch == null) return;
+        OnSpectate?.Invoke(SelectedMatch.MatchId);
+    }
 
     private static async void FireAndForget(Task task, string context)
     {

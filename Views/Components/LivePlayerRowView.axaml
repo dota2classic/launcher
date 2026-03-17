@@ -1,0 +1,55 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:d2c_launcher.ViewModels"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:components="using:d2c_launcher.Views.Components"
+             x:Class="d2c_launcher.Views.Components.LivePlayerRowView"
+             x:DataType="vm:LivePlayerRowViewModel">
+
+    <Border Background="#0a0e14" Margin="0,1" Padding="6,5">
+        <Grid RowDefinitions="Auto,5,Auto">
+            <Grid x:Name="TopRow" Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
+
+                <!-- col 0: hero image (Radiant) or KDA (Dire) -->
+                <Panel x:Name="HeroPanel" Grid.Column="0" Width="57" Height="32" Margin="0,0,8,0"
+                       ClipToBounds="True">
+                    <asyncImageLoader:AdvancedImage
+                        Source="{Binding HeroImageUrl}"
+                        Width="57" Height="32" Stretch="UniformToFill"/>
+                    <Border Background="#dd000000"
+                            HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                            Padding="2,0">
+                        <TextBlock Text="{Binding Level}"
+                                   FontSize="8" FontWeight="Bold"
+                                   Foreground="#d0e0f0"/>
+                    </Border>
+                </Panel>
+
+                <!-- col 1: name -->
+                <TextBlock x:Name="NameBlock" Grid.Column="1"
+                           Text="{Binding Name}"
+                           FontSize="12" FontWeight="SemiBold"
+                           Foreground="#d8e8f4"
+                           TextTrimming="CharacterEllipsis"
+                           VerticalAlignment="Center"/>
+
+                <!-- col 2: KDA (Radiant) or hero image (Dire) -->
+                <StackPanel x:Name="KdaPanel" Grid.Column="2" Spacing="2" VerticalAlignment="Center"
+                            HorizontalAlignment="Right" Margin="8,0,0,0">
+                    <TextBlock Text="{Binding KdaText}"
+                               FontSize="9" Foreground="#8899aa"
+                               HorizontalAlignment="Right"/>
+                    <components:KdaBar Kills="{Binding KillsD}"
+                                        Deaths="{Binding DeathsD}"
+                                        Assists="{Binding AssistsD}"
+                                        Height="3" Width="50"/>
+                </StackPanel>
+
+            </Grid>
+            <components:DotaItemRow x:Name="ItemRow" Grid.Row="2"
+                                     ItemUrls="{Binding ItemUrls}"
+                                     ItemWidth="34" ItemHeight="24"/>
+        </Grid>
+    </Border>
+
+</UserControl>

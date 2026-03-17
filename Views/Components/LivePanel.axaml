@@ -1,15 +1,9 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:d2c_launcher.ViewModels"
-             xmlns:util="using:d2c_launcher.Util"
-             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              xmlns:components="using:d2c_launcher.Views.Components"
              x:Class="d2c_launcher.Views.Components.LivePanel"
              x:DataType="vm:LiveViewModel">
-
-    <UserControl.Resources>
-        <util:TeamColorConverter x:Key="TeamColorConverter"/>
-    </UserControl.Resources>
 
     <Grid ColumnDefinitions="350,*">
 
@@ -75,40 +69,8 @@
 
                                     <!-- Small minimap -->
                                     <Viewbox Grid.Column="0" Width="140" Height="140" Stretch="Uniform">
-                                    <Panel Width="320" Height="320" ClipToBounds="True">
-                                        <asyncImageLoader:AdvancedImage
-                                            Source="https://dotaclassic.ru/minimap.webp"
-                                            Width="320" Height="320" Stretch="Fill"/>
-                                        <ItemsControl ItemsSource="{Binding Heroes}">
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <Panel Width="320" Height="320" IsHitTestVisible="False"/>
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate x:DataType="vm:HeroOnMapViewModel">
-                                                    <Border Width="64" Height="64"
-                                                            HorizontalAlignment="Left" VerticalAlignment="Top"
-                                                            Margin="{Binding SmallHeroMargin}">
-                                                        <Border.Transitions>
-                                                            <Transitions>
-                                                                <ThicknessTransition Property="Margin"
-                                                                                      Duration="0:0:1"
-                                                                                      Easing="CubicEaseInOut"/>
-                                                            </Transitions>
-                                                        </Border.Transitions>
-                                                        <components:HeroMinimapIcon
-                                                            HeroName="{Binding HeroShortName}">
-                                                            <components:HeroMinimapIcon.Effect>
-                                                                <DropShadowEffect BlurRadius="8" OffsetX="0" OffsetY="0"
-                                                                                  Color="{Binding Team, Converter={StaticResource TeamColorConverter}}"/>
-                                                            </components:HeroMinimapIcon.Effect>
-                                                        </components:HeroMinimapIcon>
-                                                    </Border>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </Panel>
+                                        <components:MinimapPanel ItemsSource="{Binding Heroes}"
+                                                                  UseSmallIcons="True"/>
                                     </Viewbox>
 
                                     <!-- Info -->
@@ -183,6 +145,15 @@
                         </StackPanel>
                         <StackPanel Grid.Column="1" Spacing="6" HorizontalAlignment="Right"
                                     VerticalAlignment="Center" Orientation="Horizontal">
+                            <Button Content="СМОТРЕТЬ"
+                                    Command="{Binding $parent[UserControl].((vm:LiveViewModel)DataContext).SpectateSelectedMatchCommand}"
+                                    Padding="14,8"
+                                    FontSize="11" FontWeight="Bold"
+                                    Foreground="#d8e8f4"
+                                    Background="#1a3a5a"
+                                    CornerRadius="3"
+                                    Cursor="Hand"/>
+                            <Border Width="1" Background="#1a2a3a" Margin="4,4"/>
                             <StackPanel Spacing="2">
                                 <TextBlock Text="СЧЁТ"
                                            FontSize="9" FontWeight="Bold" LetterSpacing="2"
@@ -234,44 +205,7 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:LivePlayerRowViewModel">
-                                        <Border Background="#0a0e14" Margin="0,1" Padding="6,5">
-                                            <Grid RowDefinitions="Auto,5,Auto">
-                                                <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
-                                                    <Panel Grid.Column="0" Width="57" Height="32" Margin="0,0,8,0"
-                                                           ClipToBounds="True">
-                                                        <asyncImageLoader:AdvancedImage
-                                                            Source="{Binding HeroImageUrl}"
-                                                            Width="57" Height="32" Stretch="UniformToFill"/>
-                                                        <Border Background="#dd000000"
-                                                                HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                                                                Padding="2,0">
-                                                            <TextBlock Text="{Binding Level}"
-                                                                       FontSize="8" FontWeight="Bold"
-                                                                       Foreground="#d0e0f0"/>
-                                                        </Border>
-                                                    </Panel>
-                                                    <TextBlock Grid.Column="1"
-                                                                   Text="{Binding Name}"
-                                                                   FontSize="12" FontWeight="SemiBold"
-                                                                   Foreground="#d8e8f4"
-                                                                   TextTrimming="CharacterEllipsis"
-                                                                   VerticalAlignment="Center"/>
-                                                    <StackPanel Grid.Column="2" Spacing="2" VerticalAlignment="Center"
-                                                                HorizontalAlignment="Right" Margin="8,0,0,0">
-                                                        <TextBlock Text="{Binding KdaText}"
-                                                                   FontSize="9" Foreground="#8899aa"
-                                                                   HorizontalAlignment="Right"/>
-                                                        <components:KdaBar Kills="{Binding KillsD}"
-                                                                            Deaths="{Binding DeathsD}"
-                                                                            Assists="{Binding AssistsD}"
-                                                                            Height="3" Width="50"/>
-                                                    </StackPanel>
-                                                </Grid>
-                                                <components:DotaItemRow Grid.Row="2"
-                                                                         ItemUrls="{Binding ItemUrls}"
-                                                                         ItemWidth="34" ItemHeight="24"/>
-                                            </Grid>
-                                        </Border>
+                                        <components:LivePlayerRowView MirrorLayout="False"/>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
@@ -280,40 +214,8 @@
                         <!-- ── Minimap ──────────────────────────── -->
                         <Viewbox Grid.Column="1" Margin="12,28,12,0"
                                  VerticalAlignment="Top" Stretch="Uniform" MaxHeight="364">
-                        <Panel Width="320" Height="320">
-                            <asyncImageLoader:AdvancedImage
-                                Source="https://dotaclassic.ru/minimap.webp"
-                                Width="320" Height="320" Stretch="Fill"/>
-                            <ItemsControl ItemsSource="{Binding SelectedMatch.Heroes}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <Panel Width="320" Height="320" IsHitTestVisible="False"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="vm:HeroOnMapViewModel">
-                                        <Border Width="28" Height="28"
-                                                HorizontalAlignment="Left" VerticalAlignment="Top"
-                                                Margin="{Binding HeroMargin}">
-                                            <Border.Transitions>
-                                                <Transitions>
-                                                    <ThicknessTransition Property="Margin"
-                                                                          Duration="0:0:1"
-                                                                          Easing="CubicEaseInOut"/>
-                                                </Transitions>
-                                            </Border.Transitions>
-                                            <components:HeroMinimapIcon
-                                                HeroName="{Binding HeroShortName}">
-                                                <components:HeroMinimapIcon.Effect>
-                                                    <DropShadowEffect BlurRadius="8" OffsetX="0" OffsetY="0"
-                                                                      Color="{Binding Team, Converter={StaticResource TeamColorConverter}}"/>
-                                                </components:HeroMinimapIcon.Effect>
-                                            </components:HeroMinimapIcon>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </Panel>
+                            <components:MinimapPanel ItemsSource="{Binding SelectedMatch.Heroes}"
+                                                      UseSmallIcons="False"/>
                         </Viewbox>
 
                         <!-- ── Dire ────────────────────────────── -->
@@ -338,50 +240,12 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:LivePlayerRowViewModel">
-                                        <Border Background="#0a0e14" Margin="0,1" Padding="6,5">
-                                            <Grid RowDefinitions="Auto,5,Auto">
-                                                <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
-                                                    <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center"
-                                                                HorizontalAlignment="Left" Margin="0,0,8,0">
-                                                        <TextBlock Text="{Binding KdaText}"
-                                                                   FontSize="9" Foreground="#8899aa"
-                                                                   HorizontalAlignment="Left"/>
-                                                        <components:KdaBar Kills="{Binding KillsD}"
-                                                                            Deaths="{Binding DeathsD}"
-                                                                            Assists="{Binding AssistsD}"
-                                                                            Height="3" Width="50"/>
-                                                    </StackPanel>
-                                                    <TextBlock Grid.Column="1"
-                                                               Text="{Binding Name}"
-                                                               FontSize="12" FontWeight="SemiBold"
-                                                               Foreground="#d8e8f4"
-                                                               TextTrimming="CharacterEllipsis"
-                                                               HorizontalAlignment="Right"
-                                                               VerticalAlignment="Center"/>
-                                                    <Panel Grid.Column="2" Width="57" Height="32" Margin="8,0,0,0"
-                                                           ClipToBounds="True">
-                                                        <asyncImageLoader:AdvancedImage
-                                                            Source="{Binding HeroImageUrl}"
-                                                            Width="57" Height="32" Stretch="UniformToFill"/>
-                                                        <Border Background="#dd000000"
-                                                                HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                                                                Padding="2,0">
-                                                            <TextBlock Text="{Binding Level}"
-                                                                       FontSize="8" FontWeight="Bold"
-                                                                       Foreground="#d0e0f0"/>
-                                                        </Border>
-                                                    </Panel>
-                                                </Grid>
-                                                <components:DotaItemRow Grid.Row="2"
-                                                                         ItemUrls="{Binding ItemUrls}"
-                                                                         ItemWidth="34" ItemHeight="24"
-                                                                         HorizontalAlignment="Right"/>
-                                            </Grid>
-                                        </Border>
+                                        <components:LivePlayerRowView MirrorLayout="True"/>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                         </Grid>
+
                     </Grid>
                 </ScrollViewer>
             </Grid>
