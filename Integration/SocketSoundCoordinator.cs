@@ -18,6 +18,8 @@ public sealed class SocketSoundCoordinator : IDisposable
     private readonly Action<PlayerRoomStateMessage?> _onPlayerRoomFound;
     private readonly Action<PlayerGameStateMessage?> _onPlayerGameStateUpdated;
 
+    private string? _lastServerUrl;
+
     public SocketSoundCoordinator(
         IQueueSocketService queueSocketService,
         NotificationAreaViewModel notificationArea,
@@ -39,8 +41,10 @@ public sealed class SocketSoundCoordinator : IDisposable
         };
         _onPlayerGameStateUpdated = msg =>
         {
-            if (!string.IsNullOrEmpty(msg?.ServerUrl))
+            var serverUrl = msg?.ServerUrl;
+            if (!string.IsNullOrEmpty(serverUrl) && serverUrl != _lastServerUrl)
             {
+                _lastServerUrl = serverUrl;
                 SoundPlayer.Play("ready_check_no_focus.wav");
                 Dispatcher.UIThread.Post(windowService.ShowAndActivate);
             }
