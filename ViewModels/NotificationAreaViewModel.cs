@@ -45,6 +45,10 @@ public sealed class NotificationAreaViewModel
     public void AddToast(string message, int displaySeconds = 4) =>
         AddNotification(new SimpleToastViewModel(message, displaySeconds));
 
+    /// <summary>Shows a GO_QUEUE toast with a title and body line.</summary>
+    public void AddGoQueueToast(string title, string content) =>
+        AddNotification(new GoQueueToastViewModel(title, content));
+
     /// <summary>Shows the "corrupted files" toast with a verify-integrity button.</summary>
     public void AddCorruptedFilesToast(Action onVerify) =>
         AddNotification(new CorruptedFilesToastViewModel(onVerify));

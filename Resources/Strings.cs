@@ -172,6 +172,8 @@ public static class Strings
     public static string AfterSpell => "После заклинания";
     public static string SelectDotaExe => "Выберите dota.exe";
     public static string SelectAtLeastOneMode => "Выберите хотя бы один режим игры для поиска";
+    public static string GoQueueTitle => "Давай поиграем в {0}";
+    public static string GoQueueContent => "В поиске уже {0} игроков!";
     public static string HeroPicking => "Выбор героев";
     public static string FolderNotDotaclassic => "Выбранная папка не является Dotaclassic.";
     public static string WrongPatchVersionFormat => "Выбранная папка содержит другой патч Dota 2 (версия {0}). Dotaclassic использует патч 6.84. Выберите правильную папку или скачайте игру заново.";

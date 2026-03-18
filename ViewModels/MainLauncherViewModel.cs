@@ -37,7 +37,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     /// <summary>Called when the user requests game re-verification (e.g. after corrupted files detected).</summary>
     public Action? RequestReverify { get; set; }
     private readonly DispatcherTimer _onlineStatsTimer;
-    private readonly SocketSoundCoordinator _soundCoordinator;
+    private readonly SocketEventCoordinator _soundCoordinator;
     private readonly Action<OnlineUpdateMessage> _onlineUpdatedHandler;
     private readonly Action<User?> _onUserUpdatedHandler;
     private readonly Action<string?> _tokenAppliedHandler;
@@ -173,7 +173,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Live.OnSpectate = matchId => Launch.SpectateMatch((int)matchId);
         Live.OnOpenProfile = steam32Id => OpenPlayerProfile(steam32Id);
 
-        _soundCoordinator = new SocketSoundCoordinator(queueSocketService, NotificationArea, windowService);
+        _soundCoordinator = new SocketEventCoordinator(queueSocketService, NotificationArea, windowService,
+            mode => Queue.MatchmakingModes.FirstOrDefault(m => m.ModeId == (int)mode)?.Name ?? mode.ToString());
 
         Launch.PropertyChanged += (_, e) =>
         {

@@ -157,6 +157,36 @@
                </Border>
            </DataTemplate>
 
+           <!-- GO_QUEUE toast (titled) -->
+           <DataTemplate DataType="vm:GoQueueToastViewModel">
+               <Border Classes="ToastShell" Classes.closing="{Binding IsClosing}">
+                   <Grid RowDefinitions="Auto,3">
+                       <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="14,10,14,10">
+                           <StackPanel Grid.Column="0" Spacing="3">
+                               <TextBlock Text="{Binding Title}"
+                                          Foreground="#FFFFFF"
+                                          FontSize="{DynamicResource FontSizeSM}"
+                                          FontWeight="SemiBold"
+                                          TextWrapping="Wrap"/>
+                               <TextBlock Text="{Binding Content}"
+                                          Foreground="#BBBBBB"
+                                          FontSize="{DynamicResource FontSizeXS}"
+                                          TextWrapping="Wrap"/>
+                           </StackPanel>
+                           <Button Grid.Column="1"
+                                   Content="✕"
+                                   Command="{Binding DismissCommand}"
+                                   Background="Transparent" Foreground="#535252"
+                                   FontSize="{DynamicResource FontSizeSM}"
+                                   BorderThickness="0" Padding="0" Margin="10,0,0,0"
+                                   VerticalAlignment="Top" HorizontalAlignment="Right"
+                                   Cursor="Hand"/>
+                       </Grid>
+                       <components:ToastTimerBar Grid.Row="1"/>
+                   </Grid>
+               </Border>
+           </DataTemplate>
+
            <!-- Simple text toast -->
            <DataTemplate DataType="vm:SimpleToastViewModel">
                <Border Classes="ToastShell" Classes.closing="{Binding IsClosing}">
