@@ -161,15 +161,52 @@ public class SteamManager : ISteamManager
 
     private static bool IsSteamProcessRunning()
     {
-        var processes = Process.GetProcessesByName("steam");
         try
         {
-            return processes.Length > 0;
+            using var key = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam\ActiveProcess", false);
+            var rawPid = key?.GetValue("pid");
+            var regPid = rawPid switch
+            {
+                int i => i,
+                uint u => (int)u,
+                long l => (int)l,
+                _ => 0
+            };
+
+            string? pidProcessName = null;
+            var pidProcessAlive = false;
+            if (regPid != 0)
+            {
+                try
+                {
+                    var proc = Process.GetProcessById(regPid);
+                    pidProcessAlive = true;
+                    pidProcessName = proc.ProcessName;
+                }
+                catch (ArgumentException)
+                {
+                    // Process with that PID doesn't exist
+                }
+            }
+
+            var newResult = pidProcessAlive &&
+                            pidProcessName != null &&
+                            pidProcessName.Equals("steam", StringComparison.OrdinalIgnoreCase);
+
+            // Log when old detection (process name) and new detection (registry pid) would diverge
+            var processes = Process.GetProcessesByName("steam");
+            var oldResult = processes.Length > 0;
+            foreach (var p in processes) p.Dispose();
+
+            if (oldResult != newResult)
+                AppLog.Warn($"[SteamManager] steam_detect divergence: old_by_name={oldResult} reg_pid={regPid} pid_alive={pidProcessAlive} pid_process_name={pidProcessName ?? "n/a"} new_by_pid={newResult}");
+
+            return newResult;
         }
-        finally
+        catch (Exception ex)
         {
-            foreach (var process in processes)
-                process.Dispose();
+            AppLog.Error($"[SteamManager] Steam detection failed: {ex.Message}");
+            return false;
         }
     }
 

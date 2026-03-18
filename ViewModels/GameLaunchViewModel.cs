@@ -164,7 +164,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
                 AppLog.Error($"GameLaunchViewModel: dota.exe exited with code {exitCode}");
                 var tail = TailConsoleLog(gameDirectory);
                 if (tail.Length > 0)
-                    AppLog.Error($"GameLaunchViewModel: console.log tail:\n{string.Join("\n", tail)}");
+                    AppLog.Warn($"GameLaunchViewModel: console.log tail:\n{string.Join("\n", tail)}");
                 else
                     AppLog.Error("GameLaunchViewModel: console.log not found or empty");
             }

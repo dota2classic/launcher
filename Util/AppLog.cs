@@ -15,6 +15,12 @@ public static class AppLog
         FaroTelemetryService.TrackLog("info", message);
     }
 
+    public static void Warn(string message, Exception? ex = null)
+    {
+        Write("WARN", message, ex);
+        FaroTelemetryService.TrackLog("warn", message);
+    }
+
     public static void Error(string message, Exception? ex = null)
     {
         Write("ERR", message, ex);
