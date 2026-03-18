@@ -232,9 +232,9 @@ public class SteamManager : ISteamManager
         var outputTask = process.StandardOutput.ReadToEndAsync();
         var stderrTask = process.StandardError.ReadToEndAsync();
 
-        // Give bridge up to 12 s (auth ticket callback can take up to 8 s).
+        // Give bridge up to 15 s: auth ticket up to 8 s + backend HTTP call up to 4 s + buffer.
         using var killCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-        killCts.CancelAfter(TimeSpan.FromSeconds(12));
+        killCts.CancelAfter(TimeSpan.FromSeconds(15));
 
         try
         {

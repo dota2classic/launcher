@@ -100,7 +100,7 @@ internal static class Program
     {
         try
         {
-            using var http = new HttpClient { BaseAddress = new Uri(BackendBaseUrl), Timeout = TimeSpan.FromSeconds(10) };
+            using var http = new HttpClient { BaseAddress = new Uri(BackendBaseUrl), Timeout = TimeSpan.FromSeconds(4) };
             var url = "v1/auth/steam/steam_session_ticket?ticket=" + Uri.EscapeDataString(ticketHex);
             using var request = new HttpRequestMessage(HttpMethod.Post, url);
             using var response = http.Send(request);
