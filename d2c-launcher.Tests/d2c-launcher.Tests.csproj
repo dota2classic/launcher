@@ -40,6 +40,8 @@
     <Compile Include="..\Util\ChatGrouper.cs" Link="Util\ChatGrouper.cs" />
     <!-- Game directory validation (pure static logic, no Avalonia deps) -->
     <Compile Include="..\Services\GameDirectoryValidator.cs" Link="Services\GameDirectoryValidator.cs" />
+    <!-- Localized strings (needed by GameDirectoryValidator) -->
+    <Compile Include="..\Resources\Strings.cs" Link="Resources\Strings.cs" />
     <!-- State machine (no Avalonia/Steamworks dependencies) -->
     <Compile Include="..\Models\SteamStatus.cs" Link="Models\SteamStatus.cs" />
     <Compile Include="..\Models\AppState.cs" Link="Models\AppState.cs" />
