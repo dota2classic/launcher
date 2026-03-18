@@ -196,7 +196,11 @@ public partial class MainWindowViewModel : ViewModelBase
                 DisposeCurrentVm();
                 var steamFirstVm = new LaunchSteamFirstViewModel
                 {
-                    TryAgainCallback = TransitionOnSteamUpdate,
+                    TryAgainCallback = () =>
+                    {
+                        _steamManager.ResetBridgeFailStreak();
+                        TransitionOnSteamUpdate();
+                    },
                     GetDiagnostics = CollectSteamDiagnostics
                 };
                 _steamManager.OnSteamPolled += steamFirstVm.FireCheck;

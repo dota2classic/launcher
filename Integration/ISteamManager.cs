@@ -17,4 +17,11 @@ public interface ISteamManager : IDisposable
     event Action? OnSteamPolled;
 
     void PollSteamState();
+
+    /// <summary>
+    /// Resets the bridge failure streak counter, allowing the monitor loop to
+    /// immediately retry with no backoff and re-evaluate Steam status.
+    /// Called when the user clicks "Try Again" on the Steam connection screen.
+    /// </summary>
+    void ResetBridgeFailStreak();
 }

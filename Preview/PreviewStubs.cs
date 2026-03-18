@@ -23,6 +23,7 @@ internal sealed class StubSteamManager : ISteamManager
     public event Action? OnSteamPolled;
 #pragma warning restore CS0067
     public void PollSteamState() { }
+    public void ResetBridgeFailStreak() { }
     public void Dispose() { }
 }
 

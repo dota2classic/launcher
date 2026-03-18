@@ -41,6 +41,11 @@ public class SteamManager : ISteamManager
         // Legacy no-op; state updates come from background monitor loop.
     }
 
+    public void ResetBridgeFailStreak()
+    {
+        _bridgeFailStreak = 0;
+    }
+
     private async Task MonitorLoop(CancellationToken ct)
     {
         while (!ct.IsCancellationRequested)
@@ -56,6 +61,16 @@ public class SteamManager : ISteamManager
                     : activeUser == 0
                         ? SteamStatus.Offline
                         : SteamStatus.Running;
+
+                // If the bridge keeps failing (e.g. SteamAPI.Init() returns false),
+                // fall back to the "Steam not running" screen after enough attempts
+                // so the user gets actionable UI (Try Again / Send Debug Info) instead
+                // of an infinite loading spinner.
+                if (nextStatus == SteamStatus.Running && _bridgeFailStreak >= 10)
+                {
+                    AppLog.Info($"[SteamManager] Bridge has failed {_bridgeFailStreak} times — falling back to Offline status so user can take action.");
+                    nextStatus = SteamStatus.Offline;
+                }
 
                 SetSteamStatus(nextStatus);
 
@@ -112,8 +127,10 @@ public class SteamManager : ISteamManager
                         SetUser(null);
                         SetAuthTicket(null);
 
-                        // Back off exponentially (1s, 2s, 4s, 8s, cap 30s) to avoid hammering Steam API.
-                        var backoffSeconds = Math.Min(30, (int)Math.Pow(2, _bridgeFailStreak - 1));
+                        // Back off exponentially (1s, 2s, 4s, cap 5s) to avoid hammering Steam API.
+                        // Keep the cap low — the user sees a "Connecting to Steam…" screen during this,
+                        // and a 30s gap between retries feels like the launcher is stuck.
+                        var backoffSeconds = Math.Min(5, (int)Math.Pow(2, _bridgeFailStreak - 1));
                         if (backoffSeconds > 1)
                         {
                             AppLog.Info($"[SteamManager] Backing off {backoffSeconds}s before next bridge query.");
