@@ -165,6 +165,19 @@ public static class PreviewRegistry
                 var vm = new NotificationAreaViewModel(new StubQueueSocketService());
                 return (new NotificationArea(), vm);
             },
+            ["PleaseGoQueue"] = () =>
+            {
+                var vm = new NotificationAreaViewModel(new StubQueueSocketService());
+                vm.AddGoQueueToast("🎮 Давай сыграем в Обычная 5x5!", "В поиске уже 4 игрока!");
+                var host = new Panel
+                {
+                    Width = 900,
+                    Height = 400,
+                    Background = new SolidColorBrush(Color.Parse("#1a1f26")),
+                };
+                host.Children.Add(new NotificationArea { DataContext = vm });
+                return (host, null);
+            },
             ["Loading"] = () =>
                 (new LoadingView(), new LoadingViewModel()),
             ["LaunchSteamFirst"] = () =>
