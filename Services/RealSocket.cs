@@ -47,10 +47,8 @@ public sealed class RealSocket : ISocket
     {
         _socket.On(eventName, response =>
         {
-            if (TryGetPayload(response, out T? payload) && payload != null)
+            if (TryGetPayload(eventName, response, out T? payload) && payload != null)
                 callback(payload);
-            else
-                AppLog.Error($"Socket event parse failed: {eventName}");
         });
     }
 
@@ -58,7 +56,7 @@ public sealed class RealSocket : ISocket
     {
         _socket.On(eventName, response =>
         {
-            TryGetPayload(response, out T? payload);
+            TryGetPayload(eventName, response, out T? payload);
             callback(payload);
         });
     }
@@ -70,7 +68,7 @@ public sealed class RealSocket : ISocket
 
     public void Dispose() => _socket.Dispose();
 
-    private static bool TryGetPayload<T>(SocketIOResponse response, out T? payload)
+    private static bool TryGetPayload<T>(string eventName, SocketIOResponse response, out T? payload)
     {
         try
         {
@@ -86,7 +84,7 @@ public sealed class RealSocket : ISocket
             }
             catch (Exception ex)
             {
-                AppLog.Error("Socket event parse failed", ex);
+                AppLog.Error($"Socket event parse failed: {eventName} | raw={response} | type={typeof(T).Name} | {ex}");
                 payload = default;
                 return false;
             }
