@@ -2,7 +2,10 @@
 
 Tooling and process for patching `client.dll` in Dotaclassic (Source 1 engine, Windows x86 32-bit).
 
-See `tools/patch-client-dll.py` for the ready-to-use script.
+| Script | Purpose |
+|--------|---------|
+| `tools/patch-client-dll.py` | Patch ConVar flags (FCVAR_CHEAT etc.) |
+| `tools/patch-urls.py` | Find and patch hardcoded URL strings (dota2.com → null or custom) |
 
 ---
 
@@ -105,3 +108,36 @@ This means:
 - **No hardcoded camera distance** in the binary — users set `dota_camera_distance` freely via launch args, console, or config, and it persists across server connects because `FCVAR_CHEAT` is stripped
 - **No launcher-side patching logic** — the launcher treats `client.dll` like any other synced file
 - When the game is updated and a new `client.dll` is shipped, re-run the script against the new binary before uploading
+
+---
+
+## URL patching (issue #81)
+
+The game embeds hardcoded `dota2.com` URLs for in-game store/preview panels. On some systems these panels load dota2.com and burn significant CPU. The fix is to null out or redirect those URLs in `client.dll` before shipping.
+
+### Tool: `tools/patch-urls.py`
+
+```
+# List all dota2.com strings and their file offsets
+python patch-urls.py --list
+
+# Option 1 — null out a URL (replaces with null bytes, panel loads nothing)
+python patch-urls.py --null "http://www.dota2.com/store/"
+
+# Option 2 — redirect to our site (new URL must be <= original length)
+python patch-urls.py --replace "http://www.dota2.com/store/" "http://dotaclassic.ru/"
+```
+
+### Workflow
+
+1. Run `--list` on a fresh `client.dll` to enumerate all `dota2.com` URLs
+2. For each URL decide: null (option 1) or redirect (option 2)
+3. Run `--null` or `--replace` for each URL — a `.bak` is created automatically before the first write
+4. Upload the patched `client.dll` to the CDN and update the manifest hash
+5. Users receive the patched file on next sync — no launcher code changes needed
+
+### Constraints
+
+- Replacement string must be **≤ original length** (in-place patch, no byte shifting)
+- `dotaclassic.ru` URLs are shorter than most `dota2.com` URLs so option 2 is usually viable
+- The script scans the entire binary (all sections), not just `.rdata`, so it catches URLs in data or text segments too
