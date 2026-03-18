@@ -367,7 +367,7 @@ namespace d2c_launcher.Api
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>New token</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<string> SteamController_steamSessionTicketToTokenAsync(string ticket, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
+        System.Threading.Tasks.Task<string> SteamController_steamSessionTicketToTokenAsync(string ticket, string hwid, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>New token</returns>
@@ -6980,10 +6980,13 @@ namespace d2c_launcher.Api
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>New token</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<string> SteamController_steamSessionTicketToTokenAsync(string ticket, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<string> SteamController_steamSessionTicketToTokenAsync(string ticket, string hwid, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (ticket == null)
                 throw new System.ArgumentNullException("ticket");
+
+            if (hwid == null)
+                throw new System.ArgumentNullException("hwid");
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -7000,6 +7003,7 @@ namespace d2c_launcher.Api
                     urlBuilder_.Append("v1/auth/steam/steam_session_ticket");
                     urlBuilder_.Append('?');
                     urlBuilder_.Append(System.Uri.EscapeDataString("ticket")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(ticket, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
+                    urlBuilder_.Append(System.Uri.EscapeDataString("hwid")).Append('=').Append(System.Uri.EscapeDataString(ConvertToString(hwid, System.Globalization.CultureInfo.InvariantCulture))).Append('&');
                     urlBuilder_.Length--;
 
                     PrepareRequest(client_, request_, urlBuilder_);

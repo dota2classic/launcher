@@ -18,8 +18,15 @@ internal static class Program
     private static string? _ticketHex;
     private static HAuthTicket _ticketHandle;
 
+    private static string ParseHwid(string[] args)
+    {
+        var idx = Array.IndexOf(args, "--hwid");
+        return idx >= 0 && idx + 1 < args.Length ? args[idx + 1] : "unknown";
+    }
+
     private static int Main(string[] args)
     {
+        var hwid = ParseHwid(args);
         try
         {
             if (!SteamAPI.IsSteamRunning())
@@ -75,7 +82,7 @@ internal static class Program
                     return 0;
                 }
 
-                var backendToken = ExchangeForBackendToken(ticketHex);
+                var backendToken = ExchangeForBackendToken(ticketHex, hwid);
                 if (backendToken == null)
                     Log("warn", "Backend token exchange failed — API call returned null.");
 
@@ -96,12 +103,13 @@ internal static class Program
         }
     }
 
-    private static string? ExchangeForBackendToken(string ticketHex)
+    private static string? ExchangeForBackendToken(string ticketHex, string hwid)
     {
         try
         {
             using var http = new HttpClient { BaseAddress = new Uri(BackendBaseUrl), Timeout = TimeSpan.FromSeconds(4) };
-            var url = "v1/auth/steam/steam_session_ticket?ticket=" + Uri.EscapeDataString(ticketHex);
+            var url = "v1/auth/steam/steam_session_ticket?ticket=" + Uri.EscapeDataString(ticketHex)
+                      + "&hwid=" + Uri.EscapeDataString(hwid);
             using var request = new HttpRequestMessage(HttpMethod.Post, url);
             using var response = http.Send(request);
             if (!response.IsSuccessStatusCode)

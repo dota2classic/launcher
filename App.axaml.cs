@@ -22,6 +22,9 @@ public partial class App : Application
     /// <summary>Set by Program.Main before Avalonia starts.</summary>
     public static Services.SingleInstanceService? SingleInstance { get; set; }
 
+    /// <summary>Hardware ID computed at startup. Set by Program.Main before Avalonia starts.</summary>
+    public static string Hwid { get; set; } = "unknown";
+
     private ServiceProvider? _services;
     private MainWindow? _mainWindow;
 

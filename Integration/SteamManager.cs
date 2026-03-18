@@ -217,6 +217,7 @@ public class SteamManager : ISteamManager
             StartInfo = new ProcessStartInfo
             {
                 FileName = bridgePath,
+                Arguments = $"--hwid {App.Hwid}",
                 WorkingDirectory = bridgeDir,
                 UseShellExecute = false,
                 RedirectStandardOutput = true,

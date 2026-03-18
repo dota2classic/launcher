@@ -61,6 +61,7 @@ sealed class Program
         // are reported with the correct app version instead of "0.0.0".
         FaroTelemetryService.Init(version);
         var hw = HardwareInfoService.Collect();
+        App.Hwid = hw.Hwid;
         FaroTelemetryService.SetHardware(hw);
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         FaroTelemetryService.ShutdownAsync().GetAwaiter().GetResult();
