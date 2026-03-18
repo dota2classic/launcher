@@ -8,6 +8,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using d2c_launcher.Models;
+using d2c_launcher.Api;
 using d2c_launcher.Services;
 using d2c_launcher.Util;
 
@@ -49,12 +50,18 @@ public partial class PartyViewModel : ViewModelBase, IDisposable
         _partyRefreshTimer.Tick += (_, _) => { _ = RefreshPartyAsync(); };
         _partyRefreshTimer.Start();
 
-        queueSocketService.PartyUpdated += party => Dispatcher.UIThread.Post(() => ApplyPartySnapshot(_backendApiService.MapPartyDto(party)));
-        queueSocketService.OnlineUpdated += msg => Dispatcher.UIThread.Post(() => UpdateOnlineUsers(msg));
+        queueSocketService.PartyUpdated += OnPartyUpdated;
+        queueSocketService.OnlineUpdated += OnOnlineUpdated;
 
         CloseInviteModalCommand = new RelayCommand(CloseInviteModal);
         LeavePartyCommand = new AsyncRelayCommand(LeavePartyAsync);
     }
+
+    private void OnPartyUpdated(PartyDto party) =>
+        Dispatcher.UIThread.Post(() => ApplyPartySnapshot(_backendApiService.MapPartyDto(party)));
+
+    private void OnOnlineUpdated(OnlineUpdateMessage msg) =>
+        Dispatcher.UIThread.Post(() => UpdateOnlineUsers(msg));
 
     public void OpenInviteModal()
     {
@@ -224,6 +231,8 @@ public partial class PartyViewModel : ViewModelBase, IDisposable
 
     public void Dispose()
     {
+        _queueSocketService.PartyUpdated -= OnPartyUpdated;
+        _queueSocketService.OnlineUpdated -= OnOnlineUpdated;
         _partyRefreshTimer.Stop();
         _inviteSearchCts?.Dispose();
     }

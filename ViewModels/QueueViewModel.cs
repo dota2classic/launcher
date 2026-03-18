@@ -89,20 +89,26 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         _modesRefreshTimer.Tick += (_, _) => _ = RefreshMatchmakingModesAsync();
         _modesRefreshTimer.Start();
 
-        queueSocketService.QueueStateUpdated += msg =>
-            Dispatcher.UIThread.Post(() => UpdateQueueCounts(msg));
-        queueSocketService.PlayerQueueStateUpdated += msg =>
-            Dispatcher.UIThread.Post(() => UpdatePlayerQueueState(msg));
-        queueSocketService.PlayerGameStateUpdated += msg =>
-            Dispatcher.UIThread.Post(() =>
-            {
-                _hasServerUrl = !string.IsNullOrEmpty(msg?.ServerUrl);
-                UpdateQueueButtonState();
-            });
+        queueSocketService.QueueStateUpdated += OnQueueStateUpdated;
+        queueSocketService.PlayerQueueStateUpdated += OnPlayerQueueStateUpdated;
+        queueSocketService.PlayerGameStateUpdated += OnPlayerGameStateUpdated;
 
         _ = RefreshMatchmakingModesAsync();
         UpdateQueueButtonState();
     }
+
+    private void OnQueueStateUpdated(QueueStateMessage msg) =>
+        Dispatcher.UIThread.Post(() => UpdateQueueCounts(msg));
+
+    private void OnPlayerQueueStateUpdated(PlayerQueueStateMessage msg) =>
+        Dispatcher.UIThread.Post(() => UpdatePlayerQueueState(msg));
+
+    private void OnPlayerGameStateUpdated(PlayerGameStateMessage? msg) =>
+        Dispatcher.UIThread.Post(() =>
+        {
+            _hasServerUrl = !string.IsNullOrEmpty(msg?.ServerUrl);
+            UpdateQueueButtonState();
+        });
 
     public async Task ToggleSearchAsync()
     {
@@ -365,6 +371,9 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
 
     public void Dispose()
     {
+        _queueSocketService.QueueStateUpdated -= OnQueueStateUpdated;
+        _queueSocketService.PlayerQueueStateUpdated -= OnPlayerQueueStateUpdated;
+        _queueSocketService.PlayerGameStateUpdated -= OnPlayerGameStateUpdated;
         _queueTimer.Stop();
         _modesRefreshTimer.Stop();
     }

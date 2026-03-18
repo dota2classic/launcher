@@ -12,7 +12,7 @@ using d2c_launcher.Util;
 
 namespace d2c_launcher.ViewModels;
 
-public partial class RoomViewModel : ViewModelBase
+public partial class RoomViewModel : ViewModelBase, IDisposable
 {
     private readonly IQueueSocketService _queueSocketService;
     private readonly IBackendApiService _backendApiService;
@@ -54,16 +54,22 @@ public partial class RoomViewModel : ViewModelBase
         _queueSocketService = queueSocketService;
         _backendApiService = backendApiService;
 
-        queueSocketService.PlayerRoomStateUpdated += msg =>
-            Dispatcher.UIThread.Post(() => _ = UpdatePlayerRoomStateAsync(msg));
-        queueSocketService.PlayerGameStateUpdated += msg =>
-            Dispatcher.UIThread.Post(() => UpdatePlayerGameState(msg));
-        queueSocketService.ServerSearchingUpdated += msg =>
-            Dispatcher.UIThread.Post(() => UpdateServerSearching(msg));
+        queueSocketService.PlayerRoomStateUpdated += OnPlayerRoomStateUpdated;
+        queueSocketService.PlayerGameStateUpdated += OnPlayerGameStateUpdated;
+        queueSocketService.ServerSearchingUpdated += OnServerSearchingUpdated;
 
         AcceptGameCommand = new RelayCommand(AcceptGame);
         DeclineGameCommand = new RelayCommand(DeclineGame);
     }
+
+    private void OnPlayerRoomStateUpdated(PlayerRoomStateMessage? msg) =>
+        Dispatcher.UIThread.Post(() => _ = UpdatePlayerRoomStateAsync(msg));
+
+    private void OnPlayerGameStateUpdated(PlayerGameStateMessage? msg) =>
+        Dispatcher.UIThread.Post(() => UpdatePlayerGameState(msg));
+
+    private void OnServerSearchingUpdated(PlayerServerSearchingMessage msg) =>
+        Dispatcher.UIThread.Post(() => UpdateServerSearching(msg));
 
     private void UpdateServerSearching(PlayerServerSearchingMessage msg)
     {
@@ -224,5 +230,12 @@ public partial class RoomViewModel : ViewModelBase
         CurrentRoomId = null;
         RoomMode = null;
         RoomPlayers.Clear();
+    }
+
+    public void Dispose()
+    {
+        _queueSocketService.PlayerRoomStateUpdated -= OnPlayerRoomStateUpdated;
+        _queueSocketService.PlayerGameStateUpdated -= OnPlayerGameStateUpdated;
+        _queueSocketService.ServerSearchingUpdated -= OnServerSearchingUpdated;
     }
 }

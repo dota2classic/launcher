@@ -50,6 +50,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     private void OpenPlayerProfileById(string steam32Id) => OpenPlayerProfile?.Invoke(steam32Id);
 
     private readonly IWindowService _windowService;
+    private readonly IQueueSocketService _queueSocketService;
 
     public ChatViewModel(string threadId, IBackendApiService backendApiService, IHttpImageService imageService, IEmoticonService emoticonService, IQueueSocketService queueSocketService, IWindowService windowService)
     {
@@ -58,9 +59,13 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         _imageService = imageService;
         _emoticonService = emoticonService;
         _windowService = windowService;
-        queueSocketService.OnlineUpdated += msg => Dispatcher.UIThread.Post(() => UpdateOnlineUsers(msg));
+        _queueSocketService = queueSocketService;
+        queueSocketService.OnlineUpdated += OnOnlineUpdated;
         windowService.WindowShown += OnWindowShown;
     }
+
+    private void OnOnlineUpdated(OnlineUpdateMessage msg) =>
+        Dispatcher.UIThread.Post(() => UpdateOnlineUsers(msg));
 
     private void OnWindowShown()
     {
@@ -388,6 +393,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
     public void Dispose()
     {
+        _queueSocketService.OnlineUpdated -= OnOnlineUpdated;
         _windowService.WindowShown -= OnWindowShown;
         _sseCts?.Cancel();
         _sseCts?.Dispose();

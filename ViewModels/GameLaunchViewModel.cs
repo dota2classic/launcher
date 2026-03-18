@@ -21,6 +21,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
     private readonly ICvarSettingsProvider _cvarProvider;
     private readonly IVideoSettingsProvider _videoProvider;
     private readonly IBackendApiService _backendApiService;
+    private readonly IQueueSocketService _queueSocketService;
     private readonly DispatcherTimer _runStateTimer;
 
     [ObservableProperty]
@@ -78,6 +79,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         _cvarProvider = cvarProvider;
         _videoProvider = videoProvider;
         _backendApiService = backendApiService;
+        _queueSocketService = queueSocketService;
         var settings = settingsStorage.Get();
         _gameDirectory = settings.GameDirectory;
         _runState = GameRunState.None;
@@ -87,9 +89,11 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         _runStateTimer.Start();
         RefreshRunState();
 
-        queueSocketService.PlayerGameStateUpdated += msg =>
-            Dispatcher.UIThread.Post(() => UpdateServerUrl(msg));
+        queueSocketService.PlayerGameStateUpdated += OnPlayerGameStateUpdated;
     }
+
+    private void OnPlayerGameStateUpdated(PlayerGameStateMessage? msg) =>
+        Dispatcher.UIThread.Post(() => UpdateServerUrl(msg));
 
     private readonly ServerUrlTracker _serverUrlTracker = new();
     private CancellationTokenSource? _connectCts;
@@ -475,6 +479,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
 
     public void Dispose()
     {
+        _queueSocketService.PlayerGameStateUpdated -= OnPlayerGameStateUpdated;
         _runStateTimer.Stop();
         _connectCts?.Cancel();
         _connectCts?.Dispose();

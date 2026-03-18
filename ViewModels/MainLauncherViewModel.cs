@@ -422,6 +422,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Launch.Dispose();
         Queue.Dispose();
         Party.Dispose();
+        Room.Dispose();
         Chat.Dispose();
         Live.Dispose();
     }
