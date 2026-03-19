@@ -235,7 +235,10 @@
   },
   "chat": {
     "enterMessage": "Введите сообщение",
-    "pickEmoticon": "Выбрать эмоцию"
+    "pickEmoticon": "Выбрать эмоцию",
+    "defaultSubscriberTitle": "Подписчик Dotaclassic Plus",
+    "roleModeratorTooltip": "Модератор",
+    "roleAdminTooltip": "Администратор"
   },
   "download": {
     "downloadGame": "Скачать игру",

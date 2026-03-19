@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using CommunityToolkit.Mvvm.ComponentModel;
+using d2c_launcher.Services;
 using d2c_launcher.ViewModels;
 
 namespace d2c_launcher.Models;
@@ -43,6 +44,12 @@ public sealed partial class ChatMessageView : ObservableObject
     public string? ReplyToAuthorName { get; }
     public string? ReplyToContent { get; }
     public bool HasReply => ReplyToContent != null;
+
+    public bool IsOld { get; }
+    public bool IsModerator { get; }
+    public bool IsAdmin { get; }
+    [ObservableProperty] private byte[]? _chatIconBytes;
+    public string ChatIconTooltip { get; }
 
     public ObservableCollection<ChatReactionViewModel> Reactions { get; } = new();
     [ObservableProperty] private bool _hasReactions;
@@ -117,7 +124,11 @@ public sealed partial class ChatMessageView : ObservableObject
         string createdAt,
         string? authorAvatarUrl = null,
         string? replyToAuthorName = null,
-        string? replyToContent = null)
+        string? replyToContent = null,
+        bool isOld = false,
+        bool isModerator = false,
+        bool isAdmin = false,
+        string? chatIconTitle = null)
     {
         MessageId = messageId;
         _content = content;
@@ -132,6 +143,10 @@ public sealed partial class ChatMessageView : ObservableObject
         Initials = ComputeInitials(authorName);
         ReplyToAuthorName = replyToAuthorName;
         ReplyToContent = replyToContent;
+        IsOld = isOld;
+        IsModerator = isModerator;
+        IsAdmin = isAdmin;
+        ChatIconTooltip = chatIconTitle ?? I18n.T("chat.defaultSubscriberTitle");
     }
 
     private static string ComputeInitials(string name)
