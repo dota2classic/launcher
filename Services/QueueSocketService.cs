@@ -171,12 +171,8 @@ public sealed class QueueSocketService : IQueueSocketService
         if (_socket == null)
             return;
 
-        try
-        {
-            if (_socket.Connected)
-                Task.Run(() => _socket.DisconnectAsync()).Wait(TimeSpan.FromSeconds(2));
-        }
-        catch { }
+        if (_socket.Connected)
+            _ = _socket.DisconnectAsync();
 
         _socket.Dispose();
         _socket = null;
