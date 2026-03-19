@@ -5,8 +5,11 @@ namespace d2c_launcher.Resources;
 /// </summary>
 public static class Strings
 {
+    // ── Settings section headers ───────────────────────────────────────────────
+    public static string SectionAttack => "АТАКА";
+    public static string SectionCamera => "КАМЕРА";
+
     // ── Settings tabs ──────────────────────────────────────────────────────────
-    public static string TabVisuals => "ВИЗУАЛЬНЫЕ";
     public static string TabGameplay => "ГЕЙМПЛЕЙ";
     public static string TabLauncher => "ЛАУНЧЕР";
     public static string TabGame => "ИГРА";
@@ -17,8 +20,6 @@ public static class Strings
     // ── Settings: General / Launcher ───────────────────────────────────────────
     public static string GameDirectory => "ДИРЕКТОРИЯ ИГРЫ";
     public static string Change => "Изменить";
-    public static string AutoUpdateLauncher => "Автообновление лаунчера";
-    public static string InstallUpdatesOnStartup => "Устанавливать обновления при запуске";
     public static string CloseToTray => "Сворачивать в трей при закрытии";
     public static string CloseToTrayDescription => "Закрытие окна скрывает лаунчер в трей";
     public static string AutoConnectToServer => "Автоподключение к серверу";
@@ -39,7 +40,7 @@ public static class Strings
     public static string SkipIntroDescription => "Пропускать заставку при запуске";
     public static string FullscreenMode => "Полноэкранный режим";
     public static string LaunchFullscreenDescription => "Запускать игру в полном экране";
-    public static string BorderlessMode => "Безрамочный режим";
+    public static string BorderlessMode => "Окно без рамки";
     public static string LaunchBorderlessDescription => "Запускать игру без рамки окна";
     public static string Resolution => "Разрешение";
     public static string ScreenResolutionGame => "Разрешение экрана игры";
@@ -52,7 +53,7 @@ public static class Strings
     public static string RightClickAttackDescription => "Атаковать врагов правой кнопкой мыши";
     public static string DisableScrollZoom => "Отключить приближение колесиком";
     public static string DisableScrollZoomHint => "Нельзя будет изменять масштаб камеры колесом мыши";
-    public static string AutoRepeatRMB => "Автоповтор правой кнопки";
+    public static string AutoRepeatRMB => "Автоповтор правой кнопки мыши";
     public static string RmbHoldDescription => "Удерживание ПКМ повторяет команду";
     public static string TeleportRequiresStop => "Телепорт требует остановки";
     public static string TeleportCancelHint => "Для отмены телепорта нужно нажать «Отменить»";

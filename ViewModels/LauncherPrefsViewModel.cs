@@ -12,7 +12,6 @@ namespace d2c_launcher.ViewModels;
 
 public partial class LauncherPrefsViewModel : ViewModelBase
 {
-    private readonly IGameLaunchSettingsStorage _launchStorage;
     private readonly ISettingsStorage _settingsStorage;
 
     // ── Game directory ─────────────────────────────────────────────────────────
@@ -58,64 +57,7 @@ public partial class LauncherPrefsViewModel : ViewModelBase
         return total;
     }
 
-    // ── Launch parameters ──────────────────────────────────────────────────────
-
-    public static string[] AvailableLanguages { get; } = ["russian", "english"];
-
-    public string SelectedLanguage
-    {
-        get => _launchStorage.Get().Language;
-        set
-        {
-            var s = _launchStorage.Get();
-            if (s.Language == value) return;
-            s.Language = value;
-            _launchStorage.Save(s);
-            OnPropertyChanged();
-        }
-    }
-
-    public bool NoVid
-    {
-        get => _launchStorage.Get().NoVid;
-        set
-        {
-            var s = _launchStorage.Get();
-            if (s.NoVid == value) return;
-            s.NoVid = value;
-            _launchStorage.Save(s);
-            OnPropertyChanged();
-        }
-    }
-
-    public string ExtraArgs
-    {
-        get => _launchStorage.Get().ExtraArgs ?? "";
-        set
-        {
-            var s = _launchStorage.Get();
-            var trimmed = string.IsNullOrWhiteSpace(value) ? null : value.Trim();
-            if (s.ExtraArgs == trimmed) return;
-            s.ExtraArgs = trimmed;
-            _launchStorage.Save(s);
-            OnPropertyChanged();
-        }
-    }
-
     // ── Launcher settings ─────────────────────────────────────────────────────
-
-    public bool AutoUpdate
-    {
-        get => _settingsStorage.Get().AutoUpdate;
-        set
-        {
-            var s = _settingsStorage.Get();
-            if (s.AutoUpdate == value) return;
-            s.AutoUpdate = value;
-            _settingsStorage.Save(s);
-            OnPropertyChanged();
-        }
-    }
 
     public bool CloseToTray
     {
@@ -195,9 +137,8 @@ public partial class LauncherPrefsViewModel : ViewModelBase
 
     // ── Constructor ────────────────────────────────────────────────────────────
 
-    public LauncherPrefsViewModel(IGameLaunchSettingsStorage launchStorage, ISettingsStorage settingsStorage)
+    public LauncherPrefsViewModel(ISettingsStorage settingsStorage)
     {
-        _launchStorage = launchStorage;
         _settingsStorage = settingsStorage;
     }
 }

@@ -77,43 +77,47 @@
         <Style Selector="Button">
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
+        <!-- CheckBox: Dota-2 style — filled square indicator, no checkmark glyph -->
         <Style Selector="CheckBox">
             <Setter Property="Foreground" Value="#D9D9D9"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <ControlTemplate>
-                    <Grid ColumnDefinitions="Auto,*" VerticalAlignment="Center">
-                        <Border x:Name="CheckMark"
-                                Grid.Column="0"
-                                Width="18" Height="18"
-                                CornerRadius="4"
-                                Background="#1c2024"
-                                BorderBrush="#2d3842"
-                                BorderThickness="1.5"
-                                VerticalAlignment="Center">
-                            <Path x:Name="CheckGlyph"
-                                  Data="M 3 9 L 7 13 L 15 5"
-                                  Stroke="#4DA9F3"
-                                  StrokeThickness="2"
-                                  StrokeLineCap="Round"
-                                  IsVisible="{TemplateBinding IsChecked}"
-                                  HorizontalAlignment="Center"
-                                  VerticalAlignment="Center"/>
-                        </Border>
-                        <ContentPresenter Grid.Column="1"
-                                          Margin="8,0,0,0"
-                                          Content="{TemplateBinding Content}"
-                                          VerticalAlignment="Center"/>
-                    </Grid>
+                    <Border Background="Transparent" Padding="0,3">
+                        <Grid ColumnDefinitions="18,*" VerticalAlignment="Center">
+                            <Border x:Name="CheckMark"
+                                    Grid.Column="0"
+                                    Width="16" Height="16"
+                                    CornerRadius="1"
+                                    Background="Transparent"
+                                    BorderBrush="#505860"
+                                    BorderThickness="1.5"
+                                    VerticalAlignment="Center"/>
+                            <ContentPresenter Grid.Column="1"
+                                              Margin="8,0,0,0"
+                                              Content="{TemplateBinding Content}"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Stretch"/>
+                        </Grid>
+                    </Border>
                 </ControlTemplate>
             </Setter>
         </Style>
         <Style Selector="CheckBox:pointerover /template/ Border#CheckMark">
-            <Setter Property="BorderBrush" Value="#4DA9F3"/>
-            <Setter Property="Background" Value="#1c2a3a"/>
+            <Setter Property="BorderBrush" Value="#3a90d6"/>
         </Style>
         <Style Selector="CheckBox:checked /template/ Border#CheckMark">
-            <Setter Property="BorderBrush" Value="#4DA9F3"/>
-            <Setter Property="Background" Value="#1c2024"/>
+            <Setter Property="Background" Value="#c8e4ff"/>
+            <Setter Property="BorderBrush" Value="#3a90d6"/>
+            <Setter Property="BoxShadow" Value="0 0 6 1 #503a90d6"/>
+        </Style>
+        <Style Selector="CheckBox:checked:pointerover /template/ Border#CheckMark">
+            <Setter Property="Background" Value="#d8ecff"/>
+            <Setter Property="BoxShadow" Value="0 0 8 2 #603a90d6"/>
+        </Style>
+        <Style Selector="CheckBox:disabled">
+            <Setter Property="Cursor" Value="Arrow"/>
         </Style>
 
         <!-- ── TabControl: transparent, no outer border ── -->

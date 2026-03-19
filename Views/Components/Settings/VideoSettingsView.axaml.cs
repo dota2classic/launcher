@@ -27,7 +27,7 @@ public partial class VideoSettingsView : UserControl
     private void ApplyMonitorSize()
     {
         var screen = TopLevel.GetTopLevel(this)?.Screens?.Primary;
-        if (screen != null && DataContext is GameSettingsViewModel vm)
+        if (screen != null && DataContext is VideoSettingsViewModel vm)
         {
             var b = screen.Bounds;
             vm.SetMonitorSize((int)b.Width, (int)b.Height);

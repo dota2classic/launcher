@@ -6,20 +6,21 @@ using d2c_launcher.Services;
 namespace d2c_launcher.ViewModels;
 
 /// <summary>
-/// Thin container that composes the three focused settings sub-ViewModels.
+/// Thin container that composes the focused settings sub-ViewModels.
 /// External callers (MainLauncherViewModel, SettingsPanel) interact with this
-/// type; each sub-VM owns a single concern.
+/// type; each sub-VM owns a single concern matching its view.
 /// </summary>
 public partial class SettingsViewModel : ViewModelBase
 {
-    public GameSettingsViewModel GameSettings { get; }
+    public VideoSettingsViewModel VideoSettings { get; }
+    public GameplayViewModel Gameplay { get; }
     public LauncherPrefsViewModel LauncherPrefs { get; }
     public DlcViewModel Dlc { get; }
 
     public Action<string, string>? PushCvar
     {
-        get => GameSettings.PushCvar;
-        set => GameSettings.PushCvar = value;
+        get => Gameplay.PushCvar;
+        set => Gameplay.PushCvar = value;
     }
 
     public Action<List<string>>? OnDlcChanged
@@ -28,8 +29,8 @@ public partial class SettingsViewModel : ViewModelBase
         set => Dlc.OnDlcChanged = value;
     }
 
-    public void RefreshFromCvarProvider() => GameSettings.RefreshFromCvarProvider();
-    public void RefreshFromVideoProvider() => GameSettings.RefreshFromVideoProvider();
+    public void RefreshFromCvarProvider() => Gameplay.RefreshFromCvarProvider();
+    public void RefreshFromVideoProvider() => VideoSettings.RefreshFromVideoProvider();
     public void RefreshGameDirectory() => LauncherPrefs.RefreshGameDirectory();
     public Task LoadDlcPackagesAsync() => Dlc.LoadDlcPackagesAsync();
 
@@ -40,8 +41,9 @@ public partial class SettingsViewModel : ViewModelBase
         IVideoSettingsProvider videoProvider,
         IContentRegistryService registryService)
     {
-        GameSettings = new GameSettingsViewModel(cvarProvider, videoProvider);
-        LauncherPrefs = new LauncherPrefsViewModel(launchStorage, settingsStorage);
+        VideoSettings = new VideoSettingsViewModel(videoProvider, launchStorage);
+        Gameplay = new GameplayViewModel(cvarProvider);
+        LauncherPrefs = new LauncherPrefsViewModel(settingsStorage);
         Dlc = new DlcViewModel(settingsStorage, registryService);
     }
 }

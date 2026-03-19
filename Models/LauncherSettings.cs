@@ -27,9 +27,6 @@ public class LauncherSettings
     /// </summary>
     public bool ShouldShowDefenderPrompt => !DefenderPromptAnswered && DefenderExclusionPath == null;
 
-    /// <summary>Whether to automatically apply launcher updates on startup.</summary>
-    public bool AutoUpdate { get; set; } = true;
-
     /// <summary>
     /// IDs of optional DLC packages the user has chosen to install.
     /// Null means the user has never been shown the DLC selector (show it on next download).

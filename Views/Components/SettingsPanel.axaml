@@ -41,12 +41,6 @@
             <Setter Property="BorderBrush" Value="#3a90d6"/>
         </Style>
 
-        <!-- ── ToggleSwitch compact ── -->
-        <Style Selector="ToggleSwitch">
-            <Setter Property="OnContent" Value=""/>
-            <Setter Property="OffContent" Value=""/>
-        </Style>
-
         <!-- ── TextBox dark ── -->
         <Style Selector="TextBox">
             <Setter Property="Background" Value="#0c0e12"/>
@@ -72,23 +66,14 @@
             <Setter Property="Background" Value="#243850"/>
         </Style>
 
-        <!-- ── DLC CheckBox states ── -->
-        <Style Selector="CheckBox">
-            <Setter Property="Cursor" Value="Hand"/>
-        </Style>
-        <Style Selector="CheckBox:disabled">
-            <Setter Property="Cursor" Value="Arrow"/>
-            <Setter Property="Opacity" Value="1"/>
-        </Style>
-        <Style Selector="CheckBox:disabled /template/ ContentPresenter">
-            <Setter Property="Opacity" Value="1"/>
-        </Style>
+        <!-- Disabled CheckBox (DLC required items) -->
         <Style Selector="CheckBox:disabled TextBlock">
             <Setter Property="Foreground" Value="#404850"/>
         </Style>
-        <Style Selector="CheckBox:disabled /template/ Border#NormalRectangle">
+        <Style Selector="CheckBox:disabled:not(:checked) /template/ Border#CheckMark">
             <Setter Property="BorderBrush" Value="#2a3040"/>
             <Setter Property="Background" Value="#1a1e26"/>
+            <Setter Property="BoxShadow" Value="none"/>
         </Style>
 
         <!-- ── Применить DLC button ── -->
@@ -115,14 +100,14 @@
 
     <TabControl Margin="18,10,18,0">
 
-        <!-- ─── Tab 1: Визуальные ─── -->
-        <TabItem Header="{x:Static res:Strings.TabVisuals}">
-            <settings:VideoSettingsView DataContext="{Binding GameSettings}"/>
+        <!-- ─── Tab 1: Игра ─── -->
+        <TabItem Header="{x:Static res:Strings.TabGame}">
+            <settings:VideoSettingsView DataContext="{Binding VideoSettings}"/>
         </TabItem>
 
         <!-- ─── Tab 2: Геймплей ─── -->
         <TabItem Header="{x:Static res:Strings.TabGameplay}">
-            <settings:GameplayView DataContext="{Binding GameSettings}"/>
+            <settings:GameplayView DataContext="{Binding Gameplay}"/>
         </TabItem>
 
         <!-- ─── Tab 3: Лаунчер ─── -->
