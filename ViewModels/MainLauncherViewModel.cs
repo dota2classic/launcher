@@ -175,7 +175,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Live.OnSpectate = matchId => Launch.SpectateMatch((int)matchId);
         Live.OnOpenProfile = steam32Id => OpenPlayerProfile(steam32Id);
 
-        _soundCoordinator = new SocketEventCoordinator(queueSocketService, NotificationArea, windowService,
+        _soundCoordinator = new SocketEventCoordinator(queueSocketService, NotificationArea, windowService, backendApiService,
             mode => Queue.MatchmakingModes.FirstOrDefault(m => m.ModeId == (int)mode)?.Name ?? mode.ToString());
 
         Launch.PropertyChanged += (_, e) =>
@@ -337,7 +337,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     {
         if (CurrentUser == null) return;
         _previousTab = null;
-        var steam32 = (CurrentUser.SteamId - 76561197960265728UL).ToString();
+        var steam32 = CurrentUser.SteamId32.ToString();
         OpenPlayerProfile(steam32);
     }
 
@@ -411,6 +411,22 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public void OpenInviteModal() => Party.OpenInviteModal();
     public void CloseInviteModal() => Party.CloseInviteModal();
     public async Task InvitePlayerAsync(d2c_launcher.Models.InviteCandidateView candidate) => await Party.InvitePlayerAsync(candidate);
+
+    /// <summary>
+    /// Dev shortcut (F12, nightly only): shows a fake winStreak10 achievement toast.
+    /// </summary>
+    public void TriggerDevAchievementNotification()
+    {
+        if (!_settingsStorage.Get().NightlyUpdates) return;
+
+        var vm = AchievementToastViewModel.TryCreate(
+            notificationId: "dev-preview",
+            steamId: CurrentUser?.SteamId32.ToString() ?? "0",
+            achievementKey: 9, // winStreak10
+            api: _backendApiService,
+            cp: 10);
+        if (vm != null) NotificationArea.AddNotificationDirect(vm);
+    }
 
     public void Dispose()
     {

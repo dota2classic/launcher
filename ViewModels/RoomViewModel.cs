@@ -159,11 +159,8 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
             }
         }
 
-        // Backend uses SteamID3 (32-bit account ID); local SteamID64 → lower 32 bits
         var currentUser = GetCurrentUser();
-        var myId = currentUser != null
-            ? ((uint)(currentUser.SteamId & 0xFFFFFFFF)).ToString()
-            : null;
+        var myId = currentUser?.SteamId32.ToString();
         var myEntry = myId != null ? (msg.Entries ?? []).FirstOrDefault(e => e.SteamId == myId) : null;
         HasMyPlayerAccepted = myEntry?.State == ReadyState.Ready;
         HasMyPlayerResponded = myEntry != null && myEntry.State != ReadyState.Pending;

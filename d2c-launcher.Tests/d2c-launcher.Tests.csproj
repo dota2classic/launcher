@@ -42,6 +42,9 @@
     <Compile Include="..\Services\GameDirectoryValidator.cs" Link="Services\GameDirectoryValidator.cs" />
     <!-- Localized strings (needed by GameDirectoryValidator) -->
     <Compile Include="..\Resources\Strings.cs" Link="Resources\Strings.cs" />
+    <Compile Include="..\Services\I18n.cs" Link="Services\I18n.cs" />
+    <!-- Embedded locale so I18n.Load() finds ru.json at runtime -->
+    <EmbeddedResource Include="..\Resources\Locales\ru.json" Link="Resources\Locales\ru.json" />
     <!-- State machine (no Avalonia/Steamworks dependencies) -->
     <Compile Include="..\Models\SteamStatus.cs" Link="Models\SteamStatus.cs" />
     <Compile Include="..\Models\AppState.cs" Link="Models\AppState.cs" />

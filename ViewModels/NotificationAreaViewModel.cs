@@ -2,6 +2,8 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia.Threading;
+using d2c_launcher.Api;
+using d2c_launcher.Resources;
 using d2c_launcher.Services;
 
 namespace d2c_launcher.ViewModels;
@@ -19,19 +21,13 @@ public sealed class NotificationAreaViewModel
 
     public void AddInvite(PartyInviteReceivedMessage msg)
     {
-        // Don't show duplicates
-        if (Notifications.OfType<PartyInviteNotificationViewModel>().Any(v => v.InviteId == msg.InviteId))
-            return;
-
         var avatarUrl = msg.Inviter?.AvatarSmall ?? msg.Inviter?.Avatar;
         var vm = new PartyInviteNotificationViewModel(
             msg.InviteId,
             msg.Inviter?.Name ?? "Unknown",
             avatarUrl,
             (id, accept) => _queueSocketService.AcceptPartyInviteAsync(id, accept));
-
-        vm.Closed += v => Dispatcher.UIThread.Post(() => Notifications.Remove(v));
-        Notifications.Add(vm);
+        AddNotification(vm);
     }
 
     public void RemoveByInviteId(string inviteId)
@@ -56,8 +52,20 @@ public sealed class NotificationAreaViewModel
     /// <summary>Shows an invite-sent toast (with player avatar) that auto-dismisses.</summary>
     public void AddInviteSentToast(InviteSentToastViewModel vm) => AddNotification(vm);
 
+    /// <summary>Shows an achievement-unlocked toast that opens the website achievements page on click.</summary>
+    public void AddAchievementToast(NotificationDto notification, IBackendApiService api)
+    {
+        var achievementKey = notification.Achievement != null ? (int)notification.Achievement.Key : -1;
+        var vm = AchievementToastViewModel.TryCreate(notification.Id, notification.SteamId, achievementKey, api);
+        if (vm != null) AddNotification(vm);
+    }
+
+    public void AddNotificationDirect(NotificationViewModel vm) => AddNotification(vm);
+
     private void AddNotification(NotificationViewModel vm)
     {
+        if (vm.NotificationId != null && Notifications.Any(n => n.NotificationId == vm.NotificationId))
+            return;
         vm.Closed += v => Dispatcher.UIThread.Post(() => Notifications.Remove(v));
         Dispatcher.UIThread.Post(() => Notifications.Add(vm));
     }

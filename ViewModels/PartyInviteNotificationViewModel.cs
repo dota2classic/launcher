@@ -20,7 +20,7 @@ public sealed class PartyInviteNotificationViewModel : NotificationViewModel
     public IAsyncRelayCommand DeclineCommand { get; }
 
     public PartyInviteNotificationViewModel(string inviteId, string inviterName, string? avatarUrl, Func<string, bool, Task> respond)
-        : base(TimeoutSeconds)
+        : base(TimeoutSeconds, notificationId: inviteId)
     {
         _inviteId = inviteId;
         InviterName = inviterName;

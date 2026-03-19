@@ -1,0 +1,340 @@
+{
+  "achievement": {
+    "win1hrGameAgainstTechies": {
+      "title": "Терпила",
+      "description": "Выиграть часовую игру против Techies"
+    },
+    "lastHits1000": {
+      "title": "Крипочек",
+      "description": "Добить {cp} вражеских крипов"
+    },
+    "gpm1000": {
+      "title": "Бизнесмен",
+      "description": "Закончить игру с {cp} золота в минуту"
+    },
+    "xpm1000": {
+      "title": "На опыте",
+      "description": "Закончить игру с {cp} опыта в минуту"
+    },
+    "allHeroChallenge": {
+      "title": "Универсал",
+      "description": "Выиграть на каждом герое"
+    },
+    "winBotGame": {
+      "title": "Классиковец",
+      "description": "Пройти обучение"
+    },
+    "winSoloMidGame": {
+      "title": "sololineabuse",
+      "description": "Победить в 1х1"
+    },
+    "gpmXpm1000": {
+      "title": "Бустер",
+      "description": "Закончить матч с 1000 опыта в минуту и 1000 золота в минуту"
+    },
+    "win1hrGame": {
+      "title": "По фасту",
+      "description": "Выиграть часовую игру"
+    },
+    "winStreak10": {
+      "title": "Стрикер",
+      "description": "Победить {cp} игр подряд"
+    },
+    "hardcore": {
+      "title": "Хардкор",
+      "description": "Победить игру с 25 уровнем без смертей"
+    },
+    "denies50": {
+      "title": "Dendi",
+      "description": "Не отдать {cp} союзных крипов врагу в одной игре"
+    },
+    "kills": {
+      "title": "Убийца",
+      "description": "Убить {cp} вражеских героев"
+    },
+    "assists": {
+      "title": "Ассистент",
+      "description": "Помочь в убийстве {cp} вражеских героев"
+    },
+    "meatgrinder": {
+      "title": "Мясорубка",
+      "description": "Сыграть игру, где у каждого героя больше 10 убийств, 10 смертей и 10 помощи"
+    },
+    "maxKills": {
+      "title": "Палач",
+      "description": "Убить {cp} вражеских героев в одной игре"
+    },
+    "maxAssists": {
+      "title": "Напарник",
+      "description": "Помочь в убийстве {cp} вражеских героев в одной игре"
+    },
+    "glasscannon": {
+      "title": "Стеклобой",
+      "description": "Закончить игру лидером по урону и смертям одновременно"
+    },
+    "lastHitsSum": {
+      "title": "Фармила",
+      "description": "Добить {cp} крипов"
+    },
+    "denySum": {
+      "title": "Бей своих",
+      "description": "Не отдать врагу {cp} крипов"
+    },
+    "winUnranked": {
+      "title": "Работяга",
+      "description": "Победить в 5х5 игре"
+    },
+    "towerDamage": {
+      "title": "Демонтаж",
+      "description": "Нанести {cp} урона по строениям в одной игре"
+    },
+    "towerDamageSum": {
+      "title": "Снос",
+      "description": "Нанести {cp} суммарного урона по строениям"
+    },
+    "heroHealing": {
+      "title": "Лекарь",
+      "description": "Вылечить {cp} здоровья союзникам в одной игре"
+    },
+    "heroHealingSum": {
+      "title": "Целитель",
+      "description": "Вылечить {cp} суммарного здоровья союзникам"
+    },
+    "allMelee": {
+      "title": "Боксер",
+      "description": "Выиграть матч, в котором все герои - ближнего боя"
+    },
+    "heroDamage": {
+      "title": "Мучитель",
+      "description": "Нанести {cp} урона по героям в одной игре"
+    },
+    "heroDamageSum": {
+      "title": "Мясник",
+      "description": "Нанести {cp} суммарного урона по вражеским героям"
+    },
+    "misses": {
+      "title": "Близорукость",
+      "description": "Промахнуться {cp} раз в одной игре"
+    },
+    "deathSum": {
+      "title": "Мертв внутри",
+      "description": "Умереть {cp} раз"
+    }
+  },
+  "notifications": {
+    "achievementComplete": "Достижение получено!",
+    "openAchievements": "ДОСТИЖЕНИЯ",
+    "verifyIntegrity": "ПРОВЕРИТЬ ЦЕЛОСТНОСТЬ"
+  },
+  "settings": {
+    "title": "НАСТРОЙКИ",
+    "sectionAttack": "АТАКА",
+    "sectionCamera": "КАМЕРА",
+    "tabGameplay": "ГЕЙМПЛЕЙ",
+    "tabLauncher": "ЛАУНЧЕР",
+    "tabGame": "ИГРА",
+    "tabGeneral": "ОБЩЕЕ",
+    "tabMatches": "МАТЧИ",
+    "tabChat": "ЧАТ",
+    "gameDirectory": "ДИРЕКТОРИЯ ИГРЫ",
+    "change": "Изменить",
+    "closeToTray": "Сворачивать в трей при закрытии",
+    "closeToTrayDescription": "Закрытие окна скрывает лаунчер в трей",
+    "autoConnectToServer": "Автоподключение к серверу",
+    "autoConnectDescription": "Автоматически подключаться к игре при нахождении сервера",
+    "defenderExclusionTitle": "Исключение Windows Defender",
+    "defenderExclusionAdded": "Папка с игрой добавлена в исключения Defender",
+    "launchParameters": "Параметры запуска",
+    "extraArgsHint": "Добавляются перед стандартными аргументами лаунчера",
+    "uiScale": "Масштаб интерфейса",
+    "uiScaleDescription": "Увеличивает размер шрифта во всём лаунчере",
+    "sendDebugInfo": "Отправить отладочную информацию",
+    "debugInfoSent": "Отладочная информация отправлена",
+    "gameLanguage": "Язык игры",
+    "gameLanguageDescription": "Язык интерфейса и озвучки",
+    "skipIntro": "Пропускать интро",
+    "skipIntroDescription": "Пропускать заставку при запуске",
+    "fullscreenMode": "Полноэкранный режим",
+    "launchFullscreenDescription": "Запускать игру в полном экране",
+    "borderlessMode": "Окно без рамки",
+    "launchBorderlessDescription": "Запускать игру без рамки окна",
+    "resolution": "Разрешение",
+    "screenResolutionGame": "Разрешение экрана игры",
+    "monitor": "монитор",
+    "autoAttack": "Автоатака",
+    "autoAttackMode": "Режим автоматической атаки",
+    "rightClickAttack": "Атака правой кнопкой",
+    "rightClickAttackDescription": "Атаковать врагов правой кнопкой мыши",
+    "disableScrollZoom": "Отключить приближение колесиком",
+    "disableScrollZoomHint": "Нельзя будет изменять масштаб камеры колесом мыши",
+    "autoRepeatRMB": "Автоповтор правой кнопки мыши",
+    "rmbHoldDescription": "Удерживание ПКМ повторяет команду",
+    "teleportRequiresStop": "Телепорт требует остановки",
+    "teleportCancelHint": "Для отмены телепорта нужно нажать «Отменить»",
+    "cameraDistance": "Дальность камеры",
+    "cameraDistanceHint": "По умолчанию 1134. Диапазон: 1000–1600.",
+    "cameraOnSpawn": "Камера на героя при спавне",
+    "cameraOnSpawnDescription": "Переводить камеру к герою при возрождении",
+    "colDlc": "ДЛС",
+    "additionalContent": "ДОПОЛНИТЕЛЬНЫЙ КОНТЕНТ",
+    "apply": "Применить"
+  },
+  "defender": {
+    "addExclusionPrompt": "Добавить папку с игрой в исключения Windows Defender?",
+    "exclusionExplanation": "Без исключения антивирус проверяет каждый файл при скачивании и проверке игры, что замедляет процесс и нагружает диск и процессор.",
+    "uacNote": "Потребуется подтверждение администратора (UAC).",
+    "addException": "Добавить исключение"
+  },
+  "matchmaking": {
+    "searchGame": "ПОИСК ИГРЫ",
+    "play": "ИГРАТЬ",
+    "stop": "СТОП",
+    "connect": "ПОДКЛЮЧИТЬСЯ",
+    "cancelSearch": "ОТМЕНИТЬ ПОИСК",
+    "searchingGame": "Поиск игры"
+  },
+  "party": {
+    "groupLabel": "ГРУППА",
+    "leaveParty": "Покинуть группу",
+    "selectPlayer": "ВЫБРАТЬ ИГРОКА",
+    "playerNickname": "Никнейм игрока",
+    "invitesToParty": "Приглашает в группу",
+    "invitedToYourParty": "приглашён в вашу группу"
+  },
+  "room": {
+    "gameFound": "Игра найдена!",
+    "searchingGameServer": "Идёт поиск игрового сервера...",
+    "waitingForPlayers": "Ожидание других игроков..."
+  },
+  "profile": {
+    "loading": "Загрузка профиля...",
+    "matchesSuffix": "матчей",
+    "winRate": "ДОЛЯ ПОБЕД",
+    "winRateLabel": "Доля побед",
+    "colRating": "РЕЙТИНГ",
+    "colRank": "РАНГ",
+    "colHero": "ГЕРОЙ",
+    "bestHeroes": "ЛУЧШИЕ ГЕРОИ",
+    "seasonStats": "СТАТИСТИКА ЗА СЕЗОН",
+    "colAssists": "ОТЗЫВЫ",
+    "showAll": "Показать все →",
+    "kills": "Убийств",
+    "deaths": "Смертей",
+    "assists": "Помощи",
+    "gamesPlayed": "Игр сыграно",
+    "abandonedGames": "Покинутых игр",
+    "timeInGame": "Времени в игре"
+  },
+  "live": {
+    "broadcasts": "ТРАНСЛЯЦИИ",
+    "noActiveGames": "Нет активных игр",
+    "gameMode": "РЕЖИМ ИГРЫ",
+    "watch": "СМОТРЕТЬ",
+    "colScore": "СЧЁТ",
+    "colTime": "ВРЕМЯ"
+  },
+  "chat": {
+    "enterMessage": "Введите сообщение"
+  },
+  "download": {
+    "downloadGame": "Скачать игру",
+    "alreadyHaveDota": "У меня уже установлена Дота",
+    "selectGameFolder": "Выберите папку для установки игры",
+    "selectContentToInstall": "Выберите контент для установки",
+    "requiredPackagesNote": "Обязательные пакеты отмечены и будут установлены автоматически.",
+    "updateAvailable": "Доступна новая версия, готова к установке.",
+    "restartAndUpdate": "Перезапустить и обновить"
+  },
+  "steam": {
+    "requiredText": "Для запуска лаунчера необходим\nзапущенный и авторизованный ",
+    "notRunningHint": "Убедитесь, что Steam запущен и вы вошли в аккаунт. Окно обновится автоматически.",
+    "openSteam": "Открыть Steam"
+  },
+  "main": {
+    "abandonGameTitle": "Покинуть игру?",
+    "abandonConfirmText": "Вы точно хотите покинуть игру?\nВ режимах 5х5 это может привести к временному запрету на поиск игры.",
+    "welcomeTitle": "Добро пожаловать в D2C Launcher",
+    "stepFormat": "Шаг {0} из {1}"
+  },
+  "game": {
+    "accountPermabanned": "Аккаунт заблокирован навсегда",
+    "inQueue": "В поиске",
+    "notInQueue": "Не в поиске",
+    "afterSpell": "После заклинания",
+    "selectDotaExe": "Выберите dota.exe",
+    "selectAtLeastOneMode": "Выберите хотя бы один режим игры для поиска",
+    "restrictedModesUnselected": "Недоступные режимы были сняты с выбора",
+    "goQueueTitle": "🎮 Давай сыграем в {0}!",
+    "goQueueContent": "В поиске уже {0} игроков!",
+    "heroPicking": "Выбор героев",
+    "folderNotDotaclassic": "Выбранная папка не является Dotaclassic.",
+    "wrongPatchVersionFormat": "Выбранная папка содержит другой патч Dota 2 (версия {0}). Dotaclassic использует патч 6.84. Выберите правильную папку или скачайте игру заново.",
+    "needOneWinForAccess": "Для доступа выиграйте хотя бы одну игру",
+    "loadingPlayers": "Загрузка игроков",
+    "launch": "Запустить",
+    "gameFinished": "Игра завершена",
+    "gameInProgress": "Игра идет",
+    "gameUpdated": "Игра обновлена",
+    "initializing": "Инициализация",
+    "lobby": "Лобби",
+    "gameStarting": "Начало игры",
+    "invalidGameFolder": "Неверная папка с игрой",
+    "noFolderAccess": "Нет доступа к выбранной папке. Выберите другую папку для установки.",
+    "noFolderAccessTitle": "Нет доступа к папке",
+    "noModeAccess": "Нет доступа к режиму",
+    "connectingToServer": "Подключение к серверу...",
+    "connectingToSteam": "Подключение к Steam...",
+    "vsBots": "Против ботов",
+    "verifyingFiles": "Проверка файлов...",
+    "mode5v5": "Обычная 5x5",
+    "ranked5v5": "Рейтинговая 5x5",
+    "needBotsGameForMode": "Сыграйте против ботов для открытия режима",
+    "turbo": "Турбо",
+    "tournament1v1": "Турнир 1x1",
+    "tournament": "Турнир",
+    "bot": "Бот",
+    "deletingDlcFiles": "Удаление файлов DLC...",
+    "installingComponents": "Установка компонентов...",
+    "gameFilesCorrupted": "Файлы игры повреждены или удалены антивирусом.",
+    "failedToLoadPackages": "Не удалось загрузить список пакетов с сервера."
+  },
+  "common": {
+    "skip": "Пропустить",
+    "accept": "Принять",
+    "acceptUpper": "ПРИНЯТЬ",
+    "decline": "Отклонить",
+    "declineUpper": "ОТКЛОНИТЬ",
+    "back": "Назад",
+    "or": "ИЛИ",
+    "retry": "Повторить",
+    "tryAgain": "Попробовать снова",
+    "leave": "Покинуть",
+    "cancel": "Отмена",
+    "always": "Всегда",
+    "disabled": "Выключена",
+    "done": "Готово!",
+    "next": "Далее",
+    "startPlaying": "Начать играть",
+    "notSpecified": "Не указано",
+    "no": "Нет",
+    "loading": "Загрузка...",
+    "loadingEllipsis": "Загрузка…",
+    "loadingError": "Ошибка загрузки",
+    "stopLabel": "Остановить",
+    "website": "Сайт"
+  },
+  "month": {
+    "jan": "янв.",
+    "feb": "фев.",
+    "mar": "мар.",
+    "apr": "апр.",
+    "may": "мая",
+    "jun": "июн.",
+    "jul": "июл.",
+    "aug": "авг.",
+    "sep": "сен.",
+    "oct": "окт.",
+    "nov": "ноя.",
+    "dec": "дек."
+  }
+}

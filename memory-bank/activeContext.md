@@ -2,6 +2,47 @@
 
 ## Current Focus
 
+**Issue #94: JSON-based i18n system** — implemented.
+
+### What Was Changed
+- `Resources/Locales/ru.json` — new embedded JSON with all UI strings organized by section, mirroring webapp i18next structure; achievement strings from `achievement_mapping.json` with `{cp}` placeholders
+- `Services/I18n.cs` — new static class; loads `ru.json` as embedded resource; flattens nested JSON to dot-notation dict; `T(key, params)` with named `{placeholder}` substitution; falls back to key if missing
+- `Util/TExtension.cs` — new Avalonia `MarkupExtension`; enables `{l:T 'key'}` in XAML (static strings only)
+- `d2c-launcher.csproj` — added `<EmbeddedResource>` for `ru.json`
+- `Resources/Strings.cs` — all properties now delegate to `I18n.T("section.key")`; all XAML and C# call sites unchanged
+- `ViewModels/AchievementToastViewModel.cs` — replaced `AchievementImageMap` (int→img) with `AchievementMap` (int→(name, img)) mirroring webapp; title now looked up via `I18n.T("achievement.{name}.title")`
+- `docs/localization.md` — new; documents I18n.T(), JSON format, XAML extension, Strings.cs migration, webapp sync
+
+---
+
+## Previous Focus
+
+**Issue #92: Achievement notification** — implemented.
+
+### What Was Changed
+- `Services/IBackendApiService.cs` — added `AcknowledgeNotificationAsync(string notificationId)`
+- `Services/BackendApiService.cs` — implemented via `NotificationController_acknowledgeAsync`
+- `Resources/Strings.cs` — added `AchievementUnlocked` and `OpenAchievements`
+- `ViewModels/AchievementToastViewModel.cs` — new toast VM; shows achievement title, description, and image (mapped from `notification.achievement.key` integer 0–29 to a static image URL table); `OpenCommand` opens `https://dotaclassic.ru/players/{steamId}/achievements` in browser; `Closed` event acknowledges notification via REST API
+- `ViewModels/NotificationAreaViewModel.cs` — added `AddAchievementToast(NotificationDto, IBackendApiService)` method
+- `Integration/SocketEventCoordinator.cs` — injected `IBackendApiService`; subscribed to `NotificationCreated`; routes `ACHIEVEMENT_COMPLETE` notifications to `NotificationArea.AddAchievementToast`
+- `ViewModels/MainLauncherViewModel.cs` — passes `backendApiService` to `SocketEventCoordinator`
+- `Views/Components/NotificationArea.axaml` — added `DataTemplate` for `AchievementToastViewModel` (achievement image + gold title + description + blue "ДОСТИЖЕНИЯ" button)
+- `Preview/PreviewStubs.cs` — stub `AcknowledgeNotificationAsync` (no-op)
+
+---
+
+## Previous Focus
+
+**Issue #93: Launch game with +connect when not running** — implemented.
+
+### What Was Changed
+- `ViewModels/GameLaunchViewModel.cs` — `LaunchGame` now accepts optional `string? launchOptions` (any extra `+commands` appended last to the argument list). `ConnectToGameAsync`: when the game is not running, calls `LaunchGame($"+connect {url}")` and returns immediately; when the game is already running, keeps the existing WM_COPYDATA path.
+
+---
+
+## Previous Focus
+
 **Issue #88: Split SettingsViewModel into focused sub-ViewModels** — implemented.
 
 ### What Was Changed

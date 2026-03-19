@@ -5,6 +5,7 @@ using d2c_launcher.Resources;
 using d2c_launcher.Services;
 using d2c_launcher.Util;
 using d2c_launcher.ViewModels;
+using NotificationType = d2c_launcher.Api.NotificationType;
 
 namespace d2c_launcher.Integration;
 
@@ -26,6 +27,7 @@ public sealed class SocketEventCoordinator : IDisposable
     private readonly IQueueSocketService _queueSocketService;
     private readonly NotificationAreaViewModel _notificationArea;
     private readonly IWindowService _windowService;
+    private readonly IBackendApiService _backendApiService;
     private readonly Func<MatchmakingMode, string> _getModeName;
 
     private string? _lastServerUrl;
@@ -34,11 +36,13 @@ public sealed class SocketEventCoordinator : IDisposable
         IQueueSocketService queueSocketService,
         NotificationAreaViewModel notificationArea,
         IWindowService windowService,
+        IBackendApiService backendApiService,
         Func<MatchmakingMode, string> getModeName)
     {
         _queueSocketService = queueSocketService;
         _notificationArea = notificationArea;
         _windowService = windowService;
+        _backendApiService = backendApiService;
         _getModeName = getModeName;
 
         queueSocketService.PartyInviteReceived += OnPartyInviteReceived;
@@ -46,6 +50,7 @@ public sealed class SocketEventCoordinator : IDisposable
         queueSocketService.PlayerRoomFound += OnPlayerRoomFound;
         queueSocketService.PlayerGameStateUpdated += OnPlayerGameStateUpdated;
         queueSocketService.PleaseEnterQueue += OnPleaseEnterQueue;
+        queueSocketService.NotificationCreated += OnNotificationCreated;
     }
 
     private void OnPartyInviteReceived(PartyInviteReceivedMessage msg)
@@ -82,6 +87,13 @@ public sealed class SocketEventCoordinator : IDisposable
         Dispatcher.UIThread.Post(() => _notificationArea.AddGoQueueToast(title, content));
     }
 
+    private void OnNotificationCreated(NotificationCreatedMessage msg)
+    {
+        var notification = msg.NotificationDto;
+        if (notification.NotificationType == NotificationType.ACHIEVEMENT_COMPLETE)
+            Dispatcher.UIThread.Post(() => _notificationArea.AddAchievementToast(notification, _backendApiService));
+    }
+
     public void Dispose()
     {
         _queueSocketService.PartyInviteReceived -= OnPartyInviteReceived;
@@ -89,5 +101,6 @@ public sealed class SocketEventCoordinator : IDisposable
         _queueSocketService.PlayerRoomFound -= OnPlayerRoomFound;
         _queueSocketService.PlayerGameStateUpdated -= OnPlayerGameStateUpdated;
         _queueSocketService.PleaseEnterQueue -= OnPleaseEnterQueue;
+        _queueSocketService.NotificationCreated -= OnNotificationCreated;
     }
 }

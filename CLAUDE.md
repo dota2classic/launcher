@@ -204,6 +204,7 @@ Project documentation lives in the `docs/` directory. Current files:
 | [docs/taskbar-icon-investigation.md](docs/taskbar-icon-investigation.md) | Issue #79: taskbar icon blank when game launched via launcher — what was tried, what worked (AUMID), what didn't (WM_SETICON, SetClassLongPtr), hypotheses, verdict |
 | [docs/dota2com-url-suppression.md](docs/dota2com-url-suppression.md) | Issue #81: suppressing dota2.com store panel — client.dll URL patching, VPK CRC gotcha, loose file override for store_promo_pages |
 | [docs/codestyle.md](docs/codestyle.md) | C# code style conventions: event handler subscriptions (named methods vs lambdas) |
+| [docs/localization.md](docs/localization.md) | i18n system: `I18n.T()`, `ru.json` structure, `{l:T}` XAML extension, `Strings.cs` migration, webapp sync |
 
 When you discover new domain knowledge, architectural decisions, or non-trivial technical details during implementation, **write them up as a new `.md` file in `docs/`** and add an entry to this table. Keep docs focused — one topic per file.
 
