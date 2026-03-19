@@ -248,7 +248,7 @@
                                                                 Width="28" Height="28"
                                                                 Cursor="Hand"
                                                                 CornerRadius="4"
-                                                                ToolTip.Tip="Реагировать">
+                                                                ToolTip.Tip="{Binding Tooltip}">
                                                             <Button.Styles>
                                                                 <Style Selector="Button:pointerover /template/ ContentPresenter">
                                                                     <Setter Property="Background" Value="#252c38"/>
@@ -268,7 +268,7 @@
                                                     Width="28" Height="28"
                                                     Cursor="Hand"
                                                     CornerRadius="4"
-                                                    ToolTip.Tip="Выбрать эмоцию">
+                                                    ToolTip.Tip="{l:T 'chat.pickEmoticon'}">
                                                 <Button.Styles>
                                                     <Style Selector="Button:pointerover /template/ ContentPresenter">
                                                         <Setter Property="Background" Value="#252c38"/>

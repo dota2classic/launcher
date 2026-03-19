@@ -57,22 +57,22 @@ public sealed partial class ChatMessageView : ObservableObject
     /// Called once after emoticons finish loading and for each new incoming message.
     /// </summary>
     public void SetupQuickReacts(
-        IReadOnlyList<(int Id, byte[]? GifBytes)> top3,
-        IReadOnlyList<(int Id, byte[]? GifBytes)> all,
+        IReadOnlyList<(int Id, string Code, byte[]? GifBytes)> top3,
+        IReadOnlyList<(int Id, string Code, byte[]? GifBytes)> all,
         Func<int, Task> react)
     {
         QuickReacts.Clear();
         foreach (var e in top3)
         {
             var id = e.Id;
-            QuickReacts.Add(new ChatQuickReactViewModel(e.Id, e.GifBytes, () => react(id)));
+            QuickReacts.Add(new ChatQuickReactViewModel(e.Id, e.Code, e.GifBytes, () => react(id)));
         }
 
         AllEmoticonReacts.Clear();
         foreach (var e in all)
         {
             var id = e.Id;
-            AllEmoticonReacts.Add(new ChatQuickReactViewModel(e.Id, e.GifBytes, () => react(id)));
+            AllEmoticonReacts.Add(new ChatQuickReactViewModel(e.Id, e.Code, e.GifBytes, () => react(id)));
         }
     }
 

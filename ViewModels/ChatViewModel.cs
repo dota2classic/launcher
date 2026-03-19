@@ -361,11 +361,11 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
         var top3 = _orderedEmoticons
             .Take(3)
-            .Select(e => (e.Id, GifBytes: _emoticonImages.GetValueOrDefault(e.Code)))
+            .Select(e => (e.Id, e.Code, GifBytes: _emoticonImages.GetValueOrDefault(e.Code)))
             .ToList();
 
         var all = _orderedEmoticons
-            .Select(e => (e.Id, GifBytes: _emoticonImages.GetValueOrDefault(e.Code)))
+            .Select(e => (e.Id, e.Code, GifBytes: _emoticonImages.GetValueOrDefault(e.Code)))
             .ToList();
 
         view.SetupQuickReacts(top3, all, emoticonId => ReactToMessageAsync(view.MessageId, emoticonId));

@@ -49,9 +49,10 @@ public class EmoticonImage : ContentControl
         {
             try
             {
+                using var ms = new MemoryStream(bytes);
                 Content = new Image
                 {
-                    Source = new Bitmap(new MemoryStream(bytes)),
+                    Source = new Bitmap(ms),
                     Stretch = Stretch.Uniform,
                 };
             }

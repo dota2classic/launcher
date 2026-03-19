@@ -234,7 +234,8 @@
     "colTime": "ВРЕМЯ"
   },
   "chat": {
-    "enterMessage": "Введите сообщение"
+    "enterMessage": "Введите сообщение",
+    "pickEmoticon": "Выбрать эмоцию"
   },
   "download": {
     "downloadGame": "Скачать игру",
