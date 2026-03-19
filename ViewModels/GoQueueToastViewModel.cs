@@ -6,7 +6,7 @@ public sealed class GoQueueToastViewModel : NotificationViewModel
     public string Title { get; }
     public string Content { get; }
 
-    public GoQueueToastViewModel(string title, string content, int displaySeconds = 6)
+    public GoQueueToastViewModel(string title, string content, int displaySeconds = 30)
         : base(displaySeconds)
     {
         Title = title;
