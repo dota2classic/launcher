@@ -10,7 +10,6 @@ using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Labs.Gif;
 using Avalonia.Media;
 using d2c_launcher.Models;
 
@@ -166,21 +165,7 @@ public class RichMessageBlock : UserControl
                     break;
 
                 case EmoticonSegment es:
-                    Control emoticonCtrl;
-                    if (es.Bytes != null)
-                    {
-                        emoticonCtrl = new Avalonia.Labs.Gif.GifImage
-                        {
-                            Source = new MemoryStream(es.Bytes),
-                            Width = 18,
-                            Height = 18,
-                            Stretch = Stretch.Uniform
-                        };
-                    }
-                    else
-                    {
-                        emoticonCtrl = new Image { Width = 18, Height = 18 };
-                    }
+                    var emoticonCtrl = new EmoticonImage { Bytes = es.Bytes, Width = 20, Height = 20 };
                     _textBlock.Inlines.Add(new InlineUIContainer(emoticonCtrl)
                     {
                         BaselineAlignment = BaselineAlignment.Center

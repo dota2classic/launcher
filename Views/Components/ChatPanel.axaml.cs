@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.VisualTree;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
@@ -54,6 +56,13 @@ public partial class ChatPanel : UserControl
 
     private void OnSiteClicked(object? sender, RoutedEventArgs e) =>
         Process.Start(new ProcessStartInfo("https://dotaclassic.ru/") { UseShellExecute = true });
+
+    private void OnPickerReactClicked(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Control v &&
+            v.FindAncestorOfType<FlyoutPresenter>()?.Parent is Popup popup)
+            Dispatcher.UIThread.Post(() => popup.IsOpen = false);
+    }
 
     private void ScrollToBottom()
     {
