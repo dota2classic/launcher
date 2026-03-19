@@ -59,8 +59,6 @@ public sealed class AchievementToastViewModel : NotificationViewModel
     public AchievementToastViewModel(
         string notificationId,
         string steamId,
-        string title,
-        string description,
         int achievementKey,
         IBackendApiService api,
         int displaySeconds = 10)
@@ -68,20 +66,10 @@ public sealed class AchievementToastViewModel : NotificationViewModel
     {
         AchievementsPageUrl = $"{BaseUrl}/players/{steamId}/achievements";
 
-        if (AchievementMap.TryGetValue(achievementKey, out var info))
-        {
-            // Title has no placeholders — look it up locally from ru.json.
-            // Description may contain {cp} values already substituted by the backend.
-            Title = I18n.T($"achievement.{info.Name}.title");
-            Description = description;
-            ImageUrl = $"{BaseUrl}{info.Img}";
-        }
-        else
-        {
-            Title = title;
-            Description = description;
-            ImageUrl = null;
-        }
+        AchievementMap.TryGetValue(achievementKey, out var info);
+        Title = I18n.T($"achievement.{info.Name}.title");
+        Description = I18n.T($"achievement.{info.Name}.description");
+        ImageUrl = info.Img is not null ? $"{BaseUrl}{info.Img}" : null;
 
         OpenCommand = new RelayCommand(() =>
         {

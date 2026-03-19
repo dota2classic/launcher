@@ -65,8 +65,6 @@ public sealed class NotificationAreaViewModel
         var vm = new AchievementToastViewModel(
             notification.Id,
             notification.SteamId,
-            notification.Title,
-            notification.Content,
             achievementKey,
             api);
         AddNotification(vm);
