@@ -58,6 +58,12 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="m:ChatMessageView">
                                 <Border Padding="14,2" Margin="{Binding GroupMargin}">
+                                    <Border.Styles>
+                                        <Style Selector="Border:pointerover">
+                                            <Setter Property="Background" Value="#0c1520"/>
+                                        </Style>
+                                    </Border.Styles>
+                                    <Panel>
                                     <Grid ColumnDefinitions="30,10,*">
 
                                         <!-- Avatar (header only) -->
@@ -200,6 +206,109 @@
                                         </StackPanel>
 
                                     </Grid>
+
+                                    <!-- Hover toolbar: top-3 quick-react + picker flyout -->
+                                    <Border HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            Margin="0,2,4,0"
+                                            Background="#1a1f28"
+                                            CornerRadius="8"
+                                            BorderBrush="#2d3842"
+                                            BorderThickness="1"
+                                            Padding="4,2"
+                                            IsVisible="{Binding $parent[Border].IsPointerOver}">
+                                        <StackPanel Orientation="Horizontal" Spacing="2">
+
+                                            <!-- Top-3 quick-react buttons -->
+                                            <ItemsControl ItemsSource="{Binding QuickReacts}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel Orientation="Horizontal" Spacing="2"/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate x:DataType="vm:ChatQuickReactViewModel">
+                                                        <Button Command="{Binding ReactCommand}"
+                                                                Background="Transparent"
+                                                                BorderThickness="0"
+                                                                Padding="4"
+                                                                Width="28" Height="28"
+                                                                Cursor="Hand"
+                                                                CornerRadius="4"
+                                                                ToolTip.Tip="Реагировать">
+                                                            <Button.Styles>
+                                                                <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                                                    <Setter Property="Background" Value="#252c38"/>
+                                                                </Style>
+                                                            </Button.Styles>
+                                                            <gif:GifImage Source="{Binding Stream}"
+                                                                          Width="18" Height="18"
+                                                                          Stretch="Uniform"/>
+                                                        </Button>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                            <!-- "More emoticons" button with picker flyout -->
+                                            <Button Background="Transparent"
+                                                    BorderThickness="0"
+                                                    Padding="4"
+                                                    Width="28" Height="28"
+                                                    Cursor="Hand"
+                                                    CornerRadius="4"
+                                                    ToolTip.Tip="Выбрать эмоцию">
+                                                <Button.Styles>
+                                                    <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                                        <Setter Property="Background" Value="#252c38"/>
+                                                    </Style>
+                                                </Button.Styles>
+                                                <Button.Flyout>
+                                                    <Flyout Placement="TopEdgeAlignedRight">
+                                                        <Border Background="#1a1f28"
+                                                                CornerRadius="8"
+                                                                BorderBrush="#2d3842"
+                                                                BorderThickness="1"
+                                                                Padding="6">
+                                                            <ItemsControl ItemsSource="{Binding AllEmoticonReacts}"
+                                                                          MaxWidth="256">
+                                                                <ItemsControl.ItemsPanel>
+                                                                    <ItemsPanelTemplate>
+                                                                        <WrapPanel Orientation="Horizontal"/>
+                                                                    </ItemsPanelTemplate>
+                                                                </ItemsControl.ItemsPanel>
+                                                                <ItemsControl.ItemTemplate>
+                                                                    <DataTemplate x:DataType="vm:ChatQuickReactViewModel">
+                                                                        <Button Command="{Binding ReactCommand}"
+                                                                                Background="Transparent"
+                                                                                BorderThickness="0"
+                                                                                Padding="4"
+                                                                                Width="34" Height="34"
+                                                                                Cursor="Hand"
+                                                                                CornerRadius="4">
+                                                                            <Button.Styles>
+                                                                                <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                                                                    <Setter Property="Background" Value="#252c38"/>
+                                                                                </Style>
+                                                                            </Button.Styles>
+                                                                            <gif:GifImage Source="{Binding Stream}"
+                                                                                          Width="22" Height="22"
+                                                                                          Stretch="Uniform"/>
+                                                                        </Button>
+                                                                    </DataTemplate>
+                                                                </ItemsControl.ItemTemplate>
+                                                            </ItemsControl>
+                                                        </Border>
+                                                    </Flyout>
+                                                </Button.Flyout>
+                                                <materialIcons:MaterialIcon Kind="EmoticonOutline"
+                                                                            Width="16" Height="16"
+                                                                            Foreground="#48525a"/>
+                                            </Button>
+
+                                        </StackPanel>
+                                    </Border>
+
+                                    </Panel>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

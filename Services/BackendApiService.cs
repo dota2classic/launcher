@@ -377,7 +377,7 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
             foreach (var e in emoticons)
             {
                 if (e != null && !string.IsNullOrWhiteSpace(e.Code) && !string.IsNullOrWhiteSpace(e.Src))
-                    result.Add(new EmoticonData(e.Code, e.Src));
+                    result.Add(new EmoticonData((int)e.Id, e.Code, e.Src));
             }
             return result;
         }

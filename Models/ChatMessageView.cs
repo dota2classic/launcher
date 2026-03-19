@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia;
 using CommunityToolkit.Mvvm.ComponentModel;
 using d2c_launcher.ViewModels;
@@ -45,6 +46,35 @@ public sealed partial class ChatMessageView : ObservableObject
 
     public ObservableCollection<ChatReactionViewModel> Reactions { get; } = new();
     [ObservableProperty] private bool _hasReactions;
+
+    /// <summary>Top 3 emoticons shown in the hover toolbar.</summary>
+    public ObservableCollection<ChatQuickReactViewModel> QuickReacts { get; } = new();
+    /// <summary>All emoticons for the picker flyout.</summary>
+    public ObservableCollection<ChatQuickReactViewModel> AllEmoticonReacts { get; } = new();
+
+    /// <summary>
+    /// Populates the hover toolbar (top 3) and picker (all) with quick-react buttons.
+    /// Called once after emoticons finish loading and for each new incoming message.
+    /// </summary>
+    public void SetupQuickReacts(
+        IReadOnlyList<(int Id, byte[]? GifBytes)> top3,
+        IReadOnlyList<(int Id, byte[]? GifBytes)> all,
+        Func<int, Task> react)
+    {
+        QuickReacts.Clear();
+        foreach (var e in top3)
+        {
+            var id = e.Id;
+            QuickReacts.Add(new ChatQuickReactViewModel(e.Id, e.GifBytes, () => react(id)));
+        }
+
+        AllEmoticonReacts.Clear();
+        foreach (var e in all)
+        {
+            var id = e.Id;
+            AllEmoticonReacts.Add(new ChatQuickReactViewModel(e.Id, e.GifBytes, () => react(id)));
+        }
+    }
 
     /// <summary>
     /// Updates the Reactions collection in-place from fresh data, reusing existing VMs where possible.

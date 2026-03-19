@@ -157,8 +157,8 @@ internal sealed class StubBackendApiService : IBackendApiService
 
 internal sealed class StubEmoticonService : IEmoticonService
 {
-    public Task<Dictionary<string, byte[]>> GetEmoticonImagesAsync()
-        => Task.FromResult(new Dictionary<string, byte[]>());
+    public Task<EmoticonLoadResult> LoadEmoticonsAsync()
+        => Task.FromResult(new EmoticonLoadResult());
 }
 
 internal sealed class StubHttpImageService : IHttpImageService

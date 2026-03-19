@@ -25,7 +25,7 @@ public sealed class EmoticonService : IEmoticonService
             "d2c-launcher", "emoticons");
     }
 
-    public async Task<Dictionary<string, byte[]>> GetEmoticonImagesAsync()
+    public async Task<EmoticonLoadResult> LoadEmoticonsAsync()
     {
         Directory.CreateDirectory(_cacheDir);
 
@@ -51,7 +51,7 @@ public sealed class EmoticonService : IEmoticonService
         }
 
         AppLog.Info($"Emoticons: loaded {images.Count} images ({list.Count} in list).");
-        return images;
+        return new EmoticonLoadResult { Images = images, Ordered = list };
     }
 
     private async Task<byte[]?> LoadWithCacheAsync(string code, string url)
