@@ -223,7 +223,6 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 msg.IsOld,
                 msg.IsModerator,
                 msg.IsAdmin,
-                msg.ChatIconUrl,
                 msg.ChatIconTitle);
 
             if (msg.Reactions != null)
@@ -231,6 +230,8 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
             SetupQuickReacts(view);
             if (showHeader)
                 view.IsOnline = _onlineUsers.Contains(msg.AuthorSteamId);
+            if (msg.IsOld && msg.ChatIconUrl != null)
+                _ = LoadChatIconAsync(view, msg.ChatIconUrl);
             Messages.Add(view);
             _lastMessageRaw = (msg.AuthorSteamId, msg.CreatedAt);
             MessagesUpdated?.Invoke();
@@ -332,13 +333,14 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 msg.IsOld,
                 msg.IsModerator,
                 msg.IsAdmin,
-                msg.ChatIconUrl,
                 msg.ChatIconTitle);
             if (msg.Reactions != null)
                 view.UpdateReactions(msg.Reactions, data => BuildReactionVm(msg.MessageId, data));
             SetupQuickReacts(view);
             if (showHeader)
                 view.IsOnline = _onlineUsers.Contains(msg.AuthorSteamId);
+            if (msg.IsOld && msg.ChatIconUrl != null)
+                _ = LoadChatIconAsync(view, msg.ChatIconUrl);
             result.Add(view);
         }
 
@@ -440,6 +442,15 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
             _userNameCache[steamId] = name;
             ReparseAllMessages();
         });
+    }
+
+    // ── Chat icon ─────────────────────────────────────────────────────────────
+
+    private async Task LoadChatIconAsync(ChatMessageView view, string url)
+    {
+        var bytes = await _imageService.LoadBytesAsync(url).ConfigureAwait(false);
+        if (bytes != null)
+            Dispatcher.UIThread.Post(() => view.ChatIconBytes = bytes);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

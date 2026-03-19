@@ -48,8 +48,7 @@ public sealed partial class ChatMessageView : ObservableObject
     public bool IsOld { get; }
     public bool IsModerator { get; }
     public bool IsAdmin { get; }
-    public string? ChatIconUrl { get; }
-    public bool HasCustomChatIcon => ChatIconUrl != null;
+    [ObservableProperty] private byte[]? _chatIconBytes;
     public string ChatIconTooltip { get; }
 
     public ObservableCollection<ChatReactionViewModel> Reactions { get; } = new();
@@ -129,7 +128,6 @@ public sealed partial class ChatMessageView : ObservableObject
         bool isOld = false,
         bool isModerator = false,
         bool isAdmin = false,
-        string? chatIconUrl = null,
         string? chatIconTitle = null)
     {
         MessageId = messageId;
@@ -148,7 +146,6 @@ public sealed partial class ChatMessageView : ObservableObject
         IsOld = isOld;
         IsModerator = isModerator;
         IsAdmin = isAdmin;
-        ChatIconUrl = chatIconUrl;
         ChatIconTooltip = chatIconTitle ?? I18n.T("chat.defaultSubscriberTitle");
     }
 
