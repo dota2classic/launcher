@@ -9,7 +9,7 @@ namespace d2c_launcher.ViewModels;
 public partial class ChatReactionViewModel : ObservableObject
 {
     public int EmoticonId { get; }
-    /// <summary>Single stream created once from cached GIF bytes. Null if bytes are not available.</summary>
+    /// <summary>Single stream created once from cached GIF bytes. Null if bytes are not available or not a GIF.</summary>
     public MemoryStream? EmoticonStream { get; }
 
     [ObservableProperty] private int _count;
@@ -20,7 +20,7 @@ public partial class ChatReactionViewModel : ObservableObject
     public ChatReactionViewModel(int emoticonId, byte[]? emoticonBytes, int count, bool isMine, Func<Task> react)
     {
         EmoticonId = emoticonId;
-        EmoticonStream = emoticonBytes != null ? new MemoryStream(emoticonBytes) : null;
+        EmoticonStream = IsGif(emoticonBytes) ? new MemoryStream(emoticonBytes!) : null;
         _count = count;
         _isMine = isMine;
         _react = react;
@@ -28,4 +28,7 @@ public partial class ChatReactionViewModel : ObservableObject
 
     [RelayCommand]
     private Task ReactAsync() => _react();
+
+    private static bool IsGif(byte[]? bytes) =>
+        bytes is { Length: >= 3 } && bytes[0] == 'G' && bytes[1] == 'I' && bytes[2] == 'F';
 }

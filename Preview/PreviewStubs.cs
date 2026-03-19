@@ -149,8 +149,8 @@ internal sealed class StubBackendApiService : IBackendApiService
         string threadId,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        // Stub: yield nothing (preview shows only the initially-loaded messages).
-        await Task.CompletedTask;
+        // Stub: suspend indefinitely so the SSE loop doesn't spin synchronously and block the UI thread.
+        await Task.Delay(Timeout.Infinite, cancellationToken).ConfigureAwait(false);
         yield break;
     }
 }
