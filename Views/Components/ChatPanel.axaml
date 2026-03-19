@@ -174,9 +174,13 @@
                                                                     <Setter Property="Background" Value="#12233a"/>
                                                                     <Setter Property="BorderBrush" Value="#3a90d6"/>
                                                                 </Style>
-                                                                <Style Selector="Button:pointerover /template/ ContentPresenter">
-                                                                    <Setter Property="Background" Value="Transparent"/>
-                                                                    <Setter Property="Opacity" Value="0.85"/>
+                                                                <Style Selector="Button:pointerover /template/ Border#PART_BorderElement">
+                                                                    <Setter Property="Background" Value="#252c38"/>
+                                                                    <Setter Property="BorderBrush" Value="#4a5a6e"/>
+                                                                </Style>
+                                                                <Style Selector="Button.mine:pointerover /template/ Border#PART_BorderElement">
+                                                                    <Setter Property="Background" Value="#1a3050"/>
+                                                                    <Setter Property="BorderBrush" Value="#5aaae8"/>
                                                                 </Style>
                                                             </Button.Styles>
                                                             <StackPanel Orientation="Horizontal" Spacing="4"
