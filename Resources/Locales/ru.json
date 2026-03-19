@@ -236,7 +236,7 @@
   "chat": {
     "enterMessage": "Введите сообщение",
     "pickEmoticon": "Выбрать эмоцию",
-    "defaultSubscriberTitle": "Подписчик OLD",
+    "defaultSubscriberTitle": "Подписчик Dotaclassic Plus",
     "roleModeratorTooltip": "Модератор",
     "roleAdminTooltip": "Администратор"
   },
