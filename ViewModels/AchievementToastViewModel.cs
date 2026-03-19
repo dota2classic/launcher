@@ -65,7 +65,11 @@ public sealed class AchievementToastViewModel : NotificationViewModel
         int displaySeconds = 10)
         : base(displaySeconds)
     {
-        AchievementsPageUrl = $"{BaseUrl}/players/{steamId}/achievements";
+        // Website uses steam32 IDs. Convert from steam64 if needed.
+        var steam32 = ulong.TryParse(steamId, out var id64) && id64 > 76561197960265728UL
+            ? (id64 - 76561197960265728UL).ToString()
+            : steamId;
+        AchievementsPageUrl = $"{BaseUrl}/players/{steam32}/achievements";
 
         AchievementMap.TryGetValue(achievementKey, out var info);
         Title = I18n.T($"achievement.{info.Name}.title");
