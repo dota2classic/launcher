@@ -29,7 +29,7 @@ public partial class MainWindow : Window
     protected override void OnKeyDown(KeyEventArgs e)
     {
         base.OnKeyDown(e);
-        if (e.Key == Key.F12 &&
+        if (e.Key == Key.F4 &&
             DataContext is MainWindowViewModel { CurrentContentViewModel: MainLauncherViewModel launcher })
         {
             launcher.TriggerDevAchievementNotification();
