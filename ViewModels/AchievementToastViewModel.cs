@@ -61,6 +61,7 @@ public sealed class AchievementToastViewModel : NotificationViewModel
         string steamId,
         int achievementKey,
         IBackendApiService api,
+        int cp = 0,
         int displaySeconds = 10)
         : base(displaySeconds)
     {
@@ -68,7 +69,7 @@ public sealed class AchievementToastViewModel : NotificationViewModel
 
         AchievementMap.TryGetValue(achievementKey, out var info);
         Title = I18n.T($"achievement.{info.Name}.title");
-        Description = I18n.T($"achievement.{info.Name}.description");
+        Description = I18n.T($"achievement.{info.Name}.description", ("cp", cp));
         ImageUrl = info.Img is not null ? $"{BaseUrl}{info.Img}" : null;
 
         OpenCommand = new RelayCommand(() =>

@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using d2c_launcher.Services;
 using d2c_launcher.ViewModels;
@@ -23,6 +24,16 @@ public partial class MainWindow : Window
     {
         _settingsStorage = settingsStorage;
         InitializeComponent();
+    }
+
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        base.OnKeyDown(e);
+        if (e.Key == Key.F12 &&
+            DataContext is MainWindowViewModel { CurrentContentViewModel: MainLauncherViewModel launcher })
+        {
+            launcher.TriggerDevAchievementNotification();
+        }
     }
 
     protected override void OnClosing(WindowClosingEventArgs e)

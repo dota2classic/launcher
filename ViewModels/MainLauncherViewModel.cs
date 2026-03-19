@@ -412,6 +412,22 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public void CloseInviteModal() => Party.CloseInviteModal();
     public async Task InvitePlayerAsync(d2c_launcher.Models.InviteCandidateView candidate) => await Party.InvitePlayerAsync(candidate);
 
+    /// <summary>
+    /// Dev shortcut (F12, nightly only): shows a fake winStreak10 achievement toast.
+    /// </summary>
+    public void TriggerDevAchievementNotification()
+    {
+        if (!_settingsStorage.Get().NightlyUpdates) return;
+
+        var vm = new AchievementToastViewModel(
+            notificationId: "dev-preview",
+            steamId: CurrentUser?.SteamId.ToString() ?? "0",
+            achievementKey: 9, // winStreak10
+            api: _backendApiService,
+            cp: 10);
+        NotificationArea.AddNotificationDirect(vm);
+    }
+
     public void Dispose()
     {
         _onlineStatsTimer.Stop();

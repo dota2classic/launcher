@@ -70,6 +70,8 @@ public sealed class NotificationAreaViewModel
         AddNotification(vm);
     }
 
+    public void AddNotificationDirect(NotificationViewModel vm) => AddNotification(vm);
+
     private void AddNotification(NotificationViewModel vm)
     {
         vm.Closed += v => Dispatcher.UIThread.Post(() => Notifications.Remove(v));
