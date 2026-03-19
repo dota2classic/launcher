@@ -5,23 +5,22 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace d2c_launcher.ViewModels;
 
-public partial class ChatReactionViewModel : ObservableObject
+/// <summary>A single emoticon button in the hover toolbar or picker popup.</summary>
+public partial class ChatQuickReactViewModel : ObservableObject
 {
     public int EmoticonId { get; }
     /// <summary>Raw emoticon bytes passed directly to <c>EmoticonImage</c>.</summary>
-    public byte[]? EmoticonBytes { get; }
-
-    [ObservableProperty] private int _count;
-    [ObservableProperty] private bool _isMine;
+    public byte[]? Bytes { get; }
+    /// <summary>Emoticon code shown as tooltip, e.g. ":wave:".</summary>
+    public string Tooltip { get; }
 
     private readonly Func<Task> _react;
 
-    public ChatReactionViewModel(int emoticonId, byte[]? emoticonBytes, int count, bool isMine, Func<Task> react)
+    public ChatQuickReactViewModel(int emoticonId, string code, byte[]? gifBytes, Func<Task> react)
     {
         EmoticonId = emoticonId;
-        EmoticonBytes = emoticonBytes;
-        _count = count;
-        _isMine = isMine;
+        Bytes = gifBytes;
+        Tooltip = $":{code}:";
         _react = react;
     }
 

@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.VisualTree;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
@@ -10,6 +12,8 @@ namespace d2c_launcher.Views.Components;
 
 public partial class ChatPanel : UserControl
 {
+    private ChatViewModel? _vm;
+
     public ChatPanel()
     {
         InitializeComponent();
@@ -31,10 +35,11 @@ public partial class ChatPanel : UserControl
     protected override void OnDataContextChanged(System.EventArgs e)
     {
         base.OnDataContextChanged(e);
-        if (DataContext is ChatViewModel vm)
-        {
-            vm.MessagesUpdated += ScrollToBottom;
-        }
+        if (_vm != null)
+            _vm.MessagesUpdated -= ScrollToBottom;
+        _vm = DataContext as ChatViewModel;
+        if (_vm != null)
+            _vm.MessagesUpdated += ScrollToBottom;
     }
 
     private void OnInputKeyDown(object? sender, KeyEventArgs e)
@@ -54,6 +59,13 @@ public partial class ChatPanel : UserControl
 
     private void OnSiteClicked(object? sender, RoutedEventArgs e) =>
         Process.Start(new ProcessStartInfo("https://dotaclassic.ru/") { UseShellExecute = true });
+
+    private void OnPickerReactClicked(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Control v &&
+            v.FindAncestorOfType<FlyoutPresenter>()?.Parent is Popup popup)
+            Dispatcher.UIThread.Post(() => popup.IsOpen = false);
+    }
 
     private void ScrollToBottom()
     {

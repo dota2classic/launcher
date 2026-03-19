@@ -19,7 +19,7 @@ public interface IBackendApiService
     Task<IReadOnlyList<ChatMessageData>> GetChatMessagesAsync(string threadId, int limit, CancellationToken cancellationToken = default);
     Task PostChatMessageAsync(string threadId, string content, CancellationToken cancellationToken = default);
     IAsyncEnumerable<ChatMessageData> SubscribeChatAsync(string threadId, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<EmoticonData>> GetEmoticonsAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<EmoticonData>> GetEmoticonsAsync(string? steamId = null, CancellationToken cancellationToken = default);
     /// <summary>Returns the live match with the given ID, or null if not found.</summary>
     Task<LiveMatchInfo?> GetLiveMatchAsync(int matchId, CancellationToken cancellationToken = default);
     /// <summary>Returns all currently live matches.</summary>

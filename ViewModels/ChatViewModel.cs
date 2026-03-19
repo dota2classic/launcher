@@ -27,6 +27,8 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     private readonly IEmoticonService _emoticonService;
     // Emoticon GIF bytes keyed by code (populated once at startup).
     private Dictionary<string, byte[]> _emoticonImages = new(StringComparer.Ordinal);
+    // Backend-ordered emoticon list (most-used first) — used for the hover toolbar and picker.
+    private IReadOnlyList<Models.EmoticonData> _orderedEmoticons = Array.Empty<Models.EmoticonData>();
     // User name cache: steamId → resolved name (null = fetch in-flight).
     private readonly Dictionary<string, string?> _userNameCache = new(StringComparer.Ordinal);
     private CancellationTokenSource? _loadCts;
@@ -96,10 +98,18 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     {
         try
         {
-            _emoticonImages = await _emoticonService.GetEmoticonImagesAsync().ConfigureAwait(false);
+            var result = await _emoticonService.LoadEmoticonsAsync().ConfigureAwait(false);
+            _emoticonImages = result.Images;
+            _orderedEmoticons = result.Ordered;
 
-            // Re-parse any messages that were rendered before emoticons finished loading.
-            Dispatcher.UIThread.Post(ReparseAllMessages);
+            // Re-parse any messages that were rendered before emoticons finished loading,
+            // and populate the quick-react toolbar / picker on all existing messages.
+            Dispatcher.UIThread.Post(() =>
+            {
+                ReparseAllMessages();
+                foreach (var msg in Messages)
+                    SetupQuickReacts(msg);
+            });
         }
         catch (Exception ex)
         {
@@ -213,6 +223,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
             if (msg.Reactions != null)
                 view.UpdateReactions(msg.Reactions, data => BuildReactionVm(msg.MessageId, data));
+            SetupQuickReacts(view);
             if (showHeader)
                 view.IsOnline = _onlineUsers.Contains(msg.AuthorSteamId);
             Messages.Add(view);
@@ -315,6 +326,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 msg.ReplyToContent);
             if (msg.Reactions != null)
                 view.UpdateReactions(msg.Reactions, data => BuildReactionVm(msg.MessageId, data));
+            SetupQuickReacts(view);
             if (showHeader)
                 view.IsOnline = _onlineUsers.Contains(msg.AuthorSteamId);
             result.Add(view);
@@ -342,6 +354,22 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     }
 
     // ── Reactions ─────────────────────────────────────────────────────────────
+
+    private void SetupQuickReacts(ChatMessageView view)
+    {
+        if (_orderedEmoticons.Count == 0) return;
+
+        var top3 = _orderedEmoticons
+            .Take(3)
+            .Select(e => (e.Id, e.Code, GifBytes: _emoticonImages.GetValueOrDefault(e.Code)))
+            .ToList();
+
+        var all = _orderedEmoticons
+            .Select(e => (e.Id, e.Code, GifBytes: _emoticonImages.GetValueOrDefault(e.Code)))
+            .ToList();
+
+        view.SetupQuickReacts(top3, all, emoticonId => ReactToMessageAsync(view.MessageId, emoticonId));
+    }
 
     private ChatReactionViewModel BuildReactionVm(string messageId, Models.ChatReactionData data)
     {

@@ -102,7 +102,7 @@ internal sealed class StubBackendApiService : IBackendApiService
     public Task PostChatMessageAsync(string threadId, string content, CancellationToken cancellationToken = default)
         => Task.CompletedTask;
 
-    public Task<IReadOnlyList<EmoticonData>> GetEmoticonsAsync(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<EmoticonData>> GetEmoticonsAsync(string? steamId = null, CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<EmoticonData>>([]);
 
     public Task<Models.LiveMatchInfo?> GetLiveMatchAsync(int matchId, CancellationToken cancellationToken = default)
@@ -149,16 +149,16 @@ internal sealed class StubBackendApiService : IBackendApiService
         string threadId,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        // Stub: yield nothing (preview shows only the initially-loaded messages).
-        await Task.CompletedTask;
+        // Stub: suspend indefinitely so the SSE loop doesn't spin synchronously and block the UI thread.
+        await Task.Delay(Timeout.Infinite, cancellationToken).ConfigureAwait(false);
         yield break;
     }
 }
 
 internal sealed class StubEmoticonService : IEmoticonService
 {
-    public Task<Dictionary<string, byte[]>> GetEmoticonImagesAsync()
-        => Task.FromResult(new Dictionary<string, byte[]>());
+    public Task<EmoticonLoadResult> LoadEmoticonsAsync()
+        => Task.FromResult(new EmoticonLoadResult());
 }
 
 internal sealed class StubHttpImageService : IHttpImageService

@@ -80,6 +80,8 @@
 | Message updates via SSE (issue #24) | ✅ Done | `message_updated` event updates existing message content in-place |
 | Emoticons as animated GIFs (issue #17) | ✅ Done | `Avalonia.Labs.Gif.GifImage`; `IHttpImageService`/`HttpImageService` |
 | Emoticon disk cache (issue #33) | ✅ Done | `IEmoticonService`/`EmoticonService`; `%LocalAppData%\d2c-launcher\emoticons\`; 24h TTL |
+| Chat reactions (issue #96) | ✅ Done | Reaction pills below messages; clicking toggles via API |
+| React to message hover toolbar + picker (issue #97) | ✅ Done | Hover shows top-3 quick-react buttons + flyout picker with all emoticons; `ChatQuickReactViewModel`, `SetupQuickReacts()` |
 | Chat scrolling | 🔲 Open | Issue #13 |
 
 ### Live Matches (issue #80)

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using d2c_launcher.Integration;
 using d2c_launcher.Util;
 
 namespace d2c_launcher.Services;
@@ -14,22 +15,25 @@ public sealed class EmoticonService : IEmoticonService
 
     private readonly IBackendApiService _backendApiService;
     private readonly IHttpImageService _httpImageService;
+    private readonly ISteamManager _steamManager;
     private readonly string _cacheDir;
 
-    public EmoticonService(IBackendApiService backendApiService, IHttpImageService httpImageService)
+    public EmoticonService(IBackendApiService backendApiService, IHttpImageService httpImageService, ISteamManager steamManager)
     {
         _backendApiService = backendApiService;
         _httpImageService = httpImageService;
+        _steamManager = steamManager;
         _cacheDir = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "d2c-launcher", "emoticons");
     }
 
-    public async Task<Dictionary<string, byte[]>> GetEmoticonImagesAsync()
+    public async Task<EmoticonLoadResult> LoadEmoticonsAsync()
     {
         Directory.CreateDirectory(_cacheDir);
 
-        var list = await _backendApiService.GetEmoticonsAsync().ConfigureAwait(false);
+        var steamId = _steamManager.CurrentUser?.SteamId32.ToString();
+        var list = await _backendApiService.GetEmoticonsAsync(steamId).ConfigureAwait(false);
         var validCodes = new HashSet<string>(list.Select(e => e.Code), StringComparer.Ordinal);
 
         // Clean up cache files for emoticons that no longer exist.
@@ -51,7 +55,7 @@ public sealed class EmoticonService : IEmoticonService
         }
 
         AppLog.Info($"Emoticons: loaded {images.Count} images ({list.Count} in list).");
-        return images;
+        return new EmoticonLoadResult { Images = images, Ordered = list };
     }
 
     private async Task<byte[]?> LoadWithCacheAsync(string code, string url)
