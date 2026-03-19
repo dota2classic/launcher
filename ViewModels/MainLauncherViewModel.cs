@@ -137,6 +137,10 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         var settings = settingsStorage.Get();
         _isIntroOpen = !settings.IntroShown;
 
+        // Set the persisted token immediately so all subsequent API calls are authenticated.
+        if (!string.IsNullOrWhiteSpace(settings.BackendAccessToken))
+            backendApiService.SetBearerToken(settings.BackendAccessToken);
+
         _authCoordinator = new AuthCoordinator(steamManager, backendApiService, queueSocketService, settingsStorage, steamAuthApi, dispatcher);
         _currentUser = steamManager.CurrentUser;
         _avatarImage = SteamAvatarHelper.FromUser(_currentUser);
@@ -169,7 +173,6 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Settings.OnDlcChanged = removedIds => OnDlcChanged?.Invoke(removedIds);
         Chat = chatViewModelFactory.Create("17aa3530-d152-462e-a032-909ae69019ed");
         Chat.OpenPlayerProfile = OpenPlayerProfile;
-        FireAndForget(Chat.StartAsync(), "Chat.StartAsync");
         Profile = new ProfileViewModel(backendApiService);
         Live = new LiveViewModel(backendApiService);
         Live.OnSpectate = matchId => Launch.SpectateMatch((int)matchId);
@@ -177,7 +180,6 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
         _soundCoordinator = new SocketEventCoordinator(queueSocketService, NotificationArea, windowService, backendApiService,
             mode => Queue.MatchmakingModes.FirstOrDefault(m => m.ModeId == (int)mode)?.Name ?? mode.ToString());
-        FireAndForget(_soundCoordinator.LoadPendingNotificationsAsync(), "LoadPendingNotificationsAsync");
 
         Launch.PropertyChanged += (_, e) =>
         {
@@ -245,6 +247,9 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         // When cvar state changes (e.g. config.cfg re-read after game exit), refresh UI
         _cvarProvider.CvarChanged += OnCvarChanged;
 
+        // Start after auth so the token is present for the initial requests.
+        FireAndForget(Chat.StartAsync(), "Chat.StartAsync");
+        FireAndForget(_soundCoordinator.LoadPendingNotificationsAsync(), "LoadPendingNotificationsAsync");
         FireAndForget(Party.RefreshPartyAsync(), "Party.RefreshPartyAsync (startup)");
         FireAndForget(Queue.RefreshMatchmakingModesAsync(), "Queue.RefreshMatchmakingModesAsync (startup)");
 
