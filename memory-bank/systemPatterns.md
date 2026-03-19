@@ -91,7 +91,7 @@ Two separate stores — never merge them:
 
 The launcher reads `config.cfg` on startup and on game exit. It writes to `config.cfg` directly (via `DotaCfgWriter`) when the user changes a cvar while the game is not running. When the game is running, changes are pushed live via `DotaConsoleConnector` and the game flushes `config.cfg` on clean exit.
 
-→ See `docs/settings-architecture.md` for the full data flow and adding new settings.
+→ See `memory-bank/docs/settings-architecture.md` for the full data flow and adding new settings.
 
 ## Two-Phase Config Sync
 
@@ -105,7 +105,7 @@ On game exit (clean shutdown): skip phase 1, only phase 2 (engine already flushe
 
 **Feedback loop prevention:** `IsSyncingFromGame = true` while reading to prevent the settings change handlers from pushing values back to the game.
 
-→ See `docs/source-engine-config-persistence.md` for the full details.
+→ See `memory-bank/docs/source-engine-config-persistence.md` for the full details.
 
 ## Game Launch
 
@@ -121,7 +121,7 @@ Runtime console commands (after launch) are sent via P/Invoke:
 - `FindWindowA("Valve001", null)` — find the game window
 - `SendMessageA(hwnd, WM_COPYDATA, ...)` — send a console command string
 
-→ See `docs/source-engine-launch.md` for `-flag` vs `+command` semantics.
+→ See `memory-bank/docs/source-engine-launch.md` for `-flag` vs `+command` semantics.
 
 ## API Client Pattern
 

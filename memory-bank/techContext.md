@@ -30,8 +30,7 @@
 | `Generated/` | NSwag-generated API client — **do not edit** |
 | `SteamBridge/` | Separate console app that queries Steam SDK and outputs JSON to stdout |
 | `Preview/` | Storybook-like component previewer (registry + stubs) |
-| `memory-bank/` | Structured project context for AI sessions |
-| `docs/` | Technical deep-dives (Source engine, config, settings architecture) |
+| `memory-bank/` | Structured project context for AI sessions (6 core files + `docs/` subfolder) |
 | `tools/` | PowerShell scripts for preview and screenshot automation |
 
 ## Important Files
@@ -108,5 +107,6 @@ Screenshots saved to `tools/screenshots/` (gitignored). Scripts auto-delete prev
 
 ## Localization
 - All UI text is in **Russian** (Cyrillic)
-- No localization framework — strings are hardcoded in XAML and ViewModels
-- Always write new UI text in Russian
+- Uses `I18n` system: `Resources/Locales/ru.json` (embedded), `I18n.T("section.key")` in C#, `{l:T 'section.key'}` in XAML
+- `Resources/Strings.cs` is legacy — do not add new entries; use `I18n.T()` directly
+- See `memory-bank/docs/localization.md`

@@ -132,7 +132,7 @@
 | `CvarMapping` tests | ✅ Done |
 | `DotaCfgWriter` tests (issue #0e31d40) | ✅ Done |
 | CI test step | ✅ Done |
-| Integration testing research | ✅ Done — see `docs/integration-testing-plan.md` |
+| Integration testing research | ✅ Done — see `memory-bank/docs/integration-testing-plan.md` |
 | NSubstitute added + `ISteamManager` interface exists | ✅ Done |
 | `FakeSteamManager` (issue #90) | ✅ Done — `Fakes/FakeSteamManager.cs`; 12 state-transition + auth integration tests |
 | `FakeQueueSocketService` | 🔲 Planned |
@@ -185,11 +185,11 @@ Other known technical debt:
 
 | Doc | Status |
 | --- | ------ |
-| `docs/source-engine-launch.md` | ✅ Written |
-| `docs/source-engine-config-persistence.md` | ✅ Written |
-| `docs/settings-architecture.md` | ✅ Written |
-| `docs/game-update-manifest.md` | ✅ Written |
-| `docs/client-dll-patching.md` | ✅ Written — patching done server-side (CDN); enables `dota_camera_distance` cvar; released |
+| `memory-bank/docs/source-engine-launch.md` | ✅ Written |
+| `memory-bank/docs/source-engine-config-persistence.md` | ✅ Written |
+| `memory-bank/docs/settings-architecture.md` | ✅ Written |
+| `memory-bank/docs/game-update-manifest.md` | ✅ Written |
+| `memory-bank/docs/client-dll-patching.md` | ✅ Written — patching done server-side (CDN); enables `dota_camera_distance` cvar; released |
 | Memory bank (`memory-bank/`) | ✅ Written |
 
 

@@ -16,7 +16,7 @@ At the start of **every session**, read all files in `memory-bank/`:
 As you work:
 - Update `memory-bank/activeContext.md` when focus shifts or significant progress is made
 - Update `memory-bank/progress.md` when features complete or new issues are found
-- Add new files to `docs/` when you discover domain knowledge, and add an entry to the table below
+- Add new files to `memory-bank/docs/` when you discover domain knowledge, and add an entry to the table below
 
 ---
 
@@ -105,8 +105,9 @@ Push a tag matching `v*.*.*` to trigger GitHub Actions. The workflow:
 
 ## Localization
 - UI text is in **Russian** (Cyrillic)
-- No external localization framework — strings are hardcoded in XAML and ViewModels
-- When adding new UI text, write in Russian
+- Uses `I18n` system: strings in `Resources/Locales/ru.json`, accessed via `I18n.T("section.key")` in C# and `{l:T 'section.key'}` in XAML
+- `Resources/Strings.cs` is legacy — do **not** add new entries there; use `I18n.T()` directly
+- See `memory-bank/docs/localization.md` for full details
 
 ---
 
@@ -128,19 +129,6 @@ Push a tag matching `v*.*.*` to trigger GitHub Actions. The workflow:
 
 ## Developer Tools
 
-### Live App (computer-use MCP)
-
-Launch the app, then use the `computer-use` MCP tools to screenshot and interact with it directly:
-
-```bash
-# Launch detached
-start dotnet run --project d2c-launcher.csproj
-# Wait ~10s for startup, then use mcp__computer-use__screenshot / click / etc.
-```
-
-- Coordinate formula: `screen = window_offset + screenshot_px` (get offset via `get_window_rect`)
-- 0.1s sleep between actions is sufficient
-
 ### Component Preview (Storybook-like)
 
 Render a single UI component in isolation — without running the full launcher.
@@ -150,7 +138,7 @@ Render a single UI component in isolation — without running the full launcher.
 powershell -ExecutionPolicy Bypass -File tools/preview.ps1 PartyPanel
 ```
 
-The script builds incrementally and launches the app in `--preview` mode. Use the `computer-use` MCP to screenshot the result.
+The script builds incrementally and launches the app in `--preview` mode. Use the `Read` tool on the screenshot path to verify visually.
 
 **Available components:**
 
@@ -188,25 +176,25 @@ HTML mockups live in `tools/mockups/` — reference designs for building Avaloni
 
 ## Documentation
 
-Project documentation lives in the `docs/` directory. Current files:
+Project documentation lives in `memory-bank/docs/`. Current files:
 
 | File | Topic |
 |------|-------|
-| [docs/source-engine-launch.md](docs/source-engine-launch.md) | Source 1 engine launch mechanics (`-flag` vs `+command`), usage in D2C Launcher |
-| [docs/source-engine-config-persistence.md](docs/source-engine-config-persistence.md) | `config.cfg` format, `FCVAR_ARCHIVE`, `host_writeconfig`, reading config from launcher |
-| [docs/settings-architecture.md](docs/settings-architecture.md) | Settings system: CvarMapping, CompositeCvarMapping, BindMapping, SettingsViewModel, adding new settings |
-| [docs/game-update-manifest.md](docs/game-update-manifest.md) | Game update manifest format, `exact`/`existing` modes, `LocalManifestService`, `ManifestDiffService`, update flow |
-| [docs/client-dll-patching.md](docs/client-dll-patching.md) | Binary patching of `client.dll`: FCVAR_CHEAT removal, default value patch, PE layout, sync strategy |
-| [docs/preview-workflow.md](docs/preview-workflow.md) | Visual verification workflow: component preview tool and HTML screenshot tool |
-| [docs/release-cycle.md](docs/release-cycle.md) | Release channels (nightly/stable), CI workflow, Velopack channel mechanics, opting into nightly updates |
-| [docs/ui-style-system.md](docs/ui-style-system.md) | Global style classes (`Block`, `BlockHead`, `BlockTitle`), font size tokens, font families, sub-tab styles |
-| [docs/integration-testing-plan.md](docs/integration-testing-plan.md) | Integration testing strategy: what's mockable, blockers (`ISteamManager`), layered plan (NSubstitute → Avalonia.Headless.XUnit → WireMock), concrete next steps |
-| [docs/taskbar-icon-investigation.md](docs/taskbar-icon-investigation.md) | Issue #79: taskbar icon blank when game launched via launcher — what was tried, what worked (AUMID), what didn't (WM_SETICON, SetClassLongPtr), hypotheses, verdict |
-| [docs/dota2com-url-suppression.md](docs/dota2com-url-suppression.md) | Issue #81: suppressing dota2.com store panel — client.dll URL patching, VPK CRC gotcha, loose file override for store_promo_pages |
-| [docs/codestyle.md](docs/codestyle.md) | C# code style conventions: event handler subscriptions (named methods vs lambdas) |
-| [docs/localization.md](docs/localization.md) | i18n system: `I18n.T()`, `ru.json` structure, `{l:T}` XAML extension, `Strings.cs` migration, webapp sync |
+| [memory-bank/docs/source-engine-launch.md](memory-bank/docs/source-engine-launch.md) | Source 1 engine launch mechanics (`-flag` vs `+command`), usage in D2C Launcher |
+| [memory-bank/docs/source-engine-config-persistence.md](memory-bank/docs/source-engine-config-persistence.md) | `config.cfg` format, `FCVAR_ARCHIVE`, `host_writeconfig`, reading config from launcher |
+| [memory-bank/docs/settings-architecture.md](memory-bank/docs/settings-architecture.md) | Settings system: CvarMapping, CompositeCvarMapping, BindMapping, SettingsViewModel, adding new settings |
+| [memory-bank/docs/game-update-manifest.md](memory-bank/docs/game-update-manifest.md) | Game update manifest format, `exact`/`existing` modes, `LocalManifestService`, `ManifestDiffService`, update flow |
+| [memory-bank/docs/client-dll-patching.md](memory-bank/docs/client-dll-patching.md) | Binary patching of `client.dll`: FCVAR_CHEAT removal, default value patch, PE layout, sync strategy |
+| [memory-bank/docs/preview-workflow.md](memory-bank/docs/preview-workflow.md) | Visual verification workflow: component preview tool and HTML screenshot tool |
+| [memory-bank/docs/release-cycle.md](memory-bank/docs/release-cycle.md) | Release channels (nightly/stable), CI workflow, Velopack channel mechanics, opting into nightly updates |
+| [memory-bank/docs/ui-style-system.md](memory-bank/docs/ui-style-system.md) | Global style classes (`Block`, `BlockHead`, `BlockTitle`), font size tokens, font families, sub-tab styles |
+| [memory-bank/docs/integration-testing-plan.md](memory-bank/docs/integration-testing-plan.md) | Integration testing strategy: what's mockable, blockers (`ISteamManager`), layered plan (NSubstitute → Avalonia.Headless.XUnit → WireMock), concrete next steps |
+| [memory-bank/docs/taskbar-icon-investigation.md](memory-bank/docs/taskbar-icon-investigation.md) | Issue #79: taskbar icon blank when game launched via launcher — what was tried, what worked (AUMID), what didn't (WM_SETICON, SetClassLongPtr), hypotheses, verdict |
+| [memory-bank/docs/dota2com-url-suppression.md](memory-bank/docs/dota2com-url-suppression.md) | Issue #81: suppressing dota2.com store panel — client.dll URL patching, VPK CRC gotcha, loose file override for store_promo_pages |
+| [memory-bank/docs/codestyle.md](memory-bank/docs/codestyle.md) | C# code style conventions: event handler subscriptions (named methods vs lambdas) |
+| [memory-bank/docs/localization.md](memory-bank/docs/localization.md) | i18n system: `I18n.T()`, `ru.json` structure, `{l:T}` XAML extension, `Strings.cs` migration, webapp sync |
 
-When you discover new domain knowledge, architectural decisions, or non-trivial technical details during implementation, **write them up as a new `.md` file in `docs/`** and add an entry to this table. Keep docs focused — one topic per file.
+When you discover new domain knowledge, architectural decisions, or non-trivial technical details during implementation, **write them up as a new `.md` file in `memory-bank/docs/`** and add an entry to this table. Keep docs focused — one topic per file.
 
 ---
 
