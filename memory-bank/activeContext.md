@@ -2,6 +2,18 @@
 
 ## Current Focus
 
+**Issue #90: FakeSteamManager and integration tests** — implemented.
+
+### What Was Changed
+- `d2c-launcher.Tests/Fakes/FakeSteamManager.cs` — new hand-written `ISteamManager` fake with `SimulateStatusUpdate`, `SimulateUserUpdated`, `SimulateAuthTicket`, `SimulatePoll` helpers
+- `d2c-launcher.Tests/SteamStateTransitionTests.cs` — 12 new tests: initial-state derivation from `FakeSteamManager` properties (mirrors `MainWindowViewModel` constructor logic), event-driven state transition assertions, and `AuthCoordinator` integration tests using `FakeSteamManager`
+
+Note: `MainWindowViewModel` itself cannot be instantiated in the test project because it uses `Dispatcher.UIThread` directly. Full ViewModel integration tests require `Avalonia.Headless.XUnit` in a separate project (Layer 2 of integration testing plan).
+
+---
+
+## Previous Focus
+
 **Issue #85: Memory leak in QueueViewModel** — fixed.
 
 ### What Was Changed

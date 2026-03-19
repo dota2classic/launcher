@@ -133,9 +133,10 @@
 | `DotaCfgWriter` tests (issue #0e31d40) | ✅ Done |
 | CI test step | ✅ Done |
 | Integration testing research | ✅ Done — see `docs/integration-testing-plan.md` |
-| NSubstitute + `ISteamManager` extraction | 🔲 Planned |
+| NSubstitute added + `ISteamManager` interface exists | ✅ Done |
+| `FakeSteamManager` (issue #90) | ✅ Done — `Fakes/FakeSteamManager.cs`; 12 state-transition + auth integration tests |
 | `FakeQueueSocketService` | 🔲 Planned |
-| ViewModel integration tests (Avalonia.Headless.XUnit) | 🔲 Planned |
+| ViewModel integration tests (Avalonia.Headless.XUnit) | 🔲 Planned — blocked: `MainWindowViewModel` uses `Dispatcher.UIThread` directly |
 
 
 ### CI/CD
