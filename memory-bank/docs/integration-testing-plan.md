@@ -2,13 +2,15 @@
 
 ## Current State
 
-**11 test files, 195 unit tests, all passing (xUnit, ~109ms).**
+**~12 test files, 207+ unit tests, all passing (xUnit).**
 
-Tests cover isolated pure-logic layers: config parsing, cvar mapping, manifest diffing, state machine, chat grouping, etc. No UI tests, no ViewModel tests, no service integration tests.
+Tests cover isolated pure-logic layers: config parsing, cvar mapping, manifest diffing, state machine, chat grouping, plus Steam state-transition and `AuthCoordinator` integration tests. No UI tests, no ViewModel tests, no socket integration tests.
 
 CI (`build.yml`) runs `dotnet test` and blocks releases on failure.
 
-No mocking library is currently installed.
+**NSubstitute is installed** (`d2c-launcher.Tests.csproj`).
+**`ISteamManager` is extracted** — `SteamManager` implements it; `FakeSteamManager` is the hand-written fake.
+**`FakeSteamManager` is done** (`Fakes/FakeSteamManager.cs`) — 12 state-transition + AuthCoordinator integration tests in `SteamStateTransitionTests.cs` and `AuthCoordinatorTests.cs`.
 
 ---
 
@@ -35,7 +37,7 @@ No mocking library is currently installed.
 
 | Class | What it needs | Effort |
 |-------|--------------|--------|
-| `SteamManager` | Extract `ISteamManager` | Medium — events + user info, small surface |
+| `SteamManager` | ✅ Done — `ISteamManager` extracted, `FakeSteamManager` in tests | — |
 | `UpdateService` | Extract `IUpdateService` | Low |
 | `RedistInstallService` | Extract `IRedistInstallService` | Low |
 | `AuthCoordinator` | Already concrete orchestrator; low test value | — |
@@ -76,10 +78,10 @@ No mocking library is currently installed.
 
 ---
 
-## Concrete First Steps
+## Concrete Next Steps
 
-1. **Add NSubstitute** to `d2c-launcher.Tests.csproj`
-2. **Extract `ISteamManager`** — small interface: `User`, `AuthTicket`, `SteamStatus` property, `OnSteamStatusUpdated` event
+1. ~~**Add NSubstitute**~~ ✅ Done
+2. ~~**Extract `ISteamManager`** + write `FakeSteamManager`~~ ✅ Done
 3. **Add `D2C_API_URL` env var** to `BackendApiService` (same pattern as existing `D2C_SOCKET_URL` in `QueueSocketService`)
 4. **Add `Avalonia.Headless.XUnit`** for ViewModel tests
 5. **Write `FakeQueueSocketService`** — implement `IQueueSocketService`, add `SimulateXxx()` helper methods that fire events — reusable across all socket-dependent tests

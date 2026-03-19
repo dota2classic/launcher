@@ -22,15 +22,34 @@ powershell -ExecutionPolicy Bypass -File tools/preview.ps1 <ComponentName>
 
 ### Available components
 
+Run the tool with an unknown name (or no name) to print the full list. Key components:
+
 | Name | What it shows |
 |------|---------------|
+| `LauncherHeader` | Top header bar (avatar + name + buttons) |
+| `LauncherHeaderPlay` | Header — idle state (ИГРАТЬ) |
+| `LauncherHeaderStop` | Header — game running state (СТОП) |
 | `PartyPanel` | Party member list with invite button |
 | `QueueButton` | Matchmaking search/cancel button |
+| `QueueButtonSingle` | Queue button isolated in a fixed container |
 | `GameSearchPanel` | Mode checkboxes (3 mock modes) |
-| `AcceptGameModal` | Ready-check accept/decline dialog |
-| `NotificationArea` | Floating invite notifications |
+| `AcceptGameModal` / `AcceptGameModal1/2/5/10` | Ready-check dialog (various player counts) |
+| `NotificationArea` | Floating notification stack |
+| `PleaseGoQueue` | "Go queue" toast in notification area |
+| `AchievementToast` | Achievement unlock toast |
+| `AbandonButtonConnect` / `AbandonButtonSearching` | Queue + abandon button row |
+| `InviteModal` | Invite player modal |
+| `ProfilePanel` | Player profile (stats + hero list) |
+| `ChatPanel` | Chat panel |
+| `RichMessage` | Rich text segments (URLs, rarity tags) |
+| `LivePanel` | Live matches minimap + player lists |
+| `LivePlayerRowDead` | Live player row (alive vs dead state) |
+| `Minimap` | Minimap canvas only |
+| `SettingsPanel` | Settings modal |
+| `Loading` | Loading/connecting screen |
 | `LaunchSteamFirst` | "Launch Steam first" screen |
 | `SelectGame` | Game directory picker screen |
+| `GameDownload` / `GameDownloadError` | Download/verify progress screen |
 
 ### Workflow
 

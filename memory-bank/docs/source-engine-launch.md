@@ -76,45 +76,25 @@ That's it. The flag will be included in `ProcessStartInfo.Arguments` on next lau
 
 ---
 
-### Adding a cfg cvar (e.g. `fps_max`)
+### Adding a game cvar (e.g. `fps_max`)
 
-**1. Add a property to `GameLaunchSettings`:**
-```csharp
-public int? FpsMax { get; set; }
-```
+Game cvars (settings that become console commands) do **not** go through `GameLaunchSettings`. They go through the cvar system:
 
-**2. Emit the cvar in `CfgGenerator.BuildCfgLines()`:**
-```csharp
-if (settings.FpsMax.HasValue)
-    yield return $"fps_max {settings.FpsMax.Value}";
-```
+1. Add property to `Models/CvarSettings.cs`
+2. Add `CvarEntry` to `Services/CvarMapping.cs`
+3. Add property to `ViewModels/GameSettingsViewModel.cs`
 
-The value will be written to `dota/cfg/d2c_launch.cfg` and executed via `+exec d2c_launch.cfg` on launch.
+See `memory-bank/docs/settings-architecture.md` for the full flow.
 
 ---
 
-### Adding a cvar with a non-null default
-
-If a cvar should always be written (not optional), emit it unconditionally:
-```csharp
-yield return $"cl_showfps {(settings.ShowFps ? 1 : 0)}";
-```
-
----
-
-### Exposing the setting in the UI
-
-After adding the property and wiring it in `CfgGenerator`, expose it in `GameSettingsViewModel` (or create one if it doesn't exist yet). Bind it to a control in the settings view. On change, call `_launchSettingsStorage.Save(settings)`.
-
----
-
-### File locations
+### File locations (launch flags only)
 
 | File | Purpose |
 |------|---------|
-| `Models/GameLaunchSettings.cs` | Add new setting properties here |
-| `Services/CfgGenerator.cs` | Map properties → CLI flags or cfg lines |
+| `Models/GameLaunchSettings.cs` | Add new CLI flag properties here |
+| `Services/CfgGenerator.cs` | Map properties → CLI flags |
 | `Services/IGameLaunchSettingsStorage.cs` | Interface (rarely needs changes) |
 | `Services/GameLaunchSettingsStorage.cs` | Persistence — auto-handles new properties via JSON |
 | `%AppData%\d2c-launcher\launch_settings.json` | Runtime storage (auto-created, JSON) |
-| `{GameDir}/dota/cfg/d2c_launch.cfg` | Generated on each launch — do not edit manually |
+| `{GameDir}/dota/cfg/d2c_launch.cfg` | Generated on each launch only if `CustomCfgLines` is set |

@@ -107,6 +107,9 @@ The `IsClosing` property comes from `NotificationViewModel` (base class for all 
 |-----------|-----|------|
 | Входящее приглашение в группу | `PartyInviteNotificationViewModel` | `Views/Components/NotificationArea.axaml` |
 | Приглашение отправлено | `InviteSentToastViewModel` | `Views/Components/NotificationArea.axaml` |
+| Повреждённые файлы | `CorruptedFilesToastViewModel` | `Views/Components/NotificationArea.axaml` |
+| Призыв в поиск | `GoQueueToastViewModel` | `Views/Components/NotificationArea.axaml` |
+| Достижение получено | `AchievementToastViewModel` | `Views/Components/NotificationArea.axaml` |
 | Простое текстовое уведомление | `SimpleToastViewModel` | `Views/Components/NotificationArea.axaml` |
 
 ---

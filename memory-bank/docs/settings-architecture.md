@@ -96,27 +96,29 @@ GameLaunchViewModel detects OurGameRunning → None
 
 ## Adding a New Setting
 
-### Simple bool cvar
+> After issue #88, `SettingsViewModel` is a thin container. Gameplay/video cvars go in `GameSettingsViewModel`; launcher prefs go in `LauncherPrefsViewModel`.
+
+### Simple bool cvar (gameplay/video)
 
 1. Add property to `Models/CvarSettings.cs`
 2. Add `CvarEntry` to `CvarMapping.Entries`
-3. Add property to `SettingsViewModel.cs` (getter/setter using `_cvarProvider`, plus `PushCvar` call)
-4. Add toggle to `Views/Components/SettingsPanel.axaml`
-5. Add property name to `SettingsViewModel.RefreshFromCvarProvider()`
+3. Add property to `ViewModels/GameSettingsViewModel.cs` (getter/setter using `_cvarProvider`, plus `PushCvar` call)
+4. Add property name to `GameSettingsViewModel.RefreshFromCvarProvider()`
+5. Add toggle to the appropriate sub-view (`Views/Components/Settings/GameplayView.axaml` or `VideoSettingsView.axaml`)
 
 ### Multi-cvar toggle
 
 1. Add property to `Models/CvarSettings.cs`
 2. Add `CompositeCvarEntry` to `CompositeCvarMapping.Entries`
-3. Add property to `SettingsViewModel.cs` — in the setter, push each constituent cvar individually
-4. Add toggle to `Views/Components/SettingsPanel.axaml`
+3. Add property to `ViewModels/GameSettingsViewModel.cs` — in the setter, push each constituent cvar individually
+4. Add toggle to `Views/Components/Settings/GameplayView.axaml`
 
 ### Launch flag (CLI argument)
 
 1. Add property to `Models/GameLaunchSettings.cs`
 2. Add to `CfgGenerator.BuildCliArgs()`
-3. Add property to `SettingsViewModel.cs` (getter/setter using `_launchStorage`)
-4. Add UI control to `Views/Components/SettingsPanel.axaml`
+3. Add property to `ViewModels/LauncherPrefsViewModel.cs` (getter/setter using `_launchStorage`)
+4. Add UI control to `Views/Components/Settings/LauncherPrefsView.axaml`
 
 ## Key Files
 
@@ -132,5 +134,12 @@ GameLaunchViewModel detects OurGameRunning → None
 | `Services/DotaCfgReader.cs` | Reads config.cfg |
 | `Services/DotaCfgWriter.cs` | Writes cvars into config.cfg |
 | `Services/CfgGenerator.cs` | Writes d2c_launch.cfg (CustomCfgLines only) + builds CLI args |
-| `ViewModels/SettingsViewModel.cs` | All settings UI properties + live push |
-| `Views/Components/SettingsPanel.axaml` | Settings UI layout |
+| `ViewModels/SettingsViewModel.cs` | Thin container — exposes `GameSettings`, `LauncherPrefs`, `Dlc` sub-VMs |
+| `ViewModels/GameSettingsViewModel.cs` | Video settings + gameplay cvars + `PushCvar` delegate |
+| `ViewModels/LauncherPrefsViewModel.cs` | Launch params (Language, NoVid, ExtraArgs) + launcher prefs |
+| `ViewModels/DlcViewModel.cs` | DLC package selection |
+| `Views/Components/SettingsPanel.axaml` | Tab shell; each tab binds `DataContext` to its sub-VM |
+| `Views/Components/Settings/VideoSettingsView.axaml` | Визуальные tab content |
+| `Views/Components/Settings/GameplayView.axaml` | Геймплей tab content |
+| `Views/Components/Settings/LauncherPrefsView.axaml` | Лаунчер tab content |
+| `Views/Components/Settings/DlcView.axaml` | ДЛС tab content |

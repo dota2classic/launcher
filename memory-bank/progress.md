@@ -104,6 +104,11 @@
 | Matchmaking telemetry events to Faro | ✅ Done | `feat: add matchmaking telemetry events to Faro` |
 | Close to tray (issue #46) | ✅ Done | X button hides to tray; tray menu Open/Exit; second instance restores; match found restores window automatically; `CloseToTray` setting (default true) |
 | Reply preview in chat messages (issue #50) | ✅ Done | Blue left-border preview block above message; shows quoted author + truncated text; from `ThreadMessageDTO.Reply` via REST and SSE |
+| Abandon game (issue #23) | ✅ Done | Red X button next to QueueButton; confirm overlay; excludes unranked 5x5 and highroom modes |
+| Settings split into sub-VMs (issue #88) | ✅ Done | `GameSettingsViewModel`, `LauncherPrefsViewModel`, `DlcViewModel`; `SettingsPanel` is now a tab shell |
+| I18n system (issue #94) | ✅ Done | `Resources/Locales/ru.json`, `I18n.T()`, `{l:T}` XAML extension; `Strings.cs` delegates to I18n |
+| Achievement toast notifications (issue #92) | ✅ Done | `AchievementToastViewModel`; `NotificationCreated` socket event; image from local assets |
+| +connect on game launch (issue #93) | ✅ Done | `LaunchGame($"+connect {url}")` when game not running |
 
 
 ### Game Settings (cvars → config.cfg)
@@ -159,8 +164,6 @@ Open GitHub issues:
 
 | Issue | Title | Priority |
 | ----- | ----- | -------- |
-| #31 | Add proper localization | enhancement |
-| #23 | Add support for abandoning in launcher | — |
 | #22 | Steam not being detected | under investigation — root cause unknown |
 | #21 | Setting autorepeat doesn't work | under investigation — may not be a bug |
 | #18 | Parallelize local scan + remote manifest load | enhancement |
