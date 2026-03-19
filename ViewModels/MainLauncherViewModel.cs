@@ -337,7 +337,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     {
         if (CurrentUser == null) return;
         _previousTab = null;
-        var steam32 = (CurrentUser.SteamId - 76561197960265728UL).ToString();
+        var steam32 = CurrentUser.SteamId32.ToString();
         OpenPlayerProfile(steam32);
     }
 
@@ -421,7 +421,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
         var vm = new AchievementToastViewModel(
             notificationId: "dev-preview",
-            steamId: CurrentUser?.SteamId.ToString() ?? "0",
+            steamId: CurrentUser?.SteamId32.ToString() ?? "0",
             achievementKey: 9, // winStreak10
             api: _backendApiService,
             cp: 10);

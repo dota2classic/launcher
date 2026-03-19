@@ -347,8 +347,7 @@ public class SteamManager : ISteamManager
         CurrentUser = user;
         if (user != null)
         {
-            var steam32 = user.SteamId - 76561197960265728UL;
-            d2c_launcher.Services.FaroTelemetryService.SetUser(steam32.ToString());
+            d2c_launcher.Services.FaroTelemetryService.SetUser(user.SteamId32.ToString());
         }
         OnUserUpdated?.Invoke(user);
     }
