@@ -20,13 +20,20 @@ public abstract partial class NotificationViewModel : ViewModelBase
 
     public int DisplaySeconds { get; }
 
+    /// <summary>
+    /// Optional stable ID used for deduplication. When non-null, a second notification with the
+    /// same ID will be silently ignored by <see cref="NotificationAreaViewModel"/>.
+    /// </summary>
+    public string? NotificationId { get; }
+
     /// <summary>True while the exit animation is playing; drives the XAML closing style.</summary>
     [ObservableProperty]
     private bool _isClosing;
 
-    protected NotificationViewModel(int displaySeconds)
+    protected NotificationViewModel(int displaySeconds, string? notificationId = null)
     {
         DisplaySeconds = displaySeconds;
+        NotificationId = notificationId;
 
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(displaySeconds) };
         _timer.Tick += (_, _) => ForceClose();

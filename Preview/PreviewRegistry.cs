@@ -185,7 +185,7 @@ public static class PreviewRegistry
                 vm.AddAchievementToast(new d2c_launcher.Api.NotificationDto
                 {
                     Id = "preview-notif-1",
-                    SteamId = "76561198000000001",
+                    SteamId = "39734273",
                     Title = "Победа за 1 час против Techies",
                     Content = "Выиграйте игру продолжительностью более 1 часа против команды с Techies.",
                     NotificationType = d2c_launcher.Api.NotificationType.ACHIEVEMENT_COMPLETE,

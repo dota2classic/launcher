@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
 using d2c_launcher.Services;
+using d2c_launcher.Util;
 
 namespace d2c_launcher.ViewModels;
 
@@ -57,21 +58,41 @@ public sealed class AchievementToastViewModel : NotificationViewModel
 
     public RelayCommand OpenCommand { get; }
 
-    public AchievementToastViewModel(
+    /// <summary>
+    /// Creates an <see cref="AchievementToastViewModel"/> for the given achievement key,
+    /// or returns <c>null</c> (and logs an error) if the key is not in the map.
+    /// </summary>
+    public static AchievementToastViewModel? TryCreate(
         string notificationId,
         string steamId,
         int achievementKey,
         IBackendApiService api,
         int cp = 0,
         int displaySeconds = 10)
-        : base(displaySeconds)
     {
-        AchievementsPageUrl = $"{SiteBase}/players/{steamId}/achievements";
+        if (!AchievementMap.ContainsKey(achievementKey))
+        {
+            AppLog.Error($"[AchievementToast] Unknown achievement key: {achievementKey}");
+            return null;
+        }
+        return new AchievementToastViewModel(notificationId, steamId, achievementKey, api, cp, displaySeconds);
+    }
 
-        AchievementMap.TryGetValue(achievementKey, out var info);
+    private AchievementToastViewModel(
+        string notificationId,
+        string steamId,
+        int achievementKey,
+        IBackendApiService api,
+        int cp,
+        int displaySeconds)
+        : base(displaySeconds, notificationId: notificationId)
+    {
+        var info = AchievementMap[achievementKey];
+
+        AchievementsPageUrl = $"{SiteBase}/players/{steamId}/achievements";
         Title = I18n.T($"achievement.{info.Name}.title");
         Description = I18n.T($"achievement.{info.Name}.description", ("cp", cp));
-        ImageUrl = info.Img is not null ? $"{AssetsBase}/{info.Img}" : null;
+        ImageUrl = $"{AssetsBase}/{info.Img}";
 
         OpenCommand = new RelayCommand(() =>
         {

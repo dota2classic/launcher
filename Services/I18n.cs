@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using d2c_launcher.Util;
 
 namespace d2c_launcher.Services;
 
@@ -10,18 +11,22 @@ namespace d2c_launcher.Services;
 /// </summary>
 public static class I18n
 {
-    private static Dictionary<string, string>? _strings;
+    private static readonly Lazy<Dictionary<string, string>> _strings = new(Load);
 
-    private static Dictionary<string, string> Strings => _strings ??= Load();
+    private static Dictionary<string, string> Strings => _strings.Value;
 
     private static Dictionary<string, string> Load()
     {
         var result = new Dictionary<string, string>(StringComparer.Ordinal);
         var assembly = typeof(I18n).Assembly;
         var resourceName = Array.Find(assembly.GetManifestResourceNames(), n => n.EndsWith("ru.json"));
-        if (resourceName is null) return result;
+        if (resourceName is null)
+        {
+            AppLog.Error("[I18n] Embedded resource ru.json not found — all strings will display as keys.");
+            return result;
+        }
 
-        using var stream = assembly.GetManifestResourceStream(resourceName);
+        using var stream = assembly.GetManifestResourceStream(resourceName)!;
 
         using var doc = JsonDocument.Parse(stream);
         Flatten(doc.RootElement, string.Empty, result);
