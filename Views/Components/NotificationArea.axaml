@@ -197,14 +197,10 @@
                            <!-- Header: icon + title + dismiss -->
                            <Grid ColumnDefinitions="Auto,*,Auto">
                                <!-- Achievement image -->
-                               <Border Grid.Column="0"
-                                       Width="48" Height="48"
-                                       ClipToBounds="True"
-                                       Background="#242c34"
-                                       IsVisible="{Binding ImageUrl, Converter={x:Static ObjectConverters.IsNotNull}}">
-                                   <Image Stretch="UniformToFill"
-                                          asyncImageLoader:ImageLoader.Source="{Binding ImageUrl}"/>
-                               </Border>
+                               <Image Grid.Column="0"
+                                      Width="48" Height="48"
+                                      IsVisible="{Binding ImageUrl, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                      asyncImageLoader:ImageLoader.Source="{Binding ImageUrl}"/>
                                <!-- Title + label -->
                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
                                    <TextBlock Text="{x:Static res:Strings.AchievementUnlocked}"
