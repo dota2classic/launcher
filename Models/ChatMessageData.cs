@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace d2c_launcher.Models;
 
 public record ChatMessageData(
@@ -10,4 +12,5 @@ public record ChatMessageData(
     string? AuthorAvatarUrl,
     bool Deleted,
     string? ReplyToAuthorName = null,
-    string? ReplyToContent = null);
+    string? ReplyToContent = null,
+    IReadOnlyList<ChatReactionData>? Reactions = null);

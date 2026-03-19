@@ -181,12 +181,14 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 return;
             }
 
-            // Already present — update content in case the message was edited.
+            // Already present — update content and reactions in case the message was edited or reacted to.
             var duplicate = Messages.FirstOrDefault(m => m.MessageId == msg.MessageId);
             if (duplicate != null)
             {
                 duplicate.Content = msg.Content;
                 duplicate.RichContent = RichMessageParser.Parse(msg.Content, _emoticonImages, _userNameCache);
+                if (msg.Reactions != null)
+                    duplicate.UpdateReactions(msg.Reactions, data => BuildReactionVm(msg.MessageId, data));
                 return;
             }
 
@@ -209,6 +211,8 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 msg.ReplyToAuthorName,
                 msg.ReplyToContent);
 
+            if (msg.Reactions != null)
+                view.UpdateReactions(msg.Reactions, data => BuildReactionVm(msg.MessageId, data));
             if (showHeader)
                 view.IsOnline = _onlineUsers.Contains(msg.AuthorSteamId);
             Messages.Add(view);
@@ -309,6 +313,8 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 msg.AuthorAvatarUrl,
                 msg.ReplyToAuthorName,
                 msg.ReplyToContent);
+            if (msg.Reactions != null)
+                view.UpdateReactions(msg.Reactions, data => BuildReactionVm(msg.MessageId, data));
             if (showHeader)
                 view.IsOnline = _onlineUsers.Contains(msg.AuthorSteamId);
             result.Add(view);
@@ -333,6 +339,39 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         Messages.Clear();
         foreach (var m in incoming)
             Messages.Add(m);
+    }
+
+    // ── Reactions ─────────────────────────────────────────────────────────────
+
+    private ChatReactionViewModel BuildReactionVm(string messageId, Models.ChatReactionData data)
+    {
+        _emoticonImages.TryGetValue(data.EmoticonCode, out var bytes);
+        return new ChatReactionViewModel(
+            data.EmoticonId,
+            bytes,
+            data.Count,
+            data.IsMine,
+            () => ReactToMessageAsync(messageId, data.EmoticonId));
+    }
+
+    private async Task ReactToMessageAsync(string messageId, int emoticonId)
+    {
+        try
+        {
+            var updatedReactions = await _backendApiService
+                .ReactToMessageAsync(messageId, emoticonId)
+                .ConfigureAwait(false);
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                var view = Messages.FirstOrDefault(m => m.MessageId == messageId);
+                view?.UpdateReactions(updatedReactions, data => BuildReactionVm(messageId, data));
+            });
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error($"Chat: react to message {messageId} failed: {ex.Message}", ex);
+        }
     }
 
     // ── Player name resolution ────────────────────────────────────────────────

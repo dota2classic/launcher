@@ -1,6 +1,10 @@
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using Avalonia;
 using CommunityToolkit.Mvvm.ComponentModel;
+using d2c_launcher.ViewModels;
 
 namespace d2c_launcher.Models;
 
@@ -38,6 +42,39 @@ public sealed partial class ChatMessageView : ObservableObject
     public string? ReplyToAuthorName { get; }
     public string? ReplyToContent { get; }
     public bool HasReply => ReplyToContent != null;
+
+    public ObservableCollection<ChatReactionViewModel> Reactions { get; } = new();
+    [ObservableProperty] private bool _hasReactions;
+
+    /// <summary>
+    /// Updates the Reactions collection in-place from fresh data, reusing existing VMs where possible.
+    /// <paramref name="vmFactory"/> receives the reaction data and produces a new VM for newly-seen emoticons.
+    /// </summary>
+    public void UpdateReactions(IReadOnlyList<ChatReactionData> reactions, Func<ChatReactionData, ChatReactionViewModel> vmFactory)
+    {
+        var existingById = Reactions.ToDictionary(r => r.EmoticonId);
+        var incomingIds = new HashSet<int>(reactions.Select(r => r.EmoticonId));
+
+        // Remove reactions that disappeared
+        foreach (var vm in Reactions.Where(r => !incomingIds.Contains(r.EmoticonId)).ToList())
+            Reactions.Remove(vm);
+
+        // Update existing or add new
+        foreach (var data in reactions)
+        {
+            if (existingById.TryGetValue(data.EmoticonId, out var vm))
+            {
+                vm.Count = data.Count;
+                vm.IsMine = data.IsMine;
+            }
+            else
+            {
+                Reactions.Add(vmFactory(data));
+            }
+        }
+
+        HasReactions = Reactions.Count > 0;
+    }
 
     public ChatMessageView(
         string messageId,

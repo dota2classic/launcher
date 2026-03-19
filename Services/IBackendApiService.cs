@@ -31,4 +31,6 @@ public interface IBackendApiService
     Task AbandonGameAsync(CancellationToken cancellationToken = default);
     Task AcknowledgeNotificationAsync(string notificationId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<d2c_launcher.Api.NotificationDto>> GetNotificationsAsync(CancellationToken cancellationToken = default);
+    /// <summary>Toggles the reaction with <paramref name="emoticonId"/> on a message. Returns the updated reactions.</summary>
+    Task<IReadOnlyList<ChatReactionData>> ReactToMessageAsync(string messageId, int emoticonId, CancellationToken cancellationToken = default);
 }

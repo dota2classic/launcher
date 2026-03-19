@@ -129,6 +129,8 @@ internal sealed class StubBackendApiService : IBackendApiService
 
     public Task AbandonGameAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
     public Task AcknowledgeNotificationAsync(string notificationId, CancellationToken cancellationToken = default) => Task.CompletedTask;
+    public Task<IReadOnlyList<Models.ChatReactionData>> ReactToMessageAsync(string messageId, int emoticonId, CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<Models.ChatReactionData>>(Array.Empty<Models.ChatReactionData>());
     public Task<IReadOnlyList<d2c_launcher.Api.NotificationDto>> GetNotificationsAsync(CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<d2c_launcher.Api.NotificationDto>>(Array.Empty<d2c_launcher.Api.NotificationDto>());
 

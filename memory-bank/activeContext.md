@@ -10,6 +10,7 @@ All major features are shipped. The launcher is in maintenance/polish mode. No a
 
 | Issue | What was done |
 |-------|--------------|
+| #96 | Chat reactions — `ChatReactionViewModel`, `ChatReactionData`, reaction pills in `ChatPanel.axaml`; SSE uses `ThreadMessageDTO` deserialization |
 | #95 | i18n achievement notifications — `ru.json` strings for all achievement keys; `AchievementToastViewModel` looks up title via `I18n.T()` |
 | #94 | JSON-based i18n system — `Resources/Locales/ru.json`, `I18n.cs`, `{l:T}` XAML extension; `Strings.cs` now delegates to `I18n.T()` |
 | #92 | Achievement toast notifications — `AchievementToastViewModel`, `NotificationCreated` socket event routing, local asset images |

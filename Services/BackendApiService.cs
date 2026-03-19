@@ -277,7 +277,8 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
                 msg.Author?.AvatarSmall ?? msg.Author?.Avatar,
                 msg.Deleted,
                 msg.Reply?.Author?.Name,
-                msg.Reply?.Content));
+                msg.Reply?.Content,
+                MapReactions(msg.Reactions)));
         }
         return result;
     }
@@ -337,38 +338,24 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
     {
         try
         {
-            using var doc = JsonDocument.Parse(json);
-            var root = doc.RootElement;
+            var dto = System.Text.Json.JsonSerializer.Deserialize<Api.ThreadMessageDTO>(json);
+            if (dto == null) return null;
 
-            var messageId = root.TryGetProperty("messageId", out var mid) ? mid.GetString() ?? "" : "";
-            var deleted = root.TryGetProperty("deleted", out var del) && del.GetBoolean();
+            if (dto.Deleted)
+                return new ChatMessageData(dto.MessageId ?? "", dto.ThreadId ?? "", "", "", "", "", null, true);
 
-            if (deleted)
-                return new ChatMessageData(messageId, "", "", "", "", "", null, true);
-
-            var author = root.TryGetProperty("author", out var authorEl) ? authorEl : default;
-            string? replyAuthorName = null;
-            string? replyContent = null;
-            if (root.TryGetProperty("reply", out var replyEl) && replyEl.ValueKind == JsonValueKind.Object)
-            {
-                replyContent = replyEl.TryGetProperty("content", out var rc) ? rc.GetString() : null;
-                if (replyEl.TryGetProperty("author", out var ra) && ra.ValueKind == JsonValueKind.Object)
-                    replyAuthorName = ra.TryGetProperty("name", out var rn) ? rn.GetString() : null;
-            }
             return new ChatMessageData(
-                MessageId: messageId,
-                ThreadId: root.TryGetProperty("threadId", out var tid) ? tid.GetString() ?? "" : "",
-                Content: root.TryGetProperty("content", out var content) ? content.GetString() ?? "" : "",
-                CreatedAt: root.TryGetProperty("createdAt", out var created) ? created.GetString() ?? "" : "",
-                AuthorSteamId: author.ValueKind != JsonValueKind.Undefined
-                    && author.TryGetProperty("steamId", out var sid) ? sid.GetString() ?? "" : "",
-                AuthorName: author.ValueKind != JsonValueKind.Undefined
-                    && author.TryGetProperty("name", out var name) ? name.GetString() ?? "" : "",
-                AuthorAvatarUrl: author.ValueKind != JsonValueKind.Undefined
-                    && author.TryGetProperty("avatarSmall", out var avatar) ? avatar.GetString() : null,
+                MessageId: dto.MessageId ?? "",
+                ThreadId: dto.ThreadId ?? "",
+                Content: dto.Content ?? "",
+                CreatedAt: dto.CreatedAt ?? "",
+                AuthorSteamId: dto.Author?.SteamId ?? "",
+                AuthorName: dto.Author?.Name ?? "",
+                AuthorAvatarUrl: dto.Author?.AvatarSmall ?? dto.Author?.Avatar,
                 Deleted: false,
-                ReplyToAuthorName: replyAuthorName,
-                ReplyToContent: replyContent);
+                ReplyToAuthorName: dto.Reply?.Author?.Name,
+                ReplyToContent: dto.Reply?.Content,
+                Reactions: MapReactions(dto.Reactions));
         }
         catch (Exception ex)
         {
@@ -528,6 +515,35 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         var name = idx >= 0 ? internalName.Substring(idx + 5) : internalName;
         var words = name.Split('_');
         return string.Join(" ", words.Select(w => w.Length > 0 ? char.ToUpper(w[0]) + w.Substring(1) : w));
+    }
+
+    public async Task<IReadOnlyList<Models.ChatReactionData>> ReactToMessageAsync(string messageId, int emoticonId, CancellationToken cancellationToken = default)
+    {
+        var api = new DotaclassicApiClient(_authHttpClient);
+        var updated = await api.ForumController_reactAsync(
+            messageId,
+            new Api.UpdateMessageReactionDto { EmoticonId = emoticonId },
+            cancellationToken).ConfigureAwait(false);
+        return MapReactions(updated?.Reactions);
+    }
+
+    private static IReadOnlyList<Models.ChatReactionData> MapReactions(
+        System.Collections.Generic.ICollection<Api.ReactionEntry>? reactions)
+    {
+        if (reactions == null || reactions.Count == 0)
+            return Array.Empty<Models.ChatReactionData>();
+
+        var result = new List<Models.ChatReactionData>(reactions.Count);
+        foreach (var r in reactions)
+        {
+            if (r?.Emoticon == null) continue;
+            result.Add(new Models.ChatReactionData(
+                (int)r.Emoticon.Id,
+                r.Emoticon.Code,
+                (int)r.ReactedCount,
+                r.MyReaction));
+        }
+        return result;
     }
 
     public async Task AbandonGameAsync(CancellationToken cancellationToken = default)
