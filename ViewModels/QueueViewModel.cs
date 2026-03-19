@@ -75,6 +75,9 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
     /// <summary>Called when the user presses queue with no modes selected. Set by the parent VM.</summary>
     public Action? ShowNoModesSelectedToast { get; set; }
 
+    /// <summary>Called when restricted modes are automatically unselected on queue. Set by the parent VM.</summary>
+    public Action? ShowRestrictedModesRemovedToast { get; set; }
+
     public QueueViewModel(IQueueSocketService queueSocketService, IBackendApiService backendApiService, ISettingsStorage settingsStorage)
     {
         _queueSocketService = queueSocketService;
@@ -130,17 +133,30 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
             return;
         }
 
-        var selected = MatchmakingModes.Where(m => m.IsSelected)
-            .Select(m => (MatchmakingMode)m.ModeId)
-            .ToArray();
-        if (selected.Length == 0)
+        var selectedModes = MatchmakingModes.Where(m => m.IsSelected).ToArray();
+        if (selectedModes.Length == 0)
         {
             ShowNoModesSelectedToast?.Invoke();
             return;
         }
 
-        await _queueSocketService.EnterQueueAsync(selected);
-        var modesStr = string.Join(",", selected.Select(m => ((int)m).ToString()));
+        // Uncheck any modes the player doesn't have access to.
+        var restricted = selectedModes.Where(m => m.RestrictionText != null).ToArray();
+        foreach (var mode in restricted)
+            mode.IsSelected = false;
+
+        if (restricted.Length > 0)
+            ShowRestrictedModesRemovedToast?.Invoke();
+
+        var allowed = selectedModes
+            .Where(m => m.RestrictionText == null)
+            .Select(m => (MatchmakingMode)m.ModeId)
+            .ToArray();
+        if (allowed.Length == 0)
+            return;
+
+        await _queueSocketService.EnterQueueAsync(allowed);
+        var modesStr = string.Join(",", allowed.Select(m => ((int)m).ToString()));
         d2c_launcher.Services.FaroTelemetryService.TrackEvent("queue_entered",
             new System.Collections.Generic.Dictionary<string, string> { ["modes"] = modesStr });
     }

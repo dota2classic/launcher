@@ -78,7 +78,8 @@ public sealed class AuthCoordinator : IDisposable
     private async Task ApplyTokenAsync(string? token)
     {
         _cts?.Cancel();
-        _cts?.Dispose();
+        // Do not dispose _cts here — the token may still be held by a concurrent awaiter;
+        // disposing it causes ObjectDisposedException instead of OperationCanceledException.
         _cts = new CancellationTokenSource();
         var ct = _cts.Token;
 

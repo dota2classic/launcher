@@ -158,6 +158,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         NotificationArea = new NotificationAreaViewModel(queueSocketService);
         Queue.ShowNoModesSelectedToast = () =>
             NotificationArea.AddToast(Strings.SelectAtLeastOneMode);
+        Queue.ShowRestrictedModesRemovedToast = () =>
+            NotificationArea.AddToast(Strings.RestrictedModesUnselected);
         Launch.OnExeNotFound = () =>
             NotificationArea.AddCorruptedFilesToast(() => RequestReverify?.Invoke());
         Party.ShowInviteSentToast = (name, initials, avatarUrl) =>

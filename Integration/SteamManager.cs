@@ -19,6 +19,7 @@ public class SteamManager : ISteamManager
     private ulong _lastActiveUser;
     private string? _steamAuthTicket;
     private int _bridgeFailStreak;
+    private int _noTokenRetryCount;
 
     public event Action<User?>? OnUserUpdated;
     public event Action<SteamStatus>? OnSteamStatusUpdated;
@@ -78,6 +79,7 @@ public class SteamManager : ISteamManager
                 {
                     _lastActiveUser = 0;
                     _bridgeFailStreak = 0;
+                    _noTokenRetryCount = 0;
                     SetUser(null);
                     SetAuthTicket(null);
                 }
@@ -101,15 +103,19 @@ public class SteamManager : ISteamManager
                         {
                             // Full success: advance user marker so we stop re-querying.
                             _lastActiveUser = activeUser;
+                            _noTokenRetryCount = 0;
                             SetAuthTicket(snapshot.BackendToken);
                             AppLog.Info($"[SteamManager] Backend token acquired for user {activeUser}.");
                         }
                         else
                         {
                             // User info OK but token exchange failed in bridge — show the user
-                            // in the UI but retry the full bridge query next tick.
+                            // in the UI but retry with exponential backoff.
                             // Do NOT clear any existing auth ticket.
-                            AppLog.Info("[SteamManager] Bridge returned user info but no backend token — will retry next tick.");
+                            _noTokenRetryCount++;
+                            var backoffSeconds = ExponentialBackoff(_noTokenRetryCount, capSeconds: 30);
+                            AppLog.Info($"[SteamManager] Bridge returned user info but no backend token (attempt {_noTokenRetryCount}) — retrying in {backoffSeconds}s.");
+                            await ExtraBackoffDelayAsync(backoffSeconds, ct);
                         }
                     }
                     else
@@ -130,12 +136,10 @@ public class SteamManager : ISteamManager
                         // Back off exponentially (1s, 2s, 4s, cap 5s) to avoid hammering Steam API.
                         // Keep the cap low — the user sees a "Connecting to Steam…" screen during this,
                         // and a 30s gap between retries feels like the launcher is stuck.
-                        var backoffSeconds = Math.Min(5, (int)Math.Pow(2, _bridgeFailStreak - 1));
+                        var backoffSeconds = ExponentialBackoff(_bridgeFailStreak, capSeconds: 5);
                         if (backoffSeconds > 1)
-                        {
                             AppLog.Info($"[SteamManager] Backing off {backoffSeconds}s before next bridge query.");
-                            await Task.Delay(TimeSpan.FromSeconds(backoffSeconds - 1), ct); // -1 because the loop adds 1s
-                        }
+                        await ExtraBackoffDelayAsync(backoffSeconds, ct);
                     }
                 }
             }
@@ -413,6 +417,24 @@ public class SteamManager : ISteamManager
             // Ignore shutdown races.
         }
         _shutdown.Dispose();
+    }
+
+    /// <summary>
+    /// Returns the total backoff duration for a given retry streak using exponential back-off,
+    /// capped at <paramref name="capSeconds"/>. Streak 1 → 1 s, 2 → 2 s, 3 → 4 s, …
+    /// </summary>
+    private static int ExponentialBackoff(int streak, int capSeconds)
+        => Math.Min(capSeconds, (int)Math.Pow(2, streak - 1));
+
+    /// <summary>
+    /// Waits for <c>totalSeconds - 1</c> extra seconds inside a loop iteration that already
+    /// sleeps 1 s at its tail. Does nothing when <paramref name="totalSeconds"/> is 1.
+    /// </summary>
+    private static async Task ExtraBackoffDelayAsync(int totalSeconds, CancellationToken ct)
+    {
+        var extra = totalSeconds - 1;
+        if (extra > 0)
+            await Task.Delay(TimeSpan.FromSeconds(extra), ct);
     }
 
     private sealed class SteamSnapshot
