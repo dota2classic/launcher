@@ -101,6 +101,8 @@ public static class Strings
 
     // ── Notifications / toasts ───────────────────────────────────────────────
     public static string VerifyIntegrity => "ПРОВЕРИТЬ ЦЕЛОСТНОСТЬ";
+    public static string AchievementUnlocked => "Достижение получено!";
+    public static string OpenAchievements => "ДОСТИЖЕНИЯ";
 
     // ── Profile ──────────────────────────────────────────────────────────────
     public static string LoadingProfile => "Загрузка профиля...";

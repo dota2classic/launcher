@@ -2,6 +2,32 @@
 
 ## Current Focus
 
+**Issue #92: Achievement notification** — implemented.
+
+### What Was Changed
+- `Services/IBackendApiService.cs` — added `AcknowledgeNotificationAsync(string notificationId)`
+- `Services/BackendApiService.cs` — implemented via `NotificationController_acknowledgeAsync`
+- `Resources/Strings.cs` — added `AchievementUnlocked` and `OpenAchievements`
+- `ViewModels/AchievementToastViewModel.cs` — new toast VM; shows achievement title, description, and image (mapped from `notification.achievement.key` integer 0–29 to a static image URL table); `OpenCommand` opens `https://dotaclassic.ru/players/{steamId}/achievements` in browser; `Closed` event acknowledges notification via REST API
+- `ViewModels/NotificationAreaViewModel.cs` — added `AddAchievementToast(NotificationDto, IBackendApiService)` method
+- `Integration/SocketEventCoordinator.cs` — injected `IBackendApiService`; subscribed to `NotificationCreated`; routes `ACHIEVEMENT_COMPLETE` notifications to `NotificationArea.AddAchievementToast`
+- `ViewModels/MainLauncherViewModel.cs` — passes `backendApiService` to `SocketEventCoordinator`
+- `Views/Components/NotificationArea.axaml` — added `DataTemplate` for `AchievementToastViewModel` (achievement image + gold title + description + blue "ДОСТИЖЕНИЯ" button)
+- `Preview/PreviewStubs.cs` — stub `AcknowledgeNotificationAsync` (no-op)
+
+---
+
+## Previous Focus
+
+**Issue #93: Launch game with +connect when not running** — implemented.
+
+### What Was Changed
+- `ViewModels/GameLaunchViewModel.cs` — `LaunchGame` now accepts optional `string? launchOptions` (any extra `+commands` appended last to the argument list). `ConnectToGameAsync`: when the game is not running, calls `LaunchGame($"+connect {url}")` and returns immediately; when the game is already running, keeps the existing WM_COPYDATA path.
+
+---
+
+## Previous Focus
+
 **Issue #88: Split SettingsViewModel into focused sub-ViewModels** — implemented.
 
 ### What Was Changed

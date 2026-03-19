@@ -2,6 +2,8 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia.Threading;
+using d2c_launcher.Api;
+using d2c_launcher.Resources;
 using d2c_launcher.Services;
 
 namespace d2c_launcher.ViewModels;
@@ -55,6 +57,20 @@ public sealed class NotificationAreaViewModel
 
     /// <summary>Shows an invite-sent toast (with player avatar) that auto-dismisses.</summary>
     public void AddInviteSentToast(InviteSentToastViewModel vm) => AddNotification(vm);
+
+    /// <summary>Shows an achievement-unlocked toast that opens the website achievements page on click.</summary>
+    public void AddAchievementToast(NotificationDto notification, IBackendApiService api)
+    {
+        var achievementKey = notification.Achievement != null ? (int)notification.Achievement.Key : -1;
+        var vm = new AchievementToastViewModel(
+            notification.Id,
+            notification.SteamId,
+            notification.Title,
+            notification.Content,
+            achievementKey,
+            api);
+        AddNotification(vm);
+    }
 
     private void AddNotification(NotificationViewModel vm)
     {

@@ -536,6 +536,12 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         await api.PlayerController_abandonGameAsync(cancellationToken).ConfigureAwait(false);
     }
 
+    public async Task AcknowledgeNotificationAsync(string notificationId, CancellationToken cancellationToken = default)
+    {
+        var api = new DotaclassicApiClient(_authHttpClient);
+        await api.NotificationController_acknowledgeAsync(notificationId, cancellationToken).ConfigureAwait(false);
+    }
+
     public void Dispose()
     {
         _httpClient.Dispose();

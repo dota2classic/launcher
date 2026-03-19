@@ -175,7 +175,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Live.OnSpectate = matchId => Launch.SpectateMatch((int)matchId);
         Live.OnOpenProfile = steam32Id => OpenPlayerProfile(steam32Id);
 
-        _soundCoordinator = new SocketEventCoordinator(queueSocketService, NotificationArea, windowService,
+        _soundCoordinator = new SocketEventCoordinator(queueSocketService, NotificationArea, windowService, backendApiService,
             mode => Queue.MatchmakingModes.FirstOrDefault(m => m.ModeId == (int)mode)?.Name ?? mode.ToString());
 
         Launch.PropertyChanged += (_, e) =>

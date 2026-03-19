@@ -187,6 +187,71 @@
                </Border>
            </DataTemplate>
 
+           <!-- Achievement unlocked toast -->
+           <DataTemplate DataType="vm:AchievementToastViewModel">
+               <Border Classes="ToastShell" Classes.closing="{Binding IsClosing}">
+                   <Grid RowDefinitions="Auto,3">
+
+                       <StackPanel Grid.Row="0" Spacing="10" Margin="14,10,14,10">
+
+                           <!-- Header: icon + title + dismiss -->
+                           <Grid ColumnDefinitions="Auto,*,Auto">
+                               <!-- Achievement image -->
+                               <Border Grid.Column="0"
+                                       Width="48" Height="48"
+                                       ClipToBounds="True"
+                                       Background="#242c34"
+                                       IsVisible="{Binding ImageUrl, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                   <Image Stretch="UniformToFill"
+                                          asyncImageLoader:ImageLoader.Source="{Binding ImageUrl}"/>
+                               </Border>
+                               <!-- Title + label -->
+                               <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                   <TextBlock Text="{x:Static res:Strings.AchievementUnlocked}"
+                                              FontSize="{DynamicResource FontSizeXS}"
+                                              Foreground="#AAAAAA"/>
+                                   <TextBlock Text="{Binding Title}"
+                                              FontWeight="SemiBold"
+                                              Foreground="#F5C543"
+                                              TextTrimming="CharacterEllipsis"/>
+                               </StackPanel>
+                               <!-- Dismiss -->
+                               <Button Grid.Column="2"
+                                       Content="✕"
+                                       Command="{Binding DismissCommand}"
+                                       Background="Transparent" Foreground="#535252"
+                                       FontSize="{DynamicResource FontSizeSM}"
+                                       BorderThickness="0" Padding="0" Margin="10,0,0,0"
+                                       VerticalAlignment="Top" HorizontalAlignment="Right"
+                                       Cursor="Hand"/>
+                           </Grid>
+
+                           <!-- Description -->
+                           <TextBlock Text="{Binding Description}"
+                                      Foreground="#CCCCCC"
+                                      FontSize="{DynamicResource FontSizeXS}"
+                                      TextWrapping="Wrap"/>
+
+                           <!-- Open achievements page -->
+                           <Button Content="{x:Static res:Strings.OpenAchievements}"
+                                   Command="{Binding OpenCommand}"
+                                   Background="#1a5aaa" Foreground="White"
+                                   FontSize="{DynamicResource FontSizeBase}" FontWeight="Bold"
+                                   CornerRadius="0" BorderThickness="0"
+                                   HorizontalAlignment="Stretch"
+                                   HorizontalContentAlignment="Center"
+                                   Padding="0,8"
+                                   Cursor="Hand"/>
+
+                       </StackPanel>
+
+                       <!-- Duration bar -->
+                       <components:ToastTimerBar Grid.Row="1"/>
+
+                   </Grid>
+               </Border>
+           </DataTemplate>
+
            <!-- Simple text toast -->
            <DataTemplate DataType="vm:SimpleToastViewModel">
                <Border Classes="ToastShell" Classes.closing="{Binding IsClosing}">
