@@ -18,11 +18,10 @@ public static class I18n
     {
         var result = new Dictionary<string, string>(StringComparer.Ordinal);
         var assembly = typeof(I18n).Assembly;
-        const string resourceName = "d2c_launcher.Resources.Locales.ru.json";
+        var resourceName = Array.Find(assembly.GetManifestResourceNames(), n => n.EndsWith("ru.json"));
+        if (resourceName is null) return result;
 
         using var stream = assembly.GetManifestResourceStream(resourceName);
-        if (stream is null)
-            return result;
 
         using var doc = JsonDocument.Parse(stream);
         Flatten(doc.RootElement, string.Empty, result);
