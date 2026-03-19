@@ -157,7 +157,7 @@ internal sealed class StubBackendApiService : IBackendApiService
 
 internal sealed class StubEmoticonService : IEmoticonService
 {
-    public Task<EmoticonLoadResult> LoadEmoticonsAsync(string? steamId = null)
+    public Task<EmoticonLoadResult> LoadEmoticonsAsync()
         => Task.FromResult(new EmoticonLoadResult());
 }
 
@@ -260,5 +260,5 @@ internal sealed class StubUiDispatcher : IUiDispatcher
 internal sealed class StubChatViewModelFactory : IChatViewModelFactory
 {
     public d2c_launcher.ViewModels.ChatViewModel Create(string threadId)
-        => new(threadId, new StubBackendApiService(), new StubHttpImageService(), new StubEmoticonService(), new StubQueueSocketService(), new StubWindowService(), new StubSteamManager());
+        => new(threadId, new StubBackendApiService(), new StubHttpImageService(), new StubEmoticonService(), new StubQueueSocketService(), new StubWindowService());
 }
