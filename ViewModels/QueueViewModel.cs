@@ -158,17 +158,21 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
             foreach (var mode in modes)
             {
                 var existing = MatchmakingModes.FirstOrDefault(m => m.ModeId == mode.ModeId);
-                // Prefer in-memory state if already loaded; otherwise use persisted selection.
-                bool isSelected = existing?.IsSelected ?? savedIds.Contains(mode.ModeId);
-                var view = new MatchmakingModeView(mode.ModeId, mode.Name, isSelected)
+                MatchmakingModeView view;
+                if (existing != null)
                 {
-                    InQueue = existing?.InQueue ?? 0
-                };
-                view.PropertyChanged += (_, e) =>
+                    // Reuse the existing instance — it already has a PropertyChanged subscriber.
+                    view = existing;
+                }
+                else
                 {
-                    if (e.PropertyName == nameof(MatchmakingModeView.IsSelected))
-                        PersistSelectedModes();
-                };
+                    view = new MatchmakingModeView(mode.ModeId, mode.Name, savedIds.Contains(mode.ModeId));
+                    view.PropertyChanged += (_, e) =>
+                    {
+                        if (e.PropertyName == nameof(MatchmakingModeView.IsSelected))
+                            PersistSelectedModes();
+                    };
+                }
                 next.Add(view);
             }
 

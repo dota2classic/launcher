@@ -2,6 +2,15 @@
 
 ## Current Focus
 
+**Issue #85: Memory leak in QueueViewModel** — fixed.
+
+### What Was Changed
+- `ViewModels/QueueViewModel.cs` — `RefreshMatchmakingModesAsync` now reuses existing `MatchmakingModeView` instances (by `ModeId`) instead of always creating new ones. `PropertyChanged` is subscribed only once per mode object (on first creation). Modes added/removed by the backend are still handled correctly.
+
+---
+
+## Previous Focus
+
 **Issue #80: Live matches tab** — implemented.
 
 ### What Was Changed
