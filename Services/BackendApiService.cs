@@ -278,7 +278,12 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
                 msg.Deleted,
                 msg.Reply?.Author?.Name,
                 msg.Reply?.Content,
-                MapReactions(msg.Reactions)));
+                MapReactions(msg.Reactions),
+                IsOld: HasRole(msg.Author, Api.Role.OLD),
+                IsModerator: HasRole(msg.Author, Api.Role.MODERATOR),
+                IsAdmin: HasRole(msg.Author, Api.Role.ADMIN),
+                ChatIconUrl: msg.Author?.Icon?.Image?.Url,
+                ChatIconTitle: msg.Author?.Title?.Title));
         }
         return result;
     }
@@ -355,7 +360,12 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
                 Deleted: false,
                 ReplyToAuthorName: dto.Reply?.Author?.Name,
                 ReplyToContent: dto.Reply?.Content,
-                Reactions: MapReactions(dto.Reactions));
+                Reactions: MapReactions(dto.Reactions),
+                IsOld: HasRole(dto.Author, Api.Role.OLD),
+                IsModerator: HasRole(dto.Author, Api.Role.MODERATOR),
+                IsAdmin: HasRole(dto.Author, Api.Role.ADMIN),
+                ChatIconUrl: dto.Author?.Icon?.Image?.Url,
+                ChatIconTitle: dto.Author?.Title?.Title);
         }
         catch (Exception ex)
         {
@@ -526,6 +536,9 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
             cancellationToken).ConfigureAwait(false);
         return MapReactions(updated?.Reactions);
     }
+
+    private static bool HasRole(Api.UserDTO? author, Api.Role role) =>
+        author?.Roles?.Any(r => r.Role == role) ?? false;
 
     private static IReadOnlyList<Models.ChatReactionData> MapReactions(
         System.Collections.Generic.ICollection<Api.ReactionEntry>? reactions)

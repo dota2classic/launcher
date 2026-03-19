@@ -219,7 +219,12 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 msg.CreatedAt,
                 msg.AuthorAvatarUrl,
                 msg.ReplyToAuthorName,
-                msg.ReplyToContent);
+                msg.ReplyToContent,
+                msg.IsOld,
+                msg.IsModerator,
+                msg.IsAdmin,
+                msg.ChatIconUrl,
+                msg.ChatIconTitle);
 
             if (msg.Reactions != null)
                 view.UpdateReactions(msg.Reactions, data => BuildReactionVm(msg.MessageId, data));
@@ -323,7 +328,12 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 msg.CreatedAt,
                 msg.AuthorAvatarUrl,
                 msg.ReplyToAuthorName,
-                msg.ReplyToContent);
+                msg.ReplyToContent,
+                msg.IsOld,
+                msg.IsModerator,
+                msg.IsAdmin,
+                msg.ChatIconUrl,
+                msg.ChatIconTitle);
             if (msg.Reactions != null)
                 view.UpdateReactions(msg.Reactions, data => BuildReactionVm(msg.MessageId, data));
             SetupQuickReacts(view);

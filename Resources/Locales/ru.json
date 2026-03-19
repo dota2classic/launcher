@@ -235,7 +235,8 @@
   },
   "chat": {
     "enterMessage": "Введите сообщение",
-    "pickEmoticon": "Выбрать эмоцию"
+    "pickEmoticon": "Выбрать эмоцию",
+    "defaultSubscriberTitle": "Подписчик OLD"
   },
   "download": {
     "downloadGame": "Скачать игру",

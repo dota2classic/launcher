@@ -124,10 +124,10 @@
 
                                         <!-- Body -->
                                         <StackPanel Grid.Column="2" Spacing="2">
-                                            <!-- Name + time (header only) -->
-                                            <Grid ColumnDefinitions="*,Auto"
+                                            <!-- Name + role icons + time (header only) -->
+                                            <Grid ColumnDefinitions="Auto,Auto,*"
                                                   IsVisible="{Binding ShowHeader}">
-                                                <Button Padding="0" Background="Transparent" BorderThickness="0"
+                                                <Button Grid.Column="0" Padding="0" Background="Transparent" BorderThickness="0"
                                                         HorizontalAlignment="Left"
                                                         Click="OnAuthorClicked">
                                                     <Button.Styles>
@@ -140,10 +140,41 @@
                                                                Foreground="#d9dde0"
                                                                TextTrimming="CharacterEllipsis"/>
                                                 </Button>
-                                                <TextBlock Grid.Column="1"
+                                                <!-- Role icons -->
+                                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="2"
+                                                            VerticalAlignment="Center" Margin="4,0,0,0">
+                                                    <!-- Moderator shield (bronze) -->
+                                                    <materialIcons:MaterialIcon Kind="Shield"
+                                                                                Width="14" Height="14"
+                                                                                Foreground="#CD7F32"
+                                                                                IsVisible="{Binding IsModerator}"
+                                                                                ToolTip.Tip="Модератор"/>
+                                                    <!-- Admin shield (grey) -->
+                                                    <materialIcons:MaterialIcon Kind="Shield"
+                                                                                Width="14" Height="14"
+                                                                                Foreground="#9E9E9E"
+                                                                                IsVisible="{Binding IsAdmin}"
+                                                                                ToolTip.Tip="Администратор"/>
+                                                    <!-- OLD subscriber: custom chat icon or star fallback -->
+                                                    <Panel IsVisible="{Binding IsOld}"
+                                                           Width="16" Height="16"
+                                                           ToolTip.Tip="{Binding ChatIconTooltip}">
+                                                        <Border Width="16" Height="16" CornerRadius="8" ClipToBounds="True"
+                                                                IsVisible="{Binding HasCustomChatIcon}">
+                                                            <Image asyncImageLoader:ImageLoader.Source="{Binding ChatIconUrl}"
+                                                                   Stretch="UniformToFill"/>
+                                                        </Border>
+                                                        <materialIcons:MaterialIcon Kind="Star"
+                                                                                    Width="14" Height="14"
+                                                                                    Foreground="#FFD700"
+                                                                                    IsVisible="{Binding HasCustomChatIcon, Converter={x:Static BoolConverters.Not}}"/>
+                                                    </Panel>
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="2"
                                                            Text="{Binding TimeText}"
                                                            FontSize="{DynamicResource FontSizeXS}" Foreground="#48525a"
                                                            VerticalAlignment="Bottom"
+                                                           HorizontalAlignment="Left"
                                                            Margin="8,0,0,0"/>
                                             </Grid>
                                             <!-- Reply preview -->

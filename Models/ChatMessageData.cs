@@ -13,4 +13,9 @@ public record ChatMessageData(
     bool Deleted,
     string? ReplyToAuthorName = null,
     string? ReplyToContent = null,
-    IReadOnlyList<ChatReactionData>? Reactions = null);
+    IReadOnlyList<ChatReactionData>? Reactions = null,
+    bool IsOld = false,
+    bool IsModerator = false,
+    bool IsAdmin = false,
+    string? ChatIconUrl = null,
+    string? ChatIconTitle = null);
