@@ -13,5 +13,5 @@ public sealed class EmoticonLoadResult
 public interface IEmoticonService
 {
     /// <summary>Returns GIF bytes by code and the backend-ordered list with IDs.</summary>
-    Task<EmoticonLoadResult> LoadEmoticonsAsync();
+    Task<EmoticonLoadResult> LoadEmoticonsAsync(string? steamId = null);
 }

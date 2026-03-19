@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using d2c_launcher.Integration;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
 using d2c_launcher.Resources;
@@ -25,6 +26,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     private readonly IBackendApiService _backendApiService;
     private readonly IHttpImageService _imageService;
     private readonly IEmoticonService _emoticonService;
+    private readonly ISteamManager _steamManager;
     // Emoticon GIF bytes keyed by code (populated once at startup).
     private Dictionary<string, byte[]> _emoticonImages = new(StringComparer.Ordinal);
     // Backend-ordered emoticon list (most-used first) — used for the hover toolbar and picker.
@@ -54,7 +56,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     private readonly IWindowService _windowService;
     private readonly IQueueSocketService _queueSocketService;
 
-    public ChatViewModel(string threadId, IBackendApiService backendApiService, IHttpImageService imageService, IEmoticonService emoticonService, IQueueSocketService queueSocketService, IWindowService windowService)
+    public ChatViewModel(string threadId, IBackendApiService backendApiService, IHttpImageService imageService, IEmoticonService emoticonService, IQueueSocketService queueSocketService, IWindowService windowService, ISteamManager steamManager)
     {
         _threadId = threadId;
         _backendApiService = backendApiService;
@@ -62,6 +64,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         _emoticonService = emoticonService;
         _windowService = windowService;
         _queueSocketService = queueSocketService;
+        _steamManager = steamManager;
         queueSocketService.OnlineUpdated += OnOnlineUpdated;
         windowService.WindowShown += OnWindowShown;
     }
@@ -98,7 +101,8 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     {
         try
         {
-            var result = await _emoticonService.LoadEmoticonsAsync().ConfigureAwait(false);
+            var steamId = _steamManager.CurrentUser?.SteamId32.ToString();
+            var result = await _emoticonService.LoadEmoticonsAsync(steamId).ConfigureAwait(false);
             _emoticonImages = result.Images;
             _orderedEmoticons = result.Ordered;
 

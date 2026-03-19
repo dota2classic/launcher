@@ -25,11 +25,11 @@ public sealed class EmoticonService : IEmoticonService
             "d2c-launcher", "emoticons");
     }
 
-    public async Task<EmoticonLoadResult> LoadEmoticonsAsync()
+    public async Task<EmoticonLoadResult> LoadEmoticonsAsync(string? steamId = null)
     {
         Directory.CreateDirectory(_cacheDir);
 
-        var list = await _backendApiService.GetEmoticonsAsync().ConfigureAwait(false);
+        var list = await _backendApiService.GetEmoticonsAsync(steamId).ConfigureAwait(false);
         var validCodes = new HashSet<string>(list.Select(e => e.Code), StringComparer.Ordinal);
 
         // Clean up cache files for emoticons that no longer exist.

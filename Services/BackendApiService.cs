@@ -364,12 +364,12 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         }
     }
 
-    public async Task<IReadOnlyList<EmoticonData>> GetEmoticonsAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<EmoticonData>> GetEmoticonsAsync(string? steamId = null, CancellationToken cancellationToken = default)
     {
         try
         {
             var api = new DotaclassicApiClient(_httpClient);
-            var emoticons = await api.ForumController_emoticonsAsync(null, cancellationToken).ConfigureAwait(false);
+            var emoticons = await api.ForumController_emoticonsAsync(steamId, cancellationToken).ConfigureAwait(false);
             if (emoticons == null)
                 return Array.Empty<EmoticonData>();
 

@@ -1,3 +1,4 @@
+using d2c_launcher.Integration;
 using d2c_launcher.ViewModels;
 
 namespace d2c_launcher.Services;
@@ -14,21 +15,24 @@ public sealed class ChatViewModelFactory : IChatViewModelFactory
     private readonly IEmoticonService _emoticonService;
     private readonly IQueueSocketService _queueSocketService;
     private readonly IWindowService _windowService;
+    private readonly ISteamManager _steamManager;
 
     public ChatViewModelFactory(
         IBackendApiService backendApiService,
         IHttpImageService imageService,
         IEmoticonService emoticonService,
         IQueueSocketService queueSocketService,
-        IWindowService windowService)
+        IWindowService windowService,
+        ISteamManager steamManager)
     {
         _backendApiService = backendApiService;
         _imageService = imageService;
         _emoticonService = emoticonService;
         _queueSocketService = queueSocketService;
         _windowService = windowService;
+        _steamManager = steamManager;
     }
 
     public ChatViewModel Create(string threadId)
-        => new(threadId, _backendApiService, _imageService, _emoticonService, _queueSocketService, _windowService);
+        => new(threadId, _backendApiService, _imageService, _emoticonService, _queueSocketService, _windowService, _steamManager);
 }

@@ -102,7 +102,7 @@ internal sealed class StubBackendApiService : IBackendApiService
     public Task PostChatMessageAsync(string threadId, string content, CancellationToken cancellationToken = default)
         => Task.CompletedTask;
 
-    public Task<IReadOnlyList<EmoticonData>> GetEmoticonsAsync(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<EmoticonData>> GetEmoticonsAsync(string? steamId = null, CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<EmoticonData>>([]);
 
     public Task<Models.LiveMatchInfo?> GetLiveMatchAsync(int matchId, CancellationToken cancellationToken = default)
@@ -157,7 +157,7 @@ internal sealed class StubBackendApiService : IBackendApiService
 
 internal sealed class StubEmoticonService : IEmoticonService
 {
-    public Task<EmoticonLoadResult> LoadEmoticonsAsync()
+    public Task<EmoticonLoadResult> LoadEmoticonsAsync(string? steamId = null)
         => Task.FromResult(new EmoticonLoadResult());
 }
 
@@ -260,5 +260,5 @@ internal sealed class StubUiDispatcher : IUiDispatcher
 internal sealed class StubChatViewModelFactory : IChatViewModelFactory
 {
     public d2c_launcher.ViewModels.ChatViewModel Create(string threadId)
-        => new(threadId, new StubBackendApiService(), new StubHttpImageService(), new StubEmoticonService(), new StubQueueSocketService(), new StubWindowService());
+        => new(threadId, new StubBackendApiService(), new StubHttpImageService(), new StubEmoticonService(), new StubQueueSocketService(), new StubWindowService(), new StubSteamManager());
 }
