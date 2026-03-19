@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:d2c_launcher.ViewModels"
+             xmlns:res="clr-namespace:d2c_launcher.Resources"
+             x:Class="d2c_launcher.Views.Components.Settings.DlcView"
+             x:DataType="vm:DlcViewModel">
+
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="0" Margin="0,12,12,12">
+
+            <TextBlock Text="{x:Static res:Strings.AdditionalContent}" Classes="section-label" Margin="0,0,0,10"/>
+
+            <ItemsControl ItemsSource="{Binding DlcPackages}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:DlcPackageItem">
+                        <CheckBox IsChecked="{Binding IsSelected}"
+                                  IsEnabled="{Binding IsEnabled}"
+                                  Margin="0,0,0,8"
+                                  FontSize="{DynamicResource FontSizeMD}">
+                            <TextBlock Text="{Binding Name}" FontSize="{DynamicResource FontSizeMD}"/>
+                        </CheckBox>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <Button Classes="apply-btn"
+                    Content="{x:Static res:Strings.Apply}"
+                    Margin="0,12,0,0"
+                    IsEnabled="{Binding HasDlcChanges}"
+                    Command="{Binding ApplyDlcChangesCommand}"/>
+
+        </StackPanel>
+    </ScrollViewer>
+
+</UserControl>

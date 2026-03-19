@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:d2c_launcher.ViewModels"
              xmlns:res="clr-namespace:d2c_launcher.Resources"
+             xmlns:settings="using:d2c_launcher.Views.Components.Settings"
              x:Class="d2c_launcher.Views.Components.SettingsPanel"
              x:DataType="vm:SettingsViewModel">
 
@@ -112,332 +113,28 @@
 
     </UserControl.Styles>
 
-    <Grid>
-        <Grid RowDefinitions="Auto,*">
+    <TabControl Margin="18,10,18,0">
 
-            <!-- ═══ Directory block ═══ -->
-            <StackPanel Grid.Row="0" Spacing="8" Margin="18,14,18,0">
-                <TextBlock Text="{x:Static res:Strings.GameDirectory}" Classes="section-label"/>
+        <!-- ─── Tab 1: Визуальные ─── -->
+        <TabItem Header="{x:Static res:Strings.TabVisuals}">
+            <settings:VideoSettingsView DataContext="{Binding GameSettings}"/>
+        </TabItem>
 
-                <!-- Path row: folder icon + path + Изменить -->
-                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
-                    <Border Grid.Column="0" Background="#0c0e12" BorderBrush="#2d3842" BorderThickness="1"
-                            Padding="6,5" VerticalAlignment="Stretch">
-                        <TextBlock Text="📁" FontSize="{DynamicResource FontSizeLG}" VerticalAlignment="Center" Opacity="0.7"/>
-                    </Border>
-                    <Border Grid.Column="1" Background="#0c0e12" BorderBrush="#2d3842" BorderThickness="1"
-                            Padding="8,5">
-                        <TextBlock Text="{Binding GameDirectory}"
-                                   Foreground="#c0c4c8" FontSize="{DynamicResource FontSizeBase}"
-                                   TextTrimming="CharacterEllipsis"
-                                   VerticalAlignment="Center"/>
-                    </Border>
-                    <Button Grid.Column="2" Classes="dir-btn" Click="OnSelectDirectoryClicked"
-                            Content="{x:Static res:Strings.Change}"/>
-                </Grid>
+        <!-- ─── Tab 2: Геймплей ─── -->
+        <TabItem Header="{x:Static res:Strings.TabGameplay}">
+            <settings:GameplayView DataContext="{Binding GameSettings}"/>
+        </TabItem>
 
-                <!-- Folder size -->
-                <TextBlock Text="{Binding FolderSizeText}"
-                           Classes="setting-desc"
-                           HorizontalAlignment="Right"
-                           IsVisible="{Binding FolderSizeText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-            </StackPanel>
+        <!-- ─── Tab 3: Лаунчер ─── -->
+        <TabItem Header="{x:Static res:Strings.TabLauncher}">
+            <settings:LauncherPrefsView DataContext="{Binding LauncherPrefs}"/>
+        </TabItem>
 
-            <!-- ═══ Tabs ═══ -->
-            <TabControl Grid.Row="1" Margin="18,10,18,0">
+        <!-- ─── Tab 4: ДЛС ─── -->
+        <TabItem Header="{x:Static res:Strings.ColDlc}">
+            <settings:DlcView DataContext="{Binding Dlc}"/>
+        </TabItem>
 
-                <!-- ─── Tab 1: Визуальные ─── -->
-                <TabItem Header="{x:Static res:Strings.TabVisuals}">
-                    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                                  VerticalScrollBarVisibility="Auto">
-                        <StackPanel Spacing="0" Margin="0,12,12,12">
-
-                            <!-- Language -->
-                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
-                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="{x:Static res:Strings.GameLanguage}" Classes="setting-label"/>
-                                    <TextBlock Text="{x:Static res:Strings.GameLanguageDescription}" Classes="setting-desc"/>
-                                </StackPanel>
-                                <ComboBox Grid.Column="1" Width="140"
-                                          ItemsSource="{Binding AvailableLanguages}"
-                                          SelectedItem="{Binding SelectedLanguage}"
-                                          VerticalAlignment="Center"/>
-                            </Grid>
-
-                            <!-- Skip intro -->
-                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
-                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="{x:Static res:Strings.SkipIntro}" Classes="setting-label"/>
-                                    <TextBlock Text="{x:Static res:Strings.SkipIntroDescription}" Classes="setting-desc"/>
-                                </StackPanel>
-                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding NoVid}"
-                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                            </Grid>
-
-                            <!-- Fullscreen -->
-                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
-                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="{x:Static res:Strings.FullscreenMode}" Classes="setting-label"/>
-                                    <TextBlock Text="{x:Static res:Strings.LaunchFullscreenDescription}" Classes="setting-desc"/>
-                                </StackPanel>
-                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding Fullscreen}"
-                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                            </Grid>
-
-                            <!-- Borderless window -->
-                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
-                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="{x:Static res:Strings.BorderlessMode}" Classes="setting-label"/>
-                                    <TextBlock Text="{x:Static res:Strings.LaunchBorderlessDescription}" Classes="setting-desc"/>
-                                </StackPanel>
-                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding NoWindowBorder}"
-                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                            </Grid>
-
-                            <!-- Resolution -->
-                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,0">
-                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="{x:Static res:Strings.Resolution}" Classes="setting-label"/>
-                                    <TextBlock Text="{x:Static res:Strings.ScreenResolutionGame}" Classes="setting-desc"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                    <ComboBox Width="80"
-                                              ItemsSource="{Binding AvailableAspectRatios}"
-                                              SelectedIndex="{Binding SelectedAspectRatioIndex}"/>
-                                    <ComboBox Width="140"
-                                              ItemsSource="{Binding AvailableResolutions}"
-                                              SelectedItem="{Binding SelectedResolution}">
-                                        <ComboBox.ItemTemplate>
-                                            <DataTemplate x:DataType="vm:ResolutionItem">
-                                                <Grid ColumnDefinitions="*,Auto">
-                                                    <TextBlock Grid.Column="0" Text="{Binding Label}" VerticalAlignment="Center"/>
-                                                    <TextBlock Grid.Column="1" Text="{x:Static res:Strings.Monitor}"
-                                                               IsVisible="{Binding IsNative}"
-                                                               Foreground="#66FFFFFF"
-                                                               FontSize="11"
-                                                               Margin="8,0,0,0"
-                                                               VerticalAlignment="Center"/>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ComboBox.ItemTemplate>
-                                    </ComboBox>
-                                </StackPanel>
-                            </Grid>
-
-                        </StackPanel>
-                    </ScrollViewer>
-                </TabItem>
-
-                <!-- ─── Tab 2: Геймплей ─── -->
-                <TabItem Header="{x:Static res:Strings.TabGameplay}">
-                    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                                  VerticalScrollBarVisibility="Auto"
-                                  PointerPressed="OnGameplayTabPointerPressed">
-                        <StackPanel Spacing="0" Margin="0,12,12,12">
-
-                            <!-- Auto-attack -->
-                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
-                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="{x:Static res:Strings.AutoAttack}" Classes="setting-label"/>
-                                    <TextBlock Text="{x:Static res:Strings.AutoAttackMode}" Classes="setting-desc"/>
-                                </StackPanel>
-                                <ComboBox Grid.Column="1" Width="180"
-                                          ItemsSource="{Binding AutoAttackOptions}"
-                                          SelectedIndex="{Binding AutoAttackSelectedIndex}"
-                                          VerticalAlignment="Center"/>
-                            </Grid>
-
-                            <!-- Right-click attack -->
-                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
-                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="{x:Static res:Strings.RightClickAttack}" Classes="setting-label"/>
-                                    <TextBlock Text="{x:Static res:Strings.RightClickAttackDescription}" Classes="setting-desc"/>
-                                </StackPanel>
-                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding ForceRightClickAttack}"
-                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                            </Grid>
-
-                            <!-- Disable camera zoom -->
-                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
-                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="{x:Static res:Strings.DisableScrollZoom}" Classes="setting-label"/>
-                                    <TextBlock Text="{x:Static res:Strings.DisableScrollZoomHint}" Classes="setting-desc"/>
-                                </StackPanel>
-                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding DisableCameraZoom}"
-                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                            </Grid>
-
-                            <!-- Right mouse auto-repeat -->
-                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
-                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="{x:Static res:Strings.AutoRepeatRMB}" Classes="setting-label"/>
-                                    <TextBlock Text="{x:Static res:Strings.RmbHoldDescription}" Classes="setting-desc"/>
-                                </StackPanel>
-                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding RightMouseAutoRepeat}"
-                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                            </Grid>
-
-                            <!-- Teleport requires halt -->
-                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
-                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="{x:Static res:Strings.TeleportRequiresStop}" Classes="setting-label"/>
-                                    <TextBlock Text="{x:Static res:Strings.TeleportCancelHint}" Classes="setting-desc"/>
-                                </StackPanel>
-                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding TeleportRequiresHalt}"
-                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                            </Grid>
-
-                            <!-- Camera distance -->
-                            <StackPanel Margin="0,0,0,16" Spacing="6">
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <StackPanel Grid.Column="0" Spacing="3">
-                                        <TextBlock Text="{x:Static res:Strings.CameraDistance}" Classes="setting-label"/>
-                                        <TextBlock Text="{x:Static res:Strings.CameraDistanceHint}" Classes="setting-desc"/>
-                                        <TextBlock Text="⚠ Значения выше 1134 делают часть экрана некликабельной"
-                                                   Classes="setting-desc" Foreground="#c8a84b"/>
-                                    </StackPanel>
-                                    <TextBox Grid.Column="1"
-                                             Text="{Binding CameraDistanceText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
-                                             VerticalAlignment="Center"
-                                             HorizontalAlignment="Right"
-                                             Width="60"
-                                             Margin="0,0,6,0"
-                                             TextAlignment="Center"
-                                             KeyDown="OnCameraDistanceKeyDown"/>
-                                </Grid>
-                                <Slider Minimum="1000" Maximum="1600"
-                                        Value="{Binding CameraDistance}"
-                                        TickFrequency="1"
-                                        IsSnapToTickEnabled="True"/>
-                            </StackPanel>
-
-                            <!-- Reset camera on spawn -->
-                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,0">
-                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="{x:Static res:Strings.CameraOnSpawn}" Classes="setting-label"/>
-                                    <TextBlock Text="{x:Static res:Strings.CameraOnSpawnDescription}" Classes="setting-desc"/>
-                                </StackPanel>
-                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding ResetCameraOnSpawn}"
-                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                            </Grid>
-
-                        </StackPanel>
-                    </ScrollViewer>
-                </TabItem>
-
-                <!-- ─── Tab 3: Лаунчер ─── -->
-                <TabItem Header="{x:Static res:Strings.TabLauncher}">
-                    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                                  VerticalScrollBarVisibility="Auto">
-                        <StackPanel Spacing="0" Margin="0,12,12,12">
-
-                            <!-- UI Scale -->
-                            <StackPanel Margin="0,0,0,16" Spacing="6">
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <StackPanel Grid.Column="0" Spacing="3">
-                                        <TextBlock Text="{x:Static res:Strings.UiScale}" Classes="setting-label"/>
-                                        <TextBlock Text="{x:Static res:Strings.UiScaleDescription}" Classes="setting-desc"/>
-                                    </StackPanel>
-                                    <TextBlock Grid.Column="1"
-                                               Text="{Binding UiScale}"
-                                               Classes="setting-label"
-                                               VerticalAlignment="Center"
-                                               HorizontalAlignment="Right"
-                                               Width="24"
-                                               Margin="0,0,6,0"
-                                               TextAlignment="Center"/>
-                                </Grid>
-                                <Slider Minimum="0" Maximum="4"
-                                        Value="{Binding UiScale}"
-                                        TickFrequency="1"
-                                        IsSnapToTickEnabled="True"/>
-                            </StackPanel>
-
-                            <!-- Custom launch args -->
-                            <StackPanel Margin="0,0,0,16" Spacing="6">
-                                <TextBlock Text="{x:Static res:Strings.LaunchParameters}" Classes="setting-label"/>
-                                <TextBlock Text="{x:Static res:Strings.ExtraArgsHint}" Classes="setting-desc"/>
-                                <TextBox Text="{Binding ExtraArgs, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
-                            </StackPanel>
-
-                            <!-- Auto-update -->
-                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
-                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="{x:Static res:Strings.AutoUpdateLauncher}" Classes="setting-label"/>
-                                    <TextBlock Text="{x:Static res:Strings.InstallUpdatesOnStartup}" Classes="setting-desc"/>
-                                </StackPanel>
-                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoUpdate}"
-                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                            </Grid>
-
-                            <!-- Close to tray -->
-                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
-                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="{x:Static res:Strings.CloseToTray}" Classes="setting-label"/>
-                                    <TextBlock Text="{x:Static res:Strings.CloseToTrayDescription}" Classes="setting-desc"/>
-                                </StackPanel>
-                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding CloseToTray}"
-                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                            </Grid>
-
-                            <!-- Auto-connect to game -->
-                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
-                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="{x:Static res:Strings.AutoConnectToServer}" Classes="setting-label"/>
-                                    <TextBlock Text="{x:Static res:Strings.AutoConnectDescription}" Classes="setting-desc"/>
-                                </StackPanel>
-                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoConnectToGame}"
-                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                            </Grid>
-
-                            <!-- Defender exclusion -->
-                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
-                                <StackPanel Grid.Column="0" Spacing="3" VerticalAlignment="Center">
-                                    <TextBlock Text="{x:Static res:Strings.DefenderExclusionTitle}" Classes="setting-label"/>
-                                    <TextBlock Text="{x:Static res:Strings.DefenderExclusionAdded}" Classes="setting-desc"/>
-                                </StackPanel>
-                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding DefenderExclusionEnabled}"
-                                             VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                            </Grid>
-
-                        </StackPanel>
-                    </ScrollViewer>
-                </TabItem>
-
-                <!-- ─── Tab 4: ДЛС ─── -->
-                <TabItem Header="{x:Static res:Strings.ColDlc}">
-                    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                                  VerticalScrollBarVisibility="Auto">
-                        <StackPanel Spacing="0" Margin="0,12,12,12">
-
-                            <TextBlock Text="{x:Static res:Strings.AdditionalContent}" Classes="section-label" Margin="0,0,0,10"/>
-
-                            <ItemsControl ItemsSource="{Binding DlcPackages}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="vm:DlcPackageItem">
-                                        <CheckBox IsChecked="{Binding IsSelected}"
-                                                  IsEnabled="{Binding IsEnabled}"
-                                                  Margin="0,0,0,8"
-                                                  FontSize="{DynamicResource FontSizeMD}">
-                                            <TextBlock Text="{Binding Name}" FontSize="{DynamicResource FontSizeMD}"/>
-                                        </CheckBox>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                            <Button Classes="apply-btn"
-                                    Content="{x:Static res:Strings.Apply}"
-                                    Margin="0,12,0,0"
-                                    IsEnabled="{Binding HasDlcChanges}"
-                                    Command="{Binding ApplyDlcChangesCommand}"/>
-
-                        </StackPanel>
-                    </ScrollViewer>
-                </TabItem>
-
-            </TabControl>
-
-        </Grid>
-    </Grid>
+    </TabControl>
 
 </UserControl>

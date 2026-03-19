@@ -2,6 +2,24 @@
 
 ## Current Focus
 
+**Issue #88: Split SettingsViewModel into focused sub-ViewModels** — implemented.
+
+### What Was Changed
+- `ViewModels/GameSettingsViewModel.cs` — new; owns video settings (fullscreen, borderless, resolution picker) + all gameplay cvars + `PushCvar` delegate + `RefreshFromCvarProvider/Video`; `ResolutionItem` record moved here
+- `ViewModels/LauncherPrefsViewModel.cs` — new; owns launch params (language, NoVid, ExtraArgs) + launcher prefs (AutoUpdate, CloseToTray, AutoConnectToGame, UiScale, DefenderExclusionEnabled) + game directory display
+- `ViewModels/DlcViewModel.cs` — new; owns DLC package selection, change detection, apply
+- `ViewModels/SettingsViewModel.cs` — reduced to thin container (~45 lines); exposes `GameSettings`, `LauncherPrefs`, `Dlc` properties; delegates all public methods/callbacks to sub-VMs; same constructor signature → no callers changed
+- `Views/Components/Settings/VideoSettingsView.axaml(.cs)` — new; Визуальные tab content; `x:DataType="GameSettingsViewModel"`; code-behind handles `ApplyMonitorSize`
+- `Views/Components/Settings/GameplayView.axaml(.cs)` — new; Геймплей tab content; `x:DataType="GameSettingsViewModel"`; code-behind handles camera distance key/pointer events
+- `Views/Components/Settings/LauncherPrefsView.axaml(.cs)` — new; Лаунчер tab + directory block (moved from SettingsPanel top); `x:DataType="LauncherPrefsViewModel"`; raises `SettingsPanel.SelectDirectoryRequestedEvent`; language/NoVid moved here from Визуальные tab
+- `Views/Components/Settings/DlcView.axaml(.cs)` — new; ДЛС tab content; `x:DataType="DlcViewModel"`
+- `Views/Components/SettingsPanel.axaml` — reduced to tab shell (~90 lines); all styles kept here for cascade; each tab binds `DataContext` to its sub-VM
+- `Views/Components/SettingsPanel.axaml.cs` — reduced to event definition only; all handlers moved to sub-views
+
+---
+
+## Previous Focus
+
 **Issue #90: FakeSteamManager and integration tests** — implemented.
 
 ### What Was Changed
