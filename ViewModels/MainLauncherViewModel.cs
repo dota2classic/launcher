@@ -419,13 +419,13 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     {
         if (!_settingsStorage.Get().NightlyUpdates) return;
 
-        var vm = new AchievementToastViewModel(
+        var vm = AchievementToastViewModel.TryCreate(
             notificationId: "dev-preview",
             steamId: CurrentUser?.SteamId32.ToString() ?? "0",
             achievementKey: 9, // winStreak10
             api: _backendApiService,
             cp: 10);
-        NotificationArea.AddNotificationDirect(vm);
+        if (vm != null) NotificationArea.AddNotificationDirect(vm);
     }
 
     public void Dispose()

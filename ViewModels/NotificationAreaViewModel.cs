@@ -21,19 +21,13 @@ public sealed class NotificationAreaViewModel
 
     public void AddInvite(PartyInviteReceivedMessage msg)
     {
-        // Don't show duplicates
-        if (Notifications.OfType<PartyInviteNotificationViewModel>().Any(v => v.InviteId == msg.InviteId))
-            return;
-
         var avatarUrl = msg.Inviter?.AvatarSmall ?? msg.Inviter?.Avatar;
         var vm = new PartyInviteNotificationViewModel(
             msg.InviteId,
             msg.Inviter?.Name ?? "Unknown",
             avatarUrl,
             (id, accept) => _queueSocketService.AcceptPartyInviteAsync(id, accept));
-
-        vm.Closed += v => Dispatcher.UIThread.Post(() => Notifications.Remove(v));
-        Notifications.Add(vm);
+        AddNotification(vm);
     }
 
     public void RemoveByInviteId(string inviteId)
@@ -62,18 +56,16 @@ public sealed class NotificationAreaViewModel
     public void AddAchievementToast(NotificationDto notification, IBackendApiService api)
     {
         var achievementKey = notification.Achievement != null ? (int)notification.Achievement.Key : -1;
-        var vm = new AchievementToastViewModel(
-            notification.Id,
-            notification.SteamId,
-            achievementKey,
-            api);
-        AddNotification(vm);
+        var vm = AchievementToastViewModel.TryCreate(notification.Id, notification.SteamId, achievementKey, api);
+        if (vm != null) AddNotification(vm);
     }
 
     public void AddNotificationDirect(NotificationViewModel vm) => AddNotification(vm);
 
     private void AddNotification(NotificationViewModel vm)
     {
+        if (vm.NotificationId != null && Notifications.Any(n => n.NotificationId == vm.NotificationId))
+            return;
         vm.Closed += v => Dispatcher.UIThread.Post(() => Notifications.Remove(v));
         Dispatcher.UIThread.Post(() => Notifications.Add(vm));
     }
