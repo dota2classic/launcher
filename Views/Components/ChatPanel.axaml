@@ -148,13 +148,13 @@
                                                                                 Width="14" Height="14"
                                                                                 Foreground="#CD7F32"
                                                                                 IsVisible="{Binding IsModerator}"
-                                                                                ToolTip.Tip="Модератор"/>
+                                                                                ToolTip.Tip="{util:T 'chat.roleModeratorTooltip'}"/>
                                                     <!-- Admin shield (grey) -->
                                                     <materialIcons:MaterialIcon Kind="Shield"
                                                                                 Width="14" Height="14"
                                                                                 Foreground="#9E9E9E"
                                                                                 IsVisible="{Binding IsAdmin}"
-                                                                                ToolTip.Tip="Администратор"/>
+                                                                                ToolTip.Tip="{util:T 'chat.roleAdminTooltip'}"/>
                                                     <!-- OLD subscriber: custom chat icon or star fallback -->
                                                     <Panel IsVisible="{Binding IsOld}"
                                                            Width="16" Height="16"
@@ -167,6 +167,8 @@
                                                         <materialIcons:MaterialIcon Kind="Star"
                                                                                     Width="14" Height="14"
                                                                                     Foreground="#FFD700"
+                                                                                    HorizontalAlignment="Center"
+                                                                                    VerticalAlignment="Center"
                                                                                     IsVisible="{Binding HasCustomChatIcon, Converter={x:Static BoolConverters.Not}}"/>
                                                     </Panel>
                                                 </StackPanel>

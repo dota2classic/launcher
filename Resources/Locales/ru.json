@@ -236,7 +236,9 @@
   "chat": {
     "enterMessage": "Введите сообщение",
     "pickEmoticon": "Выбрать эмоцию",
-    "defaultSubscriberTitle": "Подписчик OLD"
+    "defaultSubscriberTitle": "Подписчик OLD",
+    "roleModeratorTooltip": "Модератор",
+    "roleAdminTooltip": "Администратор"
   },
   "download": {
     "downloadGame": "Скачать игру",
