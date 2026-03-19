@@ -13,7 +13,7 @@
 | DI container setup                         | ✅ Done         | `App.axaml.cs`                                  |
 | Settings persistence (launcher JSON)       | ✅ Done         | `%AppData%\d2c-launcher\launcher_settings.json` |
 | Application auto-updates                   | ✅ Done         | Velopack + GitHub Releases                      |
-| Hardware info logging + HWID               | ✅ Done         | `HardwareInfoService` committed; HWID not yet sent to backend (backlog) |
+| Hardware info logging + HWID               | ✅ Done         | `HardwareInfoService` logs hardware; HWID sent to backend via SteamBridge steam auth ticket endpoint |
 
 
 ### Matchmaking
@@ -176,7 +176,6 @@ Other known technical debt:
 | Item | Notes |
 | ---- | ----- |
 | Keybind settings UI | `config.cfg` bind lines parsed but not exposed in UI |
-| Send HWID to backend | `HardwareInfoService` logs HWID but doesn't send it |
 | Extra launch args UI | `ExtraArgs` field in model; no UI |
 | Custom cfg lines UI | `CustomCfgLines` wired to `d2c_launch.cfg`; no UI |
 | `QueueSocketService.Dispose()` blocks UI | `Task.Run+.Wait` up to 2s |

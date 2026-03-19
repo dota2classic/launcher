@@ -41,7 +41,6 @@ All major features are shipped. The launcher is in maintenance/polish mode. No a
 | `FakeQueueSocketService` | Planned for integration tests; `FakeSteamManager` is done |
 | `QueueSocketService.Dispose()` blocks UI | `Task.Run+.Wait` up to 2s |
 | Chat thread ID hardcoded | `"17aa3530-d152-462e-a032-909ae69019ed"` in `ChatViewModel` |
-| Send HWID to backend | `HardwareInfoService` logs HWID but doesn't send it |
 | Keybind settings UI | `config.cfg` bind lines parsed but not exposed in UI |
 
 ---

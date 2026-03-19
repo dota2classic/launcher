@@ -24,7 +24,7 @@ Dotaclassic is a community project with no official support from Valve. Players 
 | In-launcher game settings (cvars) | Done |
 | Bi-directional config.cfg sync | Done |
 | Application auto-updates | Done |
-| Hardware info logging / HWID | In progress |
+| Hardware info logging / HWID | Done |
 
 ## Platform & Scope
 
