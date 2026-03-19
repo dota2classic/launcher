@@ -183,7 +183,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         }
     }
 
-    public bool LaunchGame()
+    public bool LaunchGame(string? launchOptions = null)
     {
         if (string.IsNullOrEmpty(GameDirectory))
             return false;
@@ -214,6 +214,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
             if (!string.IsNullOrEmpty(cliArgs)) parts.Add(cliArgs);
             if (presetArg != null) parts.Add(presetArg);
             if (execArg != null) parts.Add(execArg);
+            if (!string.IsNullOrEmpty(launchOptions)) parts.Add(launchOptions);
             var arguments = string.Join(" ", parts);
 
             AppLog.Info($"LaunchGame: starting {exePath} {arguments}");
@@ -277,11 +278,12 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
                 return;
             }
 
-            AppLog.Info("ConnectToGame: launching our Dota");
-            if (!LaunchGame())
-                return;
+            AppLog.Info($"ConnectToGame: launching our Dota with +connect {url}");
+            LaunchGame($"+connect {url}");
+            return;
         }
 
+        // Game already running — send connect command via console
         AppLog.Info("ConnectToGame: waiting for DOTA 2 window...");
         var deadline = DateTimeOffset.UtcNow.AddSeconds(90);
         while (!DotaConsoleConnector.IsWindowOpen())
