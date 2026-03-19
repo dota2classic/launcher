@@ -30,4 +30,5 @@ public interface IBackendApiService
     Task<IReadOnlyList<HeroProfileData>> GetHeroStatsAsync(string steamId, CancellationToken cancellationToken = default);
     Task AbandonGameAsync(CancellationToken cancellationToken = default);
     Task AcknowledgeNotificationAsync(string notificationId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<d2c_launcher.Api.NotificationDto>> GetNotificationsAsync(CancellationToken cancellationToken = default);
 }

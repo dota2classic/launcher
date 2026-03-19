@@ -542,6 +542,13 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         await api.NotificationController_acknowledgeAsync(notificationId, cancellationToken).ConfigureAwait(false);
     }
 
+    public async Task<IReadOnlyList<Api.NotificationDto>> GetNotificationsAsync(CancellationToken cancellationToken = default)
+    {
+        var api = new DotaclassicApiClient(_authHttpClient);
+        var result = await api.NotificationController_getNotificationsAsync(cancellationToken).ConfigureAwait(false);
+        return (IReadOnlyList<Api.NotificationDto>)result;
+    }
+
     public void Dispose()
     {
         _httpClient.Dispose();

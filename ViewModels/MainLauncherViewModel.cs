@@ -177,6 +177,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
         _soundCoordinator = new SocketEventCoordinator(queueSocketService, NotificationArea, windowService, backendApiService,
             mode => Queue.MatchmakingModes.FirstOrDefault(m => m.ModeId == (int)mode)?.Name ?? mode.ToString());
+        FireAndForget(_soundCoordinator.LoadPendingNotificationsAsync(), "LoadPendingNotificationsAsync");
 
         Launch.PropertyChanged += (_, e) =>
         {

@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Avalonia.Threading;
 using d2c_launcher.Api;
 using d2c_launcher.Resources;
@@ -92,6 +93,17 @@ public sealed class SocketEventCoordinator : IDisposable
         var notification = msg.NotificationDto;
         if (notification.NotificationType == NotificationType.ACHIEVEMENT_COMPLETE)
             Dispatcher.UIThread.Post(() => _notificationArea.AddAchievementToast(notification, _backendApiService));
+    }
+
+    /// <summary>
+    /// Fetches all pending (unacknowledged) notifications from the API and processes each
+    /// through <see cref="OnNotificationCreated"/>, so toasts are shown on startup.
+    /// </summary>
+    public async Task LoadPendingNotificationsAsync()
+    {
+        var notifications = await _backendApiService.GetNotificationsAsync().ConfigureAwait(false);
+        foreach (var notification in notifications)
+            OnNotificationCreated(new NotificationCreatedMessage(notification));
     }
 
     public void Dispose()
