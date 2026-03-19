@@ -213,7 +213,7 @@
                                    <TextBlock Text="{Binding Title}"
                                               FontWeight="SemiBold"
                                               Foreground="#F5C543"
-                                              TextTrimming="CharacterEllipsis"/>
+                                              TextWrapping="Wrap"/>
                                </StackPanel>
                                <!-- Dismiss -->
                                <Button Grid.Column="2"

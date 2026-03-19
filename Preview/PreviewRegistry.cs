@@ -178,6 +178,33 @@ public static class PreviewRegistry
                 host.Children.Add(new NotificationArea { DataContext = vm });
                 return (host, null);
             },
+            ["AchievementToast"] = () =>
+            {
+                var api = new StubBackendApiService();
+                var vm = new NotificationAreaViewModel(new StubQueueSocketService());
+                vm.AddAchievementToast(new d2c_launcher.Api.NotificationDto
+                {
+                    Id = "preview-notif-1",
+                    SteamId = "76561198000000001",
+                    Title = "Победа за 1 час против Techies",
+                    Content = "Выиграйте игру продолжительностью более 1 часа против команды с Techies.",
+                    NotificationType = d2c_launcher.Api.NotificationType.ACHIEVEMENT_COMPLETE,
+                    EntityType = d2c_launcher.Api.NotificationDtoEntityType.ACHIEVEMENT,
+                    EntityId = "0",
+                    CreatedAt = "2026-01-01T00:00:00Z",
+                    ExpiresAt = "2026-12-31T00:00:00Z",
+                    Achievement = new d2c_launcher.Api.NotificationAchievementDto { Key = 0 },
+                    Params = new object(),
+                }, api);
+                var host = new Panel
+                {
+                    Width = 900,
+                    Height = 400,
+                    Background = new SolidColorBrush(Color.Parse("#1a1f26")),
+                };
+                host.Children.Add(new NotificationArea { DataContext = vm });
+                return (host, null);
+            },
             ["Loading"] = () =>
                 (new LoadingView(), new LoadingViewModel()),
             ["LaunchSteamFirst"] = () =>
