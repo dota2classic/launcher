@@ -198,6 +198,26 @@ When you discover new domain knowledge, architectural decisions, or non-trivial 
 
 ---
 
+## Skill Retrospective
+
+After completing any skill (e.g. `/fix-issue`, `/code-review`), reflect on how the session went. If there were human interventions, course corrections, or non-obvious oversights that a better prompt or process could have caught upfront, **post a PR comment** describing them. Skip this if the task was straightforward with no surprises.
+
+Use this format:
+
+```
+## Skill retrospective
+
+**What required human input:** <brief description of the back-and-forth or correction>
+**Root cause:** <why it wasn't caught — missing investigation step, wrong assumption, unclear scope, etc.>
+**Suggested improvement:**
+> <exact instruction to add or change in the skill/CLAUDE.md>
+**Reasoning:** <why this prevents the same issue next time>
+```
+
+The goal is to make skills self-improving over time. One comment per distinct issue; skip if nothing went wrong.
+
+---
+
 ## Do Not
 
 - Edit `Generated/DotaclassicApiClient.g.cs` manually — regenerate from the OpenAPI spec
