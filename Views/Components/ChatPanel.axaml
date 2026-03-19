@@ -150,8 +150,7 @@
                                                 Segments="{Binding RichContent}"/>
                                             <!-- Reactions -->
                                             <ItemsControl IsVisible="{Binding HasReactions}"
-                                                          ItemsSource="{Binding Reactions}"
-                                                          Margin="0,4,0,0">
+                                                          ItemsSource="{Binding Reactions}">
                                                 <ItemsControl.ItemsPanel>
                                                     <ItemsPanelTemplate>
                                                         <WrapPanel Orientation="Horizontal"/>
@@ -161,7 +160,7 @@
                                                     <DataTemplate x:DataType="vm:ChatReactionViewModel">
                                                         <Button Command="{Binding ReactCommand}"
                                                                 Classes.mine="{Binding IsMine}"
-                                                                Margin="0,0,4,2" Padding="5,2"
+                                                                Margin="0,4,4,0" Padding="5,2"
                                                                 CornerRadius="10"
                                                                 BorderThickness="1"
                                                                 Cursor="Hand">
@@ -186,7 +185,7 @@
                                                             <StackPanel Orientation="Horizontal" Spacing="4"
                                                                         VerticalAlignment="Center">
                                                                 <gif:GifImage
-                                                                    Source="{Binding EmoticonBytes, Converter={x:Static util:BytesStreamConverter.Instance}}"
+                                                                    Source="{Binding EmoticonStream}"
                                                                     Width="16" Height="16"
                                                                     Stretch="Uniform"/>
                                                                 <TextBlock Text="{Binding Count}"

@@ -44,7 +44,7 @@ public sealed partial class ChatMessageView : ObservableObject
     public bool HasReply => ReplyToContent != null;
 
     public ObservableCollection<ChatReactionViewModel> Reactions { get; } = new();
-    public bool HasReactions => Reactions.Count > 0;
+    [ObservableProperty] private bool _hasReactions;
 
     /// <summary>
     /// Updates the Reactions collection in-place from fresh data, reusing existing VMs where possible.
@@ -73,7 +73,7 @@ public sealed partial class ChatMessageView : ObservableObject
             }
         }
 
-        OnPropertyChanged(nameof(HasReactions));
+        HasReactions = Reactions.Count > 0;
     }
 
     public ChatMessageView(
