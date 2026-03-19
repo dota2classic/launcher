@@ -2,6 +2,21 @@
 
 ## Current Focus
 
+**Issue #94: JSON-based i18n system** — implemented.
+
+### What Was Changed
+- `Resources/Locales/ru.json` — new embedded JSON with all UI strings organized by section, mirroring webapp i18next structure; achievement strings from `achievement_mapping.json` with `{cp}` placeholders
+- `Services/I18n.cs` — new static class; loads `ru.json` as embedded resource; flattens nested JSON to dot-notation dict; `T(key, params)` with named `{placeholder}` substitution; falls back to key if missing
+- `Util/TExtension.cs` — new Avalonia `MarkupExtension`; enables `{l:T 'key'}` in XAML (static strings only)
+- `d2c-launcher.csproj` — added `<EmbeddedResource>` for `ru.json`
+- `Resources/Strings.cs` — all properties now delegate to `I18n.T("section.key")`; all XAML and C# call sites unchanged
+- `ViewModels/AchievementToastViewModel.cs` — replaced `AchievementImageMap` (int→img) with `AchievementMap` (int→(name, img)) mirroring webapp; title now looked up via `I18n.T("achievement.{name}.title")`
+- `docs/localization.md` — new; documents I18n.T(), JSON format, XAML extension, Strings.cs migration, webapp sync
+
+---
+
+## Previous Focus
+
 **Issue #92: Achievement notification** — implemented.
 
 ### What Was Changed

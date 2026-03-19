@@ -11,6 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Resources\Locales\ru.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
     <ContentWithTargetPath Include="steam_api64.dll" CopyToOutputDirectory="PreserveNewest" TargetPath="steam_api64.dll" />
     <ContentWithTargetPath Include="steam_appid.txt" CopyToOutputDirectory="PreserveNewest" TargetPath="steam_appid.txt" />
