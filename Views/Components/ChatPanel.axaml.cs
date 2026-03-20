@@ -60,6 +60,9 @@ public partial class ChatPanel : UserControl
     private void OnSiteClicked(object? sender, RoutedEventArgs e) =>
         Process.Start(new ProcessStartInfo("https://dotaclassic.ru/") { UseShellExecute = true });
 
+    private void OnDotaclassicPlusClicked(object? sender, RoutedEventArgs e) =>
+        Process.Start(new ProcessStartInfo("https://dotaclassic.ru/store") { UseShellExecute = true });
+
     private void OnPickerReactClicked(object? sender, RoutedEventArgs e)
     {
         if (sender is Control v &&
