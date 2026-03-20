@@ -115,18 +115,18 @@
                  Foreground="#D9D9D9" FontSize="{DynamicResource FontSizeSM}"
                  FontWeight="SemiBold"/>
 
-      <!-- Answer buttons -->
+      <!-- Answer buttons (2×2 grid) -->
       <ItemsControl x:Name="AnswersControl" ItemsSource="{Binding Answers}" Margin="8,0">
         <ItemsControl.ItemsPanel>
           <ItemsPanelTemplate>
-            <StackPanel Spacing="4"/>
+            <UniformGrid Columns="2" Rows="2"/>
           </ItemsPanelTemplate>
         </ItemsControl.ItemsPanel>
         <ItemsControl.ItemTemplate>
           <DataTemplate x:DataType="vm:TriviaMcAnswerVm">
             <Button Click="OnMcAnswerClicked"
                     HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
-                    Padding="8,5" CornerRadius="0" Cursor="Hand"
+                    Margin="2" Padding="8,5" CornerRadius="0" Cursor="Hand"
                     Background="{Binding Result, Converter={StaticResource AnswerBrushConverter}}"
                     BorderThickness="1"
                     BorderBrush="#2d3842">
