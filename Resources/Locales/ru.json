@@ -204,7 +204,9 @@
   "room": {
     "gameFound": "Игра найдена!",
     "searchingGameServer": "Идёт поиск игрового сервера...",
-    "waitingForPlayers": "Ожидание других игроков..."
+    "waitingForPlayers": "Ожидание других игроков...",
+    "acceptTimeout": "Вы не успели принять игру",
+    "acceptTimeoutClose": "Понятно"
   },
   "profile": {
     "loading": "Загрузка профиля...",

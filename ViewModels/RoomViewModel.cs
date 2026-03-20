@@ -25,6 +25,9 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
     private bool _isAcceptGameModalOpen;
 
     [ObservableProperty]
+    private bool _isTimeoutModalOpen;
+
+    [ObservableProperty]
     private bool _isServerSearchingModalOpen;
 
     [ObservableProperty]
@@ -32,6 +35,8 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
 
     [ObservableProperty]
     private bool _hasMyPlayerResponded;
+
+    private ReadyState? _myLastState;
 
     [ObservableProperty]
     private ObservableCollection<RoomPlayerView> _roomPlayers = new();
@@ -48,6 +53,7 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
 
     public IRelayCommand AcceptGameCommand { get; }
     public IRelayCommand DeclineGameCommand { get; }
+    public IRelayCommand CloseTimeoutModalCommand { get; }
 
     public RoomViewModel(IQueueSocketService queueSocketService, IBackendApiService backendApiService)
     {
@@ -60,6 +66,7 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
 
         AcceptGameCommand = new RelayCommand(AcceptGame);
         DeclineGameCommand = new RelayCommand(DeclineGame);
+        CloseTimeoutModalCommand = new RelayCommand(() => IsTimeoutModalOpen = false);
     }
 
     private void OnPlayerRoomStateUpdated(PlayerRoomStateMessage? msg) =>
@@ -95,7 +102,9 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
     {
         if (msg == null)
         {
-            AppLog.Info("UpdatePlayerRoomStateAsync: msg=null (room cleared)");
+            AppLog.Info($"UpdatePlayerRoomStateAsync: msg=null (room cleared), myLastState={_myLastState}");
+            if (_myLastState == ReadyState.Pending)
+                IsTimeoutModalOpen = true;
             ClearRoomState();
             return;
         }
@@ -162,6 +171,7 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
         var currentUser = GetCurrentUser();
         var myId = currentUser?.SteamId32.ToString();
         var myEntry = myId != null ? (msg.Entries ?? []).FirstOrDefault(e => e.SteamId == myId) : null;
+        _myLastState = myEntry?.State;
         HasMyPlayerAccepted = myEntry?.State == ReadyState.Ready;
         HasMyPlayerResponded = myEntry != null && myEntry.State != ReadyState.Pending;
 
@@ -227,6 +237,7 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
         CurrentRoomId = null;
         RoomMode = null;
         RoomPlayers.Clear();
+        _myLastState = null;
     }
 
     public void Dispose()
