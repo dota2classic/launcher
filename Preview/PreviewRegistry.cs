@@ -182,6 +182,30 @@ public static class PreviewRegistry
                 };
                 return (host, null);
             },
+            // MC short-text: all 1-line answers — verifies MinHeight keeps buttons uniform
+            ["GameSearchPanelTriviaMcShort"] = () =>
+            {
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository());
+                vm.IsSearching = true;
+                var trivia = vm.Trivia;
+                trivia.IsItemRecipe = false;
+                trivia.QuestionText = "Максимальный уровень героя?";
+                trivia.Score = 1;
+                trivia.TimerSeconds = 12;
+
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "25", Index = 0 });
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "30", Index = 1 });
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "20", Index = 2 });
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "28", Index = 3 });
+
+                var host = new Border
+                {
+                    Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#1a1f26")),
+                    Width = 360,
+                    Child = new GameSearchPanel { DataContext = vm },
+                };
+                return (host, null);
+            },
             // MC result: wrong answer dimmed with overlay, correct answer green
             ["GameSearchPanelTriviaMcResult"] = () =>
             {

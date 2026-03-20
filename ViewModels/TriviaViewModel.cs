@@ -194,7 +194,23 @@ public partial class TriviaViewModel : ObservableObject
         if (TimerSeconds <= 0)
         {
             _countdownTimer.Stop();
+            RevealAnswers();
             ShowResult(false);
+        }
+    }
+
+    /// <summary>Highlights the correct answer(s) when time runs out, so the user always learns the right answer.</summary>
+    private void RevealAnswers()
+    {
+        if (IsItemRecipe)
+        {
+            foreach (var item in Pool)
+                item.Result = item.IsCorrect ? TriviaAnswerResult.Correct : TriviaAnswerResult.Wrong;
+        }
+        else
+        {
+            var correctAnswer = Answers.FirstOrDefault(a => a.Index == _mcCorrectIndex);
+            if (correctAnswer != null) correctAnswer.Result = TriviaAnswerResult.Correct;
         }
     }
 

@@ -127,6 +127,8 @@
           <DataTemplate x:DataType="vm:TriviaMcAnswerVm">
             <Button Click="OnMcAnswerClicked"
                     HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                    VerticalAlignment="Stretch" VerticalContentAlignment="Center"
+                    MinHeight="48"
                     Margin="2" Padding="8,5" CornerRadius="0" Cursor="Hand"
                     Background="{Binding Result, Converter={StaticResource AnswerBrushConverter}}"
                     BorderThickness="1"
