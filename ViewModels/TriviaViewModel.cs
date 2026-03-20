@@ -64,7 +64,7 @@ public partial class TriviaViewModel : ObservableObject
 
     /// <summary>Fired whenever a new question starts. Argument is the full duration in seconds.</summary>
     public event Action<int>? QuestionStarted;
-    private const int FeedbackDelayMs = 1500;
+    private const int FeedbackDelayMs = 7000;
 
     public TriviaViewModel(ITriviaRepository repository)
     {
@@ -114,10 +114,29 @@ public partial class TriviaViewModel : ObservableObject
     {
         if (IsAnswered || item.Result != TriviaAnswerResult.None) return;
 
-        item.IsSelected = !item.IsSelected;
+        if (item.IsSelected)
+        {
+            // Deselect: return the item to the pool and clear its slot
+            item.IsSelected = false;
+            if (item.AssignedSlot != null)
+            {
+                item.AssignedSlot.FilledImageUri = null;
+                item.AssignedSlot = null;
+            }
+        }
+        else
+        {
+            // Select: place into the next empty slot
+            var slot = Slots.FirstOrDefault(s => !s.IsFilled);
+            if (slot == null) return;
 
-        if (Pool.Count(p => p.IsSelected) == Slots.Count)
-            EvaluateRecipeAnswer();
+            item.IsSelected = true;
+            item.AssignedSlot = slot;
+            slot.FilledImageUri = item.ImageUri;
+
+            if (Pool.Count(p => p.IsSelected) == Slots.Count)
+                EvaluateRecipeAnswer();
+        }
     }
 
     private void EvaluateRecipeAnswer()
