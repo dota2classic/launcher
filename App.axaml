@@ -275,7 +275,7 @@
             <Setter Property="FontWeight" Value="Bold"/>
         </Style>
         <Style Selector="Button.DangerButton:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="#2a1010"/>
+            <Setter Property="Background" Value="#2c1412"/>
         </Style>
         <!-- ToastDismissButton: small ✕ dismiss button used in all toast notifications -->
         <Style Selector="Button.ToastDismissButton">
