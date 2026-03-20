@@ -148,11 +148,67 @@ public static class PreviewRegistry
                 var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository());
                 return (new GameSearchPanel(), vm);
             },
+            // ── Trivia preview variants ──────────────────────────────────────────
+            // Selecting: 2 of 3 ingredients placed, 1 remaining
             ["GameSearchPanelTrivia"] = () =>
             {
                 var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository());
                 vm.IsSearching = true;
-                _ = vm.Trivia.StartAsync();
+                var trivia = vm.Trivia;
+                trivia.IsItemRecipe = true;
+                trivia.TargetItemImageUri = DotaItemData.GetItemImageUrlByName("black_king_bar") ?? "";
+                trivia.RecipeQuestionText = "Из чего собирается?";
+                trivia.Score = 3;
+                trivia.TimerSeconds = 14;
+
+                var slot1 = new TriviaRecipeSlotVm { FilledImageUri = DotaItemData.GetItemImageUrlByName("ogre_axe") };
+                var slot2 = new TriviaRecipeSlotVm { FilledImageUri = DotaItemData.GetItemImageUrlByName("mithril_hammer") };
+                var slot3 = new TriviaRecipeSlotVm();
+                trivia.Slots.Add(slot1); trivia.Slots.Add(slot2); trivia.Slots.Add(slot3);
+
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "belt_of_strength",  ImageUri = DotaItemData.GetItemImageUrlByName("belt_of_strength")  ?? "", IsCorrect = false });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "ogre_axe",           ImageUri = DotaItemData.GetItemImageUrlByName("ogre_axe")           ?? "", IsCorrect = true,  IsSelected = true, AssignedSlot = slot1 });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "claymore",           ImageUri = DotaItemData.GetItemImageUrlByName("claymore")           ?? "", IsCorrect = false });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "mithril_hammer",     ImageUri = DotaItemData.GetItemImageUrlByName("mithril_hammer")     ?? "", IsCorrect = true,  IsSelected = true, AssignedSlot = slot2 });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "recipe",             ImageUri = DotaItemData.GetItemImageUrlByName("recipe")             ?? "", IsCorrect = true  });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "broadsword",         ImageUri = DotaItemData.GetItemImageUrlByName("broadsword")         ?? "", IsCorrect = false });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "blade_of_alacrity", ImageUri = DotaItemData.GetItemImageUrlByName("blade_of_alacrity") ?? "", IsCorrect = false });
+
+                var host = new Border
+                {
+                    Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#1a1f26")),
+                    Width = 360,
+                    Child = new GameSearchPanel { DataContext = vm },
+                };
+                return (host, null);
+            },
+            // Result: wrong answer — correct items green, distractors dimmed
+            ["GameSearchPanelTriviaResult"] = () =>
+            {
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository());
+                vm.IsSearching = true;
+                var trivia = vm.Trivia;
+                trivia.IsItemRecipe = true;
+                trivia.TargetItemImageUri = DotaItemData.GetItemImageUrlByName("black_king_bar") ?? "";
+                trivia.RecipeQuestionText = "Из чего собирается?";
+                trivia.Score = 3;
+
+                var slot1 = new TriviaRecipeSlotVm { FilledImageUri = DotaItemData.GetItemImageUrlByName("ogre_axe") };
+                var slot2 = new TriviaRecipeSlotVm { FilledImageUri = DotaItemData.GetItemImageUrlByName("claymore") };
+                var slot3 = new TriviaRecipeSlotVm { FilledImageUri = DotaItemData.GetItemImageUrlByName("mithril_hammer") };
+                trivia.Slots.Add(slot1); trivia.Slots.Add(slot2); trivia.Slots.Add(slot3);
+
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "belt_of_strength",  ImageUri = DotaItemData.GetItemImageUrlByName("belt_of_strength")  ?? "", IsCorrect = false, Result = TriviaAnswerResult.Wrong });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "ogre_axe",           ImageUri = DotaItemData.GetItemImageUrlByName("ogre_axe")           ?? "", IsCorrect = true,  Result = TriviaAnswerResult.Correct });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "claymore",           ImageUri = DotaItemData.GetItemImageUrlByName("claymore")           ?? "", IsCorrect = false, Result = TriviaAnswerResult.Wrong, IsSelected = true });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "mithril_hammer",     ImageUri = DotaItemData.GetItemImageUrlByName("mithril_hammer")     ?? "", IsCorrect = true,  Result = TriviaAnswerResult.Correct });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "recipe",             ImageUri = DotaItemData.GetItemImageUrlByName("recipe")             ?? "", IsCorrect = true,  Result = TriviaAnswerResult.Correct });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "broadsword",         ImageUri = DotaItemData.GetItemImageUrlByName("broadsword")         ?? "", IsCorrect = false, Result = TriviaAnswerResult.Wrong });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "blade_of_alacrity", ImageUri = DotaItemData.GetItemImageUrlByName("blade_of_alacrity") ?? "", IsCorrect = false, Result = TriviaAnswerResult.Wrong });
+
+                trivia.IsAnswered = true;
+                trivia.LastAnswerCorrect = false;
+
                 var host = new Border
                 {
                     Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#1a1f26")),

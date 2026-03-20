@@ -31,7 +31,10 @@ public partial class TriviaViewModel : ObservableObject
     [ObservableProperty] private int _score;
     [ObservableProperty] private int _timerSeconds = TriviaTimerSeconds;
     [ObservableProperty] private bool _isAnswered;
-    [ObservableProperty] private bool? _lastAnswerCorrect;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(AnswerFeedbackText))]
+    [NotifyPropertyChangedFor(nameof(AnswerFeedbackForeground))]
+    private bool? _lastAnswerCorrect;
 
     public string ScoreText => I18n.T("trivia.score", ("score", Score.ToString()));
     public string TimerText => $"{TimerSeconds}с";
@@ -144,12 +147,7 @@ public partial class TriviaViewModel : ObservableObject
         var allCorrect = Pool.Where(p => p.IsSelected).All(p => p.IsCorrect);
 
         foreach (var item in Pool)
-        {
-            if (item.IsSelected)
-                item.Result = item.IsCorrect ? TriviaAnswerResult.Correct : TriviaAnswerResult.Wrong;
-            else if (item.IsCorrect)
-                item.Result = TriviaAnswerResult.Correct;
-        }
+            item.Result = item.IsCorrect ? TriviaAnswerResult.Correct : TriviaAnswerResult.Wrong;
 
         ShowResult(allCorrect);
     }
