@@ -6,6 +6,7 @@
             xmlns:components="using:d2c_launcher.Views.Components"
             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
             xmlns:res="clr-namespace:d2c_launcher.Resources"
+            xmlns:l="clr-namespace:d2c_launcher.Util"
             x:Class="d2c_launcher.Views.MainLauncherView"
             x:DataType="vm:MainLauncherViewModel">
    <UserControl.Background>
@@ -89,6 +90,23 @@
 
            <!-- Room ready-check modal -->
            <components:AcceptGameModal DataContext="{Binding Room}"/>
+
+           <!-- Accept timeout modal -->
+           <Panel IsVisible="{Binding Room.IsTimeoutModalOpen}" ZIndex="210"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#90000000">
+               <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Padding="28,24" CornerRadius="0"
+                       Background="#121315" BorderBrush="#2d3842" BorderThickness="1"
+                       BoxShadow="0 12 28 0 #80000000">
+                   <StackPanel Spacing="20">
+                       <TextBlock Text="{l:T 'room.acceptTimeout'}" FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold"
+                                  HorizontalAlignment="Center" Foreground="#D9D9D9"/>
+                       <Button Classes="PrimaryButton" HorizontalAlignment="Center"
+                               Content="{l:T 'room.acceptTimeoutClose'}" Command="{Binding Room.CloseTimeoutModalCommand}"
+                               Padding="28,10" CornerRadius="0"/>
+                   </StackPanel>
+               </Border>
+           </Panel>
 
            <!-- Abandon game confirmation overlay -->
            <Panel IsVisible="{Binding IsAbandonConfirmOpen}" ZIndex="210"
