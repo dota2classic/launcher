@@ -37,6 +37,7 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
     private bool _hasMyPlayerResponded;
 
     private ReadyState? _myLastState;
+    private bool _isDeclinePending;
 
     [ObservableProperty]
     private ObservableCollection<RoomPlayerView> _roomPlayers = new();
@@ -103,7 +104,7 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
         if (msg == null)
         {
             AppLog.Info($"UpdatePlayerRoomStateAsync: msg=null (room cleared), myLastState={_myLastState}");
-            if (_myLastState == ReadyState.Pending)
+            if ((_myLastState is ReadyState.Pending or ReadyState.Timeout) && !_isDeclinePending)
                 IsTimeoutModalOpen = true;
             ClearRoomState();
             return;
@@ -113,6 +114,7 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
         foreach (var e in msg.Entries ?? Array.Empty<PlayerRoomEntry>())
             AppLog.Info($"  Entry: steamId={e.SteamId}, state={e.State}");
 
+        IsTimeoutModalOpen = false;
         CurrentRoomId = msg.RoomId;
         RoomMode = msg.Mode;
 
@@ -216,6 +218,7 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
     {
         if (string.IsNullOrWhiteSpace(CurrentRoomId))
             return;
+        _isDeclinePending = true;
         try
         {
             await _queueSocketService.SetReadyCheckAsync(CurrentRoomId, false);
@@ -226,6 +229,10 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
         catch (Exception ex)
         {
             AppLog.Error("Failed to decline game.", ex);
+        }
+        finally
+        {
+            _isDeclinePending = false;
         }
     }
 
