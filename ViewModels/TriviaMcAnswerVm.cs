@@ -10,8 +10,12 @@ public partial class TriviaMcAnswerVm : ObservableObject
     public int Index { get; init; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(AnswerOpacity))]
+    [NotifyPropertyChangedFor(nameof(IsWrong))]
+    [NotifyPropertyChangedFor(nameof(AnswerForeground))]
     private TriviaAnswerResult _result = TriviaAnswerResult.None;
 
-    public double AnswerOpacity => Result == TriviaAnswerResult.Wrong ? 0.25 : 1.0;
+    public bool IsWrong => Result == TriviaAnswerResult.Wrong;
+
+    // Dim text for wrong answers; Correct/None keep normal colour
+    public string AnswerForeground => Result == TriviaAnswerResult.Wrong ? "#4a5260" : "#D9D9D9";
 }

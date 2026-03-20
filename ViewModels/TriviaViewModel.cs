@@ -16,6 +16,7 @@ public partial class TriviaViewModel : ObservableObject
 {
     private static readonly IBrush CorrectFgBrush = new SolidColorBrush(Color.Parse("#4CAF50"));
     private static readonly IBrush WrongFgBrush   = new SolidColorBrush(Color.Parse("#F44336"));
+    private static readonly IBrush TimerFgBrush   = new SolidColorBrush(Color.Parse("#888888"));
 
     private readonly ITriviaRepository _repository;
     private readonly DispatcherTimer _countdownTimer;
@@ -29,11 +30,18 @@ public partial class TriviaViewModel : ObservableObject
 
     [ObservableProperty] private bool _isItemRecipe;
     [ObservableProperty] private int _score;
-    [ObservableProperty] private int _timerSeconds = TriviaTimerSeconds;
-    [ObservableProperty] private bool _isAnswered;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HeaderRightText))]
+    private int _timerSeconds = TriviaTimerSeconds;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HeaderRightText))]
+    [NotifyPropertyChangedFor(nameof(HeaderRightForeground))]
+    private bool _isAnswered;
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(AnswerFeedbackText))]
     [NotifyPropertyChangedFor(nameof(AnswerFeedbackForeground))]
+    [NotifyPropertyChangedFor(nameof(HeaderRightText))]
+    [NotifyPropertyChangedFor(nameof(HeaderRightForeground))]
     private bool? _lastAnswerCorrect;
 
     public string ScoreText => I18n.T("trivia.score", ("score", Score.ToString()));
@@ -42,6 +50,10 @@ public partial class TriviaViewModel : ObservableObject
         ? I18n.T("trivia.correct")
         : I18n.T("trivia.wrong");
     public IBrush AnswerFeedbackForeground => LastAnswerCorrect == true ? CorrectFgBrush : WrongFgBrush;
+
+    /// <summary>Right side of the score row: shows countdown during question, feedback text during result.</summary>
+    public string   HeaderRightText       => IsAnswered ? AnswerFeedbackText       : TimerText;
+    public IBrush   HeaderRightForeground => IsAnswered ? AnswerFeedbackForeground : TimerFgBrush;
 
     // ── Recipe state ─────────────────────────────────────────────────────────
 

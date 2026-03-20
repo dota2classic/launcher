@@ -182,7 +182,33 @@ public static class PreviewRegistry
                 };
                 return (host, null);
             },
-            // Result: wrong answer — correct items green, distractors dimmed
+            // MC result: wrong answer dimmed with overlay, correct answer green
+            ["GameSearchPanelTriviaMcResult"] = () =>
+            {
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository());
+                vm.IsSearching = true;
+                var trivia = vm.Trivia;
+                trivia.IsItemRecipe = false;
+                trivia.QuestionText = "Максимальное количество зарядов Magic Stick?";
+                trivia.SubjectItemImageUri = DotaItemData.GetItemImageUrlByName("magic_stick") ?? "";
+                trivia.IsAnswered = true;
+                trivia.LastAnswerCorrect = false;
+                trivia.Score = 2;
+
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "10",  Index = 0, Result = TriviaAnswerResult.Correct });
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "15",  Index = 1, Result = TriviaAnswerResult.Wrong  });
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "5",   Index = 2 });
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "20",  Index = 3 });
+
+                var host = new Border
+                {
+                    Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#1a1f26")),
+                    Width = 360,
+                    Child = new GameSearchPanel { DataContext = vm },
+                };
+                return (host, null);
+            },
+            // Recipe result: wrong answer — correct items green, distractors dimmed
             ["GameSearchPanelTriviaResult"] = () =>
             {
                 var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository());

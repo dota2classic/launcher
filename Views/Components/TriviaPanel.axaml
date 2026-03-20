@@ -21,17 +21,11 @@
         <TextBlock Grid.Column="0" Text="{Binding ScoreText}"
                    Foreground="#C8A84B" FontSize="{DynamicResource FontSizeSM}"
                    FontWeight="SemiBold" VerticalAlignment="Center"/>
-        <Panel Grid.Column="1">
-          <TextBlock Text="{Binding TimerText}"
-                     IsVisible="{Binding IsAnswered, Converter={StaticResource InverseBoolConverter}}"
-                     Foreground="#888888" FontSize="{DynamicResource FontSizeSM}"
-                     VerticalAlignment="Center"/>
-          <TextBlock Text="{Binding AnswerFeedbackText}"
-                     IsVisible="{Binding IsAnswered}"
-                     Foreground="{Binding AnswerFeedbackForeground}"
-                     FontSize="{DynamicResource FontSizeSM}" FontWeight="SemiBold"
-                     VerticalAlignment="Center"/>
-        </Panel>
+        <TextBlock Grid.Column="1"
+                   Text="{Binding HeaderRightText}"
+                   Foreground="{Binding HeaderRightForeground}"
+                   FontSize="{DynamicResource FontSizeSM}"
+                   VerticalAlignment="Center"/>
       </Grid>
 
       <!-- Target item -->
@@ -103,17 +97,11 @@
         <TextBlock Grid.Column="0" Text="{Binding ScoreText}"
                    Foreground="#C8A84B" FontSize="{DynamicResource FontSizeSM}"
                    FontWeight="SemiBold" VerticalAlignment="Center"/>
-        <Panel Grid.Column="1">
-          <TextBlock Text="{Binding TimerText}"
-                     IsVisible="{Binding IsAnswered, Converter={StaticResource InverseBoolConverter}}"
-                     Foreground="#888888" FontSize="{DynamicResource FontSizeSM}"
-                     VerticalAlignment="Center"/>
-          <TextBlock Text="{Binding AnswerFeedbackText}"
-                     IsVisible="{Binding IsAnswered}"
-                     Foreground="{Binding AnswerFeedbackForeground}"
-                     FontSize="{DynamicResource FontSizeSM}" FontWeight="SemiBold"
-                     VerticalAlignment="Center"/>
-        </Panel>
+        <TextBlock Grid.Column="1"
+                   Text="{Binding HeaderRightText}"
+                   Foreground="{Binding HeaderRightForeground}"
+                   FontSize="{DynamicResource FontSizeSM}"
+                   VerticalAlignment="Center"/>
       </Grid>
 
       <!-- Subject item icon (optional) -->
@@ -141,11 +129,11 @@
                     HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
                     Margin="2" Padding="8,5" CornerRadius="0" Cursor="Hand"
                     Background="{Binding Result, Converter={StaticResource AnswerBrushConverter}}"
-                    Opacity="{Binding AnswerOpacity}"
                     BorderThickness="1"
                     BorderBrush="#2d3842">
               <TextBlock Text="{Binding Text}" TextWrapping="Wrap"
-                         Foreground="#D9D9D9" FontSize="{DynamicResource FontSizeSM}"/>
+                         Foreground="{Binding AnswerForeground}"
+                         FontSize="{DynamicResource FontSizeSM}"/>
             </Button>
           </DataTemplate>
         </ItemsControl.ItemTemplate>
