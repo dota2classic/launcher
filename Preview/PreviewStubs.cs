@@ -262,3 +262,24 @@ internal sealed class StubChatViewModelFactory : IChatViewModelFactory
     public d2c_launcher.ViewModels.ChatViewModel Create(string threadId)
         => new(threadId, new StubBackendApiService(), new StubHttpImageService(), new StubEmoticonService(), new StubQueueSocketService(), new StubWindowService());
 }
+
+internal sealed class StubTriviaRepository : ITriviaRepository
+{
+    public Task<d2c_launcher.Models.TriviaQuestion[]> LoadAsync()
+        => Task.FromResult<d2c_launcher.Models.TriviaQuestion[]>([
+            new d2c_launcher.Models.ItemRecipeQuestion
+            {
+                Id          = "recipe_bkb",
+                TargetItem  = "black_king_bar",
+                Ingredients = ["ogre_axe", "mithril_hammer", "recipe"],
+                Distractors = ["belt_of_strength", "claymore", "broadsword", "blade_of_alacrity"],
+            },
+            new d2c_launcher.Models.MultipleChoiceQuestion
+            {
+                Id           = "max_level",
+                Question     = "Максимальный уровень героя?",
+                Answers      = ["25", "30", "20", "28"],
+                CorrectIndex = 0,
+            },
+        ]);
+}

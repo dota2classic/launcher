@@ -1,0 +1,159 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:d2c_launcher.ViewModels"
+             xmlns:util="using:d2c_launcher.Util"
+             xmlns:components="using:d2c_launcher.Views.Components"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             x:Class="d2c_launcher.Views.Components.TriviaPanel"
+             x:DataType="vm:TriviaViewModel">
+  <UserControl.Resources>
+    <util:InverseBoolConverter x:Key="InverseBoolConverter"/>
+    <util:BoolToRestrictedOpacityConverter x:Key="DimConverter"/>
+    <util:TriviaAnswerResultBrushConverter x:Key="AnswerBrushConverter"/>
+  </UserControl.Resources>
+
+  <Panel>
+
+    <!-- ── ITEM RECIPE UI ───────────────────────────────────────────── -->
+    <StackPanel IsVisible="{Binding IsItemRecipe}" Spacing="8" Margin="0,6,0,8">
+
+      <!-- Score + timer row -->
+      <Grid ColumnDefinitions="*,Auto" Margin="8,0">
+        <TextBlock Grid.Column="0" Text="{Binding ScoreText}"
+                   Foreground="#C8A84B" FontSize="{DynamicResource FontSizeSM}"
+                   FontWeight="SemiBold" VerticalAlignment="Center"/>
+        <TextBlock Grid.Column="1" Text="{Binding TimerText}"
+                   Foreground="#888888" FontSize="{DynamicResource FontSizeSM}"
+                   VerticalAlignment="Center"/>
+      </Grid>
+
+      <!-- Target item -->
+      <StackPanel HorizontalAlignment="Center" Spacing="4">
+        <components:DotaItemIcon Width="60" Height="44"
+                                  ItemUrl="{Binding TargetItemImageUri}"
+                                  HorizontalAlignment="Center"/>
+        <TextBlock Text="{Binding RecipeQuestionText}"
+                   HorizontalAlignment="Center"
+                   Foreground="#AAAAAA" FontSize="{DynamicResource FontSizeSM}"/>
+      </StackPanel>
+
+      <!-- Recipe slots -->
+      <ItemsControl ItemsSource="{Binding Slots}" HorizontalAlignment="Center">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <StackPanel Orientation="Horizontal" Spacing="4"/>
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:TriviaRecipeSlotVm">
+            <Border Width="44" Height="32" Background="#0d1117"
+                    BorderBrush="#3a3a3a" BorderThickness="1" CornerRadius="2">
+              <Panel>
+                <TextBlock Text="?" IsVisible="{Binding !IsFilled}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Foreground="#666666" FontSize="{DynamicResource FontSizeSM}"
+                           FontWeight="Bold"/>
+                <asyncImageLoader:AdvancedImage Source="{Binding FilledImageUri}"
+                                               Stretch="Fill" CornerRadius="2"
+                                               IsVisible="{Binding IsFilled}"/>
+              </Panel>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <!-- Pool items -->
+      <ItemsControl x:Name="PoolItemsControl" ItemsSource="{Binding Pool}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <WrapPanel HorizontalAlignment="Center"/>
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:TriviaPoolItemVm">
+            <Button Click="OnPoolItemClicked"
+                    IsEnabled="{Binding IsUsed, Converter={StaticResource InverseBoolConverter}}"
+                    Opacity="{Binding IsUsed, Converter={StaticResource DimConverter}}"
+                    Background="Transparent" BorderThickness="0"
+                    Padding="2" Cursor="Hand">
+              <components:DotaItemIcon Width="44" Height="32" ItemUrl="{Binding ImageUri}"/>
+            </Button>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <!-- Guesses + timer bar -->
+      <Grid ColumnDefinitions="*,Auto" Margin="8,0">
+        <TextBlock Grid.Column="0" Text="{Binding GuessesText}"
+                   Foreground="#888888" FontSize="{DynamicResource FontSizeSM}"
+                   VerticalAlignment="Center"/>
+        <ProgressBar Grid.Column="1" Width="80" Height="4"
+                     Value="{Binding TimerSeconds}" Maximum="20"
+                     Foreground="#C8A84B" Background="#2d3842"
+                     VerticalAlignment="Center"/>
+      </Grid>
+
+    </StackPanel>
+
+    <!-- ── MULTIPLE CHOICE UI ───────────────────────────────────────── -->
+    <StackPanel IsVisible="{Binding IsItemRecipe, Converter={StaticResource InverseBoolConverter}}"
+                Spacing="8" Margin="0,6,0,8">
+
+      <!-- Score + timer row -->
+      <Grid ColumnDefinitions="*,Auto" Margin="8,0">
+        <TextBlock Grid.Column="0" Text="{Binding ScoreText}"
+                   Foreground="#C8A84B" FontSize="{DynamicResource FontSizeSM}"
+                   FontWeight="SemiBold" VerticalAlignment="Center"/>
+        <TextBlock Grid.Column="1" Text="{Binding TimerText}"
+                   Foreground="#888888" FontSize="{DynamicResource FontSizeSM}"
+                   VerticalAlignment="Center"/>
+      </Grid>
+
+      <!-- Question text -->
+      <TextBlock Text="{Binding QuestionText}"
+                 Margin="8,0" TextWrapping="Wrap"
+                 Foreground="#D9D9D9" FontSize="{DynamicResource FontSizeSM}"
+                 FontWeight="SemiBold"/>
+
+      <!-- Answer buttons -->
+      <ItemsControl x:Name="AnswersControl" ItemsSource="{Binding Answers}" Margin="8,0">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <StackPanel Spacing="4"/>
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:TriviaMcAnswerVm">
+            <Button Click="OnMcAnswerClicked"
+                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                    Padding="8,5" CornerRadius="0" Cursor="Hand"
+                    Background="{Binding Result, Converter={StaticResource AnswerBrushConverter}}"
+                    BorderThickness="1"
+                    BorderBrush="#2d3842">
+              <TextBlock Text="{Binding Text}" TextWrapping="Wrap"
+                         Foreground="#D9D9D9" FontSize="{DynamicResource FontSizeSM}"/>
+            </Button>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <!-- Timer bar -->
+      <ProgressBar Margin="8,0" Height="4"
+                   Value="{Binding TimerSeconds}" Maximum="20"
+                   Foreground="#C8A84B" Background="#2d3842"/>
+
+    </StackPanel>
+
+    <!-- ── ANSWER FEEDBACK OVERLAY ──────────────────────────────────── -->
+    <Border IsVisible="{Binding IsAnswered}"
+            Background="{Binding AnswerFeedbackBackground}"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            Opacity="0.92">
+      <TextBlock Text="{Binding AnswerFeedbackText}"
+                 HorizontalAlignment="Center" VerticalAlignment="Center"
+                 FontSize="{DynamicResource FontSizeLG}" FontWeight="Bold"
+                 Foreground="#F0F0F0"/>
+    </Border>
+
+  </Panel>
+</UserControl>

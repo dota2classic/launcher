@@ -33,6 +33,8 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
     private readonly ISettingsStorage _settingsStorage;
     private readonly DispatcherTimer _queueTimer;
     private readonly DispatcherTimer _modesRefreshTimer;
+
+    public TriviaViewModel Trivia { get; }
     private DateTimeOffset? _enterQueueAt;
     private int _queuedModeCount;
     private MatchmakingMode[]? _queuedModes;
@@ -78,11 +80,12 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
     /// <summary>Called when restricted modes are automatically unselected on queue. Set by the parent VM.</summary>
     public Action? ShowRestrictedModesRemovedToast { get; set; }
 
-    public QueueViewModel(IQueueSocketService queueSocketService, IBackendApiService backendApiService, ISettingsStorage settingsStorage)
+    public QueueViewModel(IQueueSocketService queueSocketService, IBackendApiService backendApiService, ISettingsStorage settingsStorage, ITriviaRepository triviaRepository)
     {
         _queueSocketService = queueSocketService;
         _backendApiService = backendApiService;
         _settingsStorage = settingsStorage;
+        Trivia = new TriviaViewModel(triviaRepository);
 
         _queueTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _queueTimer.Tick += (_, _) => UpdateQueueButtonState();
@@ -255,6 +258,11 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
 
         IsSearching = msg.InQueue;
         UpdateQueueButtonState();
+
+        if (msg.InQueue)
+            _ = Trivia.StartAsync();
+        else
+            Trivia.Stop();
     }
 
     public void UpdateQueueButtonState()
@@ -396,5 +404,6 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         _queueSocketService.PlayerGameStateUpdated -= OnPlayerGameStateUpdated;
         _queueTimer.Stop();
         _modesRefreshTimer.Stop();
+        Trivia.Stop();
     }
 }

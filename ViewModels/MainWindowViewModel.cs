@@ -35,6 +35,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IContentRegistryService _registryService;
     private readonly IWindowService _windowService;
     private readonly IUiDispatcher _uiDispatcher;
+    private readonly ITriviaRepository _triviaRepository;
 
     /// <summary>Pending spectate match ID received before the Launcher state was entered.</summary>
     private int? _pendingSpectateMatchId;
@@ -89,7 +90,8 @@ public partial class MainWindowViewModel : ViewModelBase
         RedistInstallService redistInstallService,
         IContentRegistryService registryService,
         IWindowService windowService,
-        IUiDispatcher uiDispatcher)
+        IUiDispatcher uiDispatcher,
+        ITriviaRepository triviaRepository)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -108,6 +110,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _registryService = registryService;
         _windowService = windowService;
         _uiDispatcher = uiDispatcher;
+        _triviaRepository = triviaRepository;
 
         // Eagerly prefetch the registry so it's cached by the time GameDownloadViewModel needs it.
         var initialGameDir = _settingsStorage.Get().GameDirectory;
@@ -309,7 +312,7 @@ public partial class MainWindowViewModel : ViewModelBase
         var vm = new MainLauncherViewModel(
             _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider, _videoProvider,
             _backendApiService, _queueSocketService, _registryService, _chatViewModelFactory, _windowService,
-            _steamAuthApi, _uiDispatcher);
+            _steamAuthApi, _uiDispatcher, _triviaRepository);
         vm.OnGameDirectoryChanged = _ => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirChanged(AppState)));
         vm.RequestGameDirectoryChange = () => Dispatcher.UIThread.Post(() => EnterState(AppState.SelectGameDirectory));
         vm.OnDlcChanged = removedIds => Dispatcher.UIThread.Post(() =>

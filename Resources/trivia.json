@@ -1,0 +1,119 @@
+{
+  "questions": [
+    {
+      "type": "item_recipe",
+      "id": "recipe_bfury",
+      "targetItem": "bfury",
+      "ingredients": ["mithril_hammer", "void_stone", "quarterstaff", "recipe"],
+      "distractors": ["broadsword", "claymore", "blade_of_alacrity", "demon_edge"]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_bkb",
+      "targetItem": "black_king_bar",
+      "ingredients": ["ogre_axe", "mithril_hammer", "recipe"],
+      "distractors": ["belt_of_strength", "claymore", "broadsword", "blade_of_alacrity"]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_heart",
+      "targetItem": "heart",
+      "ingredients": ["reaver", "vitality_booster", "recipe"],
+      "distractors": ["ring_of_health", "point_booster", "energy_booster", "soul_booster"]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_manta",
+      "targetItem": "manta",
+      "ingredients": ["yasha", "ultimate_orb", "recipe"],
+      "distractors": ["sange", "eagle", "mystic_staff", "void_stone"]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_maelstrom",
+      "targetItem": "maelstrom",
+      "ingredients": ["mithril_hammer", "javelin", "recipe"],
+      "distractors": ["broadsword", "quarterstaff", "claymore", "demon_edge"]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_butterfly",
+      "targetItem": "butterfly",
+      "ingredients": ["talisman_of_evasion", "eagle", "quarterstaff", "recipe"],
+      "distractors": ["blade_of_alacrity", "cloak", "boots_of_elves", "mystic_staff"]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_radiance",
+      "targetItem": "radiance",
+      "ingredients": ["relic", "recipe"],
+      "distractors": ["reaver", "demon_edge", "mithril_hammer", "mystic_staff"]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_assault",
+      "targetItem": "assault",
+      "ingredients": ["hyperstone", "chainmail", "platemail", "recipe"],
+      "distractors": ["broadsword", "mithril_hammer", "helm_of_iron_will", "buckler"]
+    },
+    {
+      "type": "multiple_choice",
+      "id": "max_level",
+      "question": "Максимальный уровень героя?",
+      "answers": ["25", "30", "20", "28"],
+      "correctIndex": 0
+    },
+    {
+      "type": "multiple_choice",
+      "id": "quelling_blade",
+      "question": "Что делает Quelling Blade?",
+      "answers": [
+        "Увеличивает урон по крипам",
+        "Даёт шанс крита",
+        "Замедляет врагов",
+        "Восстанавливает HP"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "type": "multiple_choice",
+      "id": "chainmail_armor",
+      "question": "Сколько брони даёт Chainmail?",
+      "answers": ["5", "3", "8", "4"],
+      "correctIndex": 0
+    },
+    {
+      "type": "multiple_choice",
+      "id": "blink_dagger_cooldown",
+      "question": "На сколько секунд Blink Dagger отключается после получения урона?",
+      "answers": ["3 секунды", "5 секунд", "1 секунду", "6 секунд"],
+      "correctIndex": 0
+    },
+    {
+      "type": "multiple_choice",
+      "id": "tango_effect",
+      "question": "Что делает Tango?",
+      "answers": [
+        "Потребляет дерево для регенерации HP",
+        "Даёт временную невидимость",
+        "Восстанавливает ману",
+        "Замедляет врага"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "type": "multiple_choice",
+      "id": "magic_stick_charges",
+      "question": "Максимальное количество зарядов Magic Stick?",
+      "answers": ["10", "15", "5", "20"],
+      "correctIndex": 0
+    },
+    {
+      "type": "multiple_choice",
+      "id": "aegis_duration",
+      "question": "Сколько длится Aegis of the Immortal на трупе?",
+      "answers": ["5 минут", "3 минуты", "10 минут", "7 минут"],
+      "correctIndex": 0
+    }
+  ]
+}
