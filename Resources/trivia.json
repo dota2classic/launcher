@@ -2,124 +2,1410 @@
   "questions": [
     {
       "type": "item_recipe",
-      "id": "recipe_bfury",
-      "targetItem": "bfury",
-      "ingredients": ["mithril_hammer", "void_stone", "quarterstaff", "recipe"],
-      "distractors": ["broadsword", "claymore", "blade_of_alacrity", "demon_edge"]
+      "id": "recipe_moon_shard",
+      "targetItem": "moon_shard",
+      "ingredients": [
+        "hyperstone",
+        "hyperstone",
+        "recipe"
+      ],
+      "distractors": [
+        "relic",
+        "mantle",
+        "magic_stick",
+        "invis_sword"
+      ]
     },
     {
       "type": "item_recipe",
-      "id": "recipe_bkb",
-      "targetItem": "black_king_bar",
-      "ingredients": ["ogre_axe", "mithril_hammer", "recipe"],
-      "distractors": ["belt_of_strength", "claymore", "broadsword", "blade_of_alacrity"]
+      "id": "recipe_magic_wand",
+      "targetItem": "magic_wand",
+      "ingredients": [
+        "circlet",
+        "branches",
+        "branches",
+        "magic_stick"
+      ],
+      "distractors": [
+        "belt_of_strength",
+        "mantle",
+        "buckler",
+        "sange"
+      ]
     },
     {
       "type": "item_recipe",
-      "id": "recipe_heart",
-      "targetItem": "heart",
-      "ingredients": ["reaver", "vitality_booster", "recipe"],
-      "distractors": ["ring_of_health", "point_booster", "energy_booster", "soul_booster"]
+      "id": "recipe_travel_boots",
+      "targetItem": "travel_boots",
+      "ingredients": [
+        "boots",
+        "recipe"
+      ],
+      "distractors": [
+        "vitality_booster",
+        "branches",
+        "buckler",
+        "ring_of_protection"
+      ]
     },
     {
       "type": "item_recipe",
-      "id": "recipe_manta",
-      "targetItem": "manta",
-      "ingredients": ["yasha", "ultimate_orb", "recipe"],
-      "distractors": ["sange", "eagle", "mystic_staff", "void_stone"]
+      "id": "recipe_phase_boots",
+      "targetItem": "phase_boots",
+      "ingredients": [
+        "boots",
+        "blades_of_attack",
+        "blades_of_attack"
+      ],
+      "distractors": [
+        "relic",
+        "eagle",
+        "ring_of_protection",
+        "helm_of_the_dominator"
+      ]
     },
     {
       "type": "item_recipe",
-      "id": "recipe_maelstrom",
-      "targetItem": "maelstrom",
-      "ingredients": ["mithril_hammer", "javelin", "recipe"],
-      "distractors": ["broadsword", "quarterstaff", "claymore", "demon_edge"]
+      "id": "recipe_power_treads",
+      "targetItem": "power_treads",
+      "ingredients": [
+        "boots",
+        "gloves",
+        "belt_of_strength"
+      ],
+      "distractors": [
+        "ogre_axe",
+        "boots_of_elves",
+        "helm_of_iron_will",
+        "hyperstone"
+      ]
     },
     {
       "type": "item_recipe",
-      "id": "recipe_butterfly",
-      "targetItem": "butterfly",
-      "ingredients": ["talisman_of_evasion", "eagle", "quarterstaff", "recipe"],
-      "distractors": ["blade_of_alacrity", "cloak", "boots_of_elves", "mystic_staff"]
+      "id": "recipe_hand_of_midas",
+      "targetItem": "hand_of_midas",
+      "ingredients": [
+        "gloves",
+        "recipe"
+      ],
+      "distractors": [
+        "broadsword",
+        "blade_of_alacrity",
+        "maelstrom",
+        "null_talisman"
+      ]
     },
     {
       "type": "item_recipe",
-      "id": "recipe_radiance",
-      "targetItem": "radiance",
-      "ingredients": ["relic", "recipe"],
-      "distractors": ["reaver", "demon_edge", "mithril_hammer", "mystic_staff"]
+      "id": "recipe_oblivion_staff",
+      "targetItem": "oblivion_staff",
+      "ingredients": [
+        "quarterstaff",
+        "sobi_mask",
+        "robe"
+      ],
+      "distractors": [
+        "hood_of_defiance",
+        "point_booster",
+        "talisman_of_evasion",
+        "mantle"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_pers",
+      "targetItem": "pers",
+      "ingredients": [
+        "ring_of_health",
+        "void_stone"
+      ],
+      "distractors": [
+        "medallion_of_courage",
+        "gauntlets",
+        "buckler",
+        "invis_sword"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_poor_mans_shield",
+      "targetItem": "poor_mans_shield",
+      "ingredients": [
+        "slippers",
+        "slippers",
+        "stout_shield"
+      ],
+      "distractors": [
+        "belt_of_strength",
+        "helm_of_the_dominator",
+        "oblivion_staff",
+        "orb_of_venom"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_bracer",
+      "targetItem": "bracer",
+      "ingredients": [
+        "circlet",
+        "gauntlets",
+        "recipe"
+      ],
+      "distractors": [
+        "lesser_crit",
+        "ring_of_basilius",
+        "platemail",
+        "buckler"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_wraith_band",
+      "targetItem": "wraith_band",
+      "ingredients": [
+        "circlet",
+        "slippers",
+        "recipe"
+      ],
+      "distractors": [
+        "point_booster",
+        "cloak",
+        "chainmail",
+        "soul_booster"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_null_talisman",
+      "targetItem": "null_talisman",
+      "ingredients": [
+        "circlet",
+        "mantle",
+        "recipe"
+      ],
+      "distractors": [
+        "soul_booster",
+        "chainmail",
+        "blades_of_attack",
+        "lesser_crit"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_mekansm",
+      "targetItem": "mekansm",
+      "ingredients": [
+        "headdress",
+        "buckler",
+        "recipe"
+      ],
+      "distractors": [
+        "mekansm",
+        "platemail",
+        "lifesteal",
+        "pers"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_vladmir",
+      "targetItem": "vladmir",
+      "ingredients": [
+        "headdress",
+        "ring_of_basilius",
+        "lifesteal",
+        "recipe"
+      ],
+      "distractors": [
+        "medallion_of_courage",
+        "pers",
+        "ring_of_health",
+        "blade_of_alacrity"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_buckler",
+      "targetItem": "buckler",
+      "ingredients": [
+        "chainmail",
+        "branches",
+        "recipe"
+      ],
+      "distractors": [
+        "helm_of_iron_will",
+        "hyperstone",
+        "mekansm",
+        "platemail"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_ring_of_basilius",
+      "targetItem": "ring_of_basilius",
+      "ingredients": [
+        "sobi_mask",
+        "ring_of_protection"
+      ],
+      "distractors": [
+        "soul_ring",
+        "oblivion_staff",
+        "belt_of_strength",
+        "boots"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_pipe",
+      "targetItem": "pipe",
+      "ingredients": [
+        "hood_of_defiance",
+        "headdress",
+        "recipe"
+      ],
+      "distractors": [
+        "oblivion_staff",
+        "ogre_axe",
+        "soul_ring",
+        "maelstrom"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_urn_of_shadows",
+      "targetItem": "urn_of_shadows",
+      "ingredients": [
+        "sobi_mask",
+        "gauntlets",
+        "gauntlets",
+        "recipe"
+      ],
+      "distractors": [
+        "chainmail",
+        "boots",
+        "ring_of_basilius",
+        "reaver"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_headdress",
+      "targetItem": "headdress",
+      "ingredients": [
+        "ring_of_regen",
+        "branches",
+        "recipe"
+      ],
+      "distractors": [
+        "oblivion_staff",
+        "hyperstone",
+        "talisman_of_evasion",
+        "pers"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_sheepstick",
+      "targetItem": "sheepstick",
+      "ingredients": [
+        "mystic_staff",
+        "ultimate_orb",
+        "void_stone"
+      ],
+      "distractors": [
+        "demon_edge",
+        "chainmail",
+        "mekansm",
+        "wraith_band"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_orchid",
+      "targetItem": "orchid",
+      "ingredients": [
+        "oblivion_staff",
+        "oblivion_staff",
+        "recipe"
+      ],
+      "distractors": [
+        "gloves",
+        "ogre_axe",
+        "ultimate_orb",
+        "soul_booster"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_cyclone",
+      "targetItem": "cyclone",
+      "ingredients": [
+        "sobi_mask",
+        "staff_of_wizardry",
+        "void_stone",
+        "recipe"
+      ],
+      "distractors": [
+        "lesser_crit",
+        "ogre_axe",
+        "gloves",
+        "relic"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_force_staff",
+      "targetItem": "force_staff",
+      "ingredients": [
+        "staff_of_wizardry",
+        "ring_of_regen",
+        "recipe"
+      ],
+      "distractors": [
+        "magic_stick",
+        "mekansm",
+        "arcane_boots",
+        "sange"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_dagon",
+      "targetItem": "dagon",
+      "ingredients": [
+        "staff_of_wizardry",
+        "null_talisman",
+        "recipe"
+      ],
+      "distractors": [
+        "platemail",
+        "sobi_mask",
+        "oblivion_staff",
+        "cloak"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_necronomicon",
+      "targetItem": "necronomicon",
+      "ingredients": [
+        "staff_of_wizardry",
+        "belt_of_strength",
+        "recipe"
+      ],
+      "distractors": [
+        "point_booster",
+        "claymore",
+        "soul_ring",
+        "broadsword"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_ultimate_scepter",
+      "targetItem": "ultimate_scepter",
+      "ingredients": [
+        "point_booster",
+        "staff_of_wizardry",
+        "ogre_axe",
+        "blade_of_alacrity"
+      ],
+      "distractors": [
+        "quarterstaff",
+        "soul_ring",
+        "helm_of_iron_will",
+        "mekansm"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_refresher",
+      "targetItem": "refresher",
+      "ingredients": [
+        "pers",
+        "pers",
+        "recipe"
+      ],
+      "distractors": [
+        "basher",
+        "energy_booster",
+        "headdress",
+        "talisman_of_evasion"
+      ]
     },
     {
       "type": "item_recipe",
       "id": "recipe_assault",
       "targetItem": "assault",
-      "ingredients": ["hyperstone", "chainmail", "platemail", "recipe"],
-      "distractors": ["broadsword", "mithril_hammer", "helm_of_iron_will", "buckler"]
+      "ingredients": [
+        "platemail",
+        "hyperstone",
+        "chainmail",
+        "recipe"
+      ],
+      "distractors": [
+        "ring_of_health",
+        "shadow_amulet",
+        "medallion_of_courage",
+        "belt_of_strength"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_heart",
+      "targetItem": "heart",
+      "ingredients": [
+        "reaver",
+        "vitality_booster",
+        "recipe"
+      ],
+      "distractors": [
+        "circlet",
+        "talisman_of_evasion",
+        "basher",
+        "belt_of_strength"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_black_king_bar",
+      "targetItem": "black_king_bar",
+      "ingredients": [
+        "ogre_axe",
+        "mithril_hammer",
+        "recipe"
+      ],
+      "distractors": [
+        "slippers",
+        "mystic_staff",
+        "pers",
+        "blades_of_attack"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_shivas_guard",
+      "targetItem": "shivas_guard",
+      "ingredients": [
+        "platemail",
+        "mystic_staff",
+        "recipe"
+      ],
+      "distractors": [
+        "wraith_band",
+        "pers",
+        "relic",
+        "point_booster"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_bloodstone",
+      "targetItem": "bloodstone",
+      "ingredients": [
+        "soul_ring",
+        "soul_booster",
+        "recipe"
+      ],
+      "distractors": [
+        "staff_of_wizardry",
+        "boots_of_elves",
+        "stout_shield",
+        "ghost"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_sphere",
+      "targetItem": "sphere",
+      "ingredients": [
+        "ultimate_orb",
+        "pers",
+        "recipe"
+      ],
+      "distractors": [
+        "ring_of_health",
+        "null_talisman",
+        "slippers",
+        "sange"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_lotus_orb",
+      "targetItem": "lotus_orb",
+      "ingredients": [
+        "pers",
+        "platemail",
+        "recipe"
+      ],
+      "distractors": [
+        "demon_edge",
+        "void_stone",
+        "branches",
+        "javelin"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_vanguard",
+      "targetItem": "vanguard",
+      "ingredients": [
+        "ring_of_health",
+        "vitality_booster",
+        "stout_shield"
+      ],
+      "distractors": [
+        "null_talisman",
+        "chainmail",
+        "ring_of_regen",
+        "arcane_boots"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_crimson_guard",
+      "targetItem": "crimson_guard",
+      "ingredients": [
+        "vanguard",
+        "buckler",
+        "recipe"
+      ],
+      "distractors": [
+        "claymore",
+        "pers",
+        "circlet",
+        "ghost"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_blade_mail",
+      "targetItem": "blade_mail",
+      "ingredients": [
+        "broadsword",
+        "chainmail",
+        "robe"
+      ],
+      "distractors": [
+        "medallion_of_courage",
+        "sobi_mask",
+        "hyperstone",
+        "maelstrom"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_soul_booster",
+      "targetItem": "soul_booster",
+      "ingredients": [
+        "vitality_booster",
+        "energy_booster",
+        "point_booster"
+      ],
+      "distractors": [
+        "hyperstone",
+        "medallion_of_courage",
+        "pers",
+        "quelling_blade"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_hood_of_defiance",
+      "targetItem": "hood_of_defiance",
+      "ingredients": [
+        "ring_of_health",
+        "cloak",
+        "ring_of_regen",
+        "ring_of_regen"
+      ],
+      "distractors": [
+        "mystic_staff",
+        "robe",
+        "orb_of_venom",
+        "arcane_boots"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_rapier",
+      "targetItem": "rapier",
+      "ingredients": [
+        "relic",
+        "demon_edge"
+      ],
+      "distractors": [
+        "ogre_axe",
+        "wraith_band",
+        "buckler",
+        "boots"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_monkey_king_bar",
+      "targetItem": "monkey_king_bar",
+      "ingredients": [
+        "demon_edge",
+        "javelin",
+        "javelin"
+      ],
+      "distractors": [
+        "gauntlets",
+        "point_booster",
+        "maelstrom",
+        "soul_booster"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_radiance",
+      "targetItem": "radiance",
+      "ingredients": [
+        "relic",
+        "recipe"
+      ],
+      "distractors": [
+        "shadow_amulet",
+        "helm_of_the_dominator",
+        "ring_of_health",
+        "soul_booster"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_butterfly",
+      "targetItem": "butterfly",
+      "ingredients": [
+        "eagle",
+        "talisman_of_evasion",
+        "quarterstaff"
+      ],
+      "distractors": [
+        "null_talisman",
+        "shadow_amulet",
+        "basher",
+        "ghost"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_greater_crit",
+      "targetItem": "greater_crit",
+      "ingredients": [
+        "lesser_crit",
+        "demon_edge",
+        "recipe"
+      ],
+      "distractors": [
+        "vanguard",
+        "ogre_axe",
+        "claymore",
+        "soul_ring"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_basher",
+      "targetItem": "basher",
+      "ingredients": [
+        "belt_of_strength",
+        "javelin",
+        "recipe"
+      ],
+      "distractors": [
+        "hyperstone",
+        "helm_of_the_dominator",
+        "relic",
+        "null_talisman"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_bfury",
+      "targetItem": "bfury",
+      "ingredients": [
+        "broadsword",
+        "claymore",
+        "pers",
+        "quelling_blade"
+      ],
+      "distractors": [
+        "blade_of_alacrity",
+        "quarterstaff",
+        "buckler",
+        "helm_of_iron_will"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_manta",
+      "targetItem": "manta",
+      "ingredients": [
+        "yasha",
+        "ultimate_orb",
+        "recipe"
+      ],
+      "distractors": [
+        "quarterstaff",
+        "ring_of_protection",
+        "chainmail",
+        "robe"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_lesser_crit",
+      "targetItem": "lesser_crit",
+      "ingredients": [
+        "broadsword",
+        "blades_of_attack",
+        "recipe"
+      ],
+      "distractors": [
+        "wraith_band",
+        "shadow_amulet",
+        "soul_booster",
+        "platemail"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_armlet",
+      "targetItem": "armlet",
+      "ingredients": [
+        "helm_of_iron_will",
+        "gloves",
+        "blades_of_attack",
+        "recipe"
+      ],
+      "distractors": [
+        "headdress",
+        "shadow_amulet",
+        "blade_of_alacrity",
+        "hyperstone"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_invis_sword",
+      "targetItem": "invis_sword",
+      "ingredients": [
+        "shadow_amulet",
+        "claymore"
+      ],
+      "distractors": [
+        "ogre_axe",
+        "soul_ring",
+        "sobi_mask",
+        "magic_stick"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_silver_edge",
+      "targetItem": "silver_edge",
+      "ingredients": [
+        "invis_sword",
+        "sange",
+        "recipe"
+      ],
+      "distractors": [
+        "headdress",
+        "talisman_of_evasion",
+        "mithril_hammer",
+        "arcane_boots"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_sange_and_yasha",
+      "targetItem": "sange_and_yasha",
+      "ingredients": [
+        "yasha",
+        "sange"
+      ],
+      "distractors": [
+        "mekansm",
+        "oblivion_staff",
+        "mystic_staff",
+        "sobi_mask"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_satanic",
+      "targetItem": "satanic",
+      "ingredients": [
+        "reaver",
+        "helm_of_the_dominator",
+        "recipe"
+      ],
+      "distractors": [
+        "cloak",
+        "lifesteal",
+        "wraith_band",
+        "helm_of_iron_will"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_mjollnir",
+      "targetItem": "mjollnir",
+      "ingredients": [
+        "maelstrom",
+        "hyperstone",
+        "recipe"
+      ],
+      "distractors": [
+        "circlet",
+        "robe",
+        "mithril_hammer",
+        "vitality_booster"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_skadi",
+      "targetItem": "skadi",
+      "ingredients": [
+        "ultimate_orb",
+        "ultimate_orb",
+        "point_booster",
+        "orb_of_venom"
+      ],
+      "distractors": [
+        "quelling_blade",
+        "relic",
+        "lifesteal",
+        "shadow_amulet"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_sange",
+      "targetItem": "sange",
+      "ingredients": [
+        "ogre_axe",
+        "belt_of_strength",
+        "recipe"
+      ],
+      "distractors": [
+        "robe",
+        "vanguard",
+        "orb_of_venom",
+        "circlet"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_helm_of_the_dominator",
+      "targetItem": "helm_of_the_dominator",
+      "ingredients": [
+        "lifesteal",
+        "helm_of_iron_will"
+      ],
+      "distractors": [
+        "circlet",
+        "quelling_blade",
+        "chainmail",
+        "pers"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_maelstrom",
+      "targetItem": "maelstrom",
+      "ingredients": [
+        "mithril_hammer",
+        "gloves",
+        "recipe"
+      ],
+      "distractors": [
+        "mystic_staff",
+        "headdress",
+        "shadow_amulet",
+        "oblivion_staff"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_desolator",
+      "targetItem": "desolator",
+      "ingredients": [
+        "mithril_hammer",
+        "mithril_hammer",
+        "recipe"
+      ],
+      "distractors": [
+        "javelin",
+        "boots",
+        "ghost",
+        "medallion_of_courage"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_yasha",
+      "targetItem": "yasha",
+      "ingredients": [
+        "blade_of_alacrity",
+        "boots_of_elves",
+        "recipe"
+      ],
+      "distractors": [
+        "lifesteal",
+        "relic",
+        "maelstrom",
+        "ultimate_orb"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_mask_of_madness",
+      "targetItem": "mask_of_madness",
+      "ingredients": [
+        "lifesteal",
+        "recipe"
+      ],
+      "distractors": [
+        "wraith_band",
+        "slippers",
+        "ring_of_basilius",
+        "void_stone"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_diffusal_blade",
+      "targetItem": "diffusal_blade",
+      "ingredients": [
+        "blade_of_alacrity",
+        "blade_of_alacrity",
+        "robe",
+        "recipe"
+      ],
+      "distractors": [
+        "sobi_mask",
+        "mithril_hammer",
+        "gloves",
+        "helm_of_iron_will"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_ethereal_blade",
+      "targetItem": "ethereal_blade",
+      "ingredients": [
+        "eagle",
+        "ghost"
+      ],
+      "distractors": [
+        "platemail",
+        "medallion_of_courage",
+        "invis_sword",
+        "vanguard"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_soul_ring",
+      "targetItem": "soul_ring",
+      "ingredients": [
+        "ring_of_regen",
+        "sobi_mask",
+        "recipe"
+      ],
+      "distractors": [
+        "invis_sword",
+        "gauntlets",
+        "ghost",
+        "energy_booster"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_arcane_boots",
+      "targetItem": "arcane_boots",
+      "ingredients": [
+        "boots",
+        "energy_booster"
+      ],
+      "distractors": [
+        "blade_of_alacrity",
+        "claymore",
+        "oblivion_staff",
+        "cloak"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_octarine_core",
+      "targetItem": "octarine_core",
+      "ingredients": [
+        "mystic_staff",
+        "soul_booster"
+      ],
+      "distractors": [
+        "blades_of_attack",
+        "stout_shield",
+        "shadow_amulet",
+        "robe"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_ancient_janggo",
+      "targetItem": "ancient_janggo",
+      "ingredients": [
+        "robe",
+        "bracer",
+        "recipe"
+      ],
+      "distractors": [
+        "reaver",
+        "blade_of_alacrity",
+        "boots",
+        "mekansm"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_medallion_of_courage",
+      "targetItem": "medallion_of_courage",
+      "ingredients": [
+        "chainmail",
+        "sobi_mask",
+        "recipe"
+      ],
+      "distractors": [
+        "broadsword",
+        "boots",
+        "ring_of_health",
+        "eagle"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_solar_crest",
+      "targetItem": "solar_crest",
+      "ingredients": [
+        "medallion_of_courage",
+        "talisman_of_evasion"
+      ],
+      "distractors": [
+        "ring_of_basilius",
+        "vitality_booster",
+        "arcane_boots",
+        "invis_sword"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_veil_of_discord",
+      "targetItem": "veil_of_discord",
+      "ingredients": [
+        "helm_of_iron_will",
+        "null_talisman",
+        "recipe"
+      ],
+      "distractors": [
+        "javelin",
+        "point_booster",
+        "buckler",
+        "broadsword"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_guardian_greaves",
+      "targetItem": "guardian_greaves",
+      "ingredients": [
+        "mekansm",
+        "arcane_boots",
+        "recipe"
+      ],
+      "distractors": [
+        "hood_of_defiance",
+        "bracer",
+        "blade_of_alacrity",
+        "talisman_of_evasion"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_rod_of_atos",
+      "targetItem": "rod_of_atos",
+      "ingredients": [
+        "vitality_booster",
+        "staff_of_wizardry",
+        "staff_of_wizardry"
+      ],
+      "distractors": [
+        "orb_of_venom",
+        "wraith_band",
+        "talisman_of_evasion",
+        "demon_edge"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_abyssal_blade",
+      "targetItem": "abyssal_blade",
+      "ingredients": [
+        "basher",
+        "relic"
+      ],
+      "distractors": [
+        "headdress",
+        "quelling_blade",
+        "blade_of_alacrity",
+        "quarterstaff"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_heavens_halberd",
+      "targetItem": "heavens_halberd",
+      "ingredients": [
+        "sange",
+        "talisman_of_evasion"
+      ],
+      "distractors": [
+        "branches",
+        "bracer",
+        "pers",
+        "platemail"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_ring_of_aquila",
+      "targetItem": "ring_of_aquila",
+      "ingredients": [
+        "wraith_band",
+        "ring_of_basilius"
+      ],
+      "distractors": [
+        "arcane_boots",
+        "talisman_of_evasion",
+        "energy_booster",
+        "broadsword"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_tranquil_boots",
+      "targetItem": "tranquil_boots",
+      "ingredients": [
+        "boots",
+        "ring_of_protection",
+        "ring_of_regen"
+      ],
+      "distractors": [
+        "vitality_booster",
+        "ghost",
+        "mystic_staff",
+        "energy_booster"
+      ]
+    },
+    {
+      "type": "item_recipe",
+      "id": "recipe_glimmer_cape",
+      "targetItem": "glimmer_cape",
+      "ingredients": [
+        "shadow_amulet",
+        "cloak"
+      ],
+      "distractors": [
+        "talisman_of_evasion",
+        "mantle",
+        "energy_booster",
+        "vanguard"
+      ]
     },
     {
       "type": "multiple_choice",
-      "id": "max_level",
-      "question": "Максимальный уровень героя?",
-      "answers": ["25", "30", "20", "28"],
-      "correctIndex": 0
-    },
-    {
-      "type": "multiple_choice",
-      "id": "quelling_blade",
-      "itemKey": "quelling_blade",
-      "question": "Что делает Quelling Blade?",
+      "id": "aghs_dragon_knight",
+      "itemKey": "ultimate_scepter",
+      "question": "Что делает Aghanim’s Scepter у Dragon Knight в Dota 6.84?",
       "answers": [
-        "Увеличивает урон по крипам",
-        "Даёт шанс крита",
-        "Замедляет врагов",
-        "Восстанавливает HP"
+        "Ничего не делает",
+        "Дыхание дракона замедляет цели на 80%",
+        "Elder Dragon Form даёт иммунитет к магии",
+        "Открывает форму чёрного дракона"
       ],
       "correctIndex": 0
     },
     {
       "type": "multiple_choice",
-      "id": "chainmail_armor",
-      "itemKey": "chainmail",
-      "question": "Сколько брони даёт Chainmail?",
-      "answers": ["5", "3", "8", "4"],
-      "correctIndex": 0
-    },
-    {
-      "type": "multiple_choice",
-      "id": "blink_dagger_cooldown",
-      "itemKey": "blink",
-      "question": "На сколько секунд Blink Dagger отключается после получения урона?",
-      "answers": ["3 секунды", "5 секунд", "1 секунду", "6 секунд"],
-      "correctIndex": 0
-    },
-    {
-      "type": "multiple_choice",
-      "id": "tango_effect",
-      "itemKey": "tango",
-      "question": "Что делает Tango?",
+      "id": "aghs_clinkz",
+      "itemKey": "ultimate_scepter",
+      "question": "Что делает Aghanim’s Scepter у Clinkz в Dota 6.84?",
       "answers": [
-        "Потребляет дерево для регенерации HP",
-        "Даёт временную невидимость",
-        "Восстанавливает ману",
-        "Замедляет врага"
+        "Ничего не делает",
+        "Death Pact поглощает двух крипов одновременно",
+        "Strafe даёт бонус к уклонению",
+        "Призывает армию горящих скелетов"
       ],
       "correctIndex": 0
     },
     {
       "type": "multiple_choice",
-      "id": "magic_stick_charges",
-      "itemKey": "magic_stick",
-      "question": "Максимальное количество зарядов Magic Stick?",
-      "answers": ["10", "15", "5", "20"],
+      "id": "aghs_ember_spirit",
+      "itemKey": "ultimate_scepter",
+      "question": "Что делает Aghanim’s Scepter у Ember Spirit в Dota 6.84?",
+      "answers": [
+        "Ничего не делает",
+        "Fire Remnant можно разместить на союзника",
+        "Flame Guard поглощает физический урон",
+        "Fire Remnant перемещается значительно быстрее"
+      ],
       "correctIndex": 0
     },
     {
       "type": "multiple_choice",
-      "id": "aegis_duration",
-      "itemKey": "aegis",
-      "question": "Сколько длится Aegis of the Immortal на трупе?",
-      "answers": ["5 минут", "3 минуты", "10 минут", "7 минут"],
+      "id": "aghs_io",
+      "itemKey": "ultimate_scepter",
+      "question": "Что делает Aghanim’s Scepter у Io в Dota 6.84?",
+      "answers": [
+        "Ничего не делает",
+        "Tether замедляет нескольких врагов одновременно",
+        "Overcharge применяется ко всем ближайшим союзникам",
+        "Spirits можно использовать без кулдауна"
+      ],
       "correctIndex": 0
+    },
+    {
+      "type": "multiple_choice",
+      "id": "aghs_kunkka",
+      "itemKey": "ultimate_scepter",
+      "question": "Что делает Aghanim’s Scepter у Kunkka в Dota 6.84?",
+      "answers": [
+        "Ничего не делает",
+        "X Marks the Spot работает на несколько целей",
+        "Ghostship снимает все дебаффы при посадке",
+        "Создаёт шторм из водоворотов — Torrent Storm"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "type": "multiple_choice",
+      "id": "aghs_shadow_fiend",
+      "itemKey": "ultimate_scepter",
+      "question": "Что делает Aghanim’s Scepter у Shadow Fiend в Dota 6.84?",
+      "answers": [
+        "Ничего не делает",
+        "Requiem of Souls наносит урон дважды",
+        "Necromastery может хранить 48 душ вместо 36",
+        "Линии душ от Requiem of Souls возвращаются обратно"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "type": "multiple_choice",
+      "id": "aghs_zeus",
+      "itemKey": "ultimate_scepter",
+      "question": "Что делает Aghanim’s Scepter у Zeus в Dota 6.84?",
+      "answers": [
+        "Ничего не делает",
+        "Увеличивает урон Thundergod’s Wrath",
+        "Static Field наносит урон всем врагам на карте",
+        "Создаёт грозовую тучу — Nimbus"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "type": "multiple_choice",
+      "id": "aghs_enchantress",
+      "itemKey": "ultimate_scepter",
+      "question": "Что делает Aghanim’s Scepter у Enchantress в Dota 6.84?",
+      "answers": [
+        "Ничего не делает",
+        "Увеличивает дальность и урон Impetus",
+        "Enchant подчиняет вражеских героев",
+        "Даёт новую способность Sproink"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "type": "multiple_choice",
+      "id": "aghs_faceless_void",
+      "itemKey": "ultimate_scepter",
+      "question": "Что делает Aghanim’s Scepter у Faceless Void в Dota 6.84?",
+      "answers": [
+        "Ничего не делает",
+        "Уменьшает кулдаун Chronosphere до 60 секунд",
+        "Chronosphere захватывает союзников в виде призраков",
+        "Time Walk сбивает с ног всех врагов по пути"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "type": "multiple_choice",
+      "id": "aghs_gyrocopter",
+      "itemKey": "ultimate_scepter",
+      "question": "Что делает Aghanim’s Scepter у Gyrocopter в Dota 6.84?",
+      "answers": [
+        "Ничего не делает",
+        "Call Down становится глобальным",
+        "Rocket Barrage прожигает магический иммунитет",
+        "Flak Cannon атакует автоматически без активации"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "type": "multiple_choice",
+      "id": "aghs_meepo",
+      "itemKey": "ultimate_scepter",
+      "question": "Что делает Aghanim’s Scepter у Meepo в Dota 6.84?",
+      "answers": [
+        "Ничего не делает",
+        "Добавляет одного клона и включает разделение атрибутов",
+        "Earthbind работает на магически иммунные цели",
+        "Meepo превращается в мегакрипа"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "type": "multiple_choice",
+      "id": "aghs_necrophos",
+      "itemKey": "ultimate_scepter",
+      "question": "Что делает Aghanim’s Scepter у Necrophos в Dota 6.84?",
+      "answers": [
+        "Ничего не делает",
+        "Смерть от Reaper’s Scythe запрещает выкуп жертве",
+        "Death Pulse восстанавливает ману убитых врагов",
+        "Урон Heartstopper Aura растёт от реген здоровья врага"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "type": "multiple_choice",
+      "id": "aghs_pudge",
+      "itemKey": "ultimate_scepter",
+      "question": "Что делает Aghanim’s Scepter у Pudge в Dota 6.84?",
+      "answers": [
+        "Ничего не делает",
+        "Dismember наносит дополнительный урон, равный силе Pudge",
+        "Meat Hook оглушает цель при попадании",
+        "Rot становится мощнее и увеличивает свой радиус"
+      ],
+      "correctIndex": 1
+    },
+    {
+      "type": "multiple_choice",
+      "id": "aghs_tiny",
+      "itemKey": "ultimate_scepter",
+      "question": "Что делает Aghanim’s Scepter у Tiny в Dota 6.84?",
+      "answers": [
+        "Ничего не делает",
+        "Tiny берёт дерево — атаки наносят урон по площади",
+        "Avalanche оглушает всех врагов в области",
+        "Tiny бросает деревья во врагов как снаряды"
+      ],
+      "correctIndex": 1
     }
   ]
 }

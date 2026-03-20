@@ -13,10 +13,16 @@ namespace d2c_launcher.Util;
 public sealed class TriviaAnswerResultBrushConverter : IValueConverter
 {
     private static readonly IBrush BrushNone    = new SolidColorBrush(Color.Parse("#1a1f26"));
-    private static readonly IBrush BrushCorrect = new SolidColorBrush(Color.Parse("#2e7d32"));
+    private static readonly IBrush BrushCorrect = new SolidColorBrush(Color.Parse("#1b5e20"));
+    private static readonly IBrush BrushWrong   = new SolidColorBrush(Color.Parse("#5c1616"));
 
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => value is TriviaAnswerResult.Correct ? BrushCorrect : BrushNone;
+        => value switch
+        {
+            TriviaAnswerResult.Correct => BrushCorrect,
+            TriviaAnswerResult.Wrong   => BrushWrong,
+            _                          => BrushNone,
+        };
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new NotSupportedException();

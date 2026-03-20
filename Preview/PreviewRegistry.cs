@@ -70,7 +70,7 @@ public static class PreviewRegistry
                     new StubWindowService(),
                     new StubSteamAuthApi(),
                     new StubUiDispatcher(),
-                    new StubTriviaRepository());
+                    new StubTriviaRepository(), new AvaloniaTimerFactory());
                 var view = new LauncherHeader { Width = 900, Height = 48, DataContext = vm };
                 return (view, null);
             },
@@ -82,7 +82,7 @@ public static class PreviewRegistry
                     new StubVideoSettingsProvider(), new StubBackendApiService(),
                     new StubQueueSocketService(), new StubContentRegistryService(),
                     new StubChatViewModelFactory(), new StubWindowService(), new StubSteamAuthApi(),
-                    new StubUiDispatcher(), new StubTriviaRepository());
+                    new StubUiDispatcher(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 // Play state: game not running
                 vm.Launch.RunState = GameRunState.None;
                 var stack = new StackPanel { Spacing = 2, Background = new SolidColorBrush(Color.Parse("#1a1f26")) };
@@ -98,7 +98,7 @@ public static class PreviewRegistry
                     new StubVideoSettingsProvider(), new StubBackendApiService(),
                     new StubQueueSocketService(), new StubContentRegistryService(),
                     new StubChatViewModelFactory(), new StubWindowService(), new StubSteamAuthApi(),
-                    new StubUiDispatcher(), new StubTriviaRepository());
+                    new StubUiDispatcher(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 // Stop state: our game is running
                 vm.Launch.RunState = GameRunState.OurGameRunning;
                 var stack = new StackPanel { Spacing = 2, Background = new SolidColorBrush(Color.Parse("#1a1f26")) };
@@ -123,7 +123,7 @@ public static class PreviewRegistry
             },
             ["QueueButton"] = () =>
             {
-                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository());
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 vm.IsSearching = true;
                 vm.SetEnterQueueAt(DateTimeOffset.UtcNow);
                 vm.SetQueuedModeNames(new[] { "Против ботов" });
@@ -132,7 +132,7 @@ public static class PreviewRegistry
             },
             ["QueueButtonSingle"] = () =>
             {
-                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository());
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 vm.UpdateQueueButtonState(); // default idle = ИГРАТЬ, height=52
                 var btn = new QueueButton { DataContext = vm, Width = 360 };
                 var host = new Border
@@ -145,14 +145,14 @@ public static class PreviewRegistry
             },
             ["GameSearchPanel"] = () =>
             {
-                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository());
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 return (new GameSearchPanel(), vm);
             },
             // ── Trivia preview variants ──────────────────────────────────────────
             // Selecting: 2 of 3 ingredients placed, 1 remaining
             ["GameSearchPanelTrivia"] = () =>
             {
-                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository());
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 vm.IsSearching = true;
                 var trivia = vm.Trivia;
                 trivia.IsItemRecipe = true;
@@ -185,7 +185,7 @@ public static class PreviewRegistry
             // MC short-text: all 1-line answers — verifies MinHeight keeps buttons uniform
             ["GameSearchPanelTriviaMcShort"] = () =>
             {
-                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository());
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 vm.IsSearching = true;
                 var trivia = vm.Trivia;
                 trivia.IsItemRecipe = false;
@@ -206,10 +206,34 @@ public static class PreviewRegistry
                 };
                 return (host, null);
             },
+            // MC with long answer text that should wrap to 2 lines
+            ["GameSearchPanelTriviaMcLongText"] = () =>
+            {
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository(), new AvaloniaTimerFactory());
+                vm.IsSearching = true;
+                var trivia = vm.Trivia;
+                trivia.IsItemRecipe = false;
+                trivia.QuestionText = "Что делает способность Tango при использовании на дереве?";
+                trivia.Score = 0;
+                trivia.TimerSeconds = 17;
+
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "Потребляет дерево для регенерации здоровья", Index = 0 });
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "Даёт временную невидимость",                Index = 1 });
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "Восстанавливает ману",                      Index = 2 });
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "Замедляет врага",                           Index = 3 });
+
+                var host = new Border
+                {
+                    Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#1a1f26")),
+                    Width = 360,
+                    Child = new GameSearchPanel { DataContext = vm },
+                };
+                return (host, null);
+            },
             // MC result: wrong answer dimmed with overlay, correct answer green
             ["GameSearchPanelTriviaMcResult"] = () =>
             {
-                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository());
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 vm.IsSearching = true;
                 var trivia = vm.Trivia;
                 trivia.IsItemRecipe = false;
@@ -235,7 +259,7 @@ public static class PreviewRegistry
             // Recipe result: wrong answer — correct items green, distractors dimmed
             ["GameSearchPanelTriviaResult"] = () =>
             {
-                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository());
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 vm.IsSearching = true;
                 var trivia = vm.Trivia;
                 trivia.IsItemRecipe = true;
@@ -529,7 +553,7 @@ public static class PreviewRegistry
             ["AbandonButtonConnect"] = () =>
             {
                 // Single-line state: QueueButtonHeight = 52, abandon X visible
-                var queueVm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository());
+                var queueVm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 queueVm.UpdateQueueButtonState(); // default = ИГРАТЬ, height=52
 
                 var queueBtn = new QueueButton { DataContext = queueVm };
@@ -579,7 +603,7 @@ public static class PreviewRegistry
             ["AbandonButtonSearching"] = () =>
             {
                 // Searching state: QueueButtonHeight = 80, abandon X visible
-                var queueVm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository());
+                var queueVm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 queueVm.IsSearching = true;
                 queueVm.SetEnterQueueAt(DateTimeOffset.UtcNow);
                 queueVm.SetQueuedModeNames(new[] { "Против ботов" });
@@ -689,14 +713,14 @@ public static class PreviewRegistry
                     new StubVideoSettingsProvider(), new StubBackendApiService(),
                     new StubQueueSocketService(), new StubContentRegistryService(),
                     new StubChatViewModelFactory(), new StubWindowService(), new StubSteamAuthApi(),
-                    new StubUiDispatcher(), new StubTriviaRepository());
+                    new StubUiDispatcher(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 var launchVmStop = new MainLauncherViewModel(
                     new StubSteamManager(), new StubSettingsStorage(),
                     new StubGameLaunchSettingsStorage(), new StubCvarSettingsProvider(),
                     new StubVideoSettingsProvider(), new StubBackendApiService(),
                     new StubQueueSocketService(), new StubContentRegistryService(),
                     new StubChatViewModelFactory(), new StubWindowService(), new StubSteamAuthApi(),
-                    new StubUiDispatcher(), new StubTriviaRepository());
+                    new StubUiDispatcher(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 launchVmStop.Launch.RunState = GameRunState.OurGameRunning;
                 col.Children.Add(new LauncherHeader { Width = 400, Height = 48, DataContext = launchVm });
                 col.Children.Add(new LauncherHeader { Width = 400, Height = 48, DataContext = launchVmStop });

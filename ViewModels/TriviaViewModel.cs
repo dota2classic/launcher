@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Media;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
@@ -19,8 +18,9 @@ public partial class TriviaViewModel : ObservableObject
     private static readonly IBrush TimerFgBrush   = new SolidColorBrush(Color.Parse("#888888"));
 
     private readonly ITriviaRepository _repository;
-    private readonly DispatcherTimer _countdownTimer;
-    private DispatcherTimer? _advanceTimer;
+    private readonly ITimerFactory _timerFactory;
+    private readonly IUiTimer _countdownTimer;
+    private IUiTimer? _advanceTimer;
     private TriviaQuestion[] _questions = [];
     private int[] _shuffledIndices = [];
     private int _questionIndex = -1;
@@ -81,11 +81,13 @@ public partial class TriviaViewModel : ObservableObject
     public event Action<int>? QuestionStarted;
     private const int FeedbackDelayMs = 7000;
 
-    public TriviaViewModel(ITriviaRepository repository)
+    public TriviaViewModel(ITriviaRepository repository, ITimerFactory timerFactory)
     {
         _repository = repository;
+        _timerFactory = timerFactory;
 
-        _countdownTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _countdownTimer = timerFactory.Create();
+        _countdownTimer.Interval = TimeSpan.FromSeconds(1);
         _countdownTimer.Tick += OnCountdownTick;
     }
 
@@ -184,6 +186,8 @@ public partial class TriviaViewModel : ObservableObject
     }
 
     private int _mcCorrectIndex;
+    /// <summary>Index of the correct answer in <see cref="Answers"/> after shuffling.</summary>
+    public int McCorrectIndex => _mcCorrectIndex;
 
     // ── Internal ─────────────────────────────────────────────────────────────
 
@@ -217,6 +221,9 @@ public partial class TriviaViewModel : ObservableObject
     private void ShowResult(bool correct)
     {
         _countdownTimer.Stop();
+        _advanceTimer?.Stop();
+        _advanceTimer = null;
+
         IsAnswered = true;
         LastAnswerCorrect = correct;
         if (correct) Score++;
@@ -224,7 +231,8 @@ public partial class TriviaViewModel : ObservableObject
         OnPropertyChanged(nameof(AnswerFeedbackText));
         OnPropertyChanged(nameof(AnswerFeedbackForeground));
 
-        _advanceTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(FeedbackDelayMs) };
+        _advanceTimer = _timerFactory.Create();
+        _advanceTimer.Interval = TimeSpan.FromMilliseconds(FeedbackDelayMs);
         _advanceTimer.Tick += (_, _) =>
         {
             _advanceTimer!.Stop();
@@ -265,6 +273,13 @@ public partial class TriviaViewModel : ObservableObject
 
         if (question is ItemRecipeQuestion recipe)
         {
+            if (recipe.Ingredients.Length == 0)
+            {
+                AppLog.Warn($"ItemRecipeQuestion for '{recipe.TargetItem}' has no ingredients — skipping.");
+                PickNextQuestion();
+                return;
+            }
+
             IsItemRecipe = true;
             TargetItemImageUri = DotaItemData.GetItemImageUrlByName(recipe.TargetItem) ?? "";
             RecipeQuestionText = I18n.T("trivia.recipeQuestion");
@@ -299,13 +314,18 @@ public partial class TriviaViewModel : ObservableObject
         {
             IsItemRecipe = false;
             QuestionText = mc.Question;
-            _mcCorrectIndex = mc.CorrectIndex;
             SubjectItemImageUri = mc.ItemKey != null
                 ? DotaItemData.GetItemImageUrlByName(mc.ItemKey) ?? ""
                 : "";
 
-            for (int i = 0; i < mc.Answers.Length; i++)
-                Answers.Add(new TriviaMcAnswerVm { Text = mc.Answers[i], Index = i });
+            // Shuffle answers and remap the correct index to the new position
+            var shuffled = Enumerable.Range(0, mc.Answers.Length)
+                .OrderBy(_ => _rng.Next())
+                .ToArray();
+            _mcCorrectIndex = Array.IndexOf(shuffled, mc.CorrectIndex);
+
+            for (int i = 0; i < shuffled.Length; i++)
+                Answers.Add(new TriviaMcAnswerVm { Text = mc.Answers[shuffled[i]], Index = i });
         }
 
         TimerSeconds = TriviaTimerSeconds;

@@ -80,12 +80,12 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
     /// <summary>Called when restricted modes are automatically unselected on queue. Set by the parent VM.</summary>
     public Action? ShowRestrictedModesRemovedToast { get; set; }
 
-    public QueueViewModel(IQueueSocketService queueSocketService, IBackendApiService backendApiService, ISettingsStorage settingsStorage, ITriviaRepository triviaRepository)
+    public QueueViewModel(IQueueSocketService queueSocketService, IBackendApiService backendApiService, ISettingsStorage settingsStorage, ITriviaRepository triviaRepository, ITimerFactory timerFactory)
     {
         _queueSocketService = queueSocketService;
         _backendApiService = backendApiService;
         _settingsStorage = settingsStorage;
-        Trivia = new TriviaViewModel(triviaRepository);
+        Trivia = new TriviaViewModel(triviaRepository, timerFactory);
 
         _queueTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _queueTimer.Tick += (_, _) => UpdateQueueButtonState();
@@ -107,7 +107,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         Dispatcher.UIThread.Post(() => UpdateQueueCounts(msg));
 
     private void OnPlayerQueueStateUpdated(PlayerQueueStateMessage msg) =>
-        Dispatcher.UIThread.Post(() => UpdatePlayerQueueState(msg));
+        Dispatcher.UIThread.Post(async () => await UpdatePlayerQueueState(msg));
 
     private void OnPlayerGameStateUpdated(PlayerGameStateMessage? msg) =>
         Dispatcher.UIThread.Post(() =>
@@ -233,7 +233,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         }
     }
 
-    private void UpdatePlayerQueueState(PlayerQueueStateMessage msg)
+    private async Task UpdatePlayerQueueState(PlayerQueueStateMessage msg)
     {
         if (msg.InQueue)
         {
@@ -260,7 +260,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         UpdateQueueButtonState();
 
         if (msg.InQueue)
-            _ = Trivia.StartAsync();
+            await Trivia.StartAsync();
         else
             Trivia.Stop();
     }

@@ -76,6 +76,7 @@ public partial class App : Application
             services.AddSingleton<RedistInstallService>();
             services.AddSingleton<IContentRegistryService, ContentRegistryService>();
             services.AddSingleton<ITriviaRepository, LocalJsonTriviaRepository>();
+            services.AddSingleton<ITimerFactory, AvaloniaTimerFactory>();
             services.AddSingleton<IChatViewModelFactory, ChatViewModelFactory>();
             services.AddSingleton<IWindowService, WindowService>();
             services.AddSingleton<MainWindowViewModel>();

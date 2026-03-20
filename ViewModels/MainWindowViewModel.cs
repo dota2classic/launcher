@@ -36,6 +36,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IWindowService _windowService;
     private readonly IUiDispatcher _uiDispatcher;
     private readonly ITriviaRepository _triviaRepository;
+    private readonly ITimerFactory _timerFactory;
 
     /// <summary>Pending spectate match ID received before the Launcher state was entered.</summary>
     private int? _pendingSpectateMatchId;
@@ -91,7 +92,8 @@ public partial class MainWindowViewModel : ViewModelBase
         IContentRegistryService registryService,
         IWindowService windowService,
         IUiDispatcher uiDispatcher,
-        ITriviaRepository triviaRepository)
+        ITriviaRepository triviaRepository,
+        ITimerFactory timerFactory)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -111,6 +113,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _windowService = windowService;
         _uiDispatcher = uiDispatcher;
         _triviaRepository = triviaRepository;
+        _timerFactory = timerFactory;
 
         // Eagerly prefetch the registry so it's cached by the time GameDownloadViewModel needs it.
         var initialGameDir = _settingsStorage.Get().GameDirectory;
@@ -312,7 +315,7 @@ public partial class MainWindowViewModel : ViewModelBase
         var vm = new MainLauncherViewModel(
             _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider, _videoProvider,
             _backendApiService, _queueSocketService, _registryService, _chatViewModelFactory, _windowService,
-            _steamAuthApi, _uiDispatcher, _triviaRepository);
+            _steamAuthApi, _uiDispatcher, _triviaRepository, _timerFactory);
         vm.OnGameDirectoryChanged = _ => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirChanged(AppState)));
         vm.RequestGameDirectoryChange = () => Dispatcher.UIThread.Post(() => EnterState(AppState.SelectGameDirectory));
         vm.OnDlcChanged = removedIds => Dispatcher.UIThread.Post(() =>
