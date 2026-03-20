@@ -22,4 +22,6 @@ public sealed class MultipleChoiceQuestion : TriviaQuestion
     public string Question { get; set; } = "";
     public string[] Answers { get; set; } = [];
     public int CorrectIndex { get; set; }
+    /// <summary>Optional item key (e.g. "chainmail"). When set, the item icon is shown above the question.</summary>
+    public string? ItemKey { get; set; }
 }

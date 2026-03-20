@@ -109,6 +109,12 @@
                    VerticalAlignment="Center"/>
       </Grid>
 
+      <!-- Subject item icon (optional) -->
+      <components:DotaItemIcon Width="60" Height="44"
+                                ItemUrl="{Binding SubjectItemImageUri}"
+                                HorizontalAlignment="Center"
+                                IsVisible="{Binding HasSubjectItem}"/>
+
       <!-- Question text -->
       <TextBlock Text="{Binding QuestionText}"
                  Margin="8,0" TextWrapping="Wrap"

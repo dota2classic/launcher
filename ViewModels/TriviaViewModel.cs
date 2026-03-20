@@ -53,6 +53,10 @@ public partial class TriviaViewModel : ObservableObject
     // ── Multiple choice state ────────────────────────────────────────────────
 
     [ObservableProperty] private string _questionText = "";
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasSubjectItem))]
+    private string _subjectItemImageUri = "";
+    public bool HasSubjectItem => !string.IsNullOrEmpty(SubjectItemImageUri);
 
     public ObservableCollection<TriviaMcAnswerVm> Answers { get; } = [];
 
@@ -252,6 +256,9 @@ public partial class TriviaViewModel : ObservableObject
             IsItemRecipe = false;
             QuestionText = mc.Question;
             _mcCorrectIndex = mc.CorrectIndex;
+            SubjectItemImageUri = mc.ItemKey != null
+                ? DotaItemData.GetItemImageUrlByName(mc.ItemKey) ?? ""
+                : "";
 
             for (int i = 0; i < mc.Answers.Length; i++)
                 Answers.Add(new TriviaMcAnswerVm { Text = mc.Answers[i], Index = i });

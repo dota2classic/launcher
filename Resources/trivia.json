@@ -66,6 +66,7 @@
     {
       "type": "multiple_choice",
       "id": "quelling_blade",
+      "itemKey": "quelling_blade",
       "question": "Что делает Quelling Blade?",
       "answers": [
         "Увеличивает урон по крипам",
@@ -78,6 +79,7 @@
     {
       "type": "multiple_choice",
       "id": "chainmail_armor",
+      "itemKey": "chainmail",
       "question": "Сколько брони даёт Chainmail?",
       "answers": ["5", "3", "8", "4"],
       "correctIndex": 0
@@ -85,6 +87,7 @@
     {
       "type": "multiple_choice",
       "id": "blink_dagger_cooldown",
+      "itemKey": "blink",
       "question": "На сколько секунд Blink Dagger отключается после получения урона?",
       "answers": ["3 секунды", "5 секунд", "1 секунду", "6 секунд"],
       "correctIndex": 0
@@ -92,6 +95,7 @@
     {
       "type": "multiple_choice",
       "id": "tango_effect",
+      "itemKey": "tango",
       "question": "Что делает Tango?",
       "answers": [
         "Потребляет дерево для регенерации HP",
@@ -104,6 +108,7 @@
     {
       "type": "multiple_choice",
       "id": "magic_stick_charges",
+      "itemKey": "magic_stick",
       "question": "Максимальное количество зарядов Magic Stick?",
       "answers": ["10", "15", "5", "20"],
       "correctIndex": 0
@@ -111,6 +116,7 @@
     {
       "type": "multiple_choice",
       "id": "aegis_duration",
+      "itemKey": "aegis",
       "question": "Сколько длится Aegis of the Immortal на трупе?",
       "answers": ["5 минут", "3 минуты", "10 минут", "7 минут"],
       "correctIndex": 0
