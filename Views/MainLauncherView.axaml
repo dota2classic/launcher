@@ -38,15 +38,20 @@
                                        Command="{Binding RequestAbandonGameCommand}"
                                        Width="52" Height="{Binding Queue.QueueButtonHeight}" Padding="0"
                                        Margin="6,0,0,0"
-                                       Background="#1a0f0f" BorderBrush="#C62626" BorderThickness="1"
+                                       Background="#1a0f0f" BorderBrush="{StaticResource BrushRed}" BorderThickness="1"
                                        CornerRadius="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
                                    <Button.Styles>
+                                       <Style Selector="Button /template/ ContentPresenter">
+                                           <Setter Property="Background" Value="#1a0f0f"/>
+                                           <Setter Property="BorderBrush" Value="{StaticResource BrushRed}"/>
+                                       </Style>
                                        <Style Selector="Button:pointerover /template/ ContentPresenter">
                                            <Setter Property="Background" Value="#2a1515"/>
+                                           <Setter Property="BorderBrush" Value="{StaticResource BrushRed}"/>
                                        </Style>
                                    </Button.Styles>
                                    <PathIcon Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
-                                             Foreground="#C62626" Width="16" Height="16"
+                                             Foreground="{StaticResource BrushRed}" Width="16" Height="16"
                                              VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                </Button>
                            </Grid>
@@ -99,19 +104,12 @@
                                   HorizontalAlignment="Center" TextAlignment="Center"
                                   Foreground="#AAAAAA" FontSize="{DynamicResource FontSizeMD}"/>
                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12">
-                           <Button Content="{x:Static res:Strings.Leave}" Command="{Binding ConfirmAbandonGameCommand}"
-                                   Background="#1a0f0f" Foreground="#C62626" FontWeight="Bold"
-                                   Padding="28,10" CornerRadius="0" BorderBrush="#C62626" BorderThickness="1"/>
-                           <Button Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelAbandonGameCommand}"
-                                   Foreground="White" FontWeight="Bold" Padding="28,10"
-                                   CornerRadius="0" BorderThickness="0">
-                               <Button.Background>
-                                   <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                       <GradientStop Color="#1a5aaa" Offset="0"/>
-                                       <GradientStop Color="#3a90d6" Offset="1"/>
-                                   </LinearGradientBrush>
-                               </Button.Background>
-                           </Button>
+                           <Button Classes="DangerButton"
+                                   Content="{x:Static res:Strings.Leave}" Command="{Binding ConfirmAbandonGameCommand}"
+                                   Padding="28,10" CornerRadius="0"/>
+                           <Button Classes="PrimaryButton"
+                                   Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelAbandonGameCommand}"
+                                   Padding="28,10" CornerRadius="0"/>
                        </StackPanel>
                    </StackPanel>
                </Border>
@@ -226,15 +224,10 @@
                                        HorizontalAlignment="Left">
                                    <TextBlock Text="{x:Static res:Strings.Skip}" Foreground="#666" FontSize="{DynamicResource FontSizeBase}"/>
                                </Button>
-                               <Button Grid.Column="2" Command="{Binding NextIntroStepCommand}"
-                                       Padding="22,9" FontSize="{DynamicResource FontSizeLG}" FontWeight="SemiBold"
-                                       Foreground="White" BorderThickness="0" CornerRadius="0" Cursor="Hand">
-                                   <Button.Background>
-                                       <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                           <GradientStop Color="#1a5aaa" Offset="0"/>
-                                           <GradientStop Color="#3a90d6" Offset="1"/>
-                                       </LinearGradientBrush>
-                                   </Button.Background>
+                               <Button Classes="PrimaryButton"
+                                       Grid.Column="2" Command="{Binding NextIntroStepCommand}"
+                                       Padding="22,9" FontSize="{DynamicResource FontSizeLG}"
+                                       CornerRadius="0" Cursor="Hand">
                                    <TextBlock>
                                        <TextBlock.Text>
                                            <Binding Path="IntroStep"

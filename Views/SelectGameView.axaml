@@ -21,18 +21,12 @@
            <Rectangle Height="4" Fill="Transparent"/>
 
            <!-- Download option -->
-           <Button HorizontalAlignment="Stretch"
+           <Button Classes="PrimaryButton"
+                   HorizontalAlignment="Stretch"
                    Padding="32,10" CornerRadius="0"
-                   FontSize="{DynamicResource FontSizeXL}" FontWeight="SemiBold"
-                   Foreground="White" BorderThickness="0"
+                   FontSize="{DynamicResource FontSizeXL}"
                    IsEnabled="{Binding !IsDlcLoading}"
                    Click="OnDownloadClicked">
-               <Button.Background>
-                   <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                       <GradientStop Color="#3a90d6" Offset="0"/>
-                       <GradientStop Color="#1a5aaa" Offset="1"/>
-                   </LinearGradientBrush>
-               </Button.Background>
                <TextBlock Text="{x:Static res:Strings.DownloadGame}"
                           FontSize="{DynamicResource FontSizeXL}" FontWeight="SemiBold" Foreground="White"
                           HorizontalAlignment="Center"/>
@@ -145,19 +139,12 @@
                    </ItemsControl.ItemTemplate>
                </ItemsControl>
 
-               <Button Command="{Binding ConfirmDlcSelectionCommand}"
+               <Button Classes="PrimaryButton"
+                       Command="{Binding ConfirmDlcSelectionCommand}"
                        Content="{x:Static res:Strings.DownloadGame}"
                        HorizontalAlignment="Right"
                        Padding="24,8" CornerRadius="0"
-                       BorderThickness="0" Foreground="White"
-                       FontSize="{DynamicResource FontSizeMD}" FontWeight="SemiBold">
-                   <Button.Background>
-                       <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                           <GradientStop Color="#1a5aaa" Offset="0"/>
-                           <GradientStop Color="#3a90d6" Offset="1"/>
-                       </LinearGradientBrush>
-                   </Button.Background>
-               </Button>
+                       FontSize="{DynamicResource FontSizeMD}"/>
 
            </StackPanel>
        </Border>

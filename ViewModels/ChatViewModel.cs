@@ -29,6 +29,9 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     private Dictionary<string, byte[]> _emoticonImages = new(StringComparer.Ordinal);
     // Backend-ordered emoticon list (most-used first) — used for the hover toolbar and picker.
     private IReadOnlyList<Models.EmoticonData> _orderedEmoticons = Array.Empty<Models.EmoticonData>();
+    // Pre-built snapshots for SetupQuickReacts — recomputed once per emoticon load, reused per message.
+    private IReadOnlyList<(int Id, string Code, byte[]? GifBytes)> _top3QuickReacts = Array.Empty<(int, string, byte[]?)>();
+    private IReadOnlyList<(int Id, string Code, byte[]? GifBytes)> _allQuickReacts = Array.Empty<(int, string, byte[]?)>();
     // User name cache: steamId → resolved name (null = fetch in-flight).
     private readonly Dictionary<string, string?> _userNameCache = new(StringComparer.Ordinal);
     private CancellationTokenSource? _loadCts;
@@ -101,6 +104,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
             var result = await _emoticonService.LoadEmoticonsAsync().ConfigureAwait(false);
             _emoticonImages = result.Images;
             _orderedEmoticons = result.Ordered;
+            BuildEmoticonSnapshots();
 
             // Re-parse any messages that were rendered before emoticons finished loading,
             // and populate the quick-react toolbar / picker on all existing messages.
@@ -367,20 +371,22 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
     // ── Reactions ─────────────────────────────────────────────────────────────
 
-    private void SetupQuickReacts(ChatMessageView view)
+    private void BuildEmoticonSnapshots()
     {
-        if (_orderedEmoticons.Count == 0) return;
-
-        var top3 = _orderedEmoticons
+        _top3QuickReacts = _orderedEmoticons
             .Take(3)
             .Select(e => (e.Id, e.Code, GifBytes: _emoticonImages.GetValueOrDefault(e.Code)))
             .ToList();
-
-        var all = _orderedEmoticons
+        _allQuickReacts = _orderedEmoticons
             .Select(e => (e.Id, e.Code, GifBytes: _emoticonImages.GetValueOrDefault(e.Code)))
             .ToList();
+    }
 
-        view.SetupQuickReacts(top3, all, emoticonId => ReactToMessageAsync(view.MessageId, emoticonId));
+    private void SetupQuickReacts(ChatMessageView view)
+    {
+        if (_orderedEmoticons.Count == 0) return;
+        var messageId = view.MessageId;
+        view.SetupQuickReacts(_top3QuickReacts, _allQuickReacts, emoticonId => ReactToMessageAsync(messageId, emoticonId));
     }
 
     private ChatReactionViewModel BuildReactionVm(string messageId, Models.ChatReactionData data)
@@ -396,18 +402,22 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
     private async Task ReactToMessageAsync(string messageId, int emoticonId)
     {
+        var ct = _sseCts?.Token ?? CancellationToken.None;
         try
         {
             var updatedReactions = await _backendApiService
-                .ReactToMessageAsync(messageId, emoticonId)
+                .ReactToMessageAsync(messageId, emoticonId, ct)
                 .ConfigureAwait(false);
 
+            if (ct.IsCancellationRequested) return;
             Dispatcher.UIThread.Post(() =>
             {
+                if (ct.IsCancellationRequested) return;
                 var view = Messages.FirstOrDefault(m => m.MessageId == messageId);
                 view?.UpdateReactions(updatedReactions, data => BuildReactionVm(messageId, data));
             });
         }
+        catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             AppLog.Error($"Chat: react to message {messageId} failed: {ex.Message}", ex);
@@ -448,9 +458,16 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
     private async Task LoadChatIconAsync(ChatMessageView view, string url)
     {
-        var bytes = await _imageService.LoadBytesAsync(url).ConfigureAwait(false);
-        if (bytes != null)
-            Dispatcher.UIThread.Post(() => view.ChatIconBytes = bytes);
+        try
+        {
+            var bytes = await _imageService.LoadBytesAsync(url).ConfigureAwait(false);
+            if (bytes != null)
+                Dispatcher.UIThread.Post(() => view.ChatIconBytes = bytes);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Warn($"Chat: failed to load chat icon from {url}: {ex.Message}");
+        }
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

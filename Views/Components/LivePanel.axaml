@@ -18,7 +18,7 @@
                 <Border Grid.Row="0" Padding="10,10,10,8"
                         BorderBrush="#111820" BorderThickness="0,0,0,1">
                     <TextBlock Text="{x:Static res:Strings.Broadcasts}"
-                               FontSize="10" FontWeight="Bold" LetterSpacing="2"
+                               FontSize="{DynamicResource FontSizeXS}" FontWeight="Bold" LetterSpacing="2"
                                Foreground="#4a6070"/>
                 </Border>
 
@@ -81,22 +81,22 @@
                                         <!-- Score -->
                                         <StackPanel Orientation="Horizontal" Spacing="6">
                                             <TextBlock Text="{Binding RadiantScore}"
-                                                       FontSize="20" FontWeight="Bold"
+                                                       FontSize="{DynamicResource FontSize2XL5}" FontWeight="Bold"
                                                        Foreground="#6db442"/>
                                             <TextBlock Text="—"
-                                                       FontSize="16" Foreground="#2e3e4e"
+                                                       FontSize="{DynamicResource FontSizeXL}" Foreground="#2e3e4e"
                                                        VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding DireScore}"
-                                                       FontSize="20" FontWeight="Bold"
+                                                       FontSize="{DynamicResource FontSize2XL5}" FontWeight="Bold"
                                                        Foreground="#c83c2c"/>
                                         </StackPanel>
                                         <!-- Mode -->
                                         <TextBlock Text="{Binding ModeLabel}"
-                                                   FontSize="11" Foreground="#7a9ab0"
+                                                   FontSize="{DynamicResource FontSizeSM}" Foreground="#7a9ab0"
                                                    TextTrimming="CharacterEllipsis"/>
                                         <!-- Duration -->
                                         <TextBlock Text="{Binding Duration}"
-                                                   FontSize="11" FontWeight="SemiBold"
+                                                   FontSize="{DynamicResource FontSizeSM}" FontWeight="SemiBold"
                                                    Foreground="#8899aa"/>
                                         <!-- State dot + label -->
                                         <StackPanel Orientation="Horizontal" Spacing="5"
@@ -104,7 +104,7 @@
                                             <Ellipse Width="6" Height="6"
                                                      Fill="#3a9a3a" VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding GameStateLabel}"
-                                                       FontSize="10" Foreground="#4a7060"
+                                                       FontSize="{DynamicResource FontSizeXS}" Foreground="#4a7060"
                                                        TextTrimming="CharacterEllipsis"
                                                        VerticalAlignment="Center"/>
                                         </StackPanel>
@@ -139,10 +139,10 @@
                     <Grid ColumnDefinitions="*,Auto">
                         <StackPanel Grid.Column="0" Spacing="2">
                             <TextBlock Text="{x:Static res:Strings.GameMode}"
-                                       FontSize="9" FontWeight="Bold" LetterSpacing="2"
+                                       FontSize="{DynamicResource FontSize2XS}" FontWeight="Bold" LetterSpacing="2"
                                        Foreground="#4a6070"/>
                             <TextBlock Text="{Binding SelectedMatch.ModeLabel}"
-                                       FontSize="18" FontWeight="Bold"
+                                       FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold"
                                        Foreground="#d8e8f4"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1" Spacing="6" HorizontalAlignment="Right"
@@ -150,7 +150,7 @@
                             <Button Content="{x:Static res:Strings.Watch}"
                                     Command="{Binding $parent[UserControl].((vm:LiveViewModel)DataContext).SpectateSelectedMatchCommand}"
                                     Padding="14,8"
-                                    FontSize="11" FontWeight="Bold"
+                                    FontSize="{DynamicResource FontSizeSM}" FontWeight="Bold"
                                     Foreground="#d8e8f4"
                                     Background="#1a3a5a"
                                     CornerRadius="3"
@@ -158,23 +158,23 @@
                             <Border Width="1" Background="#1a2a3a" Margin="4,4"/>
                             <StackPanel Spacing="2">
                                 <TextBlock Text="{x:Static res:Strings.ColScore}"
-                                           FontSize="9" FontWeight="Bold" LetterSpacing="2"
+                                           FontSize="{DynamicResource FontSize2XS}" FontWeight="Bold" LetterSpacing="2"
                                            Foreground="#4a6070" HorizontalAlignment="Center"/>
                                 <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
                                     <TextBlock Text="{Binding SelectedMatch.RadiantScore}"
-                                               FontSize="20" FontWeight="Bold" Foreground="#6db442"/>
-                                    <TextBlock Text="—" FontSize="18" Foreground="#4a5a6a" VerticalAlignment="Center"/>
+                                               FontSize="{DynamicResource FontSize2XL5}" FontWeight="Bold" Foreground="#6db442"/>
+                                    <TextBlock Text="—" FontSize="{DynamicResource FontSize2XL}" Foreground="#4a5a6a" VerticalAlignment="Center"/>
                                     <TextBlock Text="{Binding SelectedMatch.DireScore}"
-                                               FontSize="20" FontWeight="Bold" Foreground="#c83c2c"/>
+                                               FontSize="{DynamicResource FontSize2XL5}" FontWeight="Bold" Foreground="#c83c2c"/>
                                 </StackPanel>
                             </StackPanel>
                             <Border Width="1" Background="#1a2a3a" Margin="12,4"/>
                             <StackPanel Spacing="2">
                                 <TextBlock Text="{x:Static res:Strings.ColTime}"
-                                           FontSize="9" FontWeight="Bold" LetterSpacing="2"
+                                           FontSize="{DynamicResource FontSize2XS}" FontWeight="Bold" LetterSpacing="2"
                                            Foreground="#4a6070" HorizontalAlignment="Center"/>
                                 <TextBlock Text="{Binding SelectedMatch.Duration}"
-                                           FontSize="20" FontWeight="Bold"
+                                           FontSize="{DynamicResource FontSize2XL5}" FontWeight="Bold"
                                            Foreground="#8899aa" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </StackPanel>
@@ -191,11 +191,11 @@
                             <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,6">
                                 <TextBlock Grid.Column="0"
                                            Text="RADIANT"
-                                           FontSize="9" FontWeight="Bold" LetterSpacing="2"
+                                           FontSize="{DynamicResource FontSize2XS}" FontWeight="Bold" LetterSpacing="2"
                                            Foreground="#6db442" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Column="1"
                                            Text="{Binding SelectedMatch.RadiantScore}"
-                                           FontSize="16" FontWeight="Bold"
+                                           FontSize="{DynamicResource FontSizeXL}" FontWeight="Bold"
                                            Foreground="#6db442"/>
                             </Grid>
                             <ItemsControl Grid.Row="1" VerticalAlignment="Top"
@@ -226,11 +226,11 @@
                             <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Margin="0,0,0,6">
                                 <TextBlock Grid.Column="0"
                                            Text="{Binding SelectedMatch.DireScore}"
-                                           FontSize="16" FontWeight="Bold"
+                                           FontSize="{DynamicResource FontSizeXL}" FontWeight="Bold"
                                            Foreground="#c83c2c"/>
                                 <TextBlock Grid.Column="1"
                                            Text="DIRE"
-                                           FontSize="9" FontWeight="Bold" LetterSpacing="2"
+                                           FontSize="{DynamicResource FontSize2XS}" FontWeight="Bold" LetterSpacing="2"
                                            Foreground="#c83c2c"
                                            HorizontalAlignment="Right" VerticalAlignment="Center"/>
                             </Grid>

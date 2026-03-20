@@ -34,32 +34,28 @@
                                               FontSize="{DynamicResource FontSizeSM}" Foreground="#AAAAAA"/>
                                </StackPanel>
                                <Button Grid.Column="2"
-                                       Content="✕"
+                                       Classes="ToastDismissButton"
                                        Command="{Binding DismissCommand}"
-                                       Background="Transparent" Foreground="#535252"
-                                       FontSize="{DynamicResource FontSizeSM}"
-                                       BorderThickness="0" Padding="0"
-                                       VerticalAlignment="Top" HorizontalAlignment="Right"
                                        Cursor="Hand"/>
                            </Grid>
 
                            <!-- Accept / Decline -->
                            <Grid ColumnDefinitions="*,6,*">
                                <Button Grid.Column="0"
+                                       Classes="PrimaryButton"
                                        Content="{x:Static res:Strings.AcceptUpper}"
                                        Command="{Binding AcceptCommand}"
-                                       Background="#1a5aaa" Foreground="White"
-                                       FontSize="{DynamicResource FontSizeBase}" FontWeight="Bold"
-                                       CornerRadius="0" BorderThickness="0"
+                                       FontSize="{DynamicResource FontSizeBase}"
+                                       CornerRadius="0"
                                        HorizontalAlignment="Stretch"
                                        HorizontalContentAlignment="Center"
                                        Padding="0,8"/>
                                <Button Grid.Column="2"
+                                       Classes="DangerButton"
                                        Content="{x:Static res:Strings.DeclineUpper}"
                                        Command="{Binding DeclineCommand}"
-                                       Background="#6e2222" Foreground="White"
-                                       FontSize="{DynamicResource FontSizeBase}" FontWeight="Bold"
-                                       CornerRadius="0" BorderThickness="0"
+                                       FontSize="{DynamicResource FontSizeBase}"
+                                       CornerRadius="0"
                                        HorizontalAlignment="Stretch"
                                        HorizontalContentAlignment="Center"
                                        Padding="0,8"/>
@@ -98,12 +94,8 @@
                            </StackPanel>
                            <!-- Dismiss -->
                            <Button Grid.Column="2"
-                                   Content="✕"
+                                   Classes="ToastDismissButton"
                                    Command="{Binding DismissCommand}"
-                                   Background="Transparent" Foreground="#535252"
-                                   FontSize="{DynamicResource FontSizeSM}"
-                                   BorderThickness="0" Padding="0" Margin="10,0,0,0"
-                                   VerticalAlignment="Top" HorizontalAlignment="Right"
                                    Cursor="Hand"/>
                        </Grid>
 
@@ -129,20 +121,16 @@
                                           TextWrapping="Wrap"
                                           VerticalAlignment="Center"/>
                                <Button Grid.Column="1"
-                                       Content="✕"
+                                       Classes="ToastDismissButton"
                                        Command="{Binding DismissCommand}"
-                                       Background="Transparent" Foreground="#535252"
-                                       FontSize="{DynamicResource FontSizeSM}"
-                                       BorderThickness="0" Padding="0" Margin="10,0,0,0"
-                                       VerticalAlignment="Top" HorizontalAlignment="Right"
                                        Cursor="Hand"/>
                            </Grid>
 
-                           <Button Content="{x:Static res:Strings.VerifyIntegrity}"
+                           <Button Classes="PrimaryButton"
+                                   Content="{x:Static res:Strings.VerifyIntegrity}"
                                    Command="{Binding VerifyCommand}"
-                                   Background="#1a5aaa" Foreground="White"
-                                   FontSize="{DynamicResource FontSizeBase}" FontWeight="Bold"
-                                   CornerRadius="0" BorderThickness="0"
+                                   FontSize="{DynamicResource FontSizeBase}"
+                                   CornerRadius="0"
                                    HorizontalAlignment="Stretch"
                                    HorizontalContentAlignment="Center"
                                    Padding="0,8"
@@ -174,12 +162,8 @@
                                           TextWrapping="Wrap"/>
                            </StackPanel>
                            <Button Grid.Column="1"
-                                   Content="✕"
+                                   Classes="ToastDismissButton"
                                    Command="{Binding DismissCommand}"
-                                   Background="Transparent" Foreground="#535252"
-                                   FontSize="{DynamicResource FontSizeSM}"
-                                   BorderThickness="0" Padding="0" Margin="10,0,0,0"
-                                   VerticalAlignment="Top" HorizontalAlignment="Right"
                                    Cursor="Hand"/>
                        </Grid>
                        <components:ToastTimerBar Grid.Row="1"/>
@@ -213,12 +197,8 @@
                                </StackPanel>
                                <!-- Dismiss -->
                                <Button Grid.Column="2"
-                                       Content="✕"
+                                       Classes="ToastDismissButton"
                                        Command="{Binding DismissCommand}"
-                                       Background="Transparent" Foreground="#535252"
-                                       FontSize="{DynamicResource FontSizeSM}"
-                                       BorderThickness="0" Padding="0" Margin="10,0,0,0"
-                                       VerticalAlignment="Top" HorizontalAlignment="Right"
                                        Cursor="Hand"/>
                            </Grid>
 
@@ -229,11 +209,11 @@
                                       TextWrapping="Wrap"/>
 
                            <!-- Open achievements page -->
-                           <Button Content="{x:Static res:Strings.OpenAchievements}"
+                           <Button Classes="PrimaryButton"
+                                   Content="{x:Static res:Strings.OpenAchievements}"
                                    Command="{Binding OpenCommand}"
-                                   Background="#1a5aaa" Foreground="White"
-                                   FontSize="{DynamicResource FontSizeBase}" FontWeight="Bold"
-                                   CornerRadius="0" BorderThickness="0"
+                                   FontSize="{DynamicResource FontSizeBase}"
+                                   CornerRadius="0"
                                    HorizontalAlignment="Stretch"
                                    HorizontalContentAlignment="Center"
                                    Padding="0,8"
@@ -261,12 +241,8 @@
                                       TextWrapping="Wrap"
                                       VerticalAlignment="Center"/>
                            <Button Grid.Column="1"
-                                   Content="✕"
+                                   Classes="ToastDismissButton"
                                    Command="{Binding DismissCommand}"
-                                   Background="Transparent" Foreground="#535252"
-                                   FontSize="{DynamicResource FontSizeSM}"
-                                   BorderThickness="0" Padding="0" Margin="10,0,0,0"
-                                   VerticalAlignment="Top" HorizontalAlignment="Right"
                                    Cursor="Hand"/>
                        </Grid>
 

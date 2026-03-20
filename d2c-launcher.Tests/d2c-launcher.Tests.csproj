@@ -9,6 +9,8 @@
   <ItemGroup>
     <PackageReference Include="NSubstitute" Version="5.3.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <!-- Needed for Avalonia.Thickness used by ChatMessageView -->
+    <PackageReference Include="Avalonia" Version="11.3.12" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -65,6 +67,10 @@
     <Compile Include="..\Models\MatchmakingModeInfo.cs" Link="Models\MatchmakingModeInfo.cs" />
     <Compile Include="..\Models\ChatMessageData.cs" Link="Models\ChatMessageData.cs" />
     <Compile Include="..\Models\ChatReactionData.cs" Link="Models\ChatReactionData.cs" />
+    <!-- ChatMessageView and its ViewModel dependencies (tested by ChatMessageViewTests) -->
+    <Compile Include="..\Models\ChatMessageView.cs" Link="Models\ChatMessageView.cs" />
+    <Compile Include="..\ViewModels\ChatReactionViewModel.cs" Link="ViewModels\ChatReactionViewModel.cs" />
+    <Compile Include="..\ViewModels\ChatQuickReactViewModel.cs" Link="ViewModels\ChatQuickReactViewModel.cs" />
     <Compile Include="..\Models\EmoticonData.cs" Link="Models\EmoticonData.cs" />
     <Compile Include="..\Models\LiveMatchInfo.cs" Link="Models\LiveMatchInfo.cs" />
     <Compile Include="..\Models\PlayerProfileData.cs" Link="Models\PlayerProfileData.cs" />

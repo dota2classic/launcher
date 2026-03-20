@@ -13,7 +13,7 @@
       <Setter Property="Padding" Value="24,0"/>
       <Setter Property="Foreground" Value="#4a5668"/>
       <Setter Property="FontFamily" Value="Trajan Pro, Trajan, Times New Roman, serif"/>
-      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="FontSize" Value="{DynamicResource FontSizeMD}"/>
       <Setter Property="FontWeight" Value="Bold"/>
       <Setter Property="Cursor" Value="Hand"/>
       <Setter Property="VerticalAlignment" Value="Stretch"/>
@@ -89,21 +89,14 @@
 
         <!-- Game found: connect button -->
         <Button x:Name="ConnectButton"
+                Classes="PrimaryButton"
                 IsVisible="{Binding Launch.HasServerUrl}"
                 Click="OnConnectClicked"
                 VerticalAlignment="Center"
-                Padding="20,6" CornerRadius="2" BorderThickness="0" Cursor="Hand">
-          <Button.Styles>
-            <Style Selector="Button#ConnectButton">
-              <Setter Property="Background" Value="#1A5276"/>
-            </Style>
-            <Style Selector="Button#ConnectButton:pointerover /template/ ContentPresenter">
-              <Setter Property="Background" Value="#2E86C1"/>
-            </Style>
-          </Button.Styles>
+                Padding="20,6" CornerRadius="2" Cursor="Hand">
           <StackPanel Orientation="Horizontal" Spacing="8">
             <Ellipse Width="8" Height="8" Fill="#5dade2" VerticalAlignment="Center"/>
-            <TextBlock Text="{x:Static res:Strings.Connect}" Foreground="White"
+            <TextBlock Text="{x:Static res:Strings.Connect}"
                        FontSize="{DynamicResource FontSizeBase}" FontWeight="Bold"
                        LetterSpacing="1" VerticalAlignment="Center"/>
           </StackPanel>
@@ -140,9 +133,11 @@
             </Style>
             <Style Selector="Button#LaunchGameButton /template/ ContentPresenter">
               <Setter Property="Background" Value="#0d2a1a"/>
+              <Setter Property="BorderBrush" Value="#27AE60"/>
             </Style>
             <Style Selector="Button#LaunchGameButton:pointerover /template/ ContentPresenter">
               <Setter Property="Background" Value="#123520"/>
+              <Setter Property="BorderBrush" Value="#27AE60"/>
             </Style>
             <Style Selector="Button#LaunchGameButton materialIcons|MaterialIcon">
               <Setter Property="Foreground" Value="#27AE60"/>
@@ -157,9 +152,11 @@
             </Style>
             <Style Selector="Button#LaunchGameButton.stop /template/ ContentPresenter">
               <Setter Property="Background" Value="#2a0d0d"/>
+              <Setter Property="BorderBrush" Value="#c0392b"/>
             </Style>
             <Style Selector="Button#LaunchGameButton.stop:pointerover /template/ ContentPresenter">
               <Setter Property="Background" Value="#38110f"/>
+              <Setter Property="BorderBrush" Value="#c0392b"/>
             </Style>
             <Style Selector="Button#LaunchGameButton.stop materialIcons|MaterialIcon">
               <Setter Property="Foreground" Value="#e74c3c"/>
