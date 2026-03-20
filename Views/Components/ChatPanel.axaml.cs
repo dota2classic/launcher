@@ -75,10 +75,16 @@ public partial class ChatPanel : UserControl
         if (sender is Button { DataContext: ChatQuickReactViewModel item } btn &&
             DataContext is ChatViewModel vm)
         {
-            vm.InsertEmoticonCode(item.Tooltip);
+            var caret = MessageInput.CaretIndex;
+            var text = MessageInput.Text ?? "";
+            vm.InputText = text[..caret] + item.Tooltip + text[caret..];
             if (btn.FindAncestorOfType<FlyoutPresenter>()?.Parent is Popup popup)
-                Dispatcher.UIThread.Post(() => popup.IsOpen = false);
-            Dispatcher.UIThread.Post(() => MessageInput.Focus());
+                popup.IsOpen = false;
+            Dispatcher.UIThread.Post(() =>
+            {
+                MessageInput.CaretIndex = caret + item.Tooltip.Length;
+                MessageInput.Focus();
+            });
         }
     }
 

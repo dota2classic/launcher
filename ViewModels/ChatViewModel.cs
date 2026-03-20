@@ -391,11 +391,6 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
             InputEmoticonPicker.Add(new ChatQuickReactViewModel(id, code, gifBytes, () => System.Threading.Tasks.Task.CompletedTask));
     }
 
-    public void InsertEmoticonCode(string codeWithColons)
-    {
-        InputText += codeWithColons;
-    }
-
     private void SetupQuickReacts(ChatMessageView view)
     {
         if (_orderedEmoticons.Count == 0) return;
