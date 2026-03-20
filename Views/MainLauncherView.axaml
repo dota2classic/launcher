@@ -99,19 +99,12 @@
                                   HorizontalAlignment="Center" TextAlignment="Center"
                                   Foreground="#AAAAAA" FontSize="{DynamicResource FontSizeMD}"/>
                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12">
-                           <Button Content="{x:Static res:Strings.Leave}" Command="{Binding ConfirmAbandonGameCommand}"
-                                   Background="#1a0f0f" Foreground="#C62626" FontWeight="Bold"
-                                   Padding="28,10" CornerRadius="0" BorderBrush="#C62626" BorderThickness="1"/>
-                           <Button Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelAbandonGameCommand}"
-                                   Foreground="White" FontWeight="Bold" Padding="28,10"
-                                   CornerRadius="0" BorderThickness="0">
-                               <Button.Background>
-                                   <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                       <GradientStop Color="#1a5aaa" Offset="0"/>
-                                       <GradientStop Color="#3a90d6" Offset="1"/>
-                                   </LinearGradientBrush>
-                               </Button.Background>
-                           </Button>
+                           <Button Classes="DangerButton"
+                                   Content="{x:Static res:Strings.Leave}" Command="{Binding ConfirmAbandonGameCommand}"
+                                   Padding="28,10" CornerRadius="0"/>
+                           <Button Classes="PrimaryButton"
+                                   Content="{x:Static res:Strings.Cancel}" Command="{Binding CancelAbandonGameCommand}"
+                                   Padding="28,10" CornerRadius="0"/>
                        </StackPanel>
                    </StackPanel>
                </Border>
@@ -226,15 +219,10 @@
                                        HorizontalAlignment="Left">
                                    <TextBlock Text="{x:Static res:Strings.Skip}" Foreground="#666" FontSize="{DynamicResource FontSizeBase}"/>
                                </Button>
-                               <Button Grid.Column="2" Command="{Binding NextIntroStepCommand}"
-                                       Padding="22,9" FontSize="{DynamicResource FontSizeLG}" FontWeight="SemiBold"
-                                       Foreground="White" BorderThickness="0" CornerRadius="0" Cursor="Hand">
-                                   <Button.Background>
-                                       <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                           <GradientStop Color="#1a5aaa" Offset="0"/>
-                                           <GradientStop Color="#3a90d6" Offset="1"/>
-                                       </LinearGradientBrush>
-                                   </Button.Background>
+                               <Button Classes="PrimaryButton"
+                                       Grid.Column="2" Command="{Binding NextIntroStepCommand}"
+                                       Padding="22,9" FontSize="{DynamicResource FontSizeLG}"
+                                       CornerRadius="0" Cursor="Hand">
                                    <TextBlock>
                                        <TextBlock.Text>
                                            <Binding Path="IntroStep"

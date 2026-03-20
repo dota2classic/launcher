@@ -189,6 +189,7 @@ Defined as `x:Double` resources in `App.axaml` and referenced via `{DynamicResou
 
 | Key | Value |
 |-----|-------|
+| `FontSize2XS` | 9 |
 | `FontSizeXS` | 10 |
 | `FontSizeSM` | 11 |
 | `FontSizeBase` | 12 |
@@ -196,6 +197,7 @@ Defined as `x:Double` resources in `App.axaml` and referenced via `{DynamicResou
 | `FontSizeLG` | 14 |
 | `FontSizeXL` | 16 |
 | `FontSize2XL` | 18 |
+| `FontSizeXXL` | 20 |
 | `FontSize3XL` | 22 |
 | `FontSize4XL` | 28 |
 
@@ -353,3 +355,90 @@ Toggle `SubTabActive` / `SubTabTextActive` to change the active tab.
 | View | File |
 |------|------|
 | Профиль (ОБЩЕЕ / МАТЧИ / …) | `Views/Components/ProfilePanel.axaml` |
+
+---
+
+## Named Button Styles
+
+Three global button classes defined in `App.axaml`. Apply them with `Classes="..."` alongside any layout properties (`Padding`, `CornerRadius`, `HorizontalAlignment`, etc.) that vary per context.
+
+### PrimaryButton
+
+Blue gradient, white bold text. Use for positive / confirming actions (Accept, Next, Cancel-Abandon).
+
+```xml
+<Button Classes="PrimaryButton" Content="..." Padding="28,10" CornerRadius="0"/>
+```
+
+| Property | Value |
+|----------|-------|
+| Background | Diagonal gradient `#1a5aaa` → `#3a90d6` |
+| Background (hover) | Diagonal gradient `#2a6aba` → `#4aa0e6` |
+| Foreground | White |
+| BorderThickness | 0 |
+| FontWeight | Bold |
+
+#### Current usages
+
+| Button | File |
+|--------|------|
+| Accept (ready-check) | `Views/Components/AcceptGameModal.axaml` |
+| Next (intro wizard) | `Views/MainLauncherView.axaml` |
+| Cancel (abandon confirm) | `Views/MainLauncherView.axaml` |
+| Accept party invite | `Views/Components/NotificationArea.axaml` |
+| Verify integrity | `Views/Components/NotificationArea.axaml` |
+| Open achievements | `Views/Components/NotificationArea.axaml` |
+| Connect (from Live/Profile tab) | `Views/Components/LauncherHeader.axaml` |
+
+---
+
+### DangerButton
+
+Dark background with red border and red text. Use for destructive / declining actions (Decline, Abandon, Leave).
+
+```xml
+<Button Classes="DangerButton" Content="..." Padding="28,10" CornerRadius="0"/>
+```
+
+| Property | Value |
+|----------|-------|
+| Background | `#1a0a08` |
+| Background (hover) | `#2a1010` |
+| BorderBrush | `{StaticResource BrushRed}` = `#c23c2a` |
+| BorderThickness | 1 |
+| Foreground | `{StaticResource BrushRed}` = `#c23c2a` |
+| FontWeight | Bold |
+
+#### Current usages
+
+| Button | File |
+|--------|------|
+| Decline (ready-check) | `Views/Components/AcceptGameModal.axaml` |
+| Leave (abandon confirm) | `Views/MainLauncherView.axaml` |
+| Decline party invite | `Views/Components/NotificationArea.axaml` |
+
+---
+
+### ToastDismissButton
+
+Minimal `✕` dismiss button used in all toast notifications. Sets content, colors, size, margin, and alignment — no per-usage overrides needed beyond `Command`.
+
+```xml
+<Button Classes="ToastDismissButton" Command="{Binding DismissCommand}" Cursor="Hand"/>
+```
+
+| Property | Value |
+|----------|-------|
+| Content | `✕` |
+| Background | Transparent |
+| Foreground | `#535252` |
+| FontSize | `FontSizeSM` (11) |
+| BorderThickness | 0 |
+| Padding | 0 |
+| Margin | `10,0,0,0` |
+| VerticalAlignment | Top |
+| HorizontalAlignment | Right |
+
+#### Current usages
+
+All 5 dismiss buttons in `Views/Components/NotificationArea.axaml` (party invite, invite sent, corrupted files, GoQueue, achievement, simple text toasts).

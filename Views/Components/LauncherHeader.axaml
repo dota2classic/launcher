@@ -13,7 +13,7 @@
       <Setter Property="Padding" Value="24,0"/>
       <Setter Property="Foreground" Value="#4a5668"/>
       <Setter Property="FontFamily" Value="Trajan Pro, Trajan, Times New Roman, serif"/>
-      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="FontSize" Value="{DynamicResource FontSizeMD}"/>
       <Setter Property="FontWeight" Value="Bold"/>
       <Setter Property="Cursor" Value="Hand"/>
       <Setter Property="VerticalAlignment" Value="Stretch"/>
@@ -95,10 +95,24 @@
                 Padding="20,6" CornerRadius="2" BorderThickness="0" Cursor="Hand">
           <Button.Styles>
             <Style Selector="Button#ConnectButton">
-              <Setter Property="Background" Value="#1A5276"/>
+              <Setter Property="Background">
+                <Setter.Value>
+                  <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#1a5aaa" Offset="0"/>
+                    <GradientStop Color="#3a90d6" Offset="1"/>
+                  </LinearGradientBrush>
+                </Setter.Value>
+              </Setter>
             </Style>
             <Style Selector="Button#ConnectButton:pointerover /template/ ContentPresenter">
-              <Setter Property="Background" Value="#2E86C1"/>
+              <Setter Property="Background">
+                <Setter.Value>
+                  <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#2a6aba" Offset="0"/>
+                    <GradientStop Color="#4aa0e6" Offset="1"/>
+                  </LinearGradientBrush>
+                </Setter.Value>
+              </Setter>
             </Style>
           </Button.Styles>
           <StackPanel Orientation="Horizontal" Spacing="8">

@@ -115,7 +115,7 @@
                                    FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold" Foreground="#556070"/>
                       </StackPanel>
                       <TextBlock Text="МАТЧИ"
-                                 FontSize="9" LetterSpacing="2"
+                                 FontSize="{DynamicResource FontSize2XS}" LetterSpacing="2"
                                  Foreground="#556070" HorizontalAlignment="Center"/>
                     </StackPanel>
                   </Border>
@@ -127,7 +127,7 @@
                                  FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold" Foreground="#52B847"
                                  HorizontalAlignment="Center"/>
                       <TextBlock Text="{x:Static res:Strings.WinRate}"
-                                 FontSize="9" LetterSpacing="2"
+                                 FontSize="{DynamicResource FontSize2XS}" LetterSpacing="2"
                                  Foreground="#556070" HorizontalAlignment="Center"/>
                     </StackPanel>
                   </Border>
@@ -139,7 +139,7 @@
                                  FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold" Foreground="#D4A843"
                                  HorizontalAlignment="Center"/>
                       <TextBlock Text="{x:Static res:Strings.ColRating}"
-                                 FontSize="9" LetterSpacing="2"
+                                 FontSize="{DynamicResource FontSize2XS}" LetterSpacing="2"
                                  Foreground="#556070" HorizontalAlignment="Center"/>
                     </StackPanel>
                   </Border>
@@ -151,7 +151,7 @@
                                  FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold" Foreground="#E2E6EA"
                                  HorizontalAlignment="Center"/>
                       <TextBlock Text="{x:Static res:Strings.ColRank}"
-                                 FontSize="9" LetterSpacing="2"
+                                 FontSize="{DynamicResource FontSize2XS}" LetterSpacing="2"
                                  Foreground="#556070" HorizontalAlignment="Center"/>
                     </StackPanel>
                   </Border>
@@ -293,15 +293,15 @@
                       Padding="18,8">
                 <Grid ColumnDefinitions="*,52,88,52">
                   <TextBlock Grid.Column="0" Text="{x:Static res:Strings.ColHero}" Foreground="#556070"
-                             FontSize="9" LetterSpacing="2"/>
+                             FontSize="{DynamicResource FontSize2XS}" LetterSpacing="2"/>
                   <TextBlock Grid.Column="1" Text="МАТЧИ" Foreground="#556070"
-                             FontSize="9" LetterSpacing="2"
+                             FontSize="{DynamicResource FontSize2XS}" LetterSpacing="2"
                              HorizontalAlignment="Center"/>
                   <TextBlock Grid.Column="2" Text="% ПОБЕД" Foreground="#556070"
-                             FontSize="9" LetterSpacing="2"
+                             FontSize="{DynamicResource FontSize2XS}" LetterSpacing="2"
                              HorizontalAlignment="Center"/>
                   <TextBlock Grid.Column="3" Text="KDA" Foreground="#556070"
-                             FontSize="9" LetterSpacing="2"
+                             FontSize="{DynamicResource FontSize2XS}" LetterSpacing="2"
                              HorizontalAlignment="Center"/>
                 </Grid>
               </Border>

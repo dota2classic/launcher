@@ -58,19 +58,12 @@
                <StackPanel IsVisible="{Binding IsServerSearchingModalOpen, Converter={StaticResource InverseBoolConverter}}">
                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12"
                                IsVisible="{Binding HasMyPlayerResponded, Converter={StaticResource InverseBoolConverter}}">
-                       <Button Content="{x:Static res:Strings.Accept}" Command="{Binding AcceptGameCommand}"
-                               Foreground="White" FontWeight="Bold" Padding="28,10"
-                               CornerRadius="0" BorderThickness="0">
-                           <Button.Background>
-                               <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                   <GradientStop Color="#1a5aaa" Offset="0"/>
-                                   <GradientStop Color="#3a90d6" Offset="1"/>
-                               </LinearGradientBrush>
-                           </Button.Background>
-                       </Button>
-                       <Button Content="{x:Static res:Strings.Decline}" Command="{Binding DeclineGameCommand}"
-                               Background="#1a0f0f" Foreground="#C62626" FontWeight="Bold"
-                               Padding="28,10" CornerRadius="0" BorderBrush="#C62626" BorderThickness="1"/>
+                       <Button Classes="PrimaryButton"
+                               Content="{x:Static res:Strings.Accept}" Command="{Binding AcceptGameCommand}"
+                               Padding="28,10" CornerRadius="0"/>
+                       <Button Classes="DangerButton"
+                               Content="{x:Static res:Strings.Decline}" Command="{Binding DeclineGameCommand}"
+                               Padding="28,10" CornerRadius="0"/>
                    </StackPanel>
 
                    <TextBlock Text="{x:Static res:Strings.WaitingForPlayers}" HorizontalAlignment="Center"

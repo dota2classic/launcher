@@ -10,6 +10,8 @@ All major features are shipped. The launcher is in maintenance/polish mode. No a
 
 | Issue | What was done |
 |-------|--------------|
+| #104 | Design standardisation: added `PrimaryButton`, `DangerButton`, `ToastDismissButton` global styles; `FontSize2XS=9`, `FontSizeXXL=20` tokens; replaced all hardcoded font sizes in LivePanel, ProfilePanel, LauncherHeader with tokens; unified button colors (red → `#c23c2a`, blue → `#1a5aaa`→`#3a90d6` gradient) across AcceptGameModal, MainLauncherView, NotificationArea, LauncherHeader |
+| #102 | Dotaclassic Plus badge in chat is now a clickable Button; opens `https://dotaclassic.ru/store` via `OnDotaclassicPlusClicked` in `ChatPanel.axaml.cs` |
 | #98 | Player role icons in chat message headers — shield for moderator (bronze) / admin (grey), custom image or star for OLD subscriber; data flows from `UserDTO.Roles`/`Icon`/`Title` → `ChatMessageData` → `ChatMessageView` → `ChatPanel.axaml` |
 | #97 | Chat react hover toolbar + picker — `ChatQuickReactViewModel`; `EmoticonData` now has `Id`; `IEmoticonService.LoadEmoticonsAsync()` returns images + ordered list; hover toolbar shows top-3 + flyout picker |
 | #96 | Chat reactions — `ChatReactionViewModel`, `ChatReactionData`, reaction pills in `ChatPanel.axaml`; SSE uses `ThreadMessageDTO` deserialization |

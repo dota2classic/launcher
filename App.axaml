@@ -19,6 +19,7 @@
 
         <FontFamily x:Key="TrajanPro3">avares://d2c-launcher/Assets/Fonts#Trajan Pro 3</FontFamily>
         <FontFamily x:Key="NotoSans">avares://d2c-launcher/Assets/Fonts#Noto Sans</FontFamily>
+        <x:Double x:Key="FontSize2XS">9</x:Double>
         <x:Double x:Key="FontSizeXS">10</x:Double>
         <x:Double x:Key="FontSizeSM">11</x:Double>
         <x:Double x:Key="FontSizeBase">12</x:Double>
@@ -26,6 +27,7 @@
         <x:Double x:Key="FontSizeLG">14</x:Double>
         <x:Double x:Key="FontSizeXL">16</x:Double>
         <x:Double x:Key="FontSize2XL">18</x:Double>
+        <x:Double x:Key="FontSizeXXL">20</x:Double>
         <x:Double x:Key="FontSize3XL">22</x:Double>
         <x:Double x:Key="FontSize4XL">28</x:Double>
     </Application.Resources>
@@ -237,6 +239,55 @@
             <Setter Property="MaxHeight" Value="0"/>
             <Setter Property="Margin" Value="0"/>
             <Setter Property="Opacity" Value="0"/>
+        </Style>
+
+        <!-- ── Named button styles ── -->
+        <!-- PrimaryButton: blue gradient, used for primary actions (Accept, Next, Cancel-Abandon) -->
+        <Style Selector="Button.PrimaryButton">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#1a5aaa" Offset="0"/>
+                        <GradientStop Color="#3a90d6" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        <Style Selector="Button.PrimaryButton:pointerover /template/ ContentPresenter">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#2a6aba" Offset="0"/>
+                        <GradientStop Color="#4aa0e6" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!-- DangerButton: dark bg + red border/text, used for destructive actions (Decline, Abandon) -->
+        <Style Selector="Button.DangerButton">
+            <Setter Property="Background" Value="#1a0a08"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BrushRed}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="{StaticResource BrushRed}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        <Style Selector="Button.DangerButton:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#2a1010"/>
+        </Style>
+        <!-- ToastDismissButton: small ✕ dismiss button used in all toast notifications -->
+        <Style Selector="Button.ToastDismissButton">
+            <Setter Property="Content" Value="✕"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#535252"/>
+            <Setter Property="FontSize" Value="{DynamicResource FontSizeSM}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="10,0,0,0"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
         </Style>
 
         <!-- ── Reusable panel block styles ── -->
