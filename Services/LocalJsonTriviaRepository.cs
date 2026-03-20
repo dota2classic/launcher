@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -22,9 +21,9 @@ public sealed class LocalJsonTriviaRepository : ITriviaRepository
         try
         {
             var asm = Assembly.GetExecutingAssembly();
-            const string resourceName = "d2c_launcher.Resources.trivia.json";
-            await using var stream = asm.GetManifestResourceStream(resourceName)
-                ?? throw new InvalidOperationException($"Embedded resource not found: {resourceName}");
+            var resourceName = Array.Find(asm.GetManifestResourceNames(), n => n.EndsWith("trivia.json"))
+                ?? throw new InvalidOperationException("Embedded resource trivia.json not found.");
+            await using var stream = asm.GetManifestResourceStream(resourceName)!;
 
             var root = await JsonSerializer.DeserializeAsync<TriviaRoot>(stream, Options)
                 ?? throw new InvalidOperationException("Failed to deserialize trivia.json");
