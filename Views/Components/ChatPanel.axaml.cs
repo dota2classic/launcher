@@ -70,6 +70,24 @@ public partial class ChatPanel : UserControl
             Dispatcher.UIThread.Post(() => popup.IsOpen = false);
     }
 
+    private void OnInputEmoticonClicked(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button { DataContext: ChatQuickReactViewModel item } btn &&
+            DataContext is ChatViewModel vm)
+        {
+            var caret = MessageInput.CaretIndex;
+            var text = MessageInput.Text ?? "";
+            vm.InputText = text[..caret] + item.Tooltip + text[caret..];
+            if (btn.FindAncestorOfType<FlyoutPresenter>()?.Parent is Popup popup)
+                popup.IsOpen = false;
+            Dispatcher.UIThread.Post(() =>
+            {
+                MessageInput.CaretIndex = caret + item.Tooltip.Length;
+                MessageInput.Focus();
+            });
+        }
+    }
+
     private void ScrollToBottom()
     {
         var distanceFromBottom = MessagesScroll.Extent.Height - MessagesScroll.Viewport.Height - MessagesScroll.Offset.Y;

@@ -111,8 +111,6 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
         }
 
         AppLog.Info($"UpdatePlayerRoomStateAsync: roomId={msg.RoomId}, mode={msg.Mode}, entries={msg.Entries?.Length ?? 0}");
-        foreach (var e in msg.Entries ?? Array.Empty<PlayerRoomEntry>())
-            AppLog.Info($"  Entry: steamId={e.SteamId}, state={e.State}");
 
         IsTimeoutModalOpen = false;
         CurrentRoomId = msg.RoomId;

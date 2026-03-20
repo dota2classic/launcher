@@ -41,6 +41,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     private HashSet<string> _onlineUsers = new(StringComparer.Ordinal);
 
     public ObservableCollection<ChatMessageView> Messages { get; } = new();
+    public ObservableCollection<ChatQuickReactViewModel> InputEmoticonPicker { get; } = new();
 
     [ObservableProperty] private string _inputText = "";
     [ObservableProperty] private bool _isLoading;
@@ -113,6 +114,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 ReparseAllMessages();
                 foreach (var msg in Messages)
                     SetupQuickReacts(msg);
+                PopulateInputEmoticonPicker();
             });
         }
         catch (Exception ex)
@@ -380,6 +382,13 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         _allQuickReacts = _orderedEmoticons
             .Select(e => (e.Id, e.Code, GifBytes: _emoticonImages.GetValueOrDefault(e.Code)))
             .ToList();
+    }
+
+    private void PopulateInputEmoticonPicker()
+    {
+        InputEmoticonPicker.Clear();
+        foreach (var (id, code, gifBytes) in _allQuickReacts)
+            InputEmoticonPicker.Add(new ChatQuickReactViewModel(id, code, gifBytes, () => System.Threading.Tasks.Task.CompletedTask));
     }
 
     private void SetupQuickReacts(ChatMessageView view)

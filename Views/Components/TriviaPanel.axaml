@@ -103,7 +103,7 @@
       <!-- Question text -->
       <TextBlock Text="{Binding QuestionText}"
                  Margin="8,0" TextWrapping="Wrap"
-                 HorizontalAlignment="Center" TextAlignment="Center"
+                 HorizontalAlignment="Stretch" TextAlignment="Center"
                  Foreground="#D9D9D9" FontSize="{DynamicResource FontSizeSM}"
                  FontWeight="SemiBold"/>
 

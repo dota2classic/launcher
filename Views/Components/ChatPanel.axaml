@@ -406,12 +406,50 @@
                                 Background="Transparent"
                                 BorderThickness="0"
                                 Padding="0"
-                                VerticalAlignment="Center">
+                                VerticalAlignment="Center"
+                                ToolTip.Tip="{util:T 'chat.pickEmoticon'}">
                             <Button.Styles>
                                 <Style Selector="Button:pointerover /template/ ContentPresenter">
                                     <Setter Property="Background" Value="Transparent"/>
                                 </Style>
                             </Button.Styles>
+                            <Button.Flyout>
+                                <Flyout Placement="TopEdgeAlignedRight">
+                                    <Border Background="#1a1f28"
+                                            CornerRadius="8"
+                                            BorderBrush="#2d3842"
+                                            BorderThickness="1"
+                                            Padding="6">
+                                        <ScrollViewer MaxHeight="300"
+                                                      VerticalScrollBarVisibility="Auto">
+                                            <ItemsControl ItemsSource="{Binding InputEmoticonPicker}"
+                                                          MaxWidth="256">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel Orientation="Horizontal"/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate x:DataType="vm:ChatQuickReactViewModel">
+                                                        <Button Classes="IconButton"
+                                                                Click="OnInputEmoticonClicked"
+                                                                Background="Transparent"
+                                                                BorderThickness="0"
+                                                                Padding="4"
+                                                                Width="34" Height="34"
+                                                                Cursor="Hand"
+                                                                CornerRadius="4"
+                                                                ToolTip.Tip="{Binding Tooltip}">
+                                                            <components:EmoticonImage Bytes="{Binding Bytes}"
+                                                                          Width="20" Height="20"/>
+                                                        </Button>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </ScrollViewer>
+                                    </Border>
+                                </Flyout>
+                            </Button.Flyout>
                             <materialIcons:MaterialIcon Kind="EmoticonHappyOutline"
                                                         Width="18" Height="18"
                                                         Foreground="#48525a"/>
