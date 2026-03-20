@@ -80,11 +80,14 @@ public sealed class TriviaViewModelTests
         var item = FindFirst(vm.Pool, p => p.IsCorrect);
         vm.SelectPoolItem(item);   // select → fills slot
         Assert.True(item.IsSelected);
-        Assert.NotNull(item.AssignedSlot);
+        var assignedSlot = item.AssignedSlot;
+        Assert.NotNull(assignedSlot);
+        Assert.NotNull(assignedSlot.FilledImageUri); // slot is filled
 
         vm.SelectPoolItem(item);   // deselect
         Assert.False(item.IsSelected);
         Assert.Null(item.AssignedSlot);
+        Assert.Null(assignedSlot.FilledImageUri); // slot was cleared
         Assert.False(vm.IsAnswered);
     }
 
@@ -254,7 +257,8 @@ public sealed class TriviaViewModelTests
         var (vm, timers) = Build(Mc("Q", ["A", "B"], correctIndex: 0));
         await vm.StartAsync();
 
-        vm.SelectMcAnswer(vm.Answers[0]); // score 1
+        vm.SelectMcAnswer(vm.Answers[0]); // score 1 — creates advance timer
+        var advanceTimer = timers.Latest;
         vm.Stop();
 
         Assert.Equal(0, vm.Score);
@@ -265,6 +269,7 @@ public sealed class TriviaViewModelTests
         Assert.Empty(vm.Slots);
         Assert.Empty(vm.Pool);
         Assert.False(timers.Countdown.IsRunning);
+        Assert.False(advanceTimer.IsRunning);
     }
 
     // ── Question cycling ─────────────────────────────────────────────────────

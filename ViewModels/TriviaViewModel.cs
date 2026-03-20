@@ -29,7 +29,9 @@ public partial class TriviaViewModel : ObservableObject
     // ── Shared state ─────────────────────────────────────────────────────────
 
     [ObservableProperty] private bool _isItemRecipe;
-    [ObservableProperty] private int _score;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ScoreText))]
+    private int _score;
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HeaderRightText))]
     private int _timerSeconds = TriviaTimerSeconds;
@@ -95,7 +97,9 @@ public partial class TriviaViewModel : ObservableObject
     {
         if (_questions.Length == 0)
         {
-            _questions = await _repository.LoadAsync();
+            _questions = (await _repository.LoadAsync())
+                .Where(q => q is not ItemRecipeQuestion r || r.Ingredients.Length > 0)
+                .ToArray();
             if (_questions.Length == 0) return;
         }
 
@@ -227,15 +231,15 @@ public partial class TriviaViewModel : ObservableObject
         IsAnswered = true;
         LastAnswerCorrect = correct;
         if (correct) Score++;
-        OnPropertyChanged(nameof(ScoreText));
         OnPropertyChanged(nameof(AnswerFeedbackText));
         OnPropertyChanged(nameof(AnswerFeedbackForeground));
 
-        _advanceTimer = _timerFactory.Create();
-        _advanceTimer.Interval = TimeSpan.FromMilliseconds(FeedbackDelayMs);
-        _advanceTimer.Tick += (_, _) =>
+        var advanceTimer = _timerFactory.Create();
+        _advanceTimer = advanceTimer;
+        advanceTimer.Interval = TimeSpan.FromMilliseconds(FeedbackDelayMs);
+        advanceTimer.Tick += (_, _) =>
         {
-            _advanceTimer!.Stop();
+            advanceTimer.Stop();
             _advanceTimer = null;
             IsAnswered = false;
             LastAnswerCorrect = null;
@@ -243,7 +247,7 @@ public partial class TriviaViewModel : ObservableObject
             OnPropertyChanged(nameof(TimerText));
             PickNextQuestion();
         };
-        _advanceTimer.Start();
+        advanceTimer.Start();
     }
 
     private void PickNextQuestion()
@@ -298,7 +302,11 @@ public partial class TriviaViewModel : ObservableObject
                     IsCorrect = true,
                 });
             }
-            foreach (var key in recipe.Distractors)
+            const int MaxPoolSize = 7;
+            var distractors = recipe.Distractors
+                .OrderBy(_ => _rng.Next())
+                .Take(MaxPoolSize - recipe.Ingredients.Length);
+            foreach (var key in distractors)
             {
                 pool.Add(new TriviaPoolItemVm
                 {

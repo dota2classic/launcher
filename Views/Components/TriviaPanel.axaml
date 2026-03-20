@@ -52,23 +52,23 @@
         </ItemsControl.ItemTemplate>
       </ItemsControl>
 
-      <!-- Pool items — always 7, fills full width -->
-      <ItemsControl x:Name="PoolItemsControl" ItemsSource="{Binding Pool}" Margin="8,0">
+      <!-- Pool items -->
+      <ItemsControl x:Name="PoolItemsControl" ItemsSource="{Binding Pool}" HorizontalAlignment="Center">
         <ItemsControl.ItemsPanel>
           <ItemsPanelTemplate>
-            <UniformGrid Rows="1" Columns="7"/>
+            <StackPanel Orientation="Horizontal" Spacing="4"/>
           </ItemsPanelTemplate>
         </ItemsControl.ItemsPanel>
         <ItemsControl.ItemTemplate>
           <DataTemplate x:DataType="vm:TriviaPoolItemVm">
             <Button Click="OnPoolItemClicked"
-                    HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                    HorizontalContentAlignment="Center"
                     Background="{Binding ItemBackground}"
                     BorderBrush="{Binding SelectionBorderBrush}"
                     Opacity="{Binding ItemOpacity}"
                     BorderThickness="1" CornerRadius="2"
-                    Padding="2" Margin="1,0" Cursor="Hand">
-              <components:DotaItemIcon Width="44" Height="32" ItemUrl="{Binding ImageUri}"/>
+                    Padding="2" Cursor="Hand">
+              <components:DotaItemIcon Width="40" Height="29" ItemUrl="{Binding ImageUri}"/>
             </Button>
           </DataTemplate>
         </ItemsControl.ItemTemplate>
