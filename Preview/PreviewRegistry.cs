@@ -13,6 +13,41 @@ using d2c_launcher.Views.Components;
 
 namespace d2c_launcher.Preview;
 
+// Renders a button frozen in its hover appearance for static preview screenshots.
+// Uses LocalValue writes to the ContentPresenter (highest non-animation priority)
+// so that both FluentTheme ControlTheme styles and Application.Styles are bypassed.
+file sealed class SimHoverButton : Button
+{
+    protected override void OnApplyTemplate(Avalonia.Controls.Primitives.TemplateAppliedEventArgs e)
+    {
+        base.OnApplyTemplate(e);
+
+        if (e.NameScope.Find<Avalonia.Controls.Presenters.ContentPresenter>("PART_ContentPresenter") is not { } cp)
+            return;
+
+        if (Classes.Contains("PrimaryButton"))
+        {
+            cp.Background = new Avalonia.Media.LinearGradientBrush
+            {
+                StartPoint = new Avalonia.RelativePoint(0, 0, Avalonia.RelativeUnit.Relative),
+                EndPoint   = new Avalonia.RelativePoint(1, 1, Avalonia.RelativeUnit.Relative),
+                GradientStops =
+                {
+                    new Avalonia.Media.GradientStop(Avalonia.Media.Color.Parse("#2a6aba"), 0),
+                    new Avalonia.Media.GradientStop(Avalonia.Media.Color.Parse("#4aa0e6"), 1),
+                },
+            };
+        }
+        else if (Classes.Contains("DangerButton"))
+        {
+            cp.Background      = new SolidColorBrush(Color.Parse("#2c1412"));
+            cp.BorderBrush     = new SolidColorBrush(Color.Parse("#c23c2a"));
+            cp.BorderThickness = new Avalonia.Thickness(1);
+            cp.Foreground      = new SolidColorBrush(Color.Parse("#c23c2a"));
+        }
+    }
+}
+
 public static class PreviewRegistry
 {
     private static readonly Dictionary<string, Func<(Control View, object? ViewModel)>> Registry =
@@ -473,6 +508,84 @@ public static class PreviewRegistry
                     Child = grid,
                 };
                 return (host, null);
+            },
+            ["ButtonStates"] = () =>
+            {
+                static TextBlock Label(string text) => new TextBlock
+                {
+                    Text = text, Foreground = new SolidColorBrush(Color.Parse("#888")),
+                    FontSize = 10, Margin = new Thickness(0, 8, 0, 4),
+                };
+                static Button MakeButton(string text, string[] classes, double pad = 28, bool hover = false)
+                {
+                    Button b = hover
+                        ? new SimHoverButton { Content = text, Padding = new Avalonia.Thickness(pad, 10), CornerRadius = new Avalonia.CornerRadius(0) }
+                        : new Button       { Content = text, Padding = new Avalonia.Thickness(pad, 10), CornerRadius = new Avalonia.CornerRadius(0) };
+                    foreach (var c in classes) b.Classes.Add(c);
+                    return b;
+                }
+
+                var col = new StackPanel { Spacing = 2, Margin = new Thickness(20), Width = 400 };
+
+                col.Children.Add(Label("PrimaryButton (normal)"));
+                col.Children.Add(new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children =
+                {
+                    MakeButton("ПРИНЯТЬ", ["PrimaryButton"]),
+                    MakeButton("ОТМЕНИТЬ", ["PrimaryButton"]),
+                }});
+
+                col.Children.Add(Label("PrimaryButton (hover)"));
+                col.Children.Add(new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children =
+                {
+                    MakeButton("ПРИНЯТЬ", ["PrimaryButton"], hover: true),
+                    MakeButton("ОТМЕНИТЬ", ["PrimaryButton"], hover: true),
+                }});
+
+                col.Children.Add(Label("DangerButton (normal)"));
+                col.Children.Add(new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children =
+                {
+                    MakeButton("ОТКЛОНИТЬ", ["DangerButton"]),
+                    MakeButton("ПОКИНУТЬ", ["DangerButton"]),
+                }});
+
+                col.Children.Add(Label("DangerButton (hover)"));
+                col.Children.Add(new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children =
+                {
+                    MakeButton("ОТКЛОНИТЬ", ["DangerButton"], hover: true),
+                    MakeButton("ПОКИНУТЬ", ["DangerButton"], hover: true),
+                }});
+
+                col.Children.Add(Label("PrimaryButton + DangerButton side by side (AcceptGameModal context)"));
+                col.Children.Add(new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, Children =
+                {
+                    MakeButton("ПРИНЯТЬ", ["PrimaryButton"]),
+                    MakeButton("ОТКЛОНИТЬ", ["DangerButton"]),
+                }});
+
+                col.Children.Add(Label("LauncherHeader (play state / stop state)"));
+                var launchVm = new MainLauncherViewModel(
+                    new StubSteamManager(), new StubSettingsStorage(),
+                    new StubGameLaunchSettingsStorage(), new StubCvarSettingsProvider(),
+                    new StubVideoSettingsProvider(), new StubBackendApiService(),
+                    new StubQueueSocketService(), new StubContentRegistryService(),
+                    new StubChatViewModelFactory(), new StubWindowService(), new StubSteamAuthApi(),
+                    new StubUiDispatcher());
+                var launchVmStop = new MainLauncherViewModel(
+                    new StubSteamManager(), new StubSettingsStorage(),
+                    new StubGameLaunchSettingsStorage(), new StubCvarSettingsProvider(),
+                    new StubVideoSettingsProvider(), new StubBackendApiService(),
+                    new StubQueueSocketService(), new StubContentRegistryService(),
+                    new StubChatViewModelFactory(), new StubWindowService(), new StubSteamAuthApi(),
+                    new StubUiDispatcher());
+                launchVmStop.Launch.RunState = GameRunState.OurGameRunning;
+                col.Children.Add(new LauncherHeader { Width = 400, Height = 48, DataContext = launchVm });
+                col.Children.Add(new LauncherHeader { Width = 400, Height = 48, DataContext = launchVmStop });
+
+                return (new Border
+                {
+                    Background = new SolidColorBrush(Color.Parse("#131720")),
+                    Child = col,
+                }, null);
             },
             ["InviteModal"] = () =>
             {

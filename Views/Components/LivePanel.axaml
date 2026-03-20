@@ -81,13 +81,13 @@
                                         <!-- Score -->
                                         <StackPanel Orientation="Horizontal" Spacing="6">
                                             <TextBlock Text="{Binding RadiantScore}"
-                                                       FontSize="{DynamicResource FontSizeXXL}" FontWeight="Bold"
+                                                       FontSize="{DynamicResource FontSize2XL5}" FontWeight="Bold"
                                                        Foreground="#6db442"/>
                                             <TextBlock Text="—"
                                                        FontSize="{DynamicResource FontSizeXL}" Foreground="#2e3e4e"
                                                        VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding DireScore}"
-                                                       FontSize="{DynamicResource FontSizeXXL}" FontWeight="Bold"
+                                                       FontSize="{DynamicResource FontSize2XL5}" FontWeight="Bold"
                                                        Foreground="#c83c2c"/>
                                         </StackPanel>
                                         <!-- Mode -->
@@ -162,10 +162,10 @@
                                            Foreground="#4a6070" HorizontalAlignment="Center"/>
                                 <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
                                     <TextBlock Text="{Binding SelectedMatch.RadiantScore}"
-                                               FontSize="{DynamicResource FontSizeXXL}" FontWeight="Bold" Foreground="#6db442"/>
+                                               FontSize="{DynamicResource FontSize2XL5}" FontWeight="Bold" Foreground="#6db442"/>
                                     <TextBlock Text="—" FontSize="{DynamicResource FontSize2XL}" Foreground="#4a5a6a" VerticalAlignment="Center"/>
                                     <TextBlock Text="{Binding SelectedMatch.DireScore}"
-                                               FontSize="{DynamicResource FontSizeXXL}" FontWeight="Bold" Foreground="#c83c2c"/>
+                                               FontSize="{DynamicResource FontSize2XL5}" FontWeight="Bold" Foreground="#c83c2c"/>
                                 </StackPanel>
                             </StackPanel>
                             <Border Width="1" Background="#1a2a3a" Margin="12,4"/>
@@ -174,7 +174,7 @@
                                            FontSize="{DynamicResource FontSize2XS}" FontWeight="Bold" LetterSpacing="2"
                                            Foreground="#4a6070" HorizontalAlignment="Center"/>
                                 <TextBlock Text="{Binding SelectedMatch.Duration}"
-                                           FontSize="{DynamicResource FontSizeXXL}" FontWeight="Bold"
+                                           FontSize="{DynamicResource FontSize2XL5}" FontWeight="Bold"
                                            Foreground="#8899aa" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </StackPanel>

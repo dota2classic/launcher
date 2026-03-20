@@ -38,15 +38,20 @@
                                        Command="{Binding RequestAbandonGameCommand}"
                                        Width="52" Height="{Binding Queue.QueueButtonHeight}" Padding="0"
                                        Margin="6,0,0,0"
-                                       Background="#1a0f0f" BorderBrush="#C62626" BorderThickness="1"
+                                       Background="#1a0f0f" BorderBrush="{StaticResource BrushRed}" BorderThickness="1"
                                        CornerRadius="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
                                    <Button.Styles>
+                                       <Style Selector="Button /template/ ContentPresenter">
+                                           <Setter Property="Background" Value="#1a0f0f"/>
+                                           <Setter Property="BorderBrush" Value="{StaticResource BrushRed}"/>
+                                       </Style>
                                        <Style Selector="Button:pointerover /template/ ContentPresenter">
                                            <Setter Property="Background" Value="#2a1515"/>
+                                           <Setter Property="BorderBrush" Value="{StaticResource BrushRed}"/>
                                        </Style>
                                    </Button.Styles>
                                    <PathIcon Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
-                                             Foreground="#C62626" Width="16" Height="16"
+                                             Foreground="{StaticResource BrushRed}" Width="16" Height="16"
                                              VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                </Button>
                            </Grid>

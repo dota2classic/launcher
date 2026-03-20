@@ -197,7 +197,7 @@ Defined as `x:Double` resources in `App.axaml` and referenced via `{DynamicResou
 | `FontSizeLG` | 14 |
 | `FontSizeXL` | 16 |
 | `FontSize2XL` | 18 |
-| `FontSizeXXL` | 20 |
+| `FontSize2XL5` | 20 |
 | `FontSize3XL` | 22 |
 | `FontSize4XL` | 28 |
 
@@ -441,4 +441,4 @@ Minimal `✕` dismiss button used in all toast notifications. Sets content, colo
 
 #### Current usages
 
-All 5 dismiss buttons in `Views/Components/NotificationArea.axaml` (party invite, invite sent, corrupted files, GoQueue, achievement, simple text toasts).
+All 6 dismiss buttons in `Views/Components/NotificationArea.axaml` (party invite, invite sent, corrupted files, GoQueue, achievement, simple text toasts).

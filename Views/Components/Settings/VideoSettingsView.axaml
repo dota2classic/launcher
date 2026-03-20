@@ -35,7 +35,7 @@
                                     <TextBlock Grid.Column="1" Text="{x:Static res:Strings.Monitor}"
                                                IsVisible="{Binding IsNative}"
                                                Foreground="#66FFFFFF"
-                                               FontSize="11"
+                                               FontSize="{DynamicResource FontSizeSM}"
                                                Margin="8,0,0,0"
                                                VerticalAlignment="Center"/>
                                 </Grid>

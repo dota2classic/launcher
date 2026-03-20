@@ -285,7 +285,8 @@
                                                 </ItemsControl.ItemsPanel>
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate x:DataType="vm:ChatQuickReactViewModel">
-                                                        <Button Command="{Binding ReactCommand}"
+                                                        <Button Classes="IconButton"
+                                                                Command="{Binding ReactCommand}"
                                                                 Background="Transparent"
                                                                 BorderThickness="0"
                                                                 Padding="4"
@@ -293,11 +294,6 @@
                                                                 Cursor="Hand"
                                                                 CornerRadius="4"
                                                                 ToolTip.Tip="{Binding Tooltip}">
-                                                            <Button.Styles>
-                                                                <Style Selector="Button:pointerover /template/ ContentPresenter">
-                                                                    <Setter Property="Background" Value="#252c38"/>
-                                                                </Style>
-                                                            </Button.Styles>
                                                             <components:EmoticonImage Bytes="{Binding Bytes}"
                                                                           Width="20" Height="20"/>
                                                         </Button>
@@ -306,18 +302,14 @@
                                             </ItemsControl>
 
                                             <!-- "More emoticons" button with picker flyout -->
-                                            <Button Background="Transparent"
+                                            <Button Classes="IconButton"
+                                                    Background="Transparent"
                                                     BorderThickness="0"
                                                     Padding="4"
                                                     Width="28" Height="28"
                                                     Cursor="Hand"
                                                     CornerRadius="4"
                                                     ToolTip.Tip="{util:T 'chat.pickEmoticon'}">
-                                                <Button.Styles>
-                                                    <Style Selector="Button:pointerover /template/ ContentPresenter">
-                                                        <Setter Property="Background" Value="#252c38"/>
-                                                    </Style>
-                                                </Button.Styles>
                                                 <Button.Flyout>
                                                     <Flyout Placement="TopEdgeAlignedRight">
                                                         <Border Background="#1a1f28"
@@ -336,7 +328,8 @@
                                                                 </ItemsControl.ItemsPanel>
                                                                 <ItemsControl.ItemTemplate>
                                                                     <DataTemplate x:DataType="vm:ChatQuickReactViewModel">
-                                                                        <Button Command="{Binding ReactCommand}"
+                                                                        <Button Classes="IconButton"
+                                                                                Command="{Binding ReactCommand}"
                                                                                 Click="OnPickerReactClicked"
                                                                                 Background="Transparent"
                                                                                 BorderThickness="0"
@@ -344,11 +337,6 @@
                                                                                 Width="34" Height="34"
                                                                                 Cursor="Hand"
                                                                                 CornerRadius="4">
-                                                                            <Button.Styles>
-                                                                                <Style Selector="Button:pointerover /template/ ContentPresenter">
-                                                                                    <Setter Property="Background" Value="#252c38"/>
-                                                                                </Style>
-                                                                            </Button.Styles>
                                                                             <components:EmoticonImage Bytes="{Binding Bytes}"
                                                                                           Width="20" Height="20"/>
                                                                         </Button>

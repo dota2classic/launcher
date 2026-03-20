@@ -27,7 +27,7 @@
         <x:Double x:Key="FontSizeLG">14</x:Double>
         <x:Double x:Key="FontSizeXL">16</x:Double>
         <x:Double x:Key="FontSize2XL">18</x:Double>
-        <x:Double x:Key="FontSizeXXL">20</x:Double>
+        <x:Double x:Key="FontSize2XL5">20</x:Double>
         <x:Double x:Key="FontSize3XL">22</x:Double>
         <x:Double x:Key="FontSize4XL">28</x:Double>
     </Application.Resources>
@@ -262,7 +262,7 @@
         <Style Selector="Button.PrimaryButton:pointerover TextBlock">
             <Setter Property="Foreground" Value="White"/>
         </Style>
-        <Style Selector="Button.PrimaryButton:pointerover /template/ ContentPresenter">
+        <Style Selector="Button.PrimaryButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background">
                 <Setter.Value>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -274,22 +274,26 @@
         </Style>
         <!-- DangerButton: dark bg + red border/text, used for destructive actions (Decline, Abandon) -->
         <Style Selector="Button.DangerButton">
-            <Setter Property="Background" Value="#1a0a08"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BrushRed}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Foreground" Value="{StaticResource BrushRed}"/>
             <Setter Property="FontWeight" Value="Bold"/>
         </Style>
-        <Style Selector="Button.DangerButton:pointerover">
+        <!-- Pin background + border via ContentPresenter — Fluent theme overrides button-level values there -->
+        <Style Selector="Button.DangerButton /template/ ContentPresenter">
+            <Setter Property="Background" Value="#1a0a08"/>
             <Setter Property="BorderBrush" Value="{StaticResource BrushRed}"/>
-            <Setter Property="Foreground" Value="{StaticResource BrushRed}"/>
         </Style>
-        <Style Selector="Button.DangerButton:pointerover /template/ ContentPresenter">
+        <Style Selector="Button.DangerButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
             <Setter Property="Background" Value="#2c1412"/>
             <Setter Property="BorderBrush" Value="{StaticResource BrushRed}"/>
+            <Setter Property="TextElement.Foreground" Value="{StaticResource BrushRed}"/>
         </Style>
         <Style Selector="Button.DangerButton:pointerover TextBlock">
             <Setter Property="Foreground" Value="{StaticResource BrushRed}"/>
+        </Style>
+        <!-- IconButton: transparent small icon button with dark hover, used in chat toolbar -->
+        <Style Selector="Button.IconButton:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#252c38"/>
         </Style>
         <!-- ToastDismissButton: small ✕ dismiss button used in all toast notifications -->
         <Style Selector="Button.ToastDismissButton">
