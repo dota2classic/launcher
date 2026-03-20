@@ -35,7 +35,6 @@ public partial class TriviaViewModel : ObservableObject
 
     public string ScoreText => I18n.T("trivia.score", ("score", Score.ToString()));
     public string TimerText => $"{TimerSeconds}с";
-    public string GuessesText => I18n.T("trivia.guesses", ("n", GuessesLeft.ToString()));
     public string AnswerFeedbackText => LastAnswerCorrect == true
         ? I18n.T("trivia.correct")
         : I18n.T("trivia.wrong");
@@ -45,7 +44,6 @@ public partial class TriviaViewModel : ObservableObject
 
     [ObservableProperty] private string _targetItemImageUri = "";
     [ObservableProperty] private string _recipeQuestionText = "";
-    [ObservableProperty] private int _guessesLeft = MaxGuesses;
 
     public ObservableCollection<TriviaRecipeSlotVm> Slots { get; } = [];
     public ObservableCollection<TriviaPoolItemVm>   Pool  { get; } = [];
@@ -66,7 +64,6 @@ public partial class TriviaViewModel : ObservableObject
 
     /// <summary>Fired whenever a new question starts. Argument is the full duration in seconds.</summary>
     public event Action<int>? QuestionStarted;
-    private const int MaxGuesses = 3;
     private const int FeedbackDelayMs = 1500;
 
     public TriviaViewModel(ITriviaRepository repository)
@@ -115,28 +112,27 @@ public partial class TriviaViewModel : ObservableObject
 
     public void SelectPoolItem(TriviaPoolItemVm item)
     {
-        if (IsAnswered || item.IsUsed) return;
+        if (IsAnswered || item.Result != TriviaAnswerResult.None) return;
 
-        item.IsUsed = true;
+        item.IsSelected = !item.IsSelected;
 
-        if (item.IsCorrect)
+        if (Pool.Count(p => p.IsSelected) == Slots.Count)
+            EvaluateRecipeAnswer();
+    }
+
+    private void EvaluateRecipeAnswer()
+    {
+        var allCorrect = Pool.Where(p => p.IsSelected).All(p => p.IsCorrect);
+
+        foreach (var item in Pool)
         {
-            // Fill the next empty slot
-            var slot = Slots.FirstOrDefault(s => !s.IsFilled);
-            if (slot != null)
-                slot.FilledImageUri = item.ImageUri;
+            if (item.IsSelected)
+                item.Result = item.IsCorrect ? TriviaAnswerResult.Correct : TriviaAnswerResult.Wrong;
+            else if (item.IsCorrect)
+                item.Result = TriviaAnswerResult.Correct;
+        }
 
-            // Check if all slots are filled
-            if (Slots.All(s => s.IsFilled))
-                ShowResult(true);
-        }
-        else
-        {
-            GuessesLeft--;
-            OnPropertyChanged(nameof(GuessesText));
-            if (GuessesLeft <= 0)
-                ShowResult(false);
-        }
+        ShowResult(allCorrect);
     }
 
     // ── MC answer click ──────────────────────────────────────────────────────
@@ -227,8 +223,6 @@ public partial class TriviaViewModel : ObservableObject
             IsItemRecipe = true;
             TargetItemImageUri = DotaItemData.GetItemImageUrlByName(recipe.TargetItem) ?? "";
             RecipeQuestionText = I18n.T("trivia.recipeQuestion");
-            GuessesLeft = MaxGuesses;
-            OnPropertyChanged(nameof(GuessesText));
 
             foreach (var _ in recipe.Ingredients)
                 Slots.Add(new TriviaRecipeSlotVm());

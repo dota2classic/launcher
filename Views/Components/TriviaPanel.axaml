@@ -8,7 +8,6 @@
              x:DataType="vm:TriviaViewModel">
   <UserControl.Resources>
     <util:InverseBoolConverter x:Key="InverseBoolConverter"/>
-    <util:BoolToRestrictedOpacityConverter x:Key="DimConverter"/>
     <util:TriviaAnswerResultBrushConverter x:Key="AnswerBrushConverter"/>
   </UserControl.Resources>
 
@@ -79,9 +78,9 @@
         <ItemsControl.ItemTemplate>
           <DataTemplate x:DataType="vm:TriviaPoolItemVm">
             <Button Click="OnPoolItemClicked"
-                    IsEnabled="{Binding IsUsed, Converter={StaticResource InverseBoolConverter}}"
-                    Opacity="{Binding IsUsed, Converter={StaticResource DimConverter}}"
-                    Background="Transparent" BorderThickness="0"
+                    Background="{Binding ItemBackground}"
+                    BorderBrush="{Binding SelectionBorderBrush}"
+                    BorderThickness="1" CornerRadius="2"
                     Padding="2" Cursor="Hand">
               <components:DotaItemIcon Width="44" Height="32" ItemUrl="{Binding ImageUri}"/>
             </Button>
@@ -89,12 +88,6 @@
         </ItemsControl.ItemTemplate>
       </ItemsControl>
 
-      <!-- Guesses + timer bar -->
-      <Grid ColumnDefinitions="*,Auto" Margin="8,0">
-        <TextBlock Grid.Column="0" Text="{Binding GuessesText}"
-                   Foreground="#888888" FontSize="{DynamicResource FontSizeSM}"
-                   VerticalAlignment="Center"/>
-      </Grid>
       <components:TriviaTimerBar Margin="8,2,8,0"/>
 
     </StackPanel>
