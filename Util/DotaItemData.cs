@@ -105,4 +105,17 @@ public static class DotaItemData
         var file = name.Contains("recipe") ? "recipe_lg.webp" : $"{name}_lg.webp";
         return BaseUrl + file;
     }
+
+    /// <summary>
+    /// Returns the item image URL for the given item name key (e.g. "bfury", "recipe").
+    /// "recipe" always maps to the generic recipe scroll image.
+    /// </summary>
+    public static string? GetItemImageUrlByName(string name)
+    {
+        if (string.IsNullOrEmpty(name)) return null;
+        var file = name == "recipe" || name.StartsWith("recipe_")
+            ? "recipe_lg.webp"
+            : $"{name}_lg.webp";
+        return BaseUrl + file;
+    }
 }

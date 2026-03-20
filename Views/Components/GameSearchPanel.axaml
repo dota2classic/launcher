@@ -5,6 +5,7 @@
              xmlns:util="using:d2c_launcher.Util"
              xmlns:materialIcons="using:Material.Icons.Avalonia"
              xmlns:res="clr-namespace:d2c_launcher.Resources"
+             xmlns:components="using:d2c_launcher.Views.Components"
              x:Class="d2c_launcher.Views.Components.GameSearchPanel"
              x:DataType="vm:QueueViewModel">
   <UserControl.Resources>
@@ -25,9 +26,8 @@
               </Grid>
           </Border>
 
-          <!-- Mode list -->
-          <Border IsEnabled="{Binding IsSearching, Converter={StaticResource InverseBoolConverter}}"
-                  Opacity="{Binding IsSearching, Converter={StaticResource BoolToRestrictedOpacityConverter}}">
+          <!-- Mode list (hidden while searching) -->
+          <Border IsVisible="{Binding IsSearching, Converter={StaticResource InverseBoolConverter}}">
               <ItemsControl ItemsSource="{Binding MatchmakingModes}">
                   <ItemsControl.ItemsPanel>
                       <ItemsPanelTemplate>
@@ -101,6 +101,11 @@
                       </DataTemplate>
                   </ItemsControl.ItemTemplate>
               </ItemsControl>
+          </Border>
+
+          <!-- Trivia panel (shown while searching) -->
+          <Border IsVisible="{Binding IsSearching}" Padding="0">
+              <components:TriviaPanel DataContext="{Binding Trivia}"/>
           </Border>
       </StackPanel>
   </Border>

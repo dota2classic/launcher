@@ -93,5 +93,14 @@
     <Compile Include="..\Services\DotaVideoTxtReader.cs" Link="Services\DotaVideoTxtReader.cs" />
     <Compile Include="..\Services\DotaVideoTxtWriter.cs" Link="Services\DotaVideoTxtWriter.cs" />
     <Compile Include="..\Services\DotaCfgWriter.cs" Link="Services\DotaCfgWriter.cs" />
+    <!-- TriviaViewModel and its dependencies (tested by TriviaViewModelTests) -->
+    <Compile Include="..\Util\ITimerFactory.cs" Link="Util\ITimerFactory.cs" />
+    <Compile Include="..\Models\TriviaQuestion.cs" Link="Models\TriviaQuestion.cs" />
+    <Compile Include="..\Services\ITriviaRepository.cs" Link="Services\ITriviaRepository.cs" />
+    <Compile Include="..\Util\DotaItemData.cs" Link="Util\DotaItemData.cs" />
+    <Compile Include="..\ViewModels\TriviaRecipeSlotVm.cs" Link="ViewModels\TriviaRecipeSlotVm.cs" />
+    <Compile Include="..\ViewModels\TriviaPoolItemVm.cs" Link="ViewModels\TriviaPoolItemVm.cs" />
+    <Compile Include="..\ViewModels\TriviaMcAnswerVm.cs" Link="ViewModels\TriviaMcAnswerVm.cs" />
+    <Compile Include="..\ViewModels\TriviaViewModel.cs" Link="ViewModels\TriviaViewModel.cs" />
   </ItemGroup>
 </Project>

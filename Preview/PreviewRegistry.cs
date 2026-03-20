@@ -69,7 +69,8 @@ public static class PreviewRegistry
                     new StubChatViewModelFactory(),
                     new StubWindowService(),
                     new StubSteamAuthApi(),
-                    new StubUiDispatcher());
+                    new StubUiDispatcher(),
+                    new StubTriviaRepository(), new AvaloniaTimerFactory());
                 var view = new LauncherHeader { Width = 900, Height = 48, DataContext = vm };
                 return (view, null);
             },
@@ -81,7 +82,7 @@ public static class PreviewRegistry
                     new StubVideoSettingsProvider(), new StubBackendApiService(),
                     new StubQueueSocketService(), new StubContentRegistryService(),
                     new StubChatViewModelFactory(), new StubWindowService(), new StubSteamAuthApi(),
-                    new StubUiDispatcher());
+                    new StubUiDispatcher(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 // Play state: game not running
                 vm.Launch.RunState = GameRunState.None;
                 var stack = new StackPanel { Spacing = 2, Background = new SolidColorBrush(Color.Parse("#1a1f26")) };
@@ -97,7 +98,7 @@ public static class PreviewRegistry
                     new StubVideoSettingsProvider(), new StubBackendApiService(),
                     new StubQueueSocketService(), new StubContentRegistryService(),
                     new StubChatViewModelFactory(), new StubWindowService(), new StubSteamAuthApi(),
-                    new StubUiDispatcher());
+                    new StubUiDispatcher(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 // Stop state: our game is running
                 vm.Launch.RunState = GameRunState.OurGameRunning;
                 var stack = new StackPanel { Spacing = 2, Background = new SolidColorBrush(Color.Parse("#1a1f26")) };
@@ -122,7 +123,7 @@ public static class PreviewRegistry
             },
             ["QueueButton"] = () =>
             {
-                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage());
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 vm.IsSearching = true;
                 vm.SetEnterQueueAt(DateTimeOffset.UtcNow);
                 vm.SetQueuedModeNames(new[] { "Против ботов" });
@@ -131,7 +132,7 @@ public static class PreviewRegistry
             },
             ["QueueButtonSingle"] = () =>
             {
-                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage());
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 vm.UpdateQueueButtonState(); // default idle = ИГРАТЬ, height=52
                 var btn = new QueueButton { DataContext = vm, Width = 360 };
                 var host = new Border
@@ -144,8 +145,151 @@ public static class PreviewRegistry
             },
             ["GameSearchPanel"] = () =>
             {
-                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage());
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 return (new GameSearchPanel(), vm);
+            },
+            // ── Trivia preview variants ──────────────────────────────────────────
+            // Selecting: 2 of 3 ingredients placed, 1 remaining
+            ["GameSearchPanelTrivia"] = () =>
+            {
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository(), new AvaloniaTimerFactory());
+                vm.IsSearching = true;
+                var trivia = vm.Trivia;
+                trivia.IsItemRecipe = true;
+                trivia.TargetItemImageUri = DotaItemData.GetItemImageUrlByName("black_king_bar") ?? "";
+                trivia.RecipeQuestionText = "Из чего собирается?";
+                trivia.Score = 3;
+                trivia.TimerSeconds = 14;
+
+                var slot1 = new TriviaRecipeSlotVm { FilledImageUri = DotaItemData.GetItemImageUrlByName("ogre_axe") };
+                var slot2 = new TriviaRecipeSlotVm { FilledImageUri = DotaItemData.GetItemImageUrlByName("mithril_hammer") };
+                var slot3 = new TriviaRecipeSlotVm();
+                trivia.Slots.Add(slot1); trivia.Slots.Add(slot2); trivia.Slots.Add(slot3);
+
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "belt_of_strength",  ImageUri = DotaItemData.GetItemImageUrlByName("belt_of_strength")  ?? "", IsCorrect = false });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "ogre_axe",           ImageUri = DotaItemData.GetItemImageUrlByName("ogre_axe")           ?? "", IsCorrect = true,  IsSelected = true, AssignedSlot = slot1 });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "claymore",           ImageUri = DotaItemData.GetItemImageUrlByName("claymore")           ?? "", IsCorrect = false });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "mithril_hammer",     ImageUri = DotaItemData.GetItemImageUrlByName("mithril_hammer")     ?? "", IsCorrect = true,  IsSelected = true, AssignedSlot = slot2 });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "recipe",             ImageUri = DotaItemData.GetItemImageUrlByName("recipe")             ?? "", IsCorrect = true  });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "broadsword",         ImageUri = DotaItemData.GetItemImageUrlByName("broadsword")         ?? "", IsCorrect = false });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "blade_of_alacrity", ImageUri = DotaItemData.GetItemImageUrlByName("blade_of_alacrity") ?? "", IsCorrect = false });
+
+                var host = new Border
+                {
+                    Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#1a1f26")),
+                    Width = 360,
+                    Child = new GameSearchPanel { DataContext = vm },
+                };
+                return (host, null);
+            },
+            // MC short-text: all 1-line answers — verifies MinHeight keeps buttons uniform
+            ["GameSearchPanelTriviaMcShort"] = () =>
+            {
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository(), new AvaloniaTimerFactory());
+                vm.IsSearching = true;
+                var trivia = vm.Trivia;
+                trivia.IsItemRecipe = false;
+                trivia.QuestionText = "Максимальный уровень героя?";
+                trivia.Score = 1;
+                trivia.TimerSeconds = 12;
+
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "25", Index = 0 });
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "30", Index = 1 });
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "20", Index = 2 });
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "28", Index = 3 });
+
+                var host = new Border
+                {
+                    Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#1a1f26")),
+                    Width = 360,
+                    Child = new GameSearchPanel { DataContext = vm },
+                };
+                return (host, null);
+            },
+            // MC with long answer text that should wrap to 2 lines
+            ["GameSearchPanelTriviaMcLongText"] = () =>
+            {
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository(), new AvaloniaTimerFactory());
+                vm.IsSearching = true;
+                var trivia = vm.Trivia;
+                trivia.IsItemRecipe = false;
+                trivia.QuestionText = "Что делает способность Tango при использовании на дереве?";
+                trivia.Score = 0;
+                trivia.TimerSeconds = 17;
+
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "Потребляет дерево для регенерации здоровья", Index = 0 });
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "Даёт временную невидимость",                Index = 1 });
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "Восстанавливает ману",                      Index = 2 });
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "Замедляет врага",                           Index = 3 });
+
+                var host = new Border
+                {
+                    Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#1a1f26")),
+                    Width = 360,
+                    Child = new GameSearchPanel { DataContext = vm },
+                };
+                return (host, null);
+            },
+            // MC result: wrong answer dimmed with overlay, correct answer green
+            ["GameSearchPanelTriviaMcResult"] = () =>
+            {
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository(), new AvaloniaTimerFactory());
+                vm.IsSearching = true;
+                var trivia = vm.Trivia;
+                trivia.IsItemRecipe = false;
+                trivia.QuestionText = "Максимальное количество зарядов Magic Stick?";
+                trivia.SubjectItemImageUri = DotaItemData.GetItemImageUrlByName("magic_stick") ?? "";
+                trivia.IsAnswered = true;
+                trivia.LastAnswerCorrect = false;
+                trivia.Score = 2;
+
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "10",  Index = 0, Result = TriviaAnswerResult.Correct });
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "15",  Index = 1, Result = TriviaAnswerResult.Wrong  });
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "5",   Index = 2 });
+                trivia.Answers.Add(new TriviaMcAnswerVm { Text = "20",  Index = 3 });
+
+                var host = new Border
+                {
+                    Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#1a1f26")),
+                    Width = 360,
+                    Child = new GameSearchPanel { DataContext = vm },
+                };
+                return (host, null);
+            },
+            // Recipe result: wrong answer — correct items green, distractors dimmed
+            ["GameSearchPanelTriviaResult"] = () =>
+            {
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository(), new AvaloniaTimerFactory());
+                vm.IsSearching = true;
+                var trivia = vm.Trivia;
+                trivia.IsItemRecipe = true;
+                trivia.TargetItemImageUri = DotaItemData.GetItemImageUrlByName("black_king_bar") ?? "";
+                trivia.RecipeQuestionText = "Из чего собирается?";
+                trivia.Score = 3;
+
+                var slot1 = new TriviaRecipeSlotVm { FilledImageUri = DotaItemData.GetItemImageUrlByName("ogre_axe") };
+                var slot2 = new TriviaRecipeSlotVm { FilledImageUri = DotaItemData.GetItemImageUrlByName("claymore") };
+                var slot3 = new TriviaRecipeSlotVm { FilledImageUri = DotaItemData.GetItemImageUrlByName("mithril_hammer") };
+                trivia.Slots.Add(slot1); trivia.Slots.Add(slot2); trivia.Slots.Add(slot3);
+
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "belt_of_strength",  ImageUri = DotaItemData.GetItemImageUrlByName("belt_of_strength")  ?? "", IsCorrect = false, Result = TriviaAnswerResult.Wrong });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "ogre_axe",           ImageUri = DotaItemData.GetItemImageUrlByName("ogre_axe")           ?? "", IsCorrect = true,  Result = TriviaAnswerResult.Correct });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "claymore",           ImageUri = DotaItemData.GetItemImageUrlByName("claymore")           ?? "", IsCorrect = false, Result = TriviaAnswerResult.Wrong, IsSelected = true });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "mithril_hammer",     ImageUri = DotaItemData.GetItemImageUrlByName("mithril_hammer")     ?? "", IsCorrect = true,  Result = TriviaAnswerResult.Correct });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "recipe",             ImageUri = DotaItemData.GetItemImageUrlByName("recipe")             ?? "", IsCorrect = true,  Result = TriviaAnswerResult.Correct });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "broadsword",         ImageUri = DotaItemData.GetItemImageUrlByName("broadsword")         ?? "", IsCorrect = false, Result = TriviaAnswerResult.Wrong });
+                trivia.Pool.Add(new TriviaPoolItemVm { ItemKey = "blade_of_alacrity", ImageUri = DotaItemData.GetItemImageUrlByName("blade_of_alacrity") ?? "", IsCorrect = false, Result = TriviaAnswerResult.Wrong });
+
+                trivia.IsAnswered = true;
+                trivia.LastAnswerCorrect = false;
+
+                var host = new Border
+                {
+                    Background = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#1a1f26")),
+                    Width = 360,
+                    Child = new GameSearchPanel { DataContext = vm },
+                };
+                return (host, null);
             },
             ["AcceptGameModal"] = () =>
             {
@@ -409,7 +553,7 @@ public static class PreviewRegistry
             ["AbandonButtonConnect"] = () =>
             {
                 // Single-line state: QueueButtonHeight = 52, abandon X visible
-                var queueVm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage());
+                var queueVm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 queueVm.UpdateQueueButtonState(); // default = ИГРАТЬ, height=52
 
                 var queueBtn = new QueueButton { DataContext = queueVm };
@@ -459,7 +603,7 @@ public static class PreviewRegistry
             ["AbandonButtonSearching"] = () =>
             {
                 // Searching state: QueueButtonHeight = 80, abandon X visible
-                var queueVm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage());
+                var queueVm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 queueVm.IsSearching = true;
                 queueVm.SetEnterQueueAt(DateTimeOffset.UtcNow);
                 queueVm.SetQueuedModeNames(new[] { "Против ботов" });
@@ -569,14 +713,14 @@ public static class PreviewRegistry
                     new StubVideoSettingsProvider(), new StubBackendApiService(),
                     new StubQueueSocketService(), new StubContentRegistryService(),
                     new StubChatViewModelFactory(), new StubWindowService(), new StubSteamAuthApi(),
-                    new StubUiDispatcher());
+                    new StubUiDispatcher(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 var launchVmStop = new MainLauncherViewModel(
                     new StubSteamManager(), new StubSettingsStorage(),
                     new StubGameLaunchSettingsStorage(), new StubCvarSettingsProvider(),
                     new StubVideoSettingsProvider(), new StubBackendApiService(),
                     new StubQueueSocketService(), new StubContentRegistryService(),
                     new StubChatViewModelFactory(), new StubWindowService(), new StubSteamAuthApi(),
-                    new StubUiDispatcher());
+                    new StubUiDispatcher(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 launchVmStop.Launch.RunState = GameRunState.OurGameRunning;
                 col.Children.Add(new LauncherHeader { Width = 400, Height = 48, DataContext = launchVm });
                 col.Children.Add(new LauncherHeader { Width = 400, Height = 48, DataContext = launchVmStop });

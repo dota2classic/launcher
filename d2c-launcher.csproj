@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\Locales\ru.json" />
+    <EmbeddedResource Include="Resources\trivia.json" />
   </ItemGroup>
 
   <ItemGroup>
