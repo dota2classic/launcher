@@ -81,7 +81,7 @@ public partial class TriviaViewModel : ObservableObject
 
     /// <summary>Fired whenever a new question starts. Argument is the full duration in seconds.</summary>
     public event Action<int>? QuestionStarted;
-    private const int FeedbackDelayMs = 7000;
+    public const int FeedbackDelayMs = 4000;
 
     public TriviaViewModel(ITriviaRepository repository, ITimerFactory timerFactory)
     {

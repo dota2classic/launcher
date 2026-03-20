@@ -106,17 +106,42 @@ public class TriviaTimerBar : TemplatedControl
     private void OnVmPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(TriviaViewModel.IsAnswered) && _vm?.IsAnswered == true)
-            FreezeAnimation();
+            DrainAnimation();
     }
 
-    private void FreezeAnimation()
+    private void DrainAnimation()
     {
-        if (_scale == null || _cts == null) return;
-        var frozen = _scale.ScaleX;
-        _cts.Cancel();
-        _cts.Dispose();
-        _cts = null;
-        _scale.ScaleX = frozen;
+        if (_fill == null || _scale == null) return;
+
+        var fromScale = _scale.ScaleX; // read BEFORE cancel — cancel reverts the animated value
+
+        _cts?.Cancel();
+        _cts?.Dispose();
+        _cts = new CancellationTokenSource();
+
+        _scale.ScaleX = fromScale; // re-apply so the revert doesn't flash
+
+        var animation = new Animation
+        {
+            Duration = TimeSpan.FromMilliseconds(TriviaViewModel.FeedbackDelayMs),
+            FillMode = FillMode.Forward,
+            Easing = new LinearEasing(),
+            Children =
+            {
+                new KeyFrame
+                {
+                    Cue = new Cue(0.0),
+                    Setters = { new Setter(ScaleTransform.ScaleXProperty, fromScale) }
+                },
+                new KeyFrame
+                {
+                    Cue = new Cue(1.0),
+                    Setters = { new Setter(ScaleTransform.ScaleXProperty, 0.0) }
+                }
+            }
+        };
+
+        animation.RunAsync(_fill, _cts.Token);
     }
 
     private void StartAnimation(int durationSeconds)
