@@ -2,7 +2,7 @@
 
 ## Current State
 
-All major features are shipped. The launcher is in maintenance/polish mode. PR open for #109 (trivia).
+All major features are shipped. The launcher is in maintenance/polish mode. PR #115 open for #112 (emoticon picker in chat input).
 
 ---
 
@@ -10,6 +10,7 @@ All major features are shipped. The launcher is in maintenance/polish mode. PR o
 
 | Issue | What was done |
 |-------|--------------|
+| #112 | Emoticon picker flyout on chat input emoji button — inserts `:code:` at caret position; `InputEmoticonPicker` in `ChatViewModel`; `OnInputEmoticonClicked` in code-behind handles caret-aware insertion |
 | #109 | Trivia (Shopkeeper's Quiz style) while searching — TriviaViewModel, ITriviaRepository/LocalJsonTriviaRepository, TriviaPanel; shows in GameSearchPanel replacing mode list when IsSearching; item recipe + multiple choice types; 20s timer, 3 guesses, cumulative score |
 | #104 | Design standardisation: added `PrimaryButton`, `DangerButton`, `ToastDismissButton` global styles; `FontSize2XS=9`, `FontSize2XL5=20` tokens; replaced all hardcoded font sizes in LivePanel, ProfilePanel, LauncherHeader with tokens; unified button colors (red → `#c23c2a`, blue → `#1a5aaa`→`#3a90d6` gradient) across AcceptGameModal, MainLauncherView, NotificationArea, LauncherHeader |
 | #102 | Dotaclassic Plus badge in chat is now a clickable Button; opens `https://dotaclassic.ru/store` via `OnDotaclassicPlusClicked` in `ChatPanel.axaml.cs` |
