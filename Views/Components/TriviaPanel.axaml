@@ -27,6 +27,13 @@
                    VerticalAlignment="Center"/>
       </Grid>
 
+      <!-- Answer feedback -->
+      <TextBlock Text="{Binding AnswerFeedbackText}"
+                 IsVisible="{Binding IsAnswered}"
+                 Foreground="{Binding AnswerFeedbackForeground}"
+                 Margin="8,0" FontWeight="SemiBold"
+                 FontSize="{DynamicResource FontSizeSM}"/>
+
       <!-- Target item -->
       <StackPanel HorizontalAlignment="Center" Spacing="4">
         <components:DotaItemIcon Width="60" Height="44"
@@ -87,9 +94,6 @@
         <TextBlock Grid.Column="0" Text="{Binding GuessesText}"
                    Foreground="#888888" FontSize="{DynamicResource FontSizeSM}"
                    VerticalAlignment="Center"/>
-        <TextBlock Grid.Column="1" Text="{Binding TimerText}"
-                   Foreground="#888888" FontSize="{DynamicResource FontSizeSM}"
-                   VerticalAlignment="Center"/>
       </Grid>
       <components:TriviaTimerBar Margin="8,2,8,0"/>
 
@@ -108,6 +112,13 @@
                    Foreground="#888888" FontSize="{DynamicResource FontSizeSM}"
                    VerticalAlignment="Center"/>
       </Grid>
+
+      <!-- Answer feedback -->
+      <TextBlock Text="{Binding AnswerFeedbackText}"
+                 IsVisible="{Binding IsAnswered}"
+                 Foreground="{Binding AnswerFeedbackForeground}"
+                 Margin="8,0" FontWeight="SemiBold"
+                 FontSize="{DynamicResource FontSizeSM}"/>
 
       <!-- Subject item icon (optional) -->
       <components:DotaItemIcon Width="60" Height="44"
@@ -147,17 +158,6 @@
       <components:TriviaTimerBar Margin="8,2,8,0"/>
 
     </StackPanel>
-
-    <!-- ── ANSWER FEEDBACK OVERLAY ──────────────────────────────────── -->
-    <Border IsVisible="{Binding IsAnswered}"
-            Background="{Binding AnswerFeedbackBackground}"
-            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-            Opacity="0.92">
-      <TextBlock Text="{Binding AnswerFeedbackText}"
-                 HorizontalAlignment="Center" VerticalAlignment="Center"
-                 FontSize="{DynamicResource FontSizeLG}" FontWeight="Bold"
-                 Foreground="#F0F0F0"/>
-    </Border>
 
   </Panel>
 </UserControl>

@@ -14,8 +14,8 @@ namespace d2c_launcher.ViewModels;
 
 public partial class TriviaViewModel : ObservableObject
 {
-    private static readonly IBrush CorrectBrush = new SolidColorBrush(Color.Parse("#1B4A1B"));
-    private static readonly IBrush WrongBrush   = new SolidColorBrush(Color.Parse("#4A1B1B"));
+    private static readonly IBrush CorrectFgBrush = new SolidColorBrush(Color.Parse("#4CAF50"));
+    private static readonly IBrush WrongFgBrush   = new SolidColorBrush(Color.Parse("#F44336"));
 
     private readonly ITriviaRepository _repository;
     private readonly DispatcherTimer _countdownTimer;
@@ -39,7 +39,7 @@ public partial class TriviaViewModel : ObservableObject
     public string AnswerFeedbackText => LastAnswerCorrect == true
         ? I18n.T("trivia.correct")
         : I18n.T("trivia.wrong");
-    public IBrush AnswerFeedbackBackground => LastAnswerCorrect == true ? CorrectBrush : WrongBrush;
+    public IBrush AnswerFeedbackForeground => LastAnswerCorrect == true ? CorrectFgBrush : WrongFgBrush;
 
     // ── Recipe state ─────────────────────────────────────────────────────────
 
@@ -147,8 +147,13 @@ public partial class TriviaViewModel : ObservableObject
 
         if (answer.Result == TriviaAnswerResult.None)
         {
-            var correct = answer.Index == (_mcCorrectIndex);
+            var correct = answer.Index == _mcCorrectIndex;
             answer.Result = correct ? TriviaAnswerResult.Correct : TriviaAnswerResult.Wrong;
+            if (!correct)
+            {
+                var correctAnswer = Answers.FirstOrDefault(a => a.Index == _mcCorrectIndex);
+                if (correctAnswer != null) correctAnswer.Result = TriviaAnswerResult.Correct;
+            }
             ShowResult(correct);
         }
     }
@@ -176,7 +181,7 @@ public partial class TriviaViewModel : ObservableObject
         if (correct) Score++;
         OnPropertyChanged(nameof(ScoreText));
         OnPropertyChanged(nameof(AnswerFeedbackText));
-        OnPropertyChanged(nameof(AnswerFeedbackBackground));
+        OnPropertyChanged(nameof(AnswerFeedbackForeground));
 
         _advanceTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(FeedbackDelayMs) };
         _advanceTimer.Tick += (_, _) =>
