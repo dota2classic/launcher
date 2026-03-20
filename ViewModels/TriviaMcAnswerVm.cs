@@ -9,5 +9,9 @@ public partial class TriviaMcAnswerVm : ObservableObject
     public string Text { get; init; } = "";
     public int Index { get; init; }
 
-    [ObservableProperty] private TriviaAnswerResult _result = TriviaAnswerResult.None;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(AnswerOpacity))]
+    private TriviaAnswerResult _result = TriviaAnswerResult.None;
+
+    public double AnswerOpacity => Result == TriviaAnswerResult.Wrong ? 0.25 : 1.0;
 }

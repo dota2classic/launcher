@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Threading;
 using Avalonia;
 using Avalonia.Animation;
@@ -15,7 +16,8 @@ namespace d2c_launcher.Views.Components;
 /// <summary>
 /// A thin horizontal bar that smoothly decays from full width to zero using
 /// a compositor ScaleTransform animation. Restarts automatically whenever
-/// <see cref="TriviaViewModel.QuestionStarted"/> fires.
+/// <see cref="TriviaViewModel.QuestionStarted"/> fires, and freezes in place
+/// while <see cref="TriviaViewModel.IsAnswered"/> is true.
 /// </summary>
 public class TriviaTimerBar : TemplatedControl
 {
@@ -43,6 +45,8 @@ public class TriviaTimerBar : TemplatedControl
         base.OnDetachedFromVisualTree(e);
         Unsubscribe();
         _cts?.Cancel();
+        _cts?.Dispose();
+        _cts = null;
     }
 
     protected override void OnDataContextChanged(EventArgs e)
@@ -83,9 +87,9 @@ public class TriviaTimerBar : TemplatedControl
         if (vm == null) return;
         _vm = vm;
         vm.QuestionStarted += OnQuestionStarted;
+        vm.PropertyChanged += OnVmPropertyChanged;
 
-        // If a question is already running (bar attached mid-question), animate remaining time.
-        if (vm.TimerSeconds > 0)
+        if (vm.TimerSeconds > 0 && !vm.IsAnswered)
             StartAnimation(vm.TimerSeconds);
     }
 
@@ -93,16 +97,34 @@ public class TriviaTimerBar : TemplatedControl
     {
         if (_vm == null) return;
         _vm.QuestionStarted -= OnQuestionStarted;
+        _vm.PropertyChanged -= OnVmPropertyChanged;
         _vm = null;
     }
 
     private void OnQuestionStarted(int durationSeconds) => StartAnimation(durationSeconds);
+
+    private void OnVmPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(TriviaViewModel.IsAnswered) && _vm?.IsAnswered == true)
+            FreezeAnimation();
+    }
+
+    private void FreezeAnimation()
+    {
+        if (_scale == null || _cts == null) return;
+        var frozen = _scale.ScaleX;
+        _cts.Cancel();
+        _cts.Dispose();
+        _cts = null;
+        _scale.ScaleX = frozen;
+    }
 
     private void StartAnimation(int durationSeconds)
     {
         if (_fill == null || _scale == null) return;
 
         _cts?.Cancel();
+        _cts?.Dispose();
         _cts = new CancellationTokenSource();
         _scale.ScaleX = 1.0;
 

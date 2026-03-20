@@ -14,15 +14,9 @@ public sealed class TriviaAnswerResultBrushConverter : IValueConverter
 {
     private static readonly IBrush BrushNone    = new SolidColorBrush(Color.Parse("#1a1f26"));
     private static readonly IBrush BrushCorrect = new SolidColorBrush(Color.Parse("#2e7d32"));
-    private static readonly IBrush BrushWrong   = new SolidColorBrush(Color.Parse("#8b1a1a"));
 
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => value switch
-        {
-            TriviaAnswerResult.Correct => BrushCorrect,
-            TriviaAnswerResult.Wrong   => BrushWrong,
-            _                          => BrushNone,
-        };
+        => value is TriviaAnswerResult.Correct ? BrushCorrect : BrushNone;
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new NotSupportedException();
