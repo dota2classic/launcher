@@ -27,7 +27,7 @@ public static class SoundPlayer
                 {
                     WaveStream reader = Path.GetExtension(fileName).ToLowerInvariant() switch
                     {
-                        ".mp3" => new Mp3FileReader(stream),
+                        ".mp3" => new Mp3FileReaderBase(stream, wf => new AcmMp3FrameDecompressor(wf)),
                         ".wav" => new WaveFileReader(stream),
                         _ => throw new NotSupportedException($"Unsupported audio format: {fileName}")
                     };
