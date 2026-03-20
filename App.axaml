@@ -256,6 +256,9 @@
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontWeight" Value="Bold"/>
         </Style>
+        <Style Selector="Button.PrimaryButton:pointerover">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
         <Style Selector="Button.PrimaryButton:pointerover /template/ ContentPresenter">
             <Setter Property="Background">
                 <Setter.Value>
@@ -273,6 +276,10 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Foreground" Value="{StaticResource BrushRed}"/>
             <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        <Style Selector="Button.DangerButton:pointerover">
+            <Setter Property="BorderBrush" Value="{StaticResource BrushRed}"/>
+            <Setter Property="Foreground" Value="{StaticResource BrushRed}"/>
         </Style>
         <Style Selector="Button.DangerButton:pointerover /template/ ContentPresenter">
             <Setter Property="Background" Value="#2c1412"/>
