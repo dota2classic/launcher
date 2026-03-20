@@ -87,11 +87,11 @@
         <TextBlock Grid.Column="0" Text="{Binding GuessesText}"
                    Foreground="#888888" FontSize="{DynamicResource FontSizeSM}"
                    VerticalAlignment="Center"/>
-        <ProgressBar Grid.Column="1" Width="80" Height="4"
-                     Value="{Binding TimerSeconds}" Maximum="20"
-                     Foreground="#C8A84B" Background="#2d3842"
-                     VerticalAlignment="Center"/>
+        <TextBlock Grid.Column="1" Text="{Binding TimerText}"
+                   Foreground="#888888" FontSize="{DynamicResource FontSizeSM}"
+                   VerticalAlignment="Center"/>
       </Grid>
+      <components:TriviaTimerBar Margin="8,2,8,0"/>
 
     </StackPanel>
 
@@ -138,9 +138,7 @@
       </ItemsControl>
 
       <!-- Timer bar -->
-      <ProgressBar Margin="8,0" Height="4"
-                   Value="{Binding TimerSeconds}" Maximum="20"
-                   Foreground="#C8A84B" Background="#2d3842"/>
+      <components:TriviaTimerBar Margin="8,2,8,0"/>
 
     </StackPanel>
 

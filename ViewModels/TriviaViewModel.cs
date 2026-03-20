@@ -58,7 +58,10 @@ public partial class TriviaViewModel : ObservableObject
 
     // ── Constants ────────────────────────────────────────────────────────────
 
-    private const int TriviaTimerSeconds = 20;
+    public const int TriviaTimerSeconds = 20;
+
+    /// <summary>Fired whenever a new question starts. Argument is the full duration in seconds.</summary>
+    public event Action<int>? QuestionStarted;
     private const int MaxGuesses = 3;
     private const int FeedbackDelayMs = 1500;
 
@@ -256,6 +259,7 @@ public partial class TriviaViewModel : ObservableObject
 
         TimerSeconds = TriviaTimerSeconds;
         OnPropertyChanged(nameof(TimerText));
+        QuestionStarted?.Invoke(TriviaTimerSeconds);
         _countdownTimer.Start();
     }
 }
