@@ -385,7 +385,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         }
 
         if (HumanGameModeIds.Contains(modeId) && !member.CanPlayHumanGames)
-            return Strings.NeedOneWinForAccess;
+            return I18n.T("game.humanGamesProgress", ("progress", $"{(int)(member.BotGameProgress * 100)}"));
         if (SimpleModeIds.Contains(modeId) && !member.CanPlaySimpleModes)
             return Strings.NeedBotsGameForMode;
         if (EducationModeIds.Contains(modeId) && !member.CanPlayEducation)
