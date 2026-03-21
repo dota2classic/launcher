@@ -105,7 +105,15 @@
 
           <!-- Trivia panel (shown while searching) -->
           <Border IsVisible="{Binding IsSearching}" Padding="0">
-              <components:TriviaPanel DataContext="{Binding Trivia}"/>
+              <StackPanel>
+                  <TextBlock Text="{Binding SearchingInQueueText}"
+                             HorizontalAlignment="Center"
+                             Foreground="#888888"
+                             FontSize="{DynamicResource FontSizeXS}"
+                             LetterSpacing="1"
+                             Margin="0,6,0,0"/>
+                  <components:TriviaPanel DataContext="{Binding Trivia}"/>
+              </StackPanel>
           </Border>
       </StackPanel>
   </Border>

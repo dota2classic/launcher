@@ -62,6 +62,9 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
     [ObservableProperty]
     private string _onlineStatsText = "";
 
+    [ObservableProperty]
+    private string _searchingInQueueText = "";
+
     /// <summary>Blue when game ready, green when searching, dark gray when idle.</summary>
     public IBrush QueueButtonBackground => _hasServerUrl ? BrushReady
         : IsSearching ? BrushSearching : BrushIdle;
@@ -231,6 +234,21 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
                 break;
             }
         }
+        UpdateSearchingInQueueText();
+    }
+
+    private void UpdateSearchingInQueueText()
+    {
+        if (!IsSearching || _queuedModes == null)
+        {
+            SearchingInQueueText = "";
+            return;
+        }
+        var queuedModeIds = _queuedModes.Select(m => (int)m).ToHashSet();
+        var max = MatchmakingModes
+            .Where(m => queuedModeIds.Contains(m.ModeId))
+            .MaxBy(m => m.InQueue);
+        SearchingInQueueText = max != null ? $"{max.InQueue} в поиске" : "";
     }
 
     private async Task UpdatePlayerQueueState(PlayerQueueStateMessage msg)
@@ -258,6 +276,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
 
         IsSearching = msg.InQueue;
         UpdateQueueButtonState();
+        UpdateSearchingInQueueText();
 
         if (msg.InQueue)
             await Trivia.StartAsync();
