@@ -113,7 +113,15 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
             {
                 ReparseAllMessages();
                 foreach (var msg in Messages)
+                {
                     SetupQuickReacts(msg);
+                    // Patch reaction VMs that were built before emoticons finished loading.
+                    foreach (var reaction in msg.Reactions)
+                    {
+                        if (reaction.EmoticonBytes == null && _emoticonImages.TryGetValue(reaction.EmoticonCode, out var bytes))
+                            reaction.EmoticonBytes = bytes;
+                    }
+                }
                 PopulateInputEmoticonPicker();
             });
         }
@@ -403,6 +411,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         _emoticonImages.TryGetValue(data.EmoticonCode, out var bytes);
         return new ChatReactionViewModel(
             data.EmoticonId,
+            data.EmoticonCode,
             bytes,
             data.Count,
             data.IsMine,

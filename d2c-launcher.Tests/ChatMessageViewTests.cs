@@ -211,5 +211,5 @@ public class ChatMessageViewTests
             chatIconTitle: chatIconTitle);
 
     private static ChatReactionViewModel MakeReactionVm(ChatReactionData data)
-        => new(data.EmoticonId, emoticonBytes: null, data.Count, data.IsMine, () => Task.CompletedTask);
+        => new(data.EmoticonId, data.EmoticonCode, emoticonBytes: null, data.Count, data.IsMine, () => Task.CompletedTask);
 }

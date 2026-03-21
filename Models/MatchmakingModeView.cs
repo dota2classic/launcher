@@ -17,9 +17,19 @@ public sealed partial class MatchmakingModeView : ObservableObject
     [ObservableProperty]
     private string? _restrictionText;
 
+    /// <summary>Bot game progress (0.0–1.0) to unlock this mode. Non-null only for the bot-progress restriction.</summary>
+    [ObservableProperty]
+    private double? _lockProgress;
+
+    /// <summary>True when this is the only available mode and should be visually called out.</summary>
+    [ObservableProperty]
+    private bool _isHighlighted;
+
     public bool IsRestricted => !string.IsNullOrEmpty(RestrictionText);
+    public bool HasLockProgress => LockProgress.HasValue;
 
     partial void OnRestrictionTextChanged(string? value) => OnPropertyChanged(nameof(IsRestricted));
+    partial void OnLockProgressChanged(double? value) => OnPropertyChanged(nameof(HasLockProgress));
 
     /// <summary>Abandoning the game results in a penalty (shows shield icon).</summary>
     public bool PenaltyAbandon { get; }

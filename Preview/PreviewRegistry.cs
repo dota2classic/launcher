@@ -148,6 +148,28 @@ public static class PreviewRegistry
                 var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository(), new AvaloniaTimerFactory());
                 return (new GameSearchPanel(), vm);
             },
+            ["GameSearchPanelLocked5x5"] = () =>
+            {
+                var vm = new QueueViewModel(new StubQueueSocketService(), new StubBackendApiService(), new StubSettingsStorage(), new StubTriviaRepository(), new AvaloniaTimerFactory());
+                // Manually seed modes so restrictions are visible without waiting for async load
+                vm.MatchmakingModes = new System.Collections.ObjectModel.ObservableCollection<MatchmakingModeView>
+                {
+                    new MatchmakingModeView(8,  "Highroom 5x5",   isSelected: false),
+                    new MatchmakingModeView(1,  "Обычная 5x5",    isSelected: false),
+                    new MatchmakingModeView(13, "Турбо",          isSelected: true),
+                    new MatchmakingModeView(2,  "1x1 Мид",        isSelected: false),
+                    new MatchmakingModeView(7,  "Против ботов",   isSelected: true),
+                };
+                // Simulate brand-new player: no games played yet, simple modes locked too
+                vm.ApplyPartyRestrictions(new[]
+                {
+                    new PartyMemberView("1", "Player One", null,
+                        canPlayHumanGames: false,
+                        canPlaySimpleModes: false,
+                        botGameProgress: 0.0),
+                });
+                return (new GameSearchPanel(), vm);
+            },
             // ── Trivia preview variants ──────────────────────────────────────────
             // Selecting: 2 of 3 ingredients placed, 1 remaining
             ["GameSearchPanelTrivia"] = () =>
