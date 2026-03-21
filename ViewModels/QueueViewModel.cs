@@ -359,14 +359,25 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         foreach (var mode in MatchmakingModes)
         {
             string? restriction = null;
+            double? lockProgress = null;
             foreach (var member in _latestPartyMembers)
             {
                 restriction = GetMemberModeRestriction(member, mode.ModeId);
                 if (restriction != null)
+                {
+                    if (HumanGameModeIds.Contains(mode.ModeId) && !member.IsBanned && !member.CanPlayHumanGames)
+                        lockProgress = member.BotGameProgress;
                     break;
+                }
             }
             mode.RestrictionText = restriction;
+            mode.LockProgress = lockProgress;
         }
+
+        var freeModes = MatchmakingModes.Where(m => m.RestrictionText == null).ToList();
+        var onlyFree = freeModes.Count == 1 ? freeModes[0] : null;
+        foreach (var mode in MatchmakingModes)
+            mode.IsHighlighted = mode == onlyFree;
     }
 
     private static string? GetMemberModeRestriction(Models.PartyMemberView member, int modeId)
@@ -385,7 +396,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         }
 
         if (HumanGameModeIds.Contains(modeId) && !member.CanPlayHumanGames)
-            return I18n.T("game.humanGamesProgress", ("progress", $"{(int)(member.BotGameProgress * 100)}"));
+            return I18n.T("game.humanGamesProgress");
         if (SimpleModeIds.Contains(modeId) && !member.CanPlaySimpleModes)
             return Strings.NeedBotsGameForMode;
         if (EducationModeIds.Contains(modeId) && !member.CanPlayEducation)

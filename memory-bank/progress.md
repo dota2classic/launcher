@@ -27,6 +27,7 @@
 | Party invite / accept / leave  | ✅ Done |
 | Floating invite notifications  | ✅ Done |
 | Server search status           | ✅ Done |
+| Bot game progress on mode lock (#117) | ✅ Done | `botGameProgress` from backend shown as X% on locked human game mode cards; PR #119 |
 
 
 ### Game Management

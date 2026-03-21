@@ -276,7 +276,7 @@
     "folderNotDotaclassic": "Выбранная папка не является Dotaclassic.",
     "wrongPatchVersionFormat": "Выбранная папка содержит другой патч Dota 2 (версия {0}). Dotaclassic использует патч 6.84. Выберите правильную папку или скачайте игру заново.",
     "needOneWinForAccess": "Для доступа выиграйте хотя бы одну игру",
-    "humanGamesProgress": "Играйте с ботами для оценки уровня ({progress}%)",
+    "humanGamesProgress": "Играйте с ботами для оценки уровня",
     "loadingPlayers": "Загрузка игроков",
     "launch": "Запустить",
     "gameFinished": "Игра завершена",
