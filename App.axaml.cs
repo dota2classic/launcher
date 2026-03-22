@@ -79,6 +79,7 @@ public partial class App : Application
             services.AddSingleton<ITimerFactory, AvaloniaTimerFactory>();
             services.AddSingleton<IChatViewModelFactory, ChatViewModelFactory>();
             services.AddSingleton<IWindowService, WindowService>();
+            services.AddSingleton<INetConService, NetConService>();
             services.AddSingleton<MainWindowViewModel>();
 
             _services = services.BuildServiceProvider();

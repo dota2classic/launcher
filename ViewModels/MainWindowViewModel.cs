@@ -37,6 +37,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IUiDispatcher _uiDispatcher;
     private readonly ITriviaRepository _triviaRepository;
     private readonly ITimerFactory _timerFactory;
+    private readonly INetConService _netConService;
 
     /// <summary>Pending spectate match ID received before the Launcher state was entered.</summary>
     private int? _pendingSpectateMatchId;
@@ -93,7 +94,8 @@ public partial class MainWindowViewModel : ViewModelBase
         IWindowService windowService,
         IUiDispatcher uiDispatcher,
         ITriviaRepository triviaRepository,
-        ITimerFactory timerFactory)
+        ITimerFactory timerFactory,
+        INetConService netConService)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -114,6 +116,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _uiDispatcher = uiDispatcher;
         _triviaRepository = triviaRepository;
         _timerFactory = timerFactory;
+        _netConService = netConService;
 
         // Eagerly prefetch the registry so it's cached by the time GameDownloadViewModel needs it.
         var initialGameDir = _settingsStorage.Get().GameDirectory;
@@ -315,7 +318,7 @@ public partial class MainWindowViewModel : ViewModelBase
         var vm = new MainLauncherViewModel(
             _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider, _videoProvider,
             _backendApiService, _queueSocketService, _registryService, _chatViewModelFactory, _windowService,
-            _steamAuthApi, _uiDispatcher, _triviaRepository, _timerFactory);
+            _steamAuthApi, _uiDispatcher, _triviaRepository, _timerFactory, _netConService);
         vm.OnGameDirectoryChanged = _ => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirChanged(AppState)));
         vm.RequestGameDirectoryChange = () => Dispatcher.UIThread.Post(() => EnterState(AppState.SelectGameDirectory));
         vm.OnDlcChanged = removedIds => Dispatcher.UIThread.Post(() =>

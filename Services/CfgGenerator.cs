@@ -90,6 +90,7 @@ public static class CfgGenerator
         if (!string.IsNullOrWhiteSpace(settings.ExtraArgs))
             parts.Add(settings.ExtraArgs.Trim());
         parts.Add("-condebug");
+        parts.Add("-netconport 27005");
 
         return string.Join(" ", parts);
     }

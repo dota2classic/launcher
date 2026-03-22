@@ -2,7 +2,7 @@
 
 ## Current State
 
-All major features are shipped. The launcher is in maintenance/polish mode. PR #115 open for #112 (emoticon picker in chat input).
+All major features are shipped. The launcher is in maintenance/polish mode. PR #115 open for #112 (emoticon picker in chat input). Working on #120 (migrate WM_COPYDATA → NetCon).
 
 ---
 
@@ -10,6 +10,7 @@ All major features are shipped. The launcher is in maintenance/polish mode. PR #
 
 | Issue | What was done |
 |-------|--------------|
+| #120 | Migrated game console interaction from WM_COPYDATA to NetCon: `INetConService`/`NetConService` singleton; lifecycle managed in `GameLaunchViewModel` via `RefreshRunState` transitions; `PushCvarIfGameRunning` and `ConnectToGameAsync` now use `SendCommandAsync`; `DotaConsoleConnector` kept only for window operations |
 | #117 | Bot game progress on human mode lock — new `botGameProgress` field (0–1) from backend shown as X% in restriction text on locked human game mode cards; also refreshed OpenAPI spec + regenerated client; PR #119 |
 | #112 | Emoticon picker flyout on chat input emoji button — inserts `:code:` at caret position; `InputEmoticonPicker` in `ChatViewModel`; `OnInputEmoticonClicked` in code-behind handles caret-aware insertion |
 | #109 | Trivia (Shopkeeper's Quiz style) while searching — TriviaViewModel, ITriviaRepository/LocalJsonTriviaRepository, TriviaPanel; shows in GameSearchPanel replacing mode list when IsSearching; item recipe + multiple choice types; 20s timer, 3 guesses, cumulative score |
