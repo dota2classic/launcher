@@ -248,7 +248,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         var max = MatchmakingModes
             .Where(m => queuedModeIds.Contains(m.ModeId))
             .MaxBy(m => m.InQueue);
-        SearchingInQueueText = max != null ? $"{max.InQueue} в поиске" : "";
+        SearchingInQueueText = max != null ? I18n.T("game.inQueueCount", ("count", max.InQueue)) : "";
     }
 
     private async Task UpdatePlayerQueueState(PlayerQueueStateMessage msg)
@@ -390,7 +390,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
             if (HumanGameModeIds.Contains(modeId))
             {
                 TryGetBanExpiry(member.BannedUntil, out var until);
-                return $"Поиск запрещён до {until.LocalDateTime:dd.MM.yyyy HH:mm}";
+                return I18n.T("game.banExpiry", ("until", until.LocalDateTime.ToString("dd.MM.yyyy HH:mm")));
             }
             return null;
         }
@@ -404,7 +404,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
 
         // Highroom requires minimum MMR across the party
         if (modeId == 8 && member.Mmr.HasValue && member.Mmr.Value < HighroomMmrRequired)
-            return $"Нужно {HighroomMmrRequired} MMR (у {member.Name}: {member.Mmr.Value})";
+            return I18n.T("game.highroomMmr", ("required", HighroomMmrRequired), ("name", member.Name), ("actual", member.Mmr.Value));
 
         return null;
     }
