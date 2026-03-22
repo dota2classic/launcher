@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 using d2c_launcher.Models;
+using d2c_launcher.Util;
 
 namespace d2c_launcher.Services;
 
@@ -57,6 +58,13 @@ public class SettingsStorage : ISettingsStorage
     {
         _cached = settings;
         var json = JsonSerializer.Serialize(settings, JsonOptions);
-        File.WriteAllText(_filePath, json);
+        try
+        {
+            File.WriteAllText(_filePath, json);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error($"[Settings] Failed to save settings to {_filePath}", ex);
+        }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -58,7 +59,15 @@ public partial class SelectGameView : UserControl
             return;
 
         var gameDir = Path.Combine(path, "dotaclassic684");
-        Directory.CreateDirectory(gameDir);
+        try
+        {
+            Directory.CreateDirectory(gameDir);
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or IOException)
+        {
+            vm.DownloadPathError = d2c_launcher.Resources.Strings.NoFolderAccess;
+            return;
+        }
         vm.SelectedDownloadPath = gameDir;
         await vm.StartDlcSelectionAsync(gameDir);
     }

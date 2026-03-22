@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using d2c_launcher.Resources;
 using d2c_launcher.Util;
@@ -32,20 +33,29 @@ public static class GameDirectoryValidator
             AppLog.Info($"[GameDirValidator] steam.inf exists: {File.Exists(steamInf)} ({steamInf})");
             if (File.Exists(steamInf))
             {
-                foreach (var line in File.ReadLines(steamInf))
+                try
                 {
-                    if (line.StartsWith("PatchVersion=", System.StringComparison.OrdinalIgnoreCase))
+                    foreach (var line in File.ReadLines(steamInf))
                     {
-                        var value = line["PatchVersion=".Length..].Trim();
-                        AppLog.Info($"[GameDirValidator] PatchVersion={value} (expected {ExpectedPatchVersion})");
-                        if (!int.TryParse(value, out var patchVersion) || patchVersion != ExpectedPatchVersion)
+                        if (line.StartsWith("PatchVersion=", System.StringComparison.OrdinalIgnoreCase))
                         {
-                            error = string.Format(Strings.WrongPatchVersionFormat, value);
-                            AppLog.Info($"[GameDirValidator] Rejected: wrong PatchVersion.");
-                            return false;
+                            var value = line["PatchVersion=".Length..].Trim();
+                            AppLog.Info($"[GameDirValidator] PatchVersion={value} (expected {ExpectedPatchVersion})");
+                            if (!int.TryParse(value, out var patchVersion) || patchVersion != ExpectedPatchVersion)
+                            {
+                                error = string.Format(Strings.WrongPatchVersionFormat, value);
+                                AppLog.Info($"[GameDirValidator] Rejected: wrong PatchVersion.");
+                                return false;
+                            }
+                            break;
                         }
-                        break;
                     }
+                }
+                catch (Exception ex) when (ex is UnauthorizedAccessException or IOException)
+                {
+                    AppLog.Warn($"[GameDirValidator] Cannot read steam.inf: {ex.Message}");
+                    error = Strings.NoFolderAccess;
+                    return false;
                 }
             }
         }
