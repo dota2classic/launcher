@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.VisualTree;
@@ -18,6 +19,32 @@ public partial class ChatPanel : UserControl
     {
         InitializeComponent();
         AddHandler(RichMessageBlock.PlayerLinkClickedEvent, OnPlayerLinkClicked);
+    }
+
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        if (TopLevel.GetTopLevel(this) is { } root)
+            root.AddHandler(KeyDownEvent, OnGlobalKeyDown, RoutingStrategies.Tunnel);
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+        if (TopLevel.GetTopLevel(this) is { } root)
+            root.RemoveHandler(KeyDownEvent, OnGlobalKeyDown);
+    }
+
+    private void OnGlobalKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (!MessageInput.IsFocused
+            && IsVisible
+            && !e.Handled
+            && IsTypingKey(e.Key, e.KeyModifiers)
+            && TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() is not TextBox)
+        {
+            MessageInput.Focus();
+        }
     }
 
     private void OnPlayerLinkClicked(object? sender, PlayerLinkClickedEventArgs e)
@@ -40,13 +67,6 @@ public partial class ChatPanel : UserControl
         _vm = DataContext as ChatViewModel;
         if (_vm != null)
             _vm.MessagesUpdated += ScrollToBottom;
-    }
-
-    protected override void OnKeyDown(KeyEventArgs e)
-    {
-        base.OnKeyDown(e);
-        if (!MessageInput.IsFocused && !e.Handled && IsTypingKey(e.Key, e.KeyModifiers))
-            MessageInput.Focus();
     }
 
     private static bool IsTypingKey(Key key, KeyModifiers modifiers)
