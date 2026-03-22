@@ -83,6 +83,8 @@
     <Compile Include="..\Services\ISocketFactory.cs" Link="Services\ISocketFactory.cs" />
     <Compile Include="..\Services\IQueueSocketService.cs" Link="Services\IQueueSocketService.cs" />
     <Compile Include="..\Services\QueueSocketService.cs" Link="Services\QueueSocketService.cs" />
+    <!-- NetCon status line parser (pure static logic, no dependencies) -->
+    <Compile Include="..\Integration\NetConStatusParser.cs" Link="Integration\NetConStatusParser.cs" />
     <!-- Tray close policy (pure logic, no Avalonia deps) -->
     <Compile Include="..\Views\TrayClosePolicy.cs" Link="Views\TrayClosePolicy.cs" />
     <!-- Telemetry (needed by AppLog) -->

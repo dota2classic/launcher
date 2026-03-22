@@ -267,12 +267,6 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         _ = ConnectToGameAsync(_connectCts.Token);
     }
 
-    // Matches the server port from a "status" line like:
-    //   udp/ip  :  0.0.0.0:34720 os(Linux) type(dedicated)
-    // Captures the digits between the last colon and " os(".
-    private static readonly System.Text.RegularExpressions.Regex s_udpPortRegex =
-        new(@":(\d+)\s+os\(", System.Text.RegularExpressions.RegexOptions.Compiled);
-
     /// <summary>
     /// Returns true if the game is already connected to the server identified by <paramref name="serverUrl"/>.
     /// Sends <c>status</c> via NetCon and matches the port from the <c>type(dedicated)</c> line.
@@ -286,9 +280,8 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
             return false;
         }
 
-        var colonIdx = serverUrl.LastIndexOf(':');
-        if (colonIdx < 0) return false;
-        var targetPort = serverUrl[(colonIdx + 1)..].Trim();
+        var targetPort = NetConStatusParser.ExtractTargetPort(serverUrl);
+        if (targetPort == null) return false;
 
         var tcs = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -308,8 +301,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
             try
             {
                 var udpLine = await tcs.Task.WaitAsync(timeoutCts.Token).ConfigureAwait(false);
-                var match = s_udpPortRegex.Match(udpLine);
-                var connected = match.Success && match.Groups[1].Value == targetPort;
+                var connected = NetConStatusParser.ParseServerPort(udpLine) == targetPort;
                 AppLog.Info($"IsAlreadyConnectedTo: udpLine='{udpLine}' targetPort={targetPort} connected={connected}");
                 return connected;
             }
