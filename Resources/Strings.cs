@@ -28,8 +28,10 @@ public static class Strings
     public static string CloseToTrayDescription => I18n.T("settings.closeToTrayDescription");
     public static string AutoConnectToServer    => I18n.T("settings.autoConnectToServer");
     public static string AutoConnectDescription => I18n.T("settings.autoConnectDescription");
-    public static string DefenderExclusionTitle => I18n.T("settings.defenderExclusionTitle");
-    public static string DefenderExclusionAdded => I18n.T("settings.defenderExclusionAdded");
+    public static string DefenderExclusionTitle       => I18n.T("settings.defenderExclusionTitle");
+    public static string DefenderExclusionAdded       => I18n.T("settings.defenderExclusionAdded");
+    public static string VistaCompatibilityTitle      => I18n.T("settings.vistaCompatibilityTitle");
+    public static string VistaCompatibilityDescription => I18n.T("settings.vistaCompatibilityDescription");
     public static string LaunchParameters       => I18n.T("settings.launchParameters");
     public static string ExtraArgsHint          => I18n.T("settings.extraArgsHint");
     public static string UiScale                => I18n.T("settings.uiScale");

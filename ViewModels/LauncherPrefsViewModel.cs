@@ -135,6 +135,25 @@ public partial class LauncherPrefsViewModel : ViewModelBase
         Dispatcher.UIThread.Post(() => OnPropertyChanged(nameof(DefenderExclusionEnabled)));
     }
 
+    public bool VistaCompatibilityEnabled
+    {
+        get
+        {
+            var dir = _settingsStorage.Get().GameDirectory;
+            if (string.IsNullOrEmpty(dir)) return false;
+            var exePath = System.IO.Path.Combine(dir, "dota.exe");
+            return WindowsCompatibilityService.IsVistaCompatEnabled(exePath);
+        }
+        set
+        {
+            var dir = _settingsStorage.Get().GameDirectory;
+            if (string.IsNullOrEmpty(dir)) return;
+            var exePath = System.IO.Path.Combine(dir, "dota.exe");
+            WindowsCompatibilityService.SetVistaCompat(exePath, value);
+            OnPropertyChanged();
+        }
+    }
+
     // ── Constructor ────────────────────────────────────────────────────────────
 
     public LauncherPrefsViewModel(ISettingsStorage settingsStorage)
