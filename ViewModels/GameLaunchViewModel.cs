@@ -286,35 +286,30 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
             return;
         }
 
-        // Game already running — send connect command via NetCon
+        // Game already running — wait for NetCon then send the connect command
         AppLog.Info("ConnectToGame: waiting for NetCon connection...");
-        var deadline = DateTimeOffset.UtcNow.AddSeconds(90);
-        while (!_netConService.IsConnected)
+        using var deadlineCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        deadlineCts.CancelAfter(TimeSpan.FromSeconds(90));
+        try
         {
-            if (ct.IsCancellationRequested)
-            {
-                AppLog.Info("ConnectToGame: cancelled (new connect attempt superseded this one)");
-                return;
-            }
-            if (DateTimeOffset.UtcNow >= deadline)
-            {
-                AppLog.Info("ConnectToGame: timed out waiting for NetCon connection");
-                if (!string.IsNullOrWhiteSpace(GameDirectory))
-                {
-                    var tail = TailConsoleLog(GameDirectory);
-                    if (tail.Length > 0)
-                        AppLog.Error($"ConnectToGame: console.log tail:\n{string.Join("\n", tail)}");
-                    else
-                        AppLog.Error("ConnectToGame: console.log not found or empty");
-                }
-                return;
-            }
-            await Task.Delay(500, ct).ConfigureAwait(false);
+            await _netConService.WaitConnectedAsync(deadlineCts.Token).ConfigureAwait(false);
         }
-
-        if (ct.IsCancellationRequested)
+        catch (OperationCanceledException) when (!ct.IsCancellationRequested)
         {
-            AppLog.Info("ConnectToGame: cancelled before sending connect command");
+            AppLog.Info("ConnectToGame: timed out waiting for NetCon connection");
+            if (!string.IsNullOrWhiteSpace(GameDirectory))
+            {
+                var tail = TailConsoleLog(GameDirectory);
+                if (tail.Length > 0)
+                    AppLog.Error($"ConnectToGame: console.log tail:\n{string.Join("\n", tail)}");
+                else
+                    AppLog.Error("ConnectToGame: console.log not found or empty");
+            }
+            return;
+        }
+        catch (OperationCanceledException)
+        {
+            AppLog.Info("ConnectToGame: cancelled (new connect attempt superseded this one)");
             return;
         }
 
@@ -493,5 +488,6 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         _runStateTimer.Stop();
         _connectCts?.Cancel();
         _connectCts?.Dispose();
+        _netConService.Disconnect();
     }
 }

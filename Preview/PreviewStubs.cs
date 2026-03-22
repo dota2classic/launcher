@@ -272,6 +272,7 @@ internal sealed class StubNetConService : INetConService
     public Task StartConnectAsync(CancellationToken ct = default) => Task.CompletedTask;
     public void Disconnect() { }
     public Task SendCommandAsync(string command) => Task.CompletedTask;
+    public Task WaitConnectedAsync(CancellationToken ct = default) => Task.FromCanceled(ct);
     public void Dispose() { }
 }
 

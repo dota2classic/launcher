@@ -28,4 +28,10 @@ public interface INetConService : IDisposable
 
     /// <summary>Sends a console command to the engine. No-op if not connected.</summary>
     Task SendCommandAsync(string command);
+
+    /// <summary>
+    /// Returns a Task that completes when the connection is established.
+    /// Cancelled if <paramref name="ct"/> is cancelled or the connection attempt gives up.
+    /// </summary>
+    Task WaitConnectedAsync(CancellationToken ct = default);
 }

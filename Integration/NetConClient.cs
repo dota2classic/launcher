@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using d2c_launcher.Util;
@@ -18,6 +19,7 @@ public sealed class NetConClient : IDisposable
     private readonly int _port;
     private TcpClient? _tcp;
     private CancellationTokenSource? _cts;
+    private NetworkStream? _stream;
 
     /// <summary>Fired on the thread-pool for each line received from the engine.</summary>
     public event Action<string>? LineReceived;
@@ -38,16 +40,17 @@ public sealed class NetConClient : IDisposable
         _cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
         _tcp = new TcpClient();
         await _tcp.ConnectAsync(_host, _port, _cts.Token);
+        _stream = _tcp.GetStream();
         AppLog.Info($"NetConClient: connected to {_host}:{_port}");
         _ = ReadLoopAsync(_cts.Token);
     }
 
     public async Task SendCommandAsync(string command)
     {
-        if (_tcp is not { Connected: true }) return;
-        var stream = _tcp.GetStream();
-        var writer = new StreamWriter(stream) { AutoFlush = true };
-        await writer.WriteLineAsync(command);
+        var stream = _stream;
+        if (stream == null || !IsConnected) return;
+        var bytes = Encoding.ASCII.GetBytes(command + "\n");
+        await stream.WriteAsync(bytes);
     }
 
     private async Task ReadLoopAsync(CancellationToken ct)
@@ -59,7 +62,6 @@ public sealed class NetConClient : IDisposable
             {
                 var line = await reader.ReadLineAsync(ct);
                 if (line == null) break; // server closed connection
-                AppLog.Info($"[NetCon] {line}");
                 LineReceived?.Invoke(line);
             }
         }
@@ -78,6 +80,8 @@ public sealed class NetConClient : IDisposable
     {
         _cts?.Cancel();
         _cts?.Dispose();
+        _stream = null;
         _tcp?.Dispose();
+        _tcp = null;
     }
 }

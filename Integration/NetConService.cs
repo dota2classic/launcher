@@ -8,19 +8,24 @@ namespace d2c_launcher.Integration;
 /// <summary>
 /// Singleton service that manages a persistent NetCon connection to the running
 /// Dota instance. Retries on connect failure and disconnects cleanly on game exit.
+/// Retry window: up to 24 attempts × 5 s = ~2 minutes.
 /// </summary>
 public sealed class NetConService : INetConService
 {
     private const int MaxAttempts = 24;
     private static readonly TimeSpan RetryDelay = TimeSpan.FromSeconds(5);
 
-    private NetConClient? _client;
+    private volatile NetConClient? _client;
     private CancellationTokenSource? _connectCts;
-    private bool _isConnected;
+    private volatile bool _isConnected;
+    private TaskCompletionSource _connectedTcs = new();
 
     public event Action<string>? LineReceived;
 
     public bool IsConnected => _isConnected;
+
+    public Task WaitConnectedAsync(CancellationToken ct = default)
+        => _connectedTcs.Task.WaitAsync(ct);
 
     public async Task StartConnectAsync(CancellationToken ct = default)
     {
@@ -34,14 +39,17 @@ public sealed class NetConService : INetConService
             if (token.IsCancellationRequested) return;
 
             var client = new NetConClient();
-            client.LineReceived += line => LineReceived?.Invoke(line);
-            client.Disconnected += OnClientDisconnected;
-
             try
             {
                 await client.ConnectAsync(token);
+
+                // Subscribe events only after a successful connect
+                client.LineReceived += line => LineReceived?.Invoke(line);
+                client.Disconnected += OnClientDisconnected;
+
                 _client = client;
                 _isConnected = true;
+                _connectedTcs.TrySetResult();
                 AppLog.Info($"NetConService: connected (attempt {attempt})");
                 return;
             }
@@ -53,7 +61,7 @@ public sealed class NetConService : INetConService
             catch (Exception ex)
             {
                 client.Dispose();
-                AppLog.Info($"NetConService: attempt {attempt}/{MaxAttempts} failed — {ex.Message}");
+                AppLog.Warn($"NetConService: attempt {attempt}/{MaxAttempts} failed — {ex.Message}");
                 try { await Task.Delay(RetryDelay, token); }
                 catch (OperationCanceledException) { return; }
             }
@@ -77,12 +85,18 @@ public sealed class NetConService : INetConService
         _client?.Dispose();
         _client = null;
         _isConnected = false;
+
+        // Reset the TCS so future WaitConnectedAsync calls wait for the next connect
+        var old = _connectedTcs;
+        _connectedTcs = new TaskCompletionSource();
+        old.TrySetCanceled();
     }
 
     public async Task SendCommandAsync(string command)
     {
-        if (_client == null) return;
-        await _client.SendCommandAsync(command);
+        var client = _client; // capture to avoid TOCTOU if Disconnect races
+        if (client == null) return;
+        await client.SendCommandAsync(command);
     }
 
     public void Dispose() => Disconnect();
