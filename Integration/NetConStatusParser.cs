@@ -14,8 +14,9 @@ public static class NetConStatusParser
         new(@":(\d+)\s+os\(", RegexOptions.Compiled);
 
     /// <summary>
-    /// Extracts the server port string from a <c>type(dedicated)</c> status line.
+    /// Extracts the server port string from a Source engine <c>status</c> line containing <c>os(</c>.
     /// Returns <c>null</c> if the line does not match the expected format.
+    /// Note: this method does not check for <c>type(dedicated)</c> — that filtering is the caller's responsibility.
     /// </summary>
     public static string? ParseServerPort(string line)
     {

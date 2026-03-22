@@ -22,8 +22,9 @@ public class NetConStatusParserTests
     }
 
     [Fact]
-    public void ParseServerPort_WindowsOs_ReturnsPort()
+    public void ParseServerPort_AlternativeOsToken_ReturnsPort()
     {
+        // Regex matches any os(...) token — not Linux-specific
         var line = "udp/ip  :  0.0.0.0:27015 os(Windows) type(dedicated)";
         Assert.Equal("27015", NetConStatusParser.ParseServerPort(line));
     }
@@ -81,6 +82,13 @@ public class NetConStatusParserTests
     {
         // IPv6-style or double-colon — last colon wins
         Assert.Equal("27015", NetConStatusParser.ExtractTargetPort("::1:27015"));
+    }
+
+    [Fact]
+    public void ExtractTargetPort_TrailingColonOnly_ReturnsEmpty()
+    {
+        // Malformed URL — returns "" (not null); caller comparison with ParseServerPort will be false
+        Assert.Equal("", NetConStatusParser.ExtractTargetPort("192.168.50.12:"));
     }
 
     // ── port matching (integration of both) ──────────────────────────────────
