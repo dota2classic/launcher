@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.VisualTree;
@@ -19,32 +18,6 @@ public partial class ChatPanel : UserControl
     {
         InitializeComponent();
         AddHandler(RichMessageBlock.PlayerLinkClickedEvent, OnPlayerLinkClicked);
-    }
-
-    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
-    {
-        base.OnAttachedToVisualTree(e);
-        if (TopLevel.GetTopLevel(this) is { } root)
-            root.AddHandler(KeyDownEvent, OnGlobalKeyDown, RoutingStrategies.Tunnel);
-    }
-
-    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
-    {
-        base.OnDetachedFromVisualTree(e);
-        if (TopLevel.GetTopLevel(this) is { } root)
-            root.RemoveHandler(KeyDownEvent, OnGlobalKeyDown);
-    }
-
-    private void OnGlobalKeyDown(object? sender, KeyEventArgs e)
-    {
-        if (!MessageInput.IsFocused
-            && IsVisible
-            && !e.Handled
-            && IsTypingKey(e.Key, e.KeyModifiers)
-            && TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() is not TextBox)
-        {
-            MessageInput.Focus();
-        }
     }
 
     private void OnPlayerLinkClicked(object? sender, PlayerLinkClickedEventArgs e)
@@ -67,21 +40,6 @@ public partial class ChatPanel : UserControl
         _vm = DataContext as ChatViewModel;
         if (_vm != null)
             _vm.MessagesUpdated += ScrollToBottom;
-    }
-
-    private static bool IsTypingKey(Key key, KeyModifiers modifiers)
-    {
-        if (modifiers.HasFlag(KeyModifiers.Control) || modifiers.HasFlag(KeyModifiers.Alt))
-            return false;
-        return key is not (
-            Key.None or Key.Escape or Key.Tab or Key.Enter or Key.Back or Key.Delete or
-            Key.Left or Key.Right or Key.Up or Key.Down or
-            Key.Home or Key.End or Key.PageUp or Key.PageDown or Key.Insert or
-            Key.LeftShift or Key.RightShift or Key.LeftCtrl or Key.RightCtrl or
-            Key.LeftAlt or Key.RightAlt or Key.LWin or Key.RWin or
-            Key.CapsLock or Key.NumLock or Key.Scroll or Key.PrintScreen or Key.Pause or Key.Apps or
-            Key.F1 or Key.F2 or Key.F3 or Key.F4 or Key.F5 or Key.F6 or
-            Key.F7 or Key.F8 or Key.F9 or Key.F10 or Key.F11 or Key.F12);
     }
 
     private void OnInputKeyDown(object? sender, KeyEventArgs e)
