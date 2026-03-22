@@ -19,6 +19,7 @@ public sealed class NetConService : INetConService
     private CancellationTokenSource? _connectCts;
     private volatile bool _isConnected;
     private TaskCompletionSource _connectedTcs = new();
+    private readonly object _tcsLock = new();
 
     public event Action<string>? LineReceived;
 
@@ -44,7 +45,7 @@ public sealed class NetConService : INetConService
                 await client.ConnectAsync(token);
 
                 // Subscribe events only after a successful connect
-                client.LineReceived += line => LineReceived?.Invoke(line);
+                client.LineReceived += OnClientLineReceived;
                 client.Disconnected += OnClientDisconnected;
 
                 _client = client;
@@ -70,10 +71,24 @@ public sealed class NetConService : INetConService
         AppLog.Warn("NetConService: gave up connecting after all attempts");
     }
 
+    private void OnClientLineReceived(string line) => LineReceived?.Invoke(line);
+
     private void OnClientDisconnected()
     {
         _isConnected = false;
+        ResetTcs();
         AppLog.Info("NetConService: connection lost");
+    }
+
+    private void ResetTcs()
+    {
+        TaskCompletionSource old;
+        lock (_tcsLock)
+        {
+            old = _connectedTcs;
+            _connectedTcs = new TaskCompletionSource();
+        }
+        old.TrySetCanceled();
     }
 
     public void Disconnect()
@@ -82,14 +97,18 @@ public sealed class NetConService : INetConService
         _connectCts?.Dispose();
         _connectCts = null;
 
-        _client?.Dispose();
-        _client = null;
+        var client = _client;
+        if (client != null)
+        {
+            client.LineReceived -= OnClientLineReceived;
+            client.Disconnected -= OnClientDisconnected;
+            client.Dispose();
+            _client = null;
+        }
         _isConnected = false;
 
         // Reset the TCS so future WaitConnectedAsync calls wait for the next connect
-        var old = _connectedTcs;
-        _connectedTcs = new TaskCompletionSource();
-        old.TrySetCanceled();
+        ResetTcs();
     }
 
     public async Task SendCommandAsync(string command)
