@@ -31,10 +31,16 @@ public static class FaroTelemetryService
     private static Dictionary<string, string> _hwAttributes = [];
     private static string _osName = "Windows";
 
-    /// <summary>GPU vendor string derived from hardware snapshot: "AMD", "NVIDIA", "Intel", or "Unknown".</summary>
+    /// <summary>
+    /// GPU vendor string derived from hardware snapshot: "AMD", "NVIDIA", "Intel", or "Unknown".
+    /// Written once at startup (via <see cref="Init"/> → <see cref="ApplyHardware"/>) before any reads.
+    /// </summary>
     public static string GpuVendor { get; private set; } = "Unknown";
 
-    /// <summary>OS build number string (e.g. "19045") derived from hardware snapshot.</summary>
+    /// <summary>
+    /// OS build number string (e.g. "19045") derived from hardware snapshot.
+    /// Written once at startup (via <see cref="Init"/> → <see cref="ApplyHardware"/>) before any reads.
+    /// </summary>
     public static string OsBuild { get; private set; } = "?";
 
     private static readonly ConcurrentQueue<FaroLog> LogQueue = new();
@@ -137,13 +143,16 @@ public static class FaroTelemetryService
     {
         foreach (var gpu in gpus)
         {
-            if (gpu.Contains("AMD", StringComparison.OrdinalIgnoreCase) ||
-                gpu.Contains("Radeon", StringComparison.OrdinalIgnoreCase))
+            // Match only the name segment (before the first '|') — the full string is
+            // "Name | Driver: X | VRAM: Y MB"; searching the full string risks false positives.
+            var name = gpu.Split('|')[0];
+            if (name.Contains("AMD", StringComparison.OrdinalIgnoreCase) ||
+                name.Contains("Radeon", StringComparison.OrdinalIgnoreCase))
                 return "AMD";
-            if (gpu.Contains("NVIDIA", StringComparison.OrdinalIgnoreCase) ||
-                gpu.Contains("GeForce", StringComparison.OrdinalIgnoreCase))
+            if (name.Contains("NVIDIA", StringComparison.OrdinalIgnoreCase) ||
+                name.Contains("GeForce", StringComparison.OrdinalIgnoreCase))
                 return "NVIDIA";
-            if (gpu.Contains("Intel", StringComparison.OrdinalIgnoreCase))
+            if (name.Contains("Intel", StringComparison.OrdinalIgnoreCase))
                 return "Intel";
         }
         return "Unknown";

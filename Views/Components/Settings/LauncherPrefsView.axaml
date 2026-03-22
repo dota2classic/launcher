@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:d2c_launcher.ViewModels"
              xmlns:res="clr-namespace:d2c_launcher.Resources"
+             xmlns:l="clr-namespace:d2c_launcher.Util"
              x:Class="d2c_launcher.Views.Components.Settings.LauncherPrefsView"
              x:DataType="vm:LauncherPrefsViewModel">
 
@@ -85,10 +86,11 @@
             </CheckBox>
 
             <!-- Vista compatibility mode -->
-            <CheckBox IsChecked="{Binding VistaCompatibilityEnabled}">
+            <CheckBox IsChecked="{Binding VistaCompatibilityEnabled}"
+                      IsEnabled="{Binding IsGameDirectorySet}">
                 <StackPanel Spacing="2">
-                    <TextBlock Text="{x:Static res:Strings.VistaCompatibilityTitle}" Classes="setting-label"/>
-                    <TextBlock Text="{x:Static res:Strings.VistaCompatibilityDescription}" Classes="setting-desc"/>
+                    <TextBlock Text="{l:T 'settings.vistaCompatibilityTitle'}" Classes="setting-label"/>
+                    <TextBlock Text="{l:T 'settings.vistaCompatibilityDescription'}" Classes="setting-desc"/>
                 </StackPanel>
             </CheckBox>
 

@@ -100,7 +100,10 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
 
     private readonly ServerUrlTracker _serverUrlTracker = new();
     private CancellationTokenSource? _connectCts;
-    private int? _lastProcessExitCode;
+    // Written from MonitorProcessAsync (thread pool), read from RefreshRunState (UI thread).
+    // volatile ensures the UI-thread read always sees the most recently written value.
+    // int.MinValue is the sentinel meaning "no exit code captured yet".
+    private volatile int _lastProcessExitCode = int.MinValue;
 
     private void UpdateServerUrl(PlayerGameStateMessage? msg)
     {
@@ -430,9 +433,9 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
                 _netConService.Disconnect();
                 var exitAttrs = new System.Collections.Generic.Dictionary<string, string>();
                 var exitCode = _lastProcessExitCode;
-                _lastProcessExitCode = null;
-                if (exitCode.HasValue)
-                    exitAttrs["exit_code"] = exitCode.Value.ToString();
+                _lastProcessExitCode = int.MinValue;
+                if (exitCode != int.MinValue)
+                    exitAttrs["exit_code"] = exitCode.ToString();
                 d2c_launcher.Services.FaroTelemetryService.TrackEvent("game_exited", exitAttrs);
                 if (!string.IsNullOrWhiteSpace(GameDirectory))
                 {

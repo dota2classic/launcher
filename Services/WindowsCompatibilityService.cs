@@ -54,13 +54,20 @@ public static class WindowsCompatibilityService
 
     /// <summary>
     /// Sets or clears the Vista compatibility layer for dota.exe at <paramref name="exePath"/>.
+    /// Returns true on success, false if the registry write failed.
     /// </summary>
-    public static void SetVistaCompat(string exePath, bool enabled)
+    public static bool SetVistaCompat(string exePath, bool enabled)
     {
         try
         {
             using var key = Registry.CurrentUser.OpenSubKey(LayersKeyPath, writable: true)
                 ?? Registry.CurrentUser.CreateSubKey(LayersKeyPath);
+
+            if (key == null)
+            {
+                AppLog.Error("[Compat] Could not open or create AppCompatFlags\\Layers (access denied?)");
+                return false;
+            }
 
             if (enabled)
                 key.SetValue(exePath, VistaCompatValue, RegistryValueKind.String);
@@ -68,10 +75,12 @@ public static class WindowsCompatibilityService
                 key.DeleteValue(exePath, throwOnMissingValue: false);
 
             AppLog.Info($"[Compat] Vista compat {(enabled ? "enabled" : "disabled")} for {exePath}");
+            return true;
         }
         catch (Exception ex)
         {
             AppLog.Error("[Compat] Failed to write AppCompatFlags", ex);
+            return false;
         }
     }
 
@@ -82,16 +91,21 @@ public static class WindowsCompatibilityService
     /// Heuristic: AMD/Radeon GPU present AND Windows build ≥ 14393 (Anniversary Update —
     /// the build that changed D3DCREATE_MIXED_VERTEXPROCESSING to force software VP).
     /// Source: Microsoft Compatibility Cookbook, "Changes in DX9 legacy support".
+    ///
+    /// Internal until a proactive-suggestion UI is wired up.
     /// </summary>
-    public static bool DetectNeedsCompat(HardwareSnapshot hw)
+    internal static bool DetectNeedsCompat(HardwareSnapshot hw)
     {
         if (!int.TryParse(hw.OsBuild, out var build) || build < 14393)
             return false;
 
         foreach (var gpu in hw.Gpus)
         {
-            if (gpu.Contains("AMD", StringComparison.OrdinalIgnoreCase) ||
-                gpu.Contains("Radeon", StringComparison.OrdinalIgnoreCase))
+            // Match only the name segment (before the first '|') to avoid false positives
+            // from driver version strings that might contain a vendor name incidentally.
+            var name = gpu.Split('|')[0];
+            if (name.Contains("AMD", StringComparison.OrdinalIgnoreCase) ||
+                name.Contains("Radeon", StringComparison.OrdinalIgnoreCase))
                 return true;
         }
 
