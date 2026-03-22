@@ -290,13 +290,13 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
     }
 
     public async Task PostChatMessageAsync(
-        string threadId, string content, CancellationToken cancellationToken = default)
+        string threadId, string content, string? replyMessageId = null, CancellationToken cancellationToken = default)
     {
         var api = new DotaclassicApiClient(_authHttpClient);
         // The POST body expects the full prefixed threadId (e.g. "forum_<uuid>"),
         // while the GET endpoints use the bare UUID + a separate threadType param.
         await api.ForumController_postMessageAsync(
-            new Api.CreateMessageDTO { ThreadId = $"forum_{threadId}", Content = content },
+            new Api.CreateMessageDTO { ThreadId = $"forum_{threadId}", Content = content, ReplyMessageId = replyMessageId },
             cancellationToken).ConfigureAwait(false);
     }
 

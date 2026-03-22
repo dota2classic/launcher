@@ -47,6 +47,11 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private bool _isSending;
 
+    [ObservableProperty] private bool _isReplying;
+    [ObservableProperty] private string? _replyTargetId;
+    [ObservableProperty] private string? _replyTargetAuthor;
+    [ObservableProperty] private string? _replyTargetContent;
+
     public event Action? MessagesUpdated;
 
     /// <summary>Set by the parent ViewModel to navigate to a player's profile. Receives steam32 ID.</summary>
@@ -288,6 +293,23 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         }
     }
 
+    public void SetReplyTarget(ChatMessageView msg)
+    {
+        ReplyTargetId = msg.MessageId;
+        ReplyTargetAuthor = msg.AuthorName;
+        ReplyTargetContent = msg.Content;
+        IsReplying = true;
+    }
+
+    [RelayCommand]
+    private void CancelReply()
+    {
+        IsReplying = false;
+        ReplyTargetId = null;
+        ReplyTargetAuthor = null;
+        ReplyTargetContent = null;
+    }
+
     [RelayCommand]
     private async Task SendMessageAsync()
     {
@@ -296,10 +318,12 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
         IsSending = true;
         var saved = text;
+        var replyId = ReplyTargetId;
+        CancelReply();
         try
         {
             InputText = "";
-            await _backendApiService.PostChatMessageAsync(_threadId, text)
+            await _backendApiService.PostChatMessageAsync(_threadId, text, replyId)
                 .ConfigureAwait(false);
             // SSE will deliver the sent message — no manual refresh needed.
         }
