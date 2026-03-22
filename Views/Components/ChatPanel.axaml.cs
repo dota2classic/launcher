@@ -42,6 +42,28 @@ public partial class ChatPanel : UserControl
             _vm.MessagesUpdated += ScrollToBottom;
     }
 
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        base.OnKeyDown(e);
+        if (!MessageInput.IsFocused && !e.Handled && IsTypingKey(e.Key, e.KeyModifiers))
+            MessageInput.Focus();
+    }
+
+    private static bool IsTypingKey(Key key, KeyModifiers modifiers)
+    {
+        if (modifiers.HasFlag(KeyModifiers.Control) || modifiers.HasFlag(KeyModifiers.Alt))
+            return false;
+        return key is not (
+            Key.None or Key.Escape or Key.Tab or Key.Enter or Key.Back or Key.Delete or
+            Key.Left or Key.Right or Key.Up or Key.Down or
+            Key.Home or Key.End or Key.PageUp or Key.PageDown or Key.Insert or
+            Key.LeftShift or Key.RightShift or Key.LeftCtrl or Key.RightCtrl or
+            Key.LeftAlt or Key.RightAlt or Key.LWin or Key.RWin or
+            Key.CapsLock or Key.NumLock or Key.Scroll or Key.PrintScreen or Key.Pause or Key.Apps or
+            Key.F1 or Key.F2 or Key.F3 or Key.F4 or Key.F5 or Key.F6 or
+            Key.F7 or Key.F8 or Key.F9 or Key.F10 or Key.F11 or Key.F12);
+    }
+
     private void OnInputKeyDown(object? sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter && DataContext is ChatViewModel vm)
