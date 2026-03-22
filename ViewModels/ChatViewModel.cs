@@ -319,13 +319,13 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         IsSending = true;
         var saved = text;
         var replyId = ReplyTargetId;
-        CancelReply();
         try
         {
             InputText = "";
             await _backendApiService.PostChatMessageAsync(_threadId, text, replyId)
                 .ConfigureAwait(false);
             // SSE will deliver the sent message — no manual refresh needed.
+            Dispatcher.UIThread.Post(CancelReply);
         }
         catch (Exception ex)
         {
@@ -334,7 +334,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         }
         finally
         {
-            IsSending = false;
+            Dispatcher.UIThread.Post(() => IsSending = false);
         }
     }
 
