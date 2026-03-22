@@ -301,6 +301,21 @@
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
 
+                                            <!-- Reply button -->
+                                            <Button Classes="IconButton"
+                                                    Background="Transparent"
+                                                    BorderThickness="0"
+                                                    Padding="4"
+                                                    Width="28" Height="28"
+                                                    Cursor="Hand"
+                                                    CornerRadius="4"
+                                                    ToolTip.Tip="{util:T 'chat.reply'}"
+                                                    Click="OnReplyClicked">
+                                                <materialIcons:MaterialIcon Kind="ReplyOutline"
+                                                                            Width="16" Height="16"
+                                                                            Foreground="#48525a"/>
+                                            </Button>
+
                                             <!-- "More emoticons" button with picker flyout -->
                                             <Button Classes="IconButton"
                                                     Background="Transparent"
@@ -366,8 +381,48 @@
 
             <!-- Input -->
             <Border Grid.Row="2"
-                    BorderBrush="#1e2530" BorderThickness="0,1,0,0"
-                    Padding="10,8">
+                    BorderBrush="#1e2530" BorderThickness="0,1,0,0">
+                <StackPanel>
+                <!-- Reply preview banner -->
+                <Border IsVisible="{Binding IsReplying}"
+                        Background="#131820"
+                        BorderBrush="#3a90d6" BorderThickness="0,0,0,1"
+                        Padding="14,6">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Grid.Column="0" Spacing="1" VerticalAlignment="Center">
+                            <TextBlock FontSize="{DynamicResource FontSizeXS}"
+                                       Foreground="#3a90d6"
+                                       FontWeight="SemiBold">
+                                <Run Text="{util:T 'chat.replyingTo'}"/>
+                                <Run Text=" "/>
+                                <Run Text="{Binding ReplyTargetAuthor}"/>
+                            </TextBlock>
+                            <TextBlock Text="{Binding ReplyTargetContent}"
+                                       FontSize="{DynamicResource FontSizeXS}"
+                                       Foreground="#6b7a8d"
+                                       TextTrimming="CharacterEllipsis"
+                                       MaxLines="1"/>
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Command="{Binding CancelReplyCommand}"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Padding="4"
+                                Width="24" Height="24"
+                                VerticalAlignment="Center"
+                                ToolTip.Tip="{util:T 'chat.cancelReply'}">
+                            <Button.Styles>
+                                <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                </Style>
+                            </Button.Styles>
+                            <materialIcons:MaterialIcon Kind="Close"
+                                                        Width="14" Height="14"
+                                                        Foreground="#48525a"/>
+                        </Button>
+                    </Grid>
+                </Border>
+                <Border Padding="10,8">
                 <Border Background="#1a1d23"
                         CornerRadius="6"
                         Padding="10,0,4,0">
@@ -476,6 +531,8 @@
 
                     </Grid>
                 </Border>
+                </Border>
+                </StackPanel>
             </Border>
 
         </Grid>

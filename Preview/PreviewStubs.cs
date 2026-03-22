@@ -99,7 +99,7 @@ internal sealed class StubBackendApiService : IBackendApiService
             new ChatMessageData("6", threadId, "играю сносно https://dotaclassic.ru/players/198768255 але", "2025-03-05T20:11:00Z", "222", "лоутаб секьюрити", null, false),
         ]);
 
-    public Task PostChatMessageAsync(string threadId, string content, CancellationToken cancellationToken = default)
+    public Task PostChatMessageAsync(string threadId, string content, string? replyMessageId = null, CancellationToken cancellationToken = default)
         => Task.CompletedTask;
 
     public Task<IReadOnlyList<EmoticonData>> GetEmoticonsAsync(string? steamId = null, CancellationToken cancellationToken = default)
@@ -272,7 +272,7 @@ internal sealed class StubNetConService : INetConService
     public Task StartConnectAsync(CancellationToken ct = default) => Task.CompletedTask;
     public void Disconnect() { }
     public Task SendCommandAsync(string command) => Task.CompletedTask;
-    public Task WaitConnectedAsync(CancellationToken ct = default) => Task.FromCanceled(ct);
+    public Task WaitConnectedAsync(CancellationToken ct = default) => Task.Delay(Timeout.Infinite, ct);
     public void Dispose() { }
 }
 

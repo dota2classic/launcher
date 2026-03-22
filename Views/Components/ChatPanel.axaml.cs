@@ -63,6 +63,12 @@ public partial class ChatPanel : UserControl
     private void OnDotaclassicPlusClicked(object? sender, RoutedEventArgs e) =>
         Process.Start(new ProcessStartInfo("https://dotaclassic.ru/store") { UseShellExecute = true });
 
+    private void OnReplyClicked(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button { DataContext: ChatMessageView msg } && DataContext is ChatViewModel vm)
+            vm.SetReplyTarget(msg);
+    }
+
     private void OnPickerReactClicked(object? sender, RoutedEventArgs e)
     {
         if (sender is Control v &&

@@ -17,7 +17,7 @@ public interface IBackendApiService
     Task<(string? Name, string? AvatarUrl)?> GetUserInfoAsync(string steamId, CancellationToken cancellationToken = default);
     Task<(int InGame, int OnSite)> GetOnlineStatsAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ChatMessageData>> GetChatMessagesAsync(string threadId, int limit, CancellationToken cancellationToken = default);
-    Task PostChatMessageAsync(string threadId, string content, CancellationToken cancellationToken = default);
+    Task PostChatMessageAsync(string threadId, string content, string? replyMessageId = null, CancellationToken cancellationToken = default);
     IAsyncEnumerable<ChatMessageData> SubscribeChatAsync(string threadId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<EmoticonData>> GetEmoticonsAsync(string? steamId = null, CancellationToken cancellationToken = default);
     /// <summary>Returns the live match with the given ID, or null if not found.</summary>
