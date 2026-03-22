@@ -22,6 +22,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
     private readonly IVideoSettingsProvider _videoProvider;
     private readonly IBackendApiService _backendApiService;
     private readonly IQueueSocketService _queueSocketService;
+    private readonly INetConService _netConService;
     private readonly DispatcherTimer _runStateTimer;
 
     [ObservableProperty]
@@ -72,7 +73,8 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         ICvarSettingsProvider cvarProvider,
         IVideoSettingsProvider videoProvider,
         IQueueSocketService queueSocketService,
-        IBackendApiService backendApiService)
+        IBackendApiService backendApiService,
+        INetConService netConService)
     {
         _settingsStorage = settingsStorage;
         _launchSettingsStorage = launchSettingsStorage;
@@ -80,6 +82,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         _videoProvider = videoProvider;
         _backendApiService = backendApiService;
         _queueSocketService = queueSocketService;
+        _netConService = netConService;
         var settings = settingsStorage.Get();
         _gameDirectory = settings.GameDirectory;
         _runState = GameRunState.None;
@@ -283,10 +286,10 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
             return;
         }
 
-        // Game already running — send connect command via console
-        AppLog.Info("ConnectToGame: waiting for DOTA 2 window...");
+        // Game already running — send connect command via NetCon
+        AppLog.Info("ConnectToGame: waiting for NetCon connection...");
         var deadline = DateTimeOffset.UtcNow.AddSeconds(90);
-        while (!DotaConsoleConnector.IsWindowOpen())
+        while (!_netConService.IsConnected)
         {
             if (ct.IsCancellationRequested)
             {
@@ -295,7 +298,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
             }
             if (DateTimeOffset.UtcNow >= deadline)
             {
-                AppLog.Info("ConnectToGame: timed out waiting for DOTA 2 window");
+                AppLog.Info("ConnectToGame: timed out waiting for NetCon connection");
                 if (!string.IsNullOrWhiteSpace(GameDirectory))
                 {
                     var tail = TailConsoleLog(GameDirectory);
@@ -316,7 +319,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         }
 
         AppLog.Info($"ConnectToGame: sending 'connect {url}'");
-        DotaConsoleConnector.SendCommand($"connect {url}");
+        await _netConService.SendCommandAsync($"connect {url}");
         DotaConsoleConnector.FocusWindow();
     }
 
@@ -414,9 +417,14 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
             // Track game running state so CvarSettingsProvider knows whether to write config.cfg
             _cvarProvider.IsGameRunning = newState == GameRunState.OurGameRunning;
 
-            // On game exit: re-read config files to capture any in-game changes
-            if (previousState == GameRunState.OurGameRunning && newState != GameRunState.OurGameRunning)
+            // Connect NetCon when game starts; disconnect when game exits
+            if (previousState != GameRunState.OurGameRunning && newState == GameRunState.OurGameRunning)
             {
+                _ = _netConService.StartConnectAsync();
+            }
+            else if (previousState == GameRunState.OurGameRunning && newState != GameRunState.OurGameRunning)
+            {
+                _netConService.Disconnect();
                 d2c_launcher.Services.FaroTelemetryService.TrackEvent("game_exited");
                 if (!string.IsNullOrWhiteSpace(GameDirectory))
                 {

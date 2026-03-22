@@ -263,6 +263,18 @@ internal sealed class StubChatViewModelFactory : IChatViewModelFactory
         => new(threadId, new StubBackendApiService(), new StubHttpImageService(), new StubEmoticonService(), new StubQueueSocketService(), new StubWindowService());
 }
 
+internal sealed class StubNetConService : INetConService
+{
+#pragma warning disable CS0067
+    public event Action<string>? LineReceived;
+#pragma warning restore CS0067
+    public bool IsConnected => false;
+    public Task StartConnectAsync(CancellationToken ct = default) => Task.CompletedTask;
+    public void Disconnect() { }
+    public Task SendCommandAsync(string command) => Task.CompletedTask;
+    public void Dispose() { }
+}
+
 internal sealed class StubTriviaRepository : ITriviaRepository
 {
     public Task<d2c_launcher.Models.TriviaQuestion[]> LoadAsync()

@@ -27,6 +27,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     private readonly IContentRegistryService _registryService;
     private readonly AuthCoordinator _authCoordinator;
     private readonly IWindowService _windowService;
+    private readonly INetConService _netConService;
 
     /// <summary>
     /// Called when the user applies DLC changes in Settings. Receives the list of
@@ -125,7 +126,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         ISteamAuthApi steamAuthApi,
         IUiDispatcher dispatcher,
         ITriviaRepository triviaRepository,
-        ITimerFactory timerFactory)
+        ITimerFactory timerFactory,
+        INetConService netConService)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -135,6 +137,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         _backendApiService = backendApiService;
         _registryService = registryService;
         _windowService = windowService;
+        _netConService = netConService;
 
         var settings = settingsStorage.Get();
         _isIntroOpen = !settings.IntroShown;
@@ -157,7 +160,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         }
 
         // Create child ViewModels
-        Launch = new GameLaunchViewModel(settingsStorage, launchSettingsStorage, cvarProvider, videoProvider, queueSocketService, backendApiService);
+        Launch = new GameLaunchViewModel(settingsStorage, launchSettingsStorage, cvarProvider, videoProvider, queueSocketService, backendApiService, netConService);
         Queue = new QueueViewModel(queueSocketService, backendApiService, settingsStorage, triviaRepository, timerFactory);
         Room = new RoomViewModel(queueSocketService, backendApiService);
         Party = new PartyViewModel(queueSocketService, backendApiService);
@@ -270,8 +273,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
     private void PushCvarIfGameRunning(string cvar, string value)
     {
-        if (Launch.RunState == GameRunState.OurGameRunning)
-            DotaConsoleConnector.SendCommand($"{cvar} {value}");
+        if (_netConService.IsConnected)
+            _ = _netConService.SendCommandAsync($"{cvar} {value}");
     }
 
     // ── Search / connect ──────────────────────────────────────────────────────
