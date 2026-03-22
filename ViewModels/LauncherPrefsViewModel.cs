@@ -19,11 +19,20 @@ public partial class LauncherPrefsViewModel : ViewModelBase
     [ObservableProperty] private string _gameDirectory = Strings.NotSpecified;
     [ObservableProperty] private string _folderSizeText = "";
 
+    public bool IsGameDirectorySet => !string.IsNullOrEmpty(_settingsStorage.Get().GameDirectory);
+
     public void RefreshGameDirectory()
     {
         var dir = _settingsStorage.Get().GameDirectory;
         GameDirectory = dir ?? Strings.NotSpecified;
         FolderSizeText = "";
+        OnPropertyChanged(nameof(IsGameDirectorySet));
+
+        // Refresh Vista compat state from registry — reads once per directory change
+        // rather than on every binding evaluation.
+        var exePath = string.IsNullOrEmpty(dir) ? null : Path.Combine(dir, "dota.exe");
+        _vistaCompatEnabled = exePath != null && WindowsCompatibilityService.IsVistaCompatEnabled(exePath);
+        OnPropertyChanged(nameof(VistaCompatibilityEnabled));
 
         if (!string.IsNullOrEmpty(dir) && Directory.Exists(dir))
         {
@@ -135,10 +144,41 @@ public partial class LauncherPrefsViewModel : ViewModelBase
         Dispatcher.UIThread.Post(() => OnPropertyChanged(nameof(DefenderExclusionEnabled)));
     }
 
+    // Cached so the getter doesn't perform a registry read on every binding evaluation.
+    // Refreshed in RefreshGameDirectory() and updated in the setter on successful write.
+    private bool _vistaCompatEnabled;
+
+    public bool VistaCompatibilityEnabled
+    {
+        get => _vistaCompatEnabled;
+        set
+        {
+            var dir = _settingsStorage.Get().GameDirectory;
+            if (string.IsNullOrEmpty(dir))
+            {
+                OnPropertyChanged(); // snap back — no game dir, nothing to write
+                return;
+            }
+            var exePath = Path.Combine(dir, "dota.exe");
+            var success = WindowsCompatibilityService.SetVistaCompat(exePath, value);
+            if (success)
+                _vistaCompatEnabled = value;
+            OnPropertyChanged();
+        }
+    }
+
     // ── Constructor ────────────────────────────────────────────────────────────
 
     public LauncherPrefsViewModel(ISettingsStorage settingsStorage)
     {
         _settingsStorage = settingsStorage;
+
+        // Initialize Vista compat cache from registry at construction time.
+        var dir = settingsStorage.Get().GameDirectory;
+        if (!string.IsNullOrEmpty(dir))
+        {
+            var exePath = Path.Combine(dir, "dota.exe");
+            _vistaCompatEnabled = WindowsCompatibilityService.IsVistaCompatEnabled(exePath);
+        }
     }
 }

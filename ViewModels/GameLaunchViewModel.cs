@@ -100,6 +100,10 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
 
     private readonly ServerUrlTracker _serverUrlTracker = new();
     private CancellationTokenSource? _connectCts;
+    // Written from MonitorProcessAsync (thread pool), read from RefreshRunState (UI thread).
+    // volatile ensures the UI-thread read always sees the most recently written value.
+    // int.MinValue is the sentinel meaning "no exit code captured yet".
+    private volatile int _lastProcessExitCode = int.MinValue;
 
     private void UpdateServerUrl(PlayerGameStateMessage? msg)
     {
@@ -165,6 +169,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         {
             await process.WaitForExitAsync();
             var exitCode = process.ExitCode;
+            _lastProcessExitCode = exitCode;
             // Exit code 0 = normal exit; -1 = killed by user (launcher stop button or Task Manager)
             if (exitCode != 0 && exitCode != -1)
             {
@@ -228,7 +233,13 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
                 WorkingDirectory = GameDirectory,
                 UseShellExecute = true,
             });
-            d2c_launcher.Services.FaroTelemetryService.TrackEvent("game_launched");
+            d2c_launcher.Services.FaroTelemetryService.TrackEvent("game_launched", new()
+            {
+                ["gpu_vendor"] = d2c_launcher.Services.FaroTelemetryService.GpuVendor,
+                ["os_build"] = d2c_launcher.Services.FaroTelemetryService.OsBuild,
+                ["vista_compat_enabled"] = d2c_launcher.Services.WindowsCompatibilityService
+                    .IsVistaCompatEnabled(exePath).ToString().ToLowerInvariant(),
+            });
             if (process != null)
                 _ = MonitorProcessAsync(process, GameDirectory);
             _ = ApplyWindowIconAsync(exePath);
@@ -420,7 +431,12 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
             else if (previousState == GameRunState.OurGameRunning && newState != GameRunState.OurGameRunning)
             {
                 _netConService.Disconnect();
-                d2c_launcher.Services.FaroTelemetryService.TrackEvent("game_exited");
+                var exitAttrs = new System.Collections.Generic.Dictionary<string, string>();
+                var exitCode = _lastProcessExitCode;
+                _lastProcessExitCode = int.MinValue;
+                if (exitCode != int.MinValue)
+                    exitAttrs["exit_code"] = exitCode.ToString();
+                d2c_launcher.Services.FaroTelemetryService.TrackEvent("game_exited", exitAttrs);
                 if (!string.IsNullOrWhiteSpace(GameDirectory))
                 {
                     _cvarProvider.LoadFromConfigCfg(GameDirectory);

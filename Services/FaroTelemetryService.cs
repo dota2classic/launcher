@@ -31,6 +31,18 @@ public static class FaroTelemetryService
     private static Dictionary<string, string> _hwAttributes = [];
     private static string _osName = "Windows";
 
+    /// <summary>
+    /// GPU vendor string derived from hardware snapshot: "AMD", "NVIDIA", "Intel", or "Unknown".
+    /// Written once at startup (via <see cref="Init"/> → <see cref="ApplyHardware"/>) before any reads.
+    /// </summary>
+    public static string GpuVendor { get; private set; } = "Unknown";
+
+    /// <summary>
+    /// OS build number string (e.g. "19045") derived from hardware snapshot.
+    /// Written once at startup (via <see cref="Init"/> → <see cref="ApplyHardware"/>) before any reads.
+    /// </summary>
+    public static string OsBuild { get; private set; } = "?";
+
     private static readonly ConcurrentQueue<FaroLog> LogQueue = new();
     private static readonly ConcurrentQueue<FaroEvent> EventQueue = new();
     private static readonly ConcurrentQueue<FaroEx> ExceptionQueue = new();
@@ -107,6 +119,9 @@ public static class FaroTelemetryService
     private static void ApplyHardware(HardwareSnapshot hw)
     {
         _osName = hw.OsCaption;
+        OsBuild = hw.OsBuild;
+        GpuVendor = DetectGpuVendor(hw.Gpus);
+
         var attrs = new Dictionary<string, string>
         {
             ["hwid"] = hw.Hwid,
@@ -117,10 +132,30 @@ public static class FaroTelemetryService
             ["os"] = hw.OsCaption,
             ["os_build"] = hw.OsBuild,
             ["mobo"] = hw.Mobo,
+            ["gpu_vendor"] = GpuVendor,
         };
         for (var i = 0; i < hw.Gpus.Count; i++)
             attrs[$"gpu{i}"] = hw.Gpus[i];
         _hwAttributes = attrs;
+    }
+
+    private static string DetectGpuVendor(List<string> gpus)
+    {
+        foreach (var gpu in gpus)
+        {
+            // Match only the name segment (before the first '|') — the full string is
+            // "Name | Driver: X | VRAM: Y MB"; searching the full string risks false positives.
+            var name = gpu.Split('|')[0];
+            if (name.Contains("AMD", StringComparison.OrdinalIgnoreCase) ||
+                name.Contains("Radeon", StringComparison.OrdinalIgnoreCase))
+                return "AMD";
+            if (name.Contains("NVIDIA", StringComparison.OrdinalIgnoreCase) ||
+                name.Contains("GeForce", StringComparison.OrdinalIgnoreCase))
+                return "NVIDIA";
+            if (name.Contains("Intel", StringComparison.OrdinalIgnoreCase))
+                return "Intel";
+        }
+        return "Unknown";
     }
 
     private static object BuildMeta() => new
