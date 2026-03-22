@@ -59,14 +59,15 @@ public partial class App : Application
 
             TaskScheduler.UnobservedTaskException += (_, e) =>
             {
-                AppLog.Error("[Unhandled] Unobserved task exception", e.Exception);
+                AppLog.Error("[Unhandled] Unobserved task exception", e.Exception.InnerException ?? e.Exception);
                 e.SetObserved();
             };
 
             Avalonia.Threading.Dispatcher.UIThread.UnhandledException += (_, e) =>
             {
                 AppLog.Error("[Unhandled] UI thread exception", e.Exception);
-                FaroTelemetryService.FlushAsync().GetAwaiter().GetResult();
+                e.Handled = true;
+                _ = FaroTelemetryService.FlushAsync();
             };
 
             var services = new ServiceCollection();

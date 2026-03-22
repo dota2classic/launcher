@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
+using d2c_launcher.Resources;
 using d2c_launcher.Util;
 using d2c_launcher.ViewModels;
 
@@ -65,7 +66,8 @@ public partial class SelectGameView : UserControl
         }
         catch (Exception ex) when (ex is UnauthorizedAccessException or IOException)
         {
-            vm.DownloadPathError = d2c_launcher.Resources.Strings.NoFolderAccess;
+            AppLog.Warn($"[SelectGame] Cannot create game directory '{gameDir}': {ex.Message}");
+            vm.DownloadPathError = Strings.NoFolderAccess;
             return;
         }
         vm.SelectedDownloadPath = gameDir;

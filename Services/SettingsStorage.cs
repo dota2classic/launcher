@@ -45,9 +45,7 @@ public class SettingsStorage : ISettingsStorage
         }
         catch (Exception ex)
         {
-            // TODO: Log this — silent fallback hides corruption or permission issues.
-            // AppLog.Error("Failed to load settings, using defaults.", ex);
-            _ = ex;
+            AppLog.Error("[Settings] Failed to load settings, using defaults.", ex);
             _cached = new LauncherSettings();
         }
 
