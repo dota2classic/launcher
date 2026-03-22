@@ -242,7 +242,10 @@
     "pickEmoticon": "Выбрать эмоцию",
     "defaultSubscriberTitle": "Подписчик Dotaclassic Plus",
     "roleModeratorTooltip": "Модератор",
-    "roleAdminTooltip": "Администратор"
+    "roleAdminTooltip": "Администратор",
+    "reply": "Ответить",
+    "replyingTo": "В ответ",
+    "cancelReply": "Отмена"
   },
   "download": {
     "downloadGame": "Скачать игру",
