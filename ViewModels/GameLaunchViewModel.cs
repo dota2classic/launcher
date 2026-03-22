@@ -267,6 +267,57 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         _ = ConnectToGameAsync(_connectCts.Token);
     }
 
+    /// <summary>
+    /// Returns true if the game is already connected to the server identified by <paramref name="serverUrl"/>.
+    /// Sends <c>status</c> via NetCon and matches the port from the <c>type(dedicated)</c> line.
+    /// Returns false on timeout (silent = not in a game) or port mismatch (different server/bots/end screen).
+    /// </summary>
+    private async Task<bool> IsAlreadyConnectedToAsync(string serverUrl, CancellationToken ct)
+    {
+        if (!_netConService.IsConnected)
+        {
+            AppLog.Warn("IsAlreadyConnectedTo: NetCon not connected, skipping status check");
+            return false;
+        }
+
+        var targetPort = NetConStatusParser.ExtractTargetPort(serverUrl);
+        if (targetPort == null) return false;
+
+        var tcs = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        void OnLine(string line)
+        {
+            if (line.Contains("type(dedicated)"))
+                tcs.TrySetResult(line);
+        }
+
+        _netConService.LineReceived += OnLine;
+        try
+        {
+            await _netConService.SendCommandAsync("status").ConfigureAwait(false);
+
+            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            timeoutCts.CancelAfter(TimeSpan.FromMilliseconds(400));
+            try
+            {
+                var udpLine = await tcs.Task.WaitAsync(timeoutCts.Token).ConfigureAwait(false);
+                var connected = NetConStatusParser.ParseServerPort(udpLine) == targetPort;
+                AppLog.Info($"IsAlreadyConnectedTo: udpLine='{udpLine}' targetPort={targetPort} connected={connected}");
+                return connected;
+            }
+            catch (OperationCanceledException)
+            {
+                ct.ThrowIfCancellationRequested(); // propagate outer cancel; swallow 400ms timeout
+                AppLog.Info($"IsAlreadyConnectedTo: no response within 400ms for port {targetPort}, assuming not connected");
+                return false;
+            }
+        }
+        finally
+        {
+            _netConService.LineReceived -= OnLine;
+        }
+    }
+
     private async Task ConnectToGameAsync(CancellationToken ct)
     {
         var url = ServerUrl;
@@ -324,8 +375,14 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
             return;
         }
 
+        if (await IsAlreadyConnectedToAsync(url, ct).ConfigureAwait(false))
+        {
+            AppLog.Info($"ConnectToGame: already connected to {url}, skipping");
+            return;
+        }
+
         AppLog.Info($"ConnectToGame: sending 'connect {url}'");
-        await _netConService.SendCommandAsync($"connect {url}");
+        await _netConService.SendCommandAsync($"connect {url}").ConfigureAwait(false);
         DotaConsoleConnector.FocusWindow();
     }
 
