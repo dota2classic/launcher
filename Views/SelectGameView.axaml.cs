@@ -1,8 +1,10 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using Avalonia.VisualTree;
+using d2c_launcher.Resources;
 using d2c_launcher.Util;
 using d2c_launcher.ViewModels;
 
@@ -58,7 +60,16 @@ public partial class SelectGameView : UserControl
             return;
 
         var gameDir = Path.Combine(path, "dotaclassic684");
-        Directory.CreateDirectory(gameDir);
+        try
+        {
+            Directory.CreateDirectory(gameDir);
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or IOException)
+        {
+            AppLog.Warn($"[SelectGame] Cannot create game directory '{gameDir}': {ex.Message}");
+            vm.DownloadPathError = Strings.NoFolderAccess;
+            return;
+        }
         vm.SelectedDownloadPath = gameDir;
         await vm.StartDlcSelectionAsync(gameDir);
     }

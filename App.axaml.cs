@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -52,8 +53,21 @@ public partial class App : Application
             AppDomain.CurrentDomain.UnhandledException += (_, e) =>
             {
                 if (e.ExceptionObject is Exception ex)
-                    FaroTelemetryService.TrackException(ex);
+                    AppLog.Error("[Unhandled] AppDomain exception", ex);
                 FaroTelemetryService.ShutdownAsync().GetAwaiter().GetResult();
+            };
+
+            TaskScheduler.UnobservedTaskException += (_, e) =>
+            {
+                AppLog.Error("[Unhandled] Unobserved task exception", e.Exception.InnerException ?? e.Exception);
+                e.SetObserved();
+            };
+
+            Avalonia.Threading.Dispatcher.UIThread.UnhandledException += (_, e) =>
+            {
+                AppLog.Error("[Unhandled] UI thread exception", e.Exception);
+                e.Handled = true;
+                _ = FaroTelemetryService.FlushAsync();
             };
 
             var services = new ServiceCollection();
