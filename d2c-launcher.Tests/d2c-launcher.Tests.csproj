@@ -95,6 +95,7 @@
     <Compile Include="..\Services\HardwareInfoService.cs" Link="Services\HardwareInfoService.cs" />
     <Compile Include="..\Services\FaroTelemetryService.cs" Link="Services\FaroTelemetryService.cs" />
     <!-- Extracted chat services (tested by UserNameResolverTests, EmoticonSnapshotBuilderTests, ChatMessageStreamTests) -->
+    <Compile Include="..\Services\PlayerNameViewModel.cs" Link="Services\PlayerNameViewModel.cs" />
     <Compile Include="..\Services\IUserNameResolver.cs" Link="Services\IUserNameResolver.cs" />
     <Compile Include="..\Services\IEmoticonSnapshotBuilder.cs" Link="Services\IEmoticonSnapshotBuilder.cs" />
     <Compile Include="..\Services\IChatMessageStream.cs" Link="Services\IChatMessageStream.cs" />

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
@@ -12,6 +13,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using d2c_launcher.Models;
+using d2c_launcher.Services;
 
 namespace d2c_launcher.Views.Components;
 
@@ -46,6 +48,8 @@ public class RichMessageBlock : UserControl
     private readonly List<(int Start, int End, string Url)> _urlRanges = new();
     // Maps character ranges to steam32 IDs for player link click detection.
     private readonly List<(int Start, int End, string Steam32Id)> _playerLinkRanges = new();
+    // Active PropertyChanged subscriptions on PlayerNameViewModels — cleared on each RebuildInlines.
+    private readonly List<(PlayerNameViewModel Vm, PropertyChangedEventHandler Handler)> _nameSubscriptions = new();
 
     public static readonly StyledProperty<IReadOnlyList<RichSegment>?> SegmentsProperty =
         AvaloniaProperty.Register<RichMessageBlock, IReadOnlyList<RichSegment>?>(nameof(Segments));
@@ -138,6 +142,10 @@ public class RichMessageBlock : UserControl
 
     private void RebuildInlines()
     {
+        foreach (var (vm, handler) in _nameSubscriptions)
+            vm.PropertyChanged -= handler;
+        _nameSubscriptions.Clear();
+
         _textBlock.Inlines ??= new InlineCollection();
         _textBlock.Inlines.Clear();
         _urlRanges.Clear();
@@ -175,12 +183,18 @@ public class RichMessageBlock : UserControl
 
                 case PlayerLinkSegment pls:
                     var plsStart = charPos;
-                    _textBlock.Inlines.Add(new Run(pls.DisplayName)
+                    var displayName = pls.NameViewModel.DisplayName;
+                    _textBlock.Inlines.Add(new Run(displayName)
                     {
                         Foreground = new SolidColorBrush(Color.Parse("#3a90d6")),
                     });
-                    _playerLinkRanges.Add((plsStart, plsStart + pls.DisplayName.Length, pls.SteamId));
-                    charPos += pls.DisplayName.Length;
+                    _playerLinkRanges.Add((plsStart, plsStart + displayName.Length, pls.SteamId));
+                    charPos += displayName.Length;
+
+                    // When the name resolves, rebuild so the Run text and click ranges update.
+                    PropertyChangedEventHandler nameHandler = (_, _) => RebuildInlines();
+                    pls.NameViewModel.PropertyChanged += nameHandler;
+                    _nameSubscriptions.Add((pls.NameViewModel, nameHandler));
                     break;
 
                 case ImageSegment img:

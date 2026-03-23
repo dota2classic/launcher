@@ -259,11 +259,13 @@ internal sealed class StubUiDispatcher : IUiDispatcher
 
 internal sealed class StubUserNameResolver : IUserNameResolver
 {
-    public IReadOnlyDictionary<string, string?> Cache { get; } = new Dictionary<string, string?>();
-#pragma warning disable CS0067
-    public event Action? NamesUpdated;
-#pragma warning restore CS0067
-    public void ScheduleLoads(IReadOnlyList<d2c_launcher.Models.RichSegment> segments) { }
+    private readonly Dictionary<string, d2c_launcher.Services.PlayerNameViewModel> _vms = new();
+    public d2c_launcher.Services.PlayerNameViewModel GetOrCreate(string steamId)
+    {
+        if (!_vms.TryGetValue(steamId, out var vm))
+            _vms[steamId] = vm = new d2c_launcher.Services.PlayerNameViewModel();
+        return vm;
+    }
 }
 
 internal sealed class StubEmoticonSnapshotBuilder : IEmoticonSnapshotBuilder

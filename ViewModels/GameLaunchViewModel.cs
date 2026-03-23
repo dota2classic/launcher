@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
@@ -100,6 +101,13 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
 
     private void OnPlayerGameStateUpdated(PlayerGameStateMessage? msg) =>
         Dispatcher.UIThread.Post(() => UpdateServerUrl(msg));
+
+    // Strict ip:port pattern — rejects embedded newlines, semicolons, or other injection chars.
+    private static readonly Regex s_serverAddressRegex =
+        new(@"^\d{1,3}(\.\d{1,3}){3}:\d{1,5}$", RegexOptions.Compiled);
+
+    private static bool IsValidServerAddress(string? url) =>
+        url != null && s_serverAddressRegex.IsMatch(url);
 
     private readonly ServerUrlTracker _serverUrlTracker = new();
     private CancellationTokenSource? _connectCts;
@@ -326,6 +334,12 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         var url = ServerUrl;
         if (string.IsNullOrEmpty(url))
             return;
+
+        if (!IsValidServerAddress(url))
+        {
+            AppLog.Warn($"ConnectToGame: rejecting invalid server address '{url}'");
+            return;
+        }
 
         d2c_launcher.Services.FaroTelemetryService.TrackEvent("connect_pressed");
         AppLog.Info($"ConnectToGame: serverUrl={url}");

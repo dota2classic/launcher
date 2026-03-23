@@ -76,7 +76,6 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         _dispatcher = dispatcher;
 
         _emoticonSnapshot.SnapshotReady += OnSnapshotReady;
-        _userNameResolver.NamesUpdated += OnNamesUpdated;
         _messageStream.MessageReceived += OnMessageReceived;
         _queueSocketService.OnlineUpdated += OnOnlineUpdated;
         _windowService.WindowShown += OnWindowShown;
@@ -97,7 +96,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         // Already on the UI thread (EmoticonSnapshotBuilder fires via IUiDispatcher).
         foreach (var msg in Messages)
         {
-            msg.RichContent = RichMessageParser.Parse(msg.Content, _emoticonSnapshot.Images, _userNameResolver.Cache);
+            msg.RichContent = RichMessageParser.Parse(msg.Content, _emoticonSnapshot.Images, _userNameResolver.GetOrCreate);
             SetupQuickReacts(msg);
             foreach (var reaction in msg.Reactions)
             {
@@ -107,8 +106,6 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         }
         PopulateInputEmoticonPicker();
     }
-
-    private void OnNamesUpdated() => ReparseAllMessages();
 
     private void OnMessageReceived(ChatMessageData msg) => ConsumeIncomingMessage(msg);
 
@@ -171,7 +168,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
             if (duplicate != null)
             {
                 duplicate.Content = msg.Content;
-                duplicate.RichContent = RichMessageParser.Parse(msg.Content, _emoticonSnapshot.Images, _userNameResolver.Cache);
+                duplicate.RichContent = RichMessageParser.Parse(msg.Content, _emoticonSnapshot.Images, _userNameResolver.GetOrCreate);
                 if (msg.Reactions != null)
                     duplicate.UpdateReactions(msg.Reactions, data => BuildReactionVm(msg.MessageId, data));
                 return;
@@ -181,8 +178,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 : new ChatEntry(_lastMessageRaw.Value.AuthorSteamId, _lastMessageRaw.Value.CreatedAt);
             var showHeader = ChatGrouper.ShouldShowHeader(prevEntry, new ChatEntry(msg.AuthorSteamId, msg.CreatedAt));
 
-            var richContent = RichMessageParser.Parse(msg.Content, _emoticonSnapshot.Images, _userNameResolver.Cache);
-            _userNameResolver.ScheduleLoads(richContent);
+            var richContent = RichMessageParser.Parse(msg.Content, _emoticonSnapshot.Images, _userNameResolver.GetOrCreate);
             var view = new ChatMessageView(
                 msg.MessageId,
                 msg.Content,
@@ -310,8 +306,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
             var showHeader = ChatGrouper.ShouldShowHeader(prevEntry, new ChatEntry(msg.AuthorSteamId, msg.CreatedAt));
             var parsedDate = ParseDate(msg.CreatedAt);
 
-            var richContent = RichMessageParser.Parse(msg.Content, _emoticonSnapshot.Images, _userNameResolver.Cache);
-            _userNameResolver.ScheduleLoads(richContent);
+            var richContent = RichMessageParser.Parse(msg.Content, _emoticonSnapshot.Images, _userNameResolver.GetOrCreate);
             var view = new ChatMessageView(
                 msg.MessageId,
                 msg.Content,
@@ -357,12 +352,6 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         Messages.Clear();
         foreach (var m in incoming)
             Messages.Add(m);
-    }
-
-    private void ReparseAllMessages()
-    {
-        foreach (var msg in Messages)
-            msg.RichContent = RichMessageParser.Parse(msg.Content, _emoticonSnapshot.Images, _userNameResolver.Cache);
     }
 
     // ── Reactions ─────────────────────────────────────────────────────────────
@@ -451,7 +440,6 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     public void Dispose()
     {
         _emoticonSnapshot.SnapshotReady -= OnSnapshotReady;
-        _userNameResolver.NamesUpdated -= OnNamesUpdated;
         _messageStream.MessageReceived -= OnMessageReceived;
         _queueSocketService.OnlineUpdated -= OnOnlineUpdated;
         _windowService.WindowShown -= OnWindowShown;

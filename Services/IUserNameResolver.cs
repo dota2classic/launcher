@@ -1,32 +1,25 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using d2c_launcher.Models;
 using d2c_launcher.Util;
 
 namespace d2c_launcher.Services;
 
 public interface IUserNameResolver
 {
-    /// <summary>Schedules async name loads for any <see cref="PlayerLinkSegment"/> not yet in the cache.</summary>
-    void ScheduleLoads(IReadOnlyList<RichSegment> segments);
-
-    /// <summary>Read-only view of the name cache. Value is null while the fetch is in-flight.</summary>
-    IReadOnlyDictionary<string, string?> Cache { get; }
-
-    /// <summary>Raised on the UI thread after one or more names are added to the cache.</summary>
-    event Action? NamesUpdated;
+    /// <summary>
+    /// Returns the <see cref="PlayerNameViewModel"/> for the given steamId, creating it if needed
+    /// and scheduling an API fetch on first call. The same instance is returned for every subsequent
+    /// call with the same steamId — DisplayName updates in-place when the name resolves.
+    /// </summary>
+    PlayerNameViewModel GetOrCreate(string steamId);
 }
 
 public sealed class UserNameResolver : IUserNameResolver
 {
     private readonly IBackendApiService _api;
     private readonly IUiDispatcher _dispatcher;
-    private readonly Dictionary<string, string?> _cache = new(StringComparer.Ordinal);
-
-    public IReadOnlyDictionary<string, string?> Cache => _cache;
-    public event Action? NamesUpdated;
+    private readonly Dictionary<string, PlayerNameViewModel> _vms = new(System.StringComparer.Ordinal);
 
     public UserNameResolver(IBackendApiService api, IUiDispatcher dispatcher)
     {
@@ -34,31 +27,34 @@ public sealed class UserNameResolver : IUserNameResolver
         _dispatcher = dispatcher;
     }
 
-    public void ScheduleLoads(IReadOnlyList<RichSegment> segments)
+    public PlayerNameViewModel GetOrCreate(string steamId)
     {
-        foreach (var seg in segments.OfType<PlayerLinkSegment>())
-        {
-            if (_cache.ContainsKey(seg.SteamId)) continue;
-            _cache[seg.SteamId] = null; // mark in-flight
-            _ = LoadAsync(seg.SteamId);
-        }
+        if (_vms.TryGetValue(steamId, out var vm))
+            return vm;
+
+        vm = new PlayerNameViewModel();
+        _vms[steamId] = vm;
+        _ = LoadAsync(steamId, vm);
+        return vm;
     }
 
-    private async Task LoadAsync(string steamId)
+    private async Task LoadAsync(string steamId, PlayerNameViewModel vm)
     {
-        var info = await _api.GetUserInfoAsync(steamId).ConfigureAwait(false);
-        if (info == null)
+        try
         {
-            // No token yet or user not found — remove from cache so it retries next time.
-            _cache.Remove(steamId);
-            return;
-        }
+            var info = await _api.GetUserInfoAsync(steamId).ConfigureAwait(false);
+            if (info == null)
+            {
+                AppLog.Warn($"UserNameResolver: no data for {steamId}");
+                return;
+            }
 
-        var name = info.Value.Name ?? steamId;
-        _dispatcher.Post(() =>
+            var name = info.Value.Name ?? steamId;
+            _dispatcher.Post(() => vm.DisplayName = $"@{name}");
+        }
+        catch (Exception ex)
         {
-            _cache[steamId] = name;
-            NamesUpdated?.Invoke();
-        });
+            AppLog.Warn($"UserNameResolver: failed to load name for {steamId} — {ex.Message}");
+        }
     }
 }

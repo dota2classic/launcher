@@ -91,7 +91,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         {
             if (!Launch.HasServerUrl) return false;
             var mode = Room.RoomMode;
-            if (mode == null) return true;
+            if (mode == null) return false; // no room state = spectating or no active match
             var modeId = (int)mode.Value;
             // Unranked 5x5 (1) and Highroom (8) do not allow abandoning
             return modeId != 1 && modeId != 8;

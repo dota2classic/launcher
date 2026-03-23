@@ -1,116 +1,137 @@
-using System.Runtime.CompilerServices;
-using d2c_launcher.Models;
+using System.ComponentModel;
+using System.Threading.Tasks;
 using Xunit;
 using d2c_launcher.Services;
 using d2c_launcher.Tests.Fakes;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 
 namespace d2c_launcher.Tests;
 
 public sealed class UserNameResolverTests
 {
-    private static PlayerLinkSegment Link(string steamId) =>
-        new(steamId, $"https://example.com/players/{steamId}", steamId);
-
-    // ── ScheduleLoads dedup ───────────────────────────────────────────────────
+    // ── GetOrCreate returns same instance for same steamId ────────────────────
 
     [Fact]
-    public async Task ScheduleLoads_SameId_CalledTwiceBeforeResolution_OnlyOneApiCall()
+    public void GetOrCreate_SameId_ReturnsSameInstance()
     {
-        // Arrange
+        var api = Substitute.For<IBackendApiService>();
+        api.GetUserInfoAsync(Arg.Any<string>(), Arg.Any<System.Threading.CancellationToken>())
+           .Returns(System.Threading.Tasks.Task.FromResult<(string?, string?)?>(null));
+
+        var resolver = new UserNameResolver(api, new SyncDispatcher());
+
+        var vm1 = resolver.GetOrCreate("42");
+        var vm2 = resolver.GetOrCreate("42");
+
+        Assert.Same(vm1, vm2);
+    }
+
+    // ── Only one API call regardless of how many times GetOrCreate is called ──
+
+    [Fact]
+    public async Task GetOrCreate_SameId_CalledTwice_OnlyOneApiCall()
+    {
         var tcs = new TaskCompletionSource<(string?, string?)?>();
         var api = Substitute.For<IBackendApiService>();
-        api.GetUserInfoAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+        api.GetUserInfoAsync(Arg.Any<string>(), Arg.Any<System.Threading.CancellationToken>())
            .Returns(tcs.Task);
 
         var resolver = new UserNameResolver(api, new SyncDispatcher());
-        var segments = new RichSegment[] { Link("42") };
 
-        // Act — two calls before the first fetch completes
-        resolver.ScheduleLoads(segments);  // marks sentinel, kicks off fetch
-        resolver.ScheduleLoads(segments);  // sentinel already in cache → skipped
+        resolver.GetOrCreate("42");
+        resolver.GetOrCreate("42");
 
         tcs.SetResult(("Alice", null));
-        await Task.Delay(50); // allow async continuation to run
-
-        // Assert — API called exactly once
-        await api.Received(1).GetUserInfoAsync("42", Arg.Any<CancellationToken>());
-    }
-
-    // ── Null API response removes sentinel so next call retries ──────────────
-
-    [Fact]
-    public async Task ScheduleLoads_ApiReturnsNull_RemovesSentinelSoNextCallRetries()
-    {
-        var api = Substitute.For<IBackendApiService>();
-        api.GetUserInfoAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
-           .Returns(Task.FromResult<(string?, string?)?>(null));
-
-        var resolver = new UserNameResolver(api, new SyncDispatcher());
-        var segments = new RichSegment[] { Link("99") };
-
-        // First call → API returns null → sentinel removed
-        resolver.ScheduleLoads(segments);
         await Task.Delay(50);
 
-        Assert.False(resolver.Cache.ContainsKey("99"), "Sentinel should be removed on null response");
-
-        // Second call → fetch fires again
-        resolver.ScheduleLoads(segments);
-        await Task.Delay(50);
-
-        await api.Received(2).GetUserInfoAsync("99", Arg.Any<CancellationToken>());
+        await api.Received(1).GetUserInfoAsync("42", Arg.Any<System.Threading.CancellationToken>());
     }
 
-    // ── Successful resolution populates cache and fires NamesUpdated ──────────
+    // ── DisplayName updates to resolved name ──────────────────────────────────
 
     [Fact]
-    public async Task ScheduleLoads_ApiReturnsName_PopulatesCacheAndFiresNamesUpdated()
+    public async Task GetOrCreate_ApiReturnsName_DisplayNameUpdates()
     {
+        // Use a TCS so we can subscribe to PropertyChanged before the name resolves.
+        var tcs = new TaskCompletionSource<(string?, string?)?>();
         var api = Substitute.For<IBackendApiService>();
-        api.GetUserInfoAsync("7", Arg.Any<CancellationToken>())
-           .Returns(Task.FromResult<(string?, string?)?>(("Sasha", null)));
+        api.GetUserInfoAsync("7", Arg.Any<System.Threading.CancellationToken>())
+           .Returns(tcs.Task);
 
         var resolver = new UserNameResolver(api, new SyncDispatcher());
-        var updatedCount = 0;
-        resolver.NamesUpdated += () => updatedCount++;
+        var vm = resolver.GetOrCreate("7");
 
-        resolver.ScheduleLoads(new RichSegment[] { Link("7") });
-        await Task.Delay(50);
+        var nameChanged = new TaskCompletionSource();
+        vm.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(PlayerNameViewModel.DisplayName))
+                nameChanged.TrySetResult();
+        };
 
-        Assert.Equal("Sasha", resolver.Cache["7"]);
-        Assert.Equal(1, updatedCount);
+        tcs.SetResult(("Sasha", null));
+        await nameChanged.Task.WaitAsync(System.TimeSpan.FromSeconds(2));
+
+        Assert.Equal("@Sasha", vm.DisplayName);
     }
 
-    // ── Null Name field falls back to steamId ─────────────────────────────────
+    // ── Null name field falls back to steamId ─────────────────────────────────
 
     [Fact]
-    public async Task ScheduleLoads_ApiReturnsNullName_FallsBackToSteamId()
+    public async Task GetOrCreate_ApiReturnsNullName_FallsBackToSteamId()
     {
+        var tcs = new TaskCompletionSource<(string?, string?)?>();
         var api = Substitute.For<IBackendApiService>();
-        api.GetUserInfoAsync("55", Arg.Any<CancellationToken>())
-           .Returns(Task.FromResult<(string?, string?)?>(((string?)null, (string?)null)));
+        api.GetUserInfoAsync("55", Arg.Any<System.Threading.CancellationToken>())
+           .Returns(tcs.Task);
 
         var resolver = new UserNameResolver(api, new SyncDispatcher());
+        var vm = resolver.GetOrCreate("55");
 
-        resolver.ScheduleLoads(new RichSegment[] { Link("55") });
-        await Task.Delay(50);
+        var nameChanged = new TaskCompletionSource();
+        vm.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(PlayerNameViewModel.DisplayName))
+                nameChanged.TrySetResult();
+        };
 
-        Assert.Equal("55", resolver.Cache["55"]);
+        tcs.SetResult((null, null));
+        await nameChanged.Task.WaitAsync(System.TimeSpan.FromSeconds(2));
+
+        Assert.Equal("@55", vm.DisplayName);
     }
 
-    // ── Non-PlayerLinkSegments are ignored ────────────────────────────────────
+    // ── Null API response leaves DisplayName as loading placeholder ───────────
 
     [Fact]
-    public void ScheduleLoads_NoPlayerLinkSegments_NoApiCallAndCacheEmpty()
+    public async Task GetOrCreate_ApiReturnsNull_DisplayNameRemainsLoading()
     {
         var api = Substitute.For<IBackendApiService>();
+        api.GetUserInfoAsync("99", Arg.Any<System.Threading.CancellationToken>())
+           .Returns(System.Threading.Tasks.Task.FromResult<(string?, string?)?>(null));
+
+        var resolver = new UserNameResolver(api, new SyncDispatcher());
+        var vm = resolver.GetOrCreate("99");
+
+        // Give the async load time to complete (it will return null and do nothing).
+        await Task.Delay(50);
+
+        Assert.NotEqual("@99", vm.DisplayName); // should still be the loading placeholder
+    }
+
+    // ── Different steamIds get different instances ─────────────────────────────
+
+    [Fact]
+    public void GetOrCreate_DifferentIds_ReturnDifferentInstances()
+    {
+        var api = Substitute.For<IBackendApiService>();
+        api.GetUserInfoAsync(Arg.Any<string>(), Arg.Any<System.Threading.CancellationToken>())
+           .Returns(System.Threading.Tasks.Task.FromResult<(string?, string?)?>(null));
+
         var resolver = new UserNameResolver(api, new SyncDispatcher());
 
-        resolver.ScheduleLoads(new RichSegment[] { new TextSegment("hello"), new TextSegment("world") });
+        var vm1 = resolver.GetOrCreate("1");
+        var vm2 = resolver.GetOrCreate("2");
 
-        api.DidNotReceiveWithAnyArgs().GetUserInfoAsync(default!, default);
-        Assert.Empty(resolver.Cache);
+        Assert.NotSame(vm1, vm2);
     }
 }
