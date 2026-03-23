@@ -15,6 +15,7 @@ public sealed class ChatViewModelFactory : IChatViewModelFactory
     private readonly IUserNameResolver _userNameResolver;
     private readonly IQueueSocketService _queueSocketService;
     private readonly IWindowService _windowService;
+    private readonly IUiDispatcher _dispatcher;
 
     public ChatViewModelFactory(
         IBackendApiService backendApiService,
@@ -22,7 +23,8 @@ public sealed class ChatViewModelFactory : IChatViewModelFactory
         IEmoticonSnapshotBuilder emoticonSnapshot,
         IUserNameResolver userNameResolver,
         IQueueSocketService queueSocketService,
-        IWindowService windowService)
+        IWindowService windowService,
+        IUiDispatcher dispatcher)
     {
         _backendApiService = backendApiService;
         _imageService = imageService;
@@ -30,6 +32,7 @@ public sealed class ChatViewModelFactory : IChatViewModelFactory
         _userNameResolver = userNameResolver;
         _queueSocketService = queueSocketService;
         _windowService = windowService;
+        _dispatcher = dispatcher;
     }
 
     public ChatViewModel Create(string threadId)
@@ -41,5 +44,6 @@ public sealed class ChatViewModelFactory : IChatViewModelFactory
             _userNameResolver,
             new ChatMessageStream(threadId, _backendApiService),
             _queueSocketService,
-            _windowService);
+            _windowService,
+            _dispatcher);
 }

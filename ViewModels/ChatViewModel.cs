@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using d2c_launcher.Models;
@@ -27,6 +26,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     private readonly IChatMessageStream _messageStream;
     private readonly IQueueSocketService _queueSocketService;
     private readonly IWindowService _windowService;
+    private readonly IUiDispatcher _dispatcher;
 
     private CancellationTokenSource? _loadCts;
 
@@ -62,7 +62,8 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         IUserNameResolver userNameResolver,
         IChatMessageStream messageStream,
         IQueueSocketService queueSocketService,
-        IWindowService windowService)
+        IWindowService windowService,
+        IUiDispatcher dispatcher)
     {
         _threadId = threadId;
         _backendApiService = backendApiService;
@@ -72,6 +73,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         _messageStream = messageStream;
         _queueSocketService = queueSocketService;
         _windowService = windowService;
+        _dispatcher = dispatcher;
 
         _emoticonSnapshot.SnapshotReady += OnSnapshotReady;
         _userNameResolver.NamesUpdated += OnNamesUpdated;
@@ -81,7 +83,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     }
 
     private void OnOnlineUpdated(OnlineUpdateMessage msg) =>
-        Dispatcher.UIThread.Post(() => UpdateOnlineUsers(msg));
+        _dispatcher.Post(() => UpdateOnlineUsers(msg));
 
     private void OnWindowShown()
     {
@@ -92,6 +94,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     private void OnSnapshotReady()
     {
         // Emoticons finished loading — re-parse, wire quick-reacts, and patch reaction icons in one pass.
+        // Already on the UI thread (EmoticonSnapshotBuilder fires via IUiDispatcher).
         foreach (var msg in Messages)
         {
             msg.RichContent = RichMessageParser.Parse(msg.Content, _emoticonSnapshot.Images, _userNameResolver.Cache);
@@ -134,7 +137,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         if (!_windowService.IsWindowVisible)
             return;
 
-        Dispatcher.UIThread.Post(() =>
+        _dispatcher.Post(() =>
         {
             if (msg.Deleted)
             {
@@ -218,7 +221,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
         try
         {
-            Dispatcher.UIThread.Post(() => IsLoading = Messages.Count == 0);
+            _dispatcher.Post(() => IsLoading = Messages.Count == 0);
 
             var data = await _backendApiService.GetChatMessagesAsync(
                 _threadId, MessageLimit, ct).ConfigureAwait(false);
@@ -229,7 +232,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
             var grouped = BuildGroupedMessages(data);
 
-            Dispatcher.UIThread.Post(() =>
+            _dispatcher.Post(() =>
             {
                 if (ct.IsCancellationRequested) return;
                 ApplyMessages(grouped);
@@ -241,7 +244,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         catch (Exception ex)
         {
             AppLog.Error($"Chat refresh failed: {ex.Message}", ex);
-            Dispatcher.UIThread.Post(() => IsLoading = false);
+            _dispatcher.Post(() => IsLoading = false);
         }
     }
 
@@ -277,16 +280,16 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
             await _backendApiService.PostChatMessageAsync(_threadId, text, replyId)
                 .ConfigureAwait(false);
             // SSE will deliver the sent message — no manual refresh needed.
-            Dispatcher.UIThread.Post(CancelReply);
+            _dispatcher.Post(CancelReply);
         }
         catch (Exception ex)
         {
             AppLog.Error("Chat send failed.", ex);
-            Dispatcher.UIThread.Post(() => InputText = saved);
+            _dispatcher.Post(() => InputText = saved);
         }
         finally
         {
-            Dispatcher.UIThread.Post(() => IsSending = false);
+            _dispatcher.Post(() => IsSending = false);
         }
     }
 
@@ -398,7 +401,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 .ReactToMessageAsync(messageId, emoticonId)
                 .ConfigureAwait(false);
 
-            Dispatcher.UIThread.Post(() =>
+            _dispatcher.Post(() =>
             {
                 var view = Messages.FirstOrDefault(m => m.MessageId == messageId);
                 view?.UpdateReactions(updatedReactions, data => BuildReactionVm(messageId, data));
@@ -419,7 +422,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         {
             var bytes = await _imageService.LoadBytesAsync(url).ConfigureAwait(false);
             if (bytes != null)
-                Dispatcher.UIThread.Post(() => view.ChatIconBytes = bytes);
+                _dispatcher.Post(() => view.ChatIconBytes = bytes);
         }
         catch (Exception ex)
         {

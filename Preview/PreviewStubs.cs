@@ -293,7 +293,8 @@ internal sealed class StubChatViewModelFactory : IChatViewModelFactory
     public d2c_launcher.ViewModels.ChatViewModel Create(string threadId)
         => new(threadId, new StubBackendApiService(), new StubHttpImageService(),
             new StubEmoticonSnapshotBuilder(), new StubUserNameResolver(),
-            new StubChatMessageStream(), new StubQueueSocketService(), new StubWindowService());
+            new StubChatMessageStream(), new StubQueueSocketService(), new StubWindowService(),
+            new StubUiDispatcher());
 }
 
 internal sealed class StubNetConService : INetConService
