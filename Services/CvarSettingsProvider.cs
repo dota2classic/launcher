@@ -8,8 +8,16 @@ namespace d2c_launcher.Services;
 
 public class CvarSettingsProvider : ICvarSettingsProvider
 {
+    private readonly ICvarRegistry _registry;
+    private readonly ICvarFileService _fileService;
     private CvarSettings _settings = new();
     private string? _gameDirectory;
+
+    public CvarSettingsProvider(ICvarRegistry registry, ICvarFileService fileService)
+    {
+        _registry = registry;
+        _fileService = fileService;
+    }
 
     public bool IsGameRunning { get; set; }
 
@@ -26,7 +34,7 @@ public class CvarSettingsProvider : ICvarSettingsProvider
             try
             {
                 var configCvars = BuildCvarDictionary(settings, CvarConfigSource.ConfigCfg);
-                DotaCfgWriter.WriteCvars(_gameDirectory, configCvars);
+                _fileService.WriteCvars(_gameDirectory, configCvars);
             }
             catch (Exception ex)
             {
@@ -51,8 +59,8 @@ public class CvarSettingsProvider : ICvarSettingsProvider
     {
         _gameDirectory = gameDirectory;
 
-        var changed = DotaCfgReader.ApplyToSettings(_settings, gameDirectory, CvarConfigSource.ConfigCfg);
-        var presetChanged = DotaCfgReader.ApplyToSettings(_settings, gameDirectory, CvarConfigSource.PresetCfg);
+        var changed = _fileService.ApplyToSettings(_settings, gameDirectory, CvarConfigSource.ConfigCfg);
+        var presetChanged = _fileService.ApplyToSettings(_settings, gameDirectory, CvarConfigSource.PresetCfg);
         changed = changed || presetChanged;
 
         if (changed)
@@ -62,7 +70,7 @@ public class CvarSettingsProvider : ICvarSettingsProvider
         // This prevents retail Dota 2 from merging its cloud config with D2C's local config.
         try
         {
-            DotaCfgWriter.WriteCvars(gameDirectory, new Dictionary<string, string> { ["cl_cloud_settings"] = "0" });
+            _fileService.WriteCvars(gameDirectory, new Dictionary<string, string> { ["cl_cloud_settings"] = "0" });
         }
         catch (Exception ex)
         {
@@ -76,14 +84,14 @@ public class CvarSettingsProvider : ICvarSettingsProvider
     /// Builds a dictionary of cvar names → current string values for the given source file.
     /// For <see cref="CvarConfigSource.ConfigCfg"/> also includes cl_cloud_settings=0 and composite cvars.
     /// </summary>
-    private static Dictionary<string, string> BuildCvarDictionary(CvarSettings settings, CvarConfigSource source)
+    private Dictionary<string, string> BuildCvarDictionary(CvarSettings settings, CvarConfigSource source)
     {
         var cvars = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         if (source == CvarConfigSource.ConfigCfg)
             cvars["cl_cloud_settings"] = "0";
 
-        foreach (var entry in CvarMapping.Entries)
+        foreach (var entry in _registry.GetEntries())
         {
             if (entry.Source != source)
                 continue;
@@ -94,7 +102,7 @@ public class CvarSettingsProvider : ICvarSettingsProvider
 
         if (source == CvarConfigSource.ConfigCfg)
         {
-            foreach (var entry in CompositeCvarMapping.Entries)
+            foreach (var entry in _registry.GetCompositeEntries())
                 foreach (var (name, value) in entry.GetValues(settings))
                     cvars[name] = value;
         }

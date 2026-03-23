@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using d2c_launcher.Api;
@@ -295,4 +296,12 @@ internal sealed class StubTriviaRepository : ITriviaRepository
                 CorrectIndex = 0,
             },
         ]);
+}
+
+[SupportedOSPlatform("windows")]
+internal sealed class StubGameWindowService : IGameWindowService
+{
+    public bool IsWindowOpen() => false;
+    public void SetWindowIcon(string exePath) { }
+    public void FocusWindow() { }
 }

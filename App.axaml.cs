@@ -71,6 +71,9 @@ public partial class App : Application
             };
 
             var services = new ServiceCollection();
+            services.AddSingleton<ICvarRegistry, DefaultCvarRegistry>();
+            services.AddSingleton<ICvarFileService, CvarFileService>();
+            services.AddSingleton<IGameWindowService, GameWindowService>();
             services.AddSingleton<ISteamManager, SteamManager>();
             services.AddSingleton<ISettingsStorage, SettingsStorage>();
             services.AddSingleton<IGameLaunchSettingsStorage, GameLaunchSettingsStorage>();
