@@ -90,6 +90,11 @@
     <!-- Telemetry (needed by AppLog) -->
     <Compile Include="..\Services\HardwareInfoService.cs" Link="Services\HardwareInfoService.cs" />
     <Compile Include="..\Services\FaroTelemetryService.cs" Link="Services\FaroTelemetryService.cs" />
+    <!-- CvarSettingsProvider and its file service abstraction (tested by CvarSettingsProviderTests) -->
+    <Compile Include="..\Services\ICvarSettingsProvider.cs" Link="Services\ICvarSettingsProvider.cs" />
+    <Compile Include="..\Services\CvarSettingsProvider.cs" Link="Services\CvarSettingsProvider.cs" />
+    <Compile Include="..\Services\ICvarFileService.cs" Link="Services\ICvarFileService.cs" />
+    <Compile Include="..\Services\CvarFileService.cs" Link="Services\CvarFileService.cs" />
     <!-- Video settings and cfg writer (tested by DotaVideoTxtTests, DotaCfgWriterTests) -->
     <Compile Include="..\Models\VideoSettings.cs" Link="Models\VideoSettings.cs" />
     <Compile Include="..\Services\DotaVideoTxtReader.cs" Link="Services\DotaVideoTxtReader.cs" />

@@ -8,14 +8,12 @@ namespace d2c_launcher.Services;
 
 public class CvarSettingsProvider : ICvarSettingsProvider
 {
-    private readonly ICvarRegistry _registry;
     private readonly ICvarFileService _fileService;
     private CvarSettings _settings = new();
     private string? _gameDirectory;
 
-    public CvarSettingsProvider(ICvarRegistry registry, ICvarFileService fileService)
+    public CvarSettingsProvider(ICvarFileService fileService)
     {
-        _registry = registry;
         _fileService = fileService;
     }
 
@@ -84,14 +82,14 @@ public class CvarSettingsProvider : ICvarSettingsProvider
     /// Builds a dictionary of cvar names → current string values for the given source file.
     /// For <see cref="CvarConfigSource.ConfigCfg"/> also includes cl_cloud_settings=0 and composite cvars.
     /// </summary>
-    private Dictionary<string, string> BuildCvarDictionary(CvarSettings settings, CvarConfigSource source)
+    private static Dictionary<string, string> BuildCvarDictionary(CvarSettings settings, CvarConfigSource source)
     {
         var cvars = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         if (source == CvarConfigSource.ConfigCfg)
             cvars["cl_cloud_settings"] = "0";
 
-        foreach (var entry in _registry.GetEntries())
+        foreach (var entry in CvarMapping.Entries)
         {
             if (entry.Source != source)
                 continue;
@@ -102,7 +100,7 @@ public class CvarSettingsProvider : ICvarSettingsProvider
 
         if (source == CvarConfigSource.ConfigCfg)
         {
-            foreach (var entry in _registry.GetCompositeEntries())
+            foreach (var entry in CompositeCvarMapping.Entries)
                 foreach (var (name, value) in entry.GetValues(settings))
                     cvars[name] = value;
         }
