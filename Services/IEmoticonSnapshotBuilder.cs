@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using d2c_launcher.Models;
 using d2c_launcher.Util;
 
 namespace d2c_launcher.Services;
@@ -25,7 +24,7 @@ public interface IEmoticonSnapshotBuilder
     Task EnsureLoadedAsync();
 
     /// <summary>Raised on the UI thread once emoticons are loaded and snapshots are built.</summary>
-    event Action SnapshotReady;
+    event Action? SnapshotReady;
 }
 
 public sealed class EmoticonSnapshotBuilder : IEmoticonSnapshotBuilder
@@ -70,14 +69,11 @@ public sealed class EmoticonSnapshotBuilder : IEmoticonSnapshotBuilder
             var result = await _emoticonService.LoadEmoticonsAsync().ConfigureAwait(false);
             _images = result.Images;
 
-            _top3 = result.Ordered
-                .Take(3)
-                .Select(e => (e.Id, e.Code, GifBytes: _images.GetValueOrDefault(e.Code)))
-                .ToList();
-
             _all = result.Ordered
                 .Select(e => (e.Id, e.Code, GifBytes: _images.GetValueOrDefault(e.Code)))
                 .ToList();
+
+            _top3 = _all.Take(3).ToList();
 
             IsLoaded = true;
             _dispatcher.Post(() => SnapshotReady?.Invoke());

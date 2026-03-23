@@ -10,18 +10,13 @@ namespace d2c_launcher.Services;
 public interface IChatMessageStream : IDisposable
 {
     /// <summary>Raised (on background thread) for each message received from the SSE stream.</summary>
-    event Action<ChatMessageData> MessageReceived;
+    event Action<ChatMessageData>? MessageReceived;
 
     /// <summary>Starts the SSE loop. Safe to call before the auth token is set.</summary>
     void Start();
 
     /// <summary>Cancels the current connection and immediately reconnects. Call when the auth token changes.</summary>
     void Restart();
-}
-
-public interface IChatMessageStreamFactory
-{
-    IChatMessageStream Create(string threadId);
 }
 
 public sealed class ChatMessageStream : IChatMessageStream
@@ -39,7 +34,12 @@ public sealed class ChatMessageStream : IChatMessageStream
         _api = api;
     }
 
-    public void Start() => StartLoop();
+    public void Start()
+    {
+        // No-op if already running — prevents double-Start from cancelling an active loop.
+        if (_cts != null) return;
+        StartLoop();
+    }
 
     public void Restart() => StartLoop();
 
@@ -82,14 +82,3 @@ public sealed class ChatMessageStream : IChatMessageStream
     }
 }
 
-public sealed class ChatMessageStreamFactory : IChatMessageStreamFactory
-{
-    private readonly IBackendApiService _api;
-
-    public ChatMessageStreamFactory(IBackendApiService api)
-    {
-        _api = api;
-    }
-
-    public IChatMessageStream Create(string threadId) => new ChatMessageStream(threadId, _api);
-}

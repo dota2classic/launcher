@@ -76,8 +76,8 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         _emoticonSnapshot.SnapshotReady += OnSnapshotReady;
         _userNameResolver.NamesUpdated += OnNamesUpdated;
         _messageStream.MessageReceived += OnMessageReceived;
-        queueSocketService.OnlineUpdated += OnOnlineUpdated;
-        windowService.WindowShown += OnWindowShown;
+        _queueSocketService.OnlineUpdated += OnOnlineUpdated;
+        _windowService.WindowShown += OnWindowShown;
     }
 
     private void OnOnlineUpdated(OnlineUpdateMessage msg) =>
@@ -91,10 +91,10 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
     private void OnSnapshotReady()
     {
-        // Emoticons finished loading — re-parse existing messages and populate pickers.
-        ReparseAllMessages();
+        // Emoticons finished loading — re-parse, wire quick-reacts, and patch reaction icons in one pass.
         foreach (var msg in Messages)
         {
+            msg.RichContent = RichMessageParser.Parse(msg.Content, _emoticonSnapshot.Images, _userNameResolver.Cache);
             SetupQuickReacts(msg);
             foreach (var reaction in msg.Reactions)
             {
@@ -294,7 +294,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
     private List<ChatMessageView> BuildGroupedMessages(IReadOnlyList<ChatMessageData> data)
     {
-        // API returns DESC — sort ASC for display
+        // API returns DESC — sort ASC for display; parse dates once to avoid double parsing per message.
         var sorted = data.OrderBy(m => ParseDate(m.CreatedAt)).ToList();
         var result = new List<ChatMessageView>(sorted.Count);
 
@@ -305,6 +305,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
             var prevEntry = prev == null ? null : new ChatEntry(prev.AuthorSteamId, prev.CreatedAt);
             var showHeader = ChatGrouper.ShouldShowHeader(prevEntry, new ChatEntry(msg.AuthorSteamId, msg.CreatedAt));
+            var parsedDate = ParseDate(msg.CreatedAt);
 
             var richContent = RichMessageParser.Parse(msg.Content, _emoticonSnapshot.Images, _userNameResolver.Cache);
             _userNameResolver.ScheduleLoads(richContent);
@@ -315,7 +316,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 msg.AuthorName,
                 msg.AuthorSteamId,
                 showHeader,
-                FormatTime(ParseDate(msg.CreatedAt)),
+                FormatTime(parsedDate),
                 msg.CreatedAt,
                 msg.AuthorAvatarUrl,
                 msg.ReplyToAuthorName,
@@ -433,7 +434,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         if (dt == DateTimeOffset.MinValue) return "";
         var local = dt.ToLocalTime();
         return local.Date == DateTime.Today
-            ? $"Сегодня в {local:HH:mm}" // "Today at" — intentionally left as format string
+            ? I18n.T("chat.todayAt", ("time", $"{local:HH:mm}"))
             : $"{local.Day} {RuMonth(local.Month)} {local:HH:mm}";
     }
 

@@ -245,7 +245,8 @@
     "roleAdminTooltip": "Администратор",
     "reply": "Ответить",
     "replyingTo": "В ответ",
-    "cancelReply": "Отмена"
+    "cancelReply": "Отмена",
+    "todayAt": "Сегодня в {time}"
   },
   "download": {
     "downloadGame": "Скачать игру",

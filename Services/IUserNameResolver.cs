@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.Threading;
 using d2c_launcher.Models;
 using d2c_launcher.Util;
 
@@ -17,7 +16,7 @@ public interface IUserNameResolver
     IReadOnlyDictionary<string, string?> Cache { get; }
 
     /// <summary>Raised on the UI thread after one or more names are added to the cache.</summary>
-    event Action NamesUpdated;
+    event Action? NamesUpdated;
 }
 
 public sealed class UserNameResolver : IUserNameResolver
