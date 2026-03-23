@@ -21,17 +21,3 @@ public interface ICvarFileService
     /// </summary>
     void WriteCvars(string gameDirectory, Dictionary<string, string> cvars);
 }
-
-/// <summary>
-/// Default implementation — delegates to the static <see cref="DotaCfgReader"/> and
-/// <see cref="DotaCfgWriter"/> used in production.
-/// </summary>
-public class CvarFileService : ICvarFileService
-{
-    public bool ApplyToSettings(CvarSettings settings, string gameDirectory,
-        CvarConfigSource source = CvarConfigSource.ConfigCfg)
-        => DotaCfgReader.ApplyToSettings(settings, gameDirectory, source);
-
-    public void WriteCvars(string gameDirectory, Dictionary<string, string> cvars)
-        => DotaCfgWriter.WriteCvars(gameDirectory, cvars);
-}

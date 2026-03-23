@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using d2c_launcher.Models;
 
 namespace d2c_launcher.Services;
@@ -9,16 +10,6 @@ namespace d2c_launcher.Services;
 /// </summary>
 public interface ICvarRegistry
 {
-    CvarEntry[] GetEntries();
-    CompositeCvarEntry[] GetCompositeEntries();
-}
-
-/// <summary>
-/// Default implementation — delegates to the static <see cref="CvarMapping"/> and
-/// <see cref="CompositeCvarMapping"/> arrays used in production.
-/// </summary>
-public class DefaultCvarRegistry : ICvarRegistry
-{
-    public CvarEntry[] GetEntries() => CvarMapping.Entries;
-    public CompositeCvarEntry[] GetCompositeEntries() => CompositeCvarMapping.Entries;
+    IReadOnlyList<CvarEntry> GetEntries();
+    IReadOnlyList<CompositeCvarEntry> GetCompositeEntries();
 }
