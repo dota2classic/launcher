@@ -8,8 +8,14 @@ namespace d2c_launcher.Services;
 
 public class CvarSettingsProvider : ICvarSettingsProvider
 {
+    private readonly ICvarFileService _fileService;
     private CvarSettings _settings = new();
     private string? _gameDirectory;
+
+    public CvarSettingsProvider(ICvarFileService fileService)
+    {
+        _fileService = fileService;
+    }
 
     public bool IsGameRunning { get; set; }
 
@@ -26,7 +32,7 @@ public class CvarSettingsProvider : ICvarSettingsProvider
             try
             {
                 var configCvars = BuildCvarDictionary(settings, CvarConfigSource.ConfigCfg);
-                DotaCfgWriter.WriteCvars(_gameDirectory, configCvars);
+                _fileService.WriteCvars(_gameDirectory, configCvars);
             }
             catch (Exception ex)
             {
@@ -51,8 +57,8 @@ public class CvarSettingsProvider : ICvarSettingsProvider
     {
         _gameDirectory = gameDirectory;
 
-        var changed = DotaCfgReader.ApplyToSettings(_settings, gameDirectory, CvarConfigSource.ConfigCfg);
-        var presetChanged = DotaCfgReader.ApplyToSettings(_settings, gameDirectory, CvarConfigSource.PresetCfg);
+        var changed = _fileService.ApplyToSettings(_settings, gameDirectory, CvarConfigSource.ConfigCfg);
+        var presetChanged = _fileService.ApplyToSettings(_settings, gameDirectory, CvarConfigSource.PresetCfg);
         changed = changed || presetChanged;
 
         if (changed)
@@ -62,7 +68,7 @@ public class CvarSettingsProvider : ICvarSettingsProvider
         // This prevents retail Dota 2 from merging its cloud config with D2C's local config.
         try
         {
-            DotaCfgWriter.WriteCvars(gameDirectory, new Dictionary<string, string> { ["cl_cloud_settings"] = "0" });
+            _fileService.WriteCvars(gameDirectory, new Dictionary<string, string> { ["cl_cloud_settings"] = "0" });
         }
         catch (Exception ex)
         {

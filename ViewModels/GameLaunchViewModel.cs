@@ -23,6 +23,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
     private readonly IBackendApiService _backendApiService;
     private readonly IQueueSocketService _queueSocketService;
     private readonly INetConService _netConService;
+    private readonly IGameWindowService _gameWindowService;
     private readonly DispatcherTimer _runStateTimer;
 
     [ObservableProperty]
@@ -74,7 +75,8 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         IVideoSettingsProvider videoProvider,
         IQueueSocketService queueSocketService,
         IBackendApiService backendApiService,
-        INetConService netConService)
+        INetConService netConService,
+        IGameWindowService gameWindowService)
     {
         _settingsStorage = settingsStorage;
         _launchSettingsStorage = launchSettingsStorage;
@@ -83,6 +85,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         _backendApiService = backendApiService;
         _queueSocketService = queueSocketService;
         _netConService = netConService;
+        _gameWindowService = gameWindowService;
         var settings = settingsStorage.Get();
         _gameDirectory = settings.GameDirectory;
         _runState = GameRunState.None;
@@ -149,15 +152,15 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         }
     }
 
-    private static async Task ApplyWindowIconAsync(string exePath)
+    private async Task ApplyWindowIconAsync(string exePath)
     {
         var deadline = DateTimeOffset.UtcNow.AddSeconds(60);
         while (DateTimeOffset.UtcNow < deadline)
         {
             await Task.Delay(1500);
-            if (DotaConsoleConnector.IsWindowOpen())
+            if (_gameWindowService.IsWindowOpen())
             {
-                DotaConsoleConnector.SetWindowIcon(exePath);
+                _gameWindowService.SetWindowIcon(exePath);
                 return;
             }
         }
@@ -383,7 +386,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
 
         AppLog.Info($"ConnectToGame: sending 'connect {url}'");
         await _netConService.SendCommandAsync($"connect {url}").ConfigureAwait(false);
-        DotaConsoleConnector.FocusWindow();
+        _gameWindowService.FocusWindow();
     }
 
     /// <summary>

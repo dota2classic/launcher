@@ -296,3 +296,10 @@ internal sealed class StubTriviaRepository : ITriviaRepository
             },
         ]);
 }
+
+internal sealed class StubGameWindowService : IGameWindowService
+{
+    public bool IsWindowOpen() => false;
+    public void SetWindowIcon(string exePath) { }
+    public void FocusWindow() { }
+}

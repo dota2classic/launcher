@@ -127,7 +127,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         IUiDispatcher dispatcher,
         ITriviaRepository triviaRepository,
         ITimerFactory timerFactory,
-        INetConService netConService)
+        INetConService netConService,
+        IGameWindowService gameWindowService)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -160,7 +161,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         }
 
         // Create child ViewModels
-        Launch = new GameLaunchViewModel(settingsStorage, launchSettingsStorage, cvarProvider, videoProvider, queueSocketService, backendApiService, netConService);
+        Launch = new GameLaunchViewModel(settingsStorage, launchSettingsStorage, cvarProvider, videoProvider, queueSocketService, backendApiService, netConService, gameWindowService);
         Queue = new QueueViewModel(queueSocketService, backendApiService, settingsStorage, triviaRepository, timerFactory);
         Room = new RoomViewModel(queueSocketService, backendApiService);
         Party = new PartyViewModel(queueSocketService, backendApiService);
