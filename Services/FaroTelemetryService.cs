@@ -26,6 +26,7 @@ public static class FaroTelemetryService
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
+    private static bool _initialized;
     private static string _appVersion = "0.0.0";
     private static string? _steamId;
     private static Dictionary<string, string> _hwAttributes = [];
@@ -51,6 +52,7 @@ public static class FaroTelemetryService
 
     public static void Init(string appVersion, HardwareSnapshot? hw = null)
     {
+        _initialized = true;
         _appVersion = appVersion;
         if (hw != null) ApplyHardware(hw);
         _timer = new Timer(FlushCallback, null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(10));
@@ -63,18 +65,21 @@ public static class FaroTelemetryService
 
     public static void TrackEvent(string name, Dictionary<string, string>? attributes = null)
     {
+        if (!_initialized) return;
         EventQueue.Enqueue(new FaroEvent(name, "d2c", attributes ?? [], Now()));
         if (EventQueue.Count >= 20) _ = FlushAsync();
     }
 
     public static void TrackLog(string level, string message)
     {
+        if (!_initialized) return;
         LogQueue.Enqueue(new FaroLog(message, level, Now()));
         if (LogQueue.Count >= 50) _ = FlushAsync();
     }
 
     public static void TrackException(Exception ex)
     {
+        if (!_initialized) return;
         ExceptionQueue.Enqueue(BuildFaroException(ex));
         _ = FlushAsync();
     }

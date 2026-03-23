@@ -11,7 +11,10 @@ public sealed class ChatMessageStreamTests
     private static ChatMessageData Msg(string id) =>
         new(id, "t", "hello", "2025-01-01T00:00:00Z", "s1", "Alice", null, false);
 
-    private static async IAsyncEnumerable<ChatMessageData> YieldMessages(
+    // Yields all messages then hangs until cancelled — mimics a real SSE stream that stays
+    // open after delivering its backlog. Without the hang the loop would spin at full speed,
+    // causing NSubstitute to accumulate millions of recorded calls and exhaust memory.
+    private static async IAsyncEnumerable<ChatMessageData> YieldThenHang(
         IEnumerable<ChatMessageData> messages,
         [EnumeratorCancellation] CancellationToken ct = default)
     {
@@ -20,6 +23,7 @@ public sealed class ChatMessageStreamTests
             ct.ThrowIfCancellationRequested();
             yield return msg;
         }
+        await Task.Delay(Timeout.Infinite, ct).ConfigureAwait(false);
     }
 
     private static async IAsyncEnumerable<ChatMessageData> HangForever(
@@ -37,7 +41,7 @@ public sealed class ChatMessageStreamTests
         var msgs = new[] { Msg("1"), Msg("2"), Msg("3") };
         var api = Substitute.For<IBackendApiService>();
         api.SubscribeChatAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
-           .Returns(callInfo => YieldMessages(msgs, callInfo.ArgAt<CancellationToken>(1)));
+           .Returns(callInfo => YieldThenHang(msgs, callInfo.ArgAt<CancellationToken>(1)));
 
         var stream = new ChatMessageStream("t", api);
         var received = new List<ChatMessageData>();
