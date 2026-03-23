@@ -93,6 +93,9 @@ public partial class App : Application
             services.AddSingleton<IContentRegistryService, ContentRegistryService>();
             services.AddSingleton<ITriviaRepository, LocalJsonTriviaRepository>();
             services.AddSingleton<ITimerFactory, AvaloniaTimerFactory>();
+            services.AddSingleton<IUserNameResolver, UserNameResolver>();
+            services.AddSingleton<IEmoticonSnapshotBuilder, EmoticonSnapshotBuilder>();
+            services.AddSingleton<IChatMessageStreamFactory, ChatMessageStreamFactory>();
             services.AddSingleton<IChatViewModelFactory, ChatViewModelFactory>();
             services.AddSingleton<IWindowService, WindowService>();
             services.AddSingleton<INetConService, NetConService>();

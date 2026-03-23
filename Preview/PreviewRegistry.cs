@@ -460,7 +460,9 @@ public static class PreviewRegistry
             ["ChatPanel"] = () =>
             {
                 var stub = new StubBackendApiService();
-                var vm = new ChatViewModel("preview-thread", stub, new StubHttpImageService(), new StubEmoticonService(), new StubQueueSocketService(), new StubWindowService());
+                var vm = new ChatViewModel("preview-thread", stub, new StubHttpImageService(),
+                    new StubEmoticonSnapshotBuilder(), new StubUserNameResolver(),
+                    new StubChatMessageStream(), new StubQueueSocketService(), new StubWindowService());
                 _ = vm.StartAsync();
                 var view = new ChatPanel { DataContext = vm, Width = 620, Height = 520 };
                 return (view, null);

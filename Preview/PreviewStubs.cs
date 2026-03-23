@@ -257,10 +257,43 @@ internal sealed class StubUiDispatcher : IUiDispatcher
     public void Post(Action action) => action();
 }
 
+internal sealed class StubUserNameResolver : IUserNameResolver
+{
+    public IReadOnlyDictionary<string, string?> Cache { get; } = new Dictionary<string, string?>();
+#pragma warning disable CS0067
+    public event Action? NamesUpdated;
+#pragma warning restore CS0067
+    public void ScheduleLoads(IReadOnlyList<d2c_launcher.Models.RichSegment> segments) { }
+}
+
+internal sealed class StubEmoticonSnapshotBuilder : IEmoticonSnapshotBuilder
+{
+    public IReadOnlyList<(int Id, string Code, byte[]? GifBytes)> Top3 { get; } = Array.Empty<(int, string, byte[]?)>();
+    public IReadOnlyList<(int Id, string Code, byte[]? GifBytes)> All { get; } = Array.Empty<(int, string, byte[]?)>();
+    public IReadOnlyDictionary<string, byte[]> Images { get; } = new Dictionary<string, byte[]>();
+    public bool IsLoaded => false;
+    public Task EnsureLoadedAsync() => Task.CompletedTask;
+#pragma warning disable CS0067
+    public event Action? SnapshotReady;
+#pragma warning restore CS0067
+}
+
+internal sealed class StubChatMessageStream : IChatMessageStream
+{
+#pragma warning disable CS0067
+    public event Action<d2c_launcher.Models.ChatMessageData>? MessageReceived;
+#pragma warning restore CS0067
+    public void Start() { }
+    public void Restart() { }
+    public void Dispose() { }
+}
+
 internal sealed class StubChatViewModelFactory : IChatViewModelFactory
 {
     public d2c_launcher.ViewModels.ChatViewModel Create(string threadId)
-        => new(threadId, new StubBackendApiService(), new StubHttpImageService(), new StubEmoticonService(), new StubQueueSocketService(), new StubWindowService());
+        => new(threadId, new StubBackendApiService(), new StubHttpImageService(),
+            new StubEmoticonSnapshotBuilder(), new StubUserNameResolver(),
+            new StubChatMessageStream(), new StubQueueSocketService(), new StubWindowService());
 }
 
 internal sealed class StubNetConService : INetConService

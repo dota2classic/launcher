@@ -10,6 +10,7 @@ All major features are shipped. The launcher is in maintenance/polish mode. Work
 
 | Issue | What was done |
 |-------|--------------|
+| #133 | Extracted `IUserNameResolver`, `IEmoticonSnapshotBuilder`, `IChatMessageStream`/`IChatMessageStreamFactory` from `ChatViewModel` (550→~230 lines); all three registered as singletons; `ChatViewModelFactory` updated; preview stubs updated |
 | #135 | Extracted `ICvarRegistry`, `ICvarFileService`, `IGameWindowService` — injectable wrappers around static `CvarMapping`, `DotaCfgReader`/`DotaCfgWriter`, `DotaConsoleConnector`; `CvarSettingsProvider` and `GameLaunchViewModel` now use interfaces |
 | #106 | Skip connect if already on target server — `IsAlreadyConnectedToAsync` in `GameLaunchViewModel`: sends `status` via NetCon, parses port from `type(dedicated)` line, returns early if port matches `ServerUrl`; PR #129 |
 | #120 | Migrated game console interaction from WM_COPYDATA to NetCon: `INetConService`/`NetConService` singleton; lifecycle managed in `GameLaunchViewModel` via `RefreshRunState` transitions; `PushCvarIfGameRunning` and `ConnectToGameAsync` now use `SendCommandAsync`; `DotaConsoleConnector` kept only for window operations |
