@@ -64,6 +64,13 @@ public sealed class EmoticonSnapshotBuilder : IEmoticonSnapshotBuilder
 
     private async Task LoadCoreAsync()
     {
+        // Yield immediately so the caller's `_loadTask = LoadCoreAsync()` assignment
+        // completes before this method body runs.  Without this, an already-completed
+        // (e.g. faulted) service task causes the entire method — including the catch
+        // block's `_loadTask = null` reset — to execute synchronously, which means the
+        // reset fires *before* the assignment stores the task, so the assignment then
+        // overwrites null with the completed task and the retry guard breaks.
+        await Task.Yield();
         try
         {
             var result = await _emoticonService.LoadEmoticonsAsync().ConfigureAwait(false);

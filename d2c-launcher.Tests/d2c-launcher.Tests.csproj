@@ -90,6 +90,11 @@
     <!-- Telemetry (needed by AppLog) -->
     <Compile Include="..\Services\HardwareInfoService.cs" Link="Services\HardwareInfoService.cs" />
     <Compile Include="..\Services\FaroTelemetryService.cs" Link="Services\FaroTelemetryService.cs" />
+    <!-- Extracted chat services (tested by UserNameResolverTests, EmoticonSnapshotBuilderTests, ChatMessageStreamTests) -->
+    <Compile Include="..\Services\IUserNameResolver.cs" Link="Services\IUserNameResolver.cs" />
+    <Compile Include="..\Services\IEmoticonSnapshotBuilder.cs" Link="Services\IEmoticonSnapshotBuilder.cs" />
+    <Compile Include="..\Services\IChatMessageStream.cs" Link="Services\IChatMessageStream.cs" />
+    <Compile Include="..\Services\IEmoticonService.cs" Link="Services\IEmoticonService.cs" />
     <!-- CvarSettingsProvider and its file service abstraction (tested by CvarSettingsProviderTests) -->
     <Compile Include="..\Services\ICvarSettingsProvider.cs" Link="Services\ICvarSettingsProvider.cs" />
     <Compile Include="..\Services\CvarSettingsProvider.cs" Link="Services\CvarSettingsProvider.cs" />
