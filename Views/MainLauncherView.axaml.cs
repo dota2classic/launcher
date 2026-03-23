@@ -26,7 +26,7 @@ public partial class MainLauncherView : UserControl
         base.OnDataContextChanged(e);
 
         if (_vmPropertyChangedHandler != null && _currentVm != null)
-            _currentVm.PropertyChanged -= _vmPropertyChangedHandler;
+            _currentVm.Intro.PropertyChanged -= _vmPropertyChangedHandler;
 
         _vmPropertyChangedHandler = null;
         _currentVm = null;
@@ -36,11 +36,11 @@ public partial class MainLauncherView : UserControl
             _currentVm = vm;
             _vmPropertyChangedHandler = (_, args) =>
             {
-                if (args.PropertyName is nameof(MainLauncherViewModel.IntroStep)
-                                      or nameof(MainLauncherViewModel.IsIntroOpen))
+                if (args.PropertyName is nameof(IntroViewModel.Step)
+                                      or nameof(IntroViewModel.IsOpen))
                     UpdateSpotlight();
             };
-            vm.PropertyChanged += _vmPropertyChangedHandler;
+            vm.Intro.PropertyChanged += _vmPropertyChangedHandler;
             vm.Settings.RefreshGameDirectory();
             LayoutUpdated += OnFirstLayoutForSpotlight;
         }
@@ -56,16 +56,15 @@ public partial class MainLauncherView : UserControl
     {
         if (DataContext is not MainLauncherViewModel vm) return;
 
-        Control? target = vm.IntroStep switch
+        Control? target = vm.Intro.Step switch
         {
-            // Steps 1 (play tab) and 2 (settings tab) now highlight the tab buttons in the header
-            1 => LauncherHeaderControl.FindControl<Button>("PlayTabButton"),
+            1 => LauncherHeaderControl.FindControl<Button>("LaunchGameButton"),
             2 => LauncherHeaderControl.FindControl<Button>("SettingsButton"),
             3 or 4 => GameSearchPanelControl,
             _ => null
         };
 
-        if (target == null || !vm.IsIntroOpen)
+        if (target == null || !vm.Intro.IsOpen)
         {
             IntroSpotlight.SpotlightRect = default;
             return;
