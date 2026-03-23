@@ -257,10 +257,46 @@ internal sealed class StubUiDispatcher : IUiDispatcher
     public void Post(Action action) => action();
 }
 
+internal sealed class StubUserNameResolver : IUserNameResolver
+{
+    private readonly Dictionary<string, d2c_launcher.Services.PlayerNameViewModel> _vms = new();
+    public d2c_launcher.Services.PlayerNameViewModel GetOrCreate(string steamId)
+    {
+        if (!_vms.TryGetValue(steamId, out var vm))
+            _vms[steamId] = vm = new d2c_launcher.Services.PlayerNameViewModel();
+        return vm;
+    }
+}
+
+internal sealed class StubEmoticonSnapshotBuilder : IEmoticonSnapshotBuilder
+{
+    public IReadOnlyList<(int Id, string Code, byte[]? GifBytes)> Top3 { get; } = Array.Empty<(int, string, byte[]?)>();
+    public IReadOnlyList<(int Id, string Code, byte[]? GifBytes)> All { get; } = Array.Empty<(int, string, byte[]?)>();
+    public IReadOnlyDictionary<string, byte[]> Images { get; } = new Dictionary<string, byte[]>();
+    public bool IsLoaded => false;
+    public Task EnsureLoadedAsync() => Task.CompletedTask;
+#pragma warning disable CS0067
+    public event Action? SnapshotReady;
+#pragma warning restore CS0067
+}
+
+internal sealed class StubChatMessageStream : IChatMessageStream
+{
+#pragma warning disable CS0067
+    public event Action<d2c_launcher.Models.ChatMessageData>? MessageReceived;
+#pragma warning restore CS0067
+    public void Start() { }
+    public void Restart() { }
+    public void Dispose() { }
+}
+
 internal sealed class StubChatViewModelFactory : IChatViewModelFactory
 {
     public d2c_launcher.ViewModels.ChatViewModel Create(string threadId)
-        => new(threadId, new StubBackendApiService(), new StubHttpImageService(), new StubEmoticonService(), new StubQueueSocketService(), new StubWindowService());
+        => new(threadId, new StubBackendApiService(), new StubHttpImageService(),
+            new StubEmoticonSnapshotBuilder(), new StubUserNameResolver(),
+            new StubChatMessageStream(), new StubQueueSocketService(), new StubWindowService(),
+            new StubUiDispatcher());
 }
 
 internal sealed class StubNetConService : INetConService

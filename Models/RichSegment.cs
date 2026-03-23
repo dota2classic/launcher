@@ -38,7 +38,7 @@ public sealed class PlayerLinkSegment : RichSegment
 {
     public string SteamId { get; }
     public string Url { get; }
-    public string DisplayName { get; }
-    public PlayerLinkSegment(string steamId, string url, string displayName)
-    { SteamId = steamId; Url = url; DisplayName = displayName; }
+    public d2c_launcher.Services.PlayerNameViewModel NameViewModel { get; }
+    public PlayerLinkSegment(string steamId, string url, d2c_launcher.Services.PlayerNameViewModel nameViewModel)
+    { SteamId = steamId; Url = url; NameViewModel = nameViewModel; }
 }

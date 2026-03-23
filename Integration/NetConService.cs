@@ -18,8 +18,9 @@ public sealed class NetConService : INetConService
     private volatile NetConClient? _client;
     private CancellationTokenSource? _connectCts;
     private volatile bool _isConnected;
+    private volatile bool _disconnecting;
     private TaskCompletionSource _connectedTcs = new();
-    private readonly object _tcsLock = new();
+    private readonly object _lock = new();
 
     public event Action<string>? LineReceived;
 
@@ -32,8 +33,12 @@ public sealed class NetConService : INetConService
     {
         Disconnect();
 
-        _connectCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-        var token = _connectCts.Token;
+        CancellationToken token;
+        lock (_lock)
+        {
+            _connectCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            token = _connectCts.Token;
+        }
 
         for (var attempt = 1; attempt <= MaxAttempts; attempt++)
         {
@@ -78,12 +83,19 @@ public sealed class NetConService : INetConService
         _isConnected = false;
         ResetTcs();
         AppLog.Info("NetConService: connection lost");
+
+        // If Disconnect() was not called by the owner, schedule a reconnect attempt.
+        if (!_disconnecting)
+        {
+            AppLog.Info("NetConService: unexpected disconnect — reconnecting...");
+            _ = StartConnectAsync();
+        }
     }
 
     private void ResetTcs()
     {
         TaskCompletionSource old;
-        lock (_tcsLock)
+        lock (_lock)
         {
             old = _connectedTcs;
             _connectedTcs = new TaskCompletionSource();
@@ -93,22 +105,34 @@ public sealed class NetConService : INetConService
 
     public void Disconnect()
     {
-        _connectCts?.Cancel();
-        _connectCts?.Dispose();
-        _connectCts = null;
+        _disconnecting = true;
 
-        var client = _client;
+        CancellationTokenSource? cts;
+        NetConClient? client;
+        lock (_lock)
+        {
+            cts = _connectCts;
+            _connectCts = null;
+            client = _client;
+            _client = null;
+        }
+
+        cts?.Cancel();
+        cts?.Dispose();
+
         if (client != null)
         {
             client.LineReceived -= OnClientLineReceived;
             client.Disconnected -= OnClientDisconnected;
             client.Dispose();
-            _client = null;
         }
+
         _isConnected = false;
 
         // Reset the TCS so future WaitConnectedAsync calls wait for the next connect
         ResetTcs();
+
+        _disconnecting = false;
     }
 
     public async Task SendCommandAsync(string command)

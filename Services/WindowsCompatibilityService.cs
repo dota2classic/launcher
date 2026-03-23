@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Runtime.Versioning;
 using Microsoft.Win32;
 using d2c_launcher.Util;
@@ -38,6 +39,7 @@ public static class WindowsCompatibilityService
     /// </summary>
     public static bool IsVistaCompatEnabled(string exePath)
     {
+        exePath = Path.GetFullPath(exePath);
         try
         {
             using var key = Registry.CurrentUser.OpenSubKey(LayersKeyPath, writable: false);
@@ -58,6 +60,7 @@ public static class WindowsCompatibilityService
     /// </summary>
     public static bool SetVistaCompat(string exePath, bool enabled)
     {
+        exePath = Path.GetFullPath(exePath);
         try
         {
             using var key = Registry.CurrentUser.OpenSubKey(LayersKeyPath, writable: true)

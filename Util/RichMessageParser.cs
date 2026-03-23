@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using d2c_launcher.Models;
 using d2c_launcher.Resources;
+using d2c_launcher.Services;
 
 namespace d2c_launcher.Util;
 
@@ -33,7 +34,7 @@ public static class RichMessageParser
     public static IReadOnlyList<RichSegment> Parse(
         string rawMessage,
         IReadOnlyDictionary<string, byte[]>? emoticons = null,
-        IReadOnlyDictionary<string, string?>? userNames = null)
+        Func<string, PlayerNameViewModel>? resolvePlayer = null)
     {
         // Pre-process
         var msg = s_markdownLink.Replace(rawMessage, m => m.Groups[2].Value);
@@ -63,10 +64,10 @@ public static class RichMessageParser
         ApplyRule(tokens, s_playerLink, m =>
         {
             var steamId = m.Groups[1].Value;
-            var displayName = (userNames != null && userNames.TryGetValue(steamId, out var n) && n != null)
-                ? $"@{n}"
-                : Strings.Loading;
-            return new PlayerLinkSegment(steamId, m.Value, displayName);
+            var vm = resolvePlayer != null
+                ? resolvePlayer(steamId)
+                : new PlayerNameViewModel();
+            return new PlayerLinkSegment(steamId, m.Value, vm);
         });
 
         // Apply image URL rule (before generic URL rule)
