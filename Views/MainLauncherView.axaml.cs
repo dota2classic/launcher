@@ -58,8 +58,7 @@ public partial class MainLauncherView : UserControl
 
         Control? target = vm.Intro.Step switch
         {
-            // Steps 1 (play tab) and 2 (settings tab) now highlight the tab buttons in the header
-            1 => LauncherHeaderControl.FindControl<Button>("PlayTabButton"),
+            1 => LauncherHeaderControl.FindControl<Button>("LaunchGameButton"),
             2 => LauncherHeaderControl.FindControl<Button>("SettingsButton"),
             3 or 4 => GameSearchPanelControl,
             _ => null
