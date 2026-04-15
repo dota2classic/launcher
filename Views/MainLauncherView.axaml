@@ -169,7 +169,7 @@
            </components:ModalOverlay>
 
            <!-- Intro overlay -->
-           <Panel IsVisible="{Binding IsIntroOpen}" ZIndex="200"
+           <Panel IsVisible="{Binding Intro.IsOpen}" ZIndex="200"
                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                <components:SpotlightOverlay x:Name="IntroSpotlight"
                                             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
@@ -180,80 +180,66 @@
                    <StackPanel>
                        <!-- Header -->
                        <Border Background="#0A0B0D" Padding="18,14">
-                           <Grid ColumnDefinitions="*,Auto">
-                               <StackPanel>
-                                   <TextBlock Text="{x:Static res:Strings.WelcomeTitle}"
-                                              FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold" Foreground="#D9D9D9"/>
-                                   <TextBlock Foreground="#4DA9F3" FontSize="{DynamicResource FontSizeBase}" Margin="0,4,0,0">
-                                       <TextBlock.Text>
-                                           <MultiBinding StringFormat="Шаг {0} из {1}">
-                                               <Binding Path="IntroStep"/>
-                                               <Binding Path="IntroStepCount"/>
-                                           </MultiBinding>
-                                       </TextBlock.Text>
-                                   </TextBlock>
-                               </StackPanel>
-                               <Button Grid.Column="1" Command="{Binding CloseIntroCommand}"
-                                       Background="Transparent" BorderThickness="0"
-                                       Padding="2,0" Cursor="Hand" VerticalAlignment="Top">
-                                   <TextBlock Text="✕" FontSize="{DynamicResource FontSizeXL}" Foreground="#AAAAAA"/>
-                               </Button>
-                           </Grid>
+                           <StackPanel>
+                               <TextBlock Text="{x:Static res:Strings.WelcomeTitle}"
+                                          FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold" Foreground="#D9D9D9"/>
+                               <TextBlock Foreground="#4DA9F3" FontSize="{DynamicResource FontSizeBase}" Margin="0,4,0,0">
+                                   <TextBlock.Text>
+                                       <MultiBinding StringFormat="Шаг {0} из {1}">
+                                           <Binding Path="Intro.Step"/>
+                                           <Binding Path="Intro.StepCount"/>
+                                       </MultiBinding>
+                                   </TextBlock.Text>
+                               </TextBlock>
+                           </StackPanel>
                        </Border>
 
                        <!-- Step content -->
                        <StackPanel Margin="18,16,18,20" Spacing="12" MinHeight="120">
-                           <!-- Step 1: Play button -->
-                           <StackPanel IsVisible="{Binding IntroStep, Converter={x:Static util:IntroStepConverter.Instance}, ConverterParameter=1}" Spacing="8">
-                               <TextBlock Text="▶  Кнопка запуска игры" FontSize="{DynamicResource FontSizeLG}" FontWeight="SemiBold" Foreground="#4DA9F3"/>
+                           <!-- Step 1: Launch button -->
+                           <StackPanel IsVisible="{Binding Intro.Step, Converter={x:Static util:IntroStepConverter.Instance}, ConverterParameter=1}" Spacing="8">
+                               <TextBlock Text="▶  Как запустить игру" FontSize="{DynamicResource FontSizeLG}" FontWeight="SemiBold" Foreground="#4DA9F3"/>
                                <TextBlock TextWrapping="Wrap" Foreground="#C0C0C0" FontSize="{DynamicResource FontSizeMD}">
-                                   В правом верхнем углу находится кнопка запуска. Нажмите её, чтобы запустить Dotaclassic. Если игра уже запущена и найден сервер — кнопка изменится на «Подключиться».
+                                   Эта кнопка в правом верхнем углу запускает старую Dota 2. Можешь запустить, посмотреть на игровой клиент и выставить настройки.
                                </TextBlock>
                            </StackPanel>
                            <!-- Step 2: Settings -->
-                           <StackPanel IsVisible="{Binding IntroStep, Converter={x:Static util:IntroStepConverter.Instance}, ConverterParameter=2}" Spacing="8">
+                           <StackPanel IsVisible="{Binding Intro.Step, Converter={x:Static util:IntroStepConverter.Instance}, ConverterParameter=2}" Spacing="8">
                                <TextBlock Text="⚙  Настройки" FontSize="{DynamicResource FontSizeLG}" FontWeight="SemiBold" Foreground="#4DA9F3"/>
                                <TextBlock TextWrapping="Wrap" Foreground="#C0C0C0" FontSize="{DynamicResource FontSizeMD}">
-                                   Значок шестерёнки рядом с кнопкой запуска открывает панель настроек. Там можно настроить графику, геймплей (чувствительность, быстрый каст), язык, а также параметры загрузки.
+                                   Значок шестерёнки рядом с кнопкой запуска открывает панель настроек. Там самые нужные параметры - полный экран, разрешение, язык и другие.
                                </TextBlock>
                            </StackPanel>
                            <!-- Step 3: Matchmaking modes -->
-                           <StackPanel IsVisible="{Binding IntroStep, Converter={x:Static util:IntroStepConverter.Instance}, ConverterParameter=3}" Spacing="8">
+                           <StackPanel IsVisible="{Binding Intro.Step, Converter={x:Static util:IntroStepConverter.Instance}, ConverterParameter=3}" Spacing="8">
                                <TextBlock Text="🎮  Режимы и поиск игры" FontSize="{DynamicResource FontSizeLG}" FontWeight="SemiBold" Foreground="#4DA9F3"/>
                                <TextBlock TextWrapping="Wrap" Foreground="#C0C0C0" FontSize="{DynamicResource FontSizeMD}">
-                                   В правой части экрана выберите один или несколько режимов игры, затем нажмите «Найти игру». Когда матч будет найден — подтвердите готовность прямо в лаунчере.
+                                   В правой части экрана выберите один или несколько режимов игры, затем нажмите «Играть». Когда матч будет найден — подтвердите готовность прямо в лаунчере. Искать игру через игровой клиент - НЕ НУЖНО.
                                </TextBlock>
                            </StackPanel>
-                           <!-- Step 4: Bots suggestion -->
-                           <StackPanel IsVisible="{Binding IntroStep, Converter={x:Static util:IntroStepConverter.Instance}, ConverterParameter=4}" Spacing="8">
-                               <TextBlock Text="🤖  Совет: сыграйте против ботов" FontSize="{DynamicResource FontSizeLG}" FontWeight="SemiBold" Foreground="#4DA9F3"/>
+                           <!-- Step 4: Bot requirement to unlock 5x5 -->
+                           <StackPanel IsVisible="{Binding Intro.Step, Converter={x:Static util:IntroStepConverter.Instance}, ConverterParameter=4}" Spacing="8">
+                               <TextBlock Text="🤖  Начните с ботов" FontSize="{DynamicResource FontSizeLG}" FontWeight="SemiBold" Foreground="#4DA9F3"/>
                                <TextBlock TextWrapping="Wrap" Foreground="#C0C0C0" FontSize="{DynamicResource FontSizeMD}">
-                                   Если вы новичок или хотите потренироваться — выберите режим «Боты» перед поиском. Это отличный способ освоиться в игре без давления соперников.
+                                   Режимы 5×5 с живыми игроками заблокированы для новых аккаунтов. Сыграйте несколько игр против ботов — это нужно, чтобы убедиться, что вы знаете основы игры. После этого все режимы откроются автоматически.
                                </TextBlock>
                            </StackPanel>
                        </StackPanel>
 
                        <!-- Footer buttons -->
                        <Border Background="#0A0B0D" Padding="18,12">
-                           <Grid ColumnDefinitions="*,Auto,Auto">
-                               <Button Grid.Column="0" Command="{Binding CloseIntroCommand}"
-                                       Background="Transparent" BorderThickness="0"
-                                       Padding="0" Cursor="Hand" VerticalAlignment="Center"
-                                       HorizontalAlignment="Left">
-                                   <TextBlock Text="{x:Static res:Strings.Skip}" Foreground="#666" FontSize="{DynamicResource FontSizeBase}"/>
-                               </Button>
-                               <Button Classes="PrimaryButton"
-                                       Grid.Column="2" Command="{Binding NextIntroStepCommand}"
-                                       Padding="22,9" FontSize="{DynamicResource FontSizeLG}"
-                                       CornerRadius="0" Cursor="Hand">
-                                   <TextBlock>
-                                       <TextBlock.Text>
-                                           <Binding Path="IntroStep"
-                                                    Converter="{x:Static util:IntroNextButtonTextConverter.Instance}"/>
-                                       </TextBlock.Text>
-                                   </TextBlock>
-                               </Button>
-                           </Grid>
+                           <Button Classes="PrimaryButton"
+                                   HorizontalAlignment="Right"
+                                   Command="{Binding Intro.NextStepCommand}"
+                                   Padding="22,9" FontSize="{DynamicResource FontSizeLG}"
+                                   CornerRadius="0" Cursor="Hand">
+                               <TextBlock>
+                                   <TextBlock.Text>
+                                       <Binding Path="Intro.Step"
+                                                Converter="{x:Static util:IntroNextButtonTextConverter.Instance}"/>
+                                   </TextBlock.Text>
+                               </TextBlock>
+                           </Button>
                        </Border>
                    </StackPanel>
                </Border>

@@ -73,13 +73,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     [ObservableProperty]
     private bool _isSettingsOpen;
 
-    [ObservableProperty]
-    private bool _isIntroOpen;
-
-    [ObservableProperty]
-    private int _introStep = 1;
-
-    public int IntroStepCount => 4;
+    public IntroViewModel Intro { get; }
 
     [ObservableProperty]
     private bool _isAbandonConfirmOpen;
@@ -128,7 +122,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         ITriviaRepository triviaRepository,
         ITimerFactory timerFactory,
         INetConService netConService,
-        IGameWindowService gameWindowService)
+        IGameWindowService gameWindowService,
+        IDotakeysProfileService dotakeysProfileService)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -141,7 +136,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         _netConService = netConService;
 
         var settings = settingsStorage.Get();
-        _isIntroOpen = !settings.IntroShown;
+        Intro = new IntroViewModel(settingsStorage, isOpen: !settings.IntroShown);
 
         // Set the persisted token immediately so all subsequent API calls are authenticated.
         if (!string.IsNullOrWhiteSpace(settings.BackendAccessToken))
@@ -161,7 +156,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         }
 
         // Create child ViewModels
-        Launch = new GameLaunchViewModel(settingsStorage, launchSettingsStorage, cvarProvider, videoProvider, queueSocketService, backendApiService, netConService, gameWindowService);
+        Launch = new GameLaunchViewModel(settingsStorage, launchSettingsStorage, cvarProvider, videoProvider, queueSocketService, backendApiService, netConService, gameWindowService, dotakeysProfileService);
+        Launch.GetCurrentSteamId32 = () => _steamManager.CurrentUser?.SteamId32;
         Queue = new QueueViewModel(queueSocketService, backendApiService, settingsStorage, triviaRepository, timerFactory);
         Room = new RoomViewModel(queueSocketService, backendApiService);
         Party = new PartyViewModel(queueSocketService, backendApiService);
@@ -363,30 +359,6 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
             ? () => NavigateTo(_previousTab.Value)
             : null;
         ActiveTab = LauncherTab.Profile;
-    }
-
-    // ── Intro ─────────────────────────────────────────────────────────────────
-
-    [RelayCommand]
-    private void NextIntroStep()
-    {
-        if (IntroStep < IntroStepCount)
-        {
-            IntroStep++;
-        }
-        else
-        {
-            CloseIntro();
-        }
-    }
-
-    [RelayCommand]
-    private void CloseIntro()
-    {
-        IsIntroOpen = false;
-        var settings = _settingsStorage.Get();
-        settings.IntroShown = true;
-        _settingsStorage.Save(settings);
     }
 
     /// <summary>

@@ -25,7 +25,14 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
     private readonly IQueueSocketService _queueSocketService;
     private readonly INetConService _netConService;
     private readonly IGameWindowService _gameWindowService;
+    private readonly IDotakeysProfileService _dotakeysProfileService;
     private readonly DispatcherTimer _runStateTimer;
+
+    /// <summary>
+    /// Returns the Steam32 account ID of the currently logged-in user, or null if unknown.
+    /// Set by the parent ViewModel after construction.
+    /// </summary>
+    public Func<ulong?>? GetCurrentSteamId32 { get; set; }
 
     [ObservableProperty]
     private string? _gameDirectory;
@@ -77,7 +84,8 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         IQueueSocketService queueSocketService,
         IBackendApiService backendApiService,
         INetConService netConService,
-        IGameWindowService gameWindowService)
+        IGameWindowService gameWindowService,
+        IDotakeysProfileService dotakeysProfileService)
     {
         _settingsStorage = settingsStorage;
         _launchSettingsStorage = launchSettingsStorage;
@@ -87,6 +95,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         _queueSocketService = queueSocketService;
         _netConService = netConService;
         _gameWindowService = gameWindowService;
+        _dotakeysProfileService = dotakeysProfileService;
         var settings = settingsStorage.Get();
         _gameDirectory = settings.GameDirectory;
         _runState = GameRunState.None;
@@ -233,8 +242,16 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
             if (!string.IsNullOrEmpty(cliArgs)) parts.Add(cliArgs);
             if (presetArg != null) parts.Add(presetArg);
             if (execArg != null) parts.Add(execArg);
+            parts.Add(CfgGenerator.ImmutableServerCfgArg);
             if (!string.IsNullOrEmpty(launchOptions)) parts.Add(launchOptions);
             var arguments = string.Join(" ", parts);
+
+            // Ensure the Dotaclassic keybind profile is migrated and patched before launch
+            var steamId32 = GetCurrentSteamId32?.Invoke();
+            if (steamId32.HasValue)
+                _dotakeysProfileService.PrepareProfile(steamId32.Value);
+            else
+                AppLog.Warn("LaunchGame: Steam user unknown, skipping keybind profile patch.");
 
             AppLog.Info($"LaunchGame: starting {exePath} {arguments}");
             var process = Process.Start(new ProcessStartInfo
