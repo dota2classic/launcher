@@ -15,6 +15,12 @@ public static class CfgGenerator
     private const string PresetCfgFileName = "d2c_preset.cfg";
 
     /// <summary>
+    /// Server-managed immutable cfg, downloaded automatically into the game cfg folder.
+    /// The launcher always execs it; the engine silently skips it if the file is absent.
+    /// </summary>
+    public const string ImmutableServerCfgArg = "+exec d2c_preset_config_imm.cfg";
+
+    /// <summary>
     /// Preset cvars enforced on every launch. Not user-configurable.
     /// Exec'd after config.cfg so they always take effect.
     /// </summary>

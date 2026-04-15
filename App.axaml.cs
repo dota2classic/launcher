@@ -98,6 +98,7 @@ public partial class App : Application
             services.AddSingleton<IChatViewModelFactory, ChatViewModelFactory>();
             services.AddSingleton<IWindowService, WindowService>();
             services.AddSingleton<INetConService, NetConService>();
+            services.AddSingleton<IDotakeysProfileService, DotakeysProfileService>();
             services.AddSingleton<MainWindowViewModel>();
 
             _services = services.BuildServiceProvider();

@@ -339,3 +339,8 @@ internal sealed class StubGameWindowService : IGameWindowService
     public void SetWindowIcon(string exePath) { }
     public void FocusWindow() { }
 }
+
+internal sealed class StubDotakeysProfileService : IDotakeysProfileService
+{
+    public bool PrepareProfile(ulong steamId32) => true;
+}
