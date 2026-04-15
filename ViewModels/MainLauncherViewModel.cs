@@ -122,7 +122,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         ITriviaRepository triviaRepository,
         ITimerFactory timerFactory,
         INetConService netConService,
-        IGameWindowService gameWindowService)
+        IGameWindowService gameWindowService,
+        IDotakeysProfileService dotakeysProfileService)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -155,7 +156,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         }
 
         // Create child ViewModels
-        Launch = new GameLaunchViewModel(settingsStorage, launchSettingsStorage, cvarProvider, videoProvider, queueSocketService, backendApiService, netConService, gameWindowService);
+        Launch = new GameLaunchViewModel(settingsStorage, launchSettingsStorage, cvarProvider, videoProvider, queueSocketService, backendApiService, netConService, gameWindowService, dotakeysProfileService);
+        Launch.GetCurrentSteamId32 = () => _steamManager.CurrentUser?.SteamId32;
         Queue = new QueueViewModel(queueSocketService, backendApiService, settingsStorage, triviaRepository, timerFactory);
         Room = new RoomViewModel(queueSocketService, backendApiService);
         Party = new PartyViewModel(queueSocketService, backendApiService);
