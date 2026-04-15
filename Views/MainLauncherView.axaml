@@ -200,21 +200,21 @@
                            <StackPanel IsVisible="{Binding Intro.Step, Converter={x:Static util:IntroStepConverter.Instance}, ConverterParameter=1}" Spacing="8">
                                <TextBlock Text="▶  Как запустить игру" FontSize="{DynamicResource FontSizeLG}" FontWeight="SemiBold" Foreground="#4DA9F3"/>
                                <TextBlock TextWrapping="Wrap" Foreground="#C0C0C0" FontSize="{DynamicResource FontSizeMD}">
-                                   Эта кнопка в правом верхнем углу запускает Dotaclassic. Именно так вы заходите в игру каждый раз. Когда матч найден — она изменится на «Подключиться».
+                                   Эта кнопка в правом верхнем углу запускает старую Dota 2. Можешь запустить, посмотреть на игровой клиент и выставить настройки.
                                </TextBlock>
                            </StackPanel>
                            <!-- Step 2: Settings -->
                            <StackPanel IsVisible="{Binding Intro.Step, Converter={x:Static util:IntroStepConverter.Instance}, ConverterParameter=2}" Spacing="8">
                                <TextBlock Text="⚙  Настройки" FontSize="{DynamicResource FontSizeLG}" FontWeight="SemiBold" Foreground="#4DA9F3"/>
                                <TextBlock TextWrapping="Wrap" Foreground="#C0C0C0" FontSize="{DynamicResource FontSizeMD}">
-                                   Значок шестерёнки рядом с кнопкой запуска открывает панель настроек. Там можно настроить графику, геймплей (чувствительность, быстрый каст), язык, а также параметры загрузки.
+                                   Значок шестерёнки рядом с кнопкой запуска открывает панель настроек. Там самые нужные параметры - полный экран, разрешение, язык и другие.
                                </TextBlock>
                            </StackPanel>
                            <!-- Step 3: Matchmaking modes -->
                            <StackPanel IsVisible="{Binding Intro.Step, Converter={x:Static util:IntroStepConverter.Instance}, ConverterParameter=3}" Spacing="8">
                                <TextBlock Text="🎮  Режимы и поиск игры" FontSize="{DynamicResource FontSizeLG}" FontWeight="SemiBold" Foreground="#4DA9F3"/>
                                <TextBlock TextWrapping="Wrap" Foreground="#C0C0C0" FontSize="{DynamicResource FontSizeMD}">
-                                   В правой части экрана выберите один или несколько режимов игры, затем нажмите «Найти игру». Когда матч будет найден — подтвердите готовность прямо в лаунчере.
+                                   В правой части экрана выберите один или несколько режимов игры, затем нажмите «Играть». Когда матч будет найден — подтвердите готовность прямо в лаунчере. Искать игру через игровой клиент - НЕ НУЖНО.
                                </TextBlock>
                            </StackPanel>
                            <!-- Step 4: Bot requirement to unlock 5x5 -->
