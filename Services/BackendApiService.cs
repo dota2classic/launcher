@@ -164,6 +164,29 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         return result;
     }
 
+    public async Task<IReadOnlyList<MatchmakingModeInfo>> GetAllMatchmakingModesAsync(CancellationToken cancellationToken = default)
+    {
+        var api = new DotaclassicApiClient(_httpClient);
+        var modes = await api.StatsController_getMatchmakingInfoAsync(cancellationToken);
+        if (modes == null)
+            return Array.Empty<MatchmakingModeInfo>();
+
+        var result = new List<MatchmakingModeInfo>();
+        foreach (var mode in modes)
+        {
+            if (mode == null)
+                continue;
+
+            var id = (int)mode.Lobby_type;
+            var label = MatchmakingModeLabels.TryGetValue(id, out var name)
+                ? name
+                : $"Mode {id}";
+            result.Add(new MatchmakingModeInfo(id, label));
+        }
+
+        return result;
+    }
+
     public async Task<IReadOnlyList<InviteCandidateView>> SearchPlayersAsync(string name, int count = 25, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(name))

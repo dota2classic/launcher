@@ -51,7 +51,7 @@ public partial class LiveViewModel : ObservableObject, IDisposable
     {
         try
         {
-            var modes = await _backendApiService.GetEnabledMatchmakingModesAsync();
+            var modes = await _backendApiService.GetAllMatchmakingModesAsync();
             _modeNames = modes.ToDictionary(m => m.ModeId, m => m.Name);
         }
         catch (Exception ex)

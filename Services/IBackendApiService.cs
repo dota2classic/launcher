@@ -13,6 +13,8 @@ public interface IBackendApiService
     Task<PartySnapshot> GetMyPartySnapshotAsync(CancellationToken cancellationToken = default);
     PartySnapshot MapPartyDto(d2c_launcher.Api.PartyDto party);
     Task<IReadOnlyList<MatchmakingModeInfo>> GetEnabledMatchmakingModesAsync(CancellationToken cancellationToken = default);
+    /// <summary>Returns labels for all matchmaking modes, including disabled ones. Used by the Live panel.</summary>
+    Task<IReadOnlyList<MatchmakingModeInfo>> GetAllMatchmakingModesAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<InviteCandidateView>> SearchPlayersAsync(string name, int count = 25, CancellationToken cancellationToken = default);
     Task<(string? Name, string? AvatarUrl)?> GetUserInfoAsync(string steamId, CancellationToken cancellationToken = default);
     Task<(int InGame, int OnSite)> GetOnlineStatsAsync(CancellationToken cancellationToken = default);
