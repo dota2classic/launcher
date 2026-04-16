@@ -12,7 +12,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using d2c_launcher.Api;
 using d2c_launcher.Models;
-using d2c_launcher.Resources;
 using d2c_launcher.Util;
 
 namespace d2c_launcher.Services;
@@ -42,23 +41,10 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         Timeout = TimeSpan.FromSeconds(10)
     };
     private string? _currentToken;
-    private static readonly IReadOnlyDictionary<int, string> MatchmakingModeLabels = new Dictionary<int, string>
-    {
-        [0] = Strings.Ranked5v5,
-        [1] = Strings.Mode5v5,
-        [2] = "1x1 Мид",
-        [3] = "Diretide",
-        [4] = "Greeviling",
-        [5] = "Ability Draft",
-        [6] = Strings.Tournament,
-        [7] = Strings.VsBots,
-        [8] = "Highroom 5x5",
-        [9] = Strings.Tournament1v1,
-        [10] = "Captains Mode",
-        [11] = Strings.Lobby,
-        [12] = "2x2 с ботами",
-        [13] = Strings.Turbo
-    };
+    private static string ModeLabel(int id) =>
+        I18n.T($"matchmakingMode.{id}") is var s && s != $"matchmakingMode.{id}"
+            ? s
+            : I18n.T("matchmakingMode.unknown", ("id", id));
 
     public void SetBearerToken(string? token)
     {
@@ -141,7 +127,13 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         return new PartySnapshot(map.Values.ToList(), enterQueueAt);
     }
 
-    public async Task<IReadOnlyList<MatchmakingModeInfo>> GetEnabledMatchmakingModesAsync(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<MatchmakingModeInfo>> GetEnabledMatchmakingModesAsync(CancellationToken cancellationToken = default)
+        => GetMatchmakingModesAsync(enabledOnly: true, cancellationToken);
+
+    public Task<IReadOnlyList<MatchmakingModeInfo>> GetAllMatchmakingModesAsync(CancellationToken cancellationToken = default)
+        => GetMatchmakingModesAsync(enabledOnly: false, cancellationToken);
+
+    private async Task<IReadOnlyList<MatchmakingModeInfo>> GetMatchmakingModesAsync(bool enabledOnly, CancellationToken cancellationToken)
     {
         var api = new DotaclassicApiClient(_httpClient);
         var modes = await api.StatsController_getMatchmakingInfoAsync(cancellationToken);
@@ -151,14 +143,11 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         var result = new List<MatchmakingModeInfo>();
         foreach (var mode in modes)
         {
-            if (mode == null || !mode.Enabled)
+            if (mode == null || (enabledOnly && !mode.Enabled))
                 continue;
 
             var id = (int)mode.Lobby_type;
-            var label = MatchmakingModeLabels.TryGetValue(id, out var name)
-                ? name
-                : $"Mode {id}";
-            result.Add(new MatchmakingModeInfo(id, label));
+            result.Add(new MatchmakingModeInfo(id, ModeLabel(id)));
         }
 
         return result;

@@ -80,6 +80,9 @@ internal sealed class StubBackendApiService : IBackendApiService
             new MatchmakingModeInfo(7,  "Против ботов"),
         ]);
 
+    public Task<IReadOnlyList<MatchmakingModeInfo>> GetAllMatchmakingModesAsync(CancellationToken cancellationToken = default)
+        => GetEnabledMatchmakingModesAsync(cancellationToken);
+
     public Task<IReadOnlyList<InviteCandidateView>> SearchPlayersAsync(string name, int count = 25, CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<InviteCandidateView>>([]);
 
