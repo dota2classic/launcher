@@ -74,16 +74,16 @@
                           <Setter Property="BorderBrush" Value="#3a5a7a"/>
                         </Style>
                       </Border.Styles>
-                      <StackPanel>
+                      <Grid RowDefinitions="Auto,*">
 
                         <!-- Thumbnail -->
-                        <Border Height="153" ClipToBounds="True" Background="#0a0f18">
+                        <Border Grid.Row="0" Height="153" ClipToBounds="True" Background="#0a0f18">
                           <Image asyncImageLoader:ImageLoader.Source="{Binding Preview}"
                                  Stretch="UniformToFill"/>
                         </Border>
 
                         <!-- Info -->
-                        <Grid Margin="10,10,10,12" RowDefinitions="*,Auto">
+                        <Grid Grid.Row="1" Margin="10,10,10,12" RowDefinitions="*,Auto">
 
                           <!-- Title -->
                           <TextBlock Grid.Row="0"
@@ -125,7 +125,7 @@
                           </Grid>
                         </Grid>
 
-                      </StackPanel>
+                      </Grid>
                     </Border>
                   </Button>
                 </DataTemplate>
