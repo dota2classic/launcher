@@ -33,13 +33,6 @@ public partial class GameDownloadViewModel : ViewModelBase
     /// </summary>
     public List<string>? SelectedDlcIds { get; set; }
 
-    /// <summary>
-    /// IDs of ALL packages that were previously installed (required + optional).
-    /// Used to detect which optional packages have been deselected and whose files
-    /// should be removed before the next verification pass.
-    /// </summary>
-    public List<string>? InstalledPackageIds { get; set; }
-
     public Action? OnCompleted { get; set; }
 
     /// <summary>
@@ -218,36 +211,25 @@ public partial class GameDownloadViewModel : ViewModelBase
 
     private async Task DeleteRemovedPackagesAsync()
     {
-        if (InstalledPackageIds == null || InstalledPackageIds.Count == 0)
-            return;
-
         var registry = await _registryService.GetAsync();
         if (registry == null) return;
 
-        var requiredIds = registry.Packages
-            .Where(p => !p.Optional)
-            .Select(p => p.Id)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        var wantedIds = requiredIds
-            .Concat(SelectedDlcIds ?? [])
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        var idsToRemove = InstalledPackageIds
-            .Where(id => !wantedIds.Contains(id))
+        // Delete files for every optional package the user has NOT selected.
+        // File.Exists guards handle packages that were never on disk.
+        var selectedIds = (SelectedDlcIds ?? []).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var packagesToRemove = registry.Packages
+            .Where(p => p.Optional && !selectedIds.Contains(p.Id))
             .ToList();
 
-        if (idsToRemove.Count == 0)
+        if (packagesToRemove.Count == 0)
             return;
 
         SetPhase(VerificationPhase.FetchingManifest, Strings.DeletingDlcFiles, indeterminate: true);
 
         using var http = new HttpClient();
 
-        foreach (var id in idsToRemove)
+        foreach (var pkg in packagesToRemove)
         {
-            var pkg = registry.Packages.FirstOrDefault(p => p.Id == id);
-            if (pkg == null) continue;
 
             Dispatcher.UIThread.Post(() => CurrentFileText = pkg.Name);
 

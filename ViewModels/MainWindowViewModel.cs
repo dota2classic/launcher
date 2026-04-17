@@ -278,7 +278,7 @@ public partial class MainWindowViewModel : ViewModelBase
             GameDirectory = gameDir,
             SelectedDlcIds = settings.SelectedDlcIds ?? [],
             NeedDefenderModal = needDefenderModal,
-            InstalledPackageIds = settings.InstalledPackageIds,
+
             OnDefenderDecisionMade = accepted =>
             {
                 var s = _settingsStorage.Get();
