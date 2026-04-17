@@ -261,15 +261,42 @@ public partial class GameDownloadViewModel : ViewModelBase
 
             await Task.Run(() =>
             {
+                var gameRoot = System.IO.Path.GetFullPath(GameDirectory);
+                var affectedDirs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
                 foreach (var file in pkgManifest.Files)
                 {
                     var localPath = System.IO.Path.Combine(GameDirectory, file.Path);
                     try
                     {
                         if (System.IO.File.Exists(localPath))
+                        {
                             System.IO.File.Delete(localPath);
+                            var dir = System.IO.Path.GetDirectoryName(localPath);
+                            if (dir != null) affectedDirs.Add(dir);
+                        }
                     }
                     catch { /* skip locked/inaccessible files */ }
+                }
+
+                // Remove directories that are now empty, walking up toward game root.
+                foreach (var dir in affectedDirs.OrderByDescending(d => d.Length))
+                {
+                    var current = System.IO.Path.GetFullPath(dir);
+                    while (current.StartsWith(gameRoot, StringComparison.OrdinalIgnoreCase)
+                           && current.Length > gameRoot.Length)
+                    {
+                        try
+                        {
+                            if (System.IO.Directory.Exists(current)
+                                && !System.IO.Directory.EnumerateFileSystemEntries(current).Any())
+                                System.IO.Directory.Delete(current);
+                            else
+                                break;
+                        }
+                        catch { break; }
+                        current = System.IO.Path.GetDirectoryName(current) ?? gameRoot;
+                    }
                 }
             });
         }
