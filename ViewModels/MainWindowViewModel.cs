@@ -318,7 +318,7 @@ public partial class MainWindowViewModel : ViewModelBase
             _steamAuthApi, _uiDispatcher, _triviaRepository, _timerFactory);
         vm.OnGameDirectoryChanged = _ => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirChanged(AppState)));
         vm.RequestGameDirectoryChange = () => Dispatcher.UIThread.Post(() => EnterState(AppState.SelectGameDirectory));
-        vm.OnDlcChanged = _ => Dispatcher.UIThread.Post(() =>
+        vm.OnDlcChanged = () => Dispatcher.UIThread.Post(() =>
         {
             AppState = AppState.VerifyingGame;
             EnterVerifyingGame();

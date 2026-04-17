@@ -16,11 +16,10 @@ public partial class DlcViewModel : ViewModelBase
     private readonly IContentRegistryService _registryService;
 
     /// <summary>
-    /// Called when the user applies DLC changes. Receives the list of package IDs
-    /// to remove (were installed, now unchecked). Parent VM uses this to trigger
-    /// re-verification with file deletion.
+    /// Called when the user applies DLC changes. Parent VM uses this to trigger
+    /// re-verification; deletion is computed from settings by GameDownloadViewModel.
     /// </summary>
-    public Action<List<string>>? OnDlcChanged { get; set; }
+    public Action? OnDlcChanged { get; set; }
 
     public IReadOnlyList<DlcPackageItem> DlcPackages { get; private set; } = [];
 
@@ -108,15 +107,10 @@ public partial class DlcViewModel : ViewModelBase
 
         var settings = _settingsStorage.Get();
 
-        if (settings.InstalledPackageIds != null)
-        {
-            foreach (var id in removedIds)
-                settings.InstalledPackageIds.Remove(id);
-            foreach (var id in addedIds)
-                if (!settings.InstalledPackageIds.Contains(id))
-                    settings.InstalledPackageIds.Add(id);
-        }
-
+        // InstalledPackageIds is intentionally NOT mutated here.
+        // GameDownloadViewModel.DeleteRemovedPackagesAsync diffs InstalledPackageIds
+        // against SelectedDlcIds to compute what to delete; it needs the pre-change
+        // installed state. OnPackagesInstalled is the sole writer after verification completes.
         settings.SelectedDlcIds ??= [];
         foreach (var id in removedIds)
             settings.SelectedDlcIds.Remove(id);
@@ -130,7 +124,7 @@ public partial class DlcViewModel : ViewModelBase
             _originalDlcSelection[item.Id] = item.IsSelected;
         HasDlcChanges = false;
 
-        OnDlcChanged?.Invoke(removedIds);
+        OnDlcChanged?.Invoke();
     }
 
     // ── Constructor ────────────────────────────────────────────────────────────
