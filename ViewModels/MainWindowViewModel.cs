@@ -267,7 +267,7 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    private void EnterVerifyingGame(List<string>? packageIdsToRemove = null)
+    private void EnterVerifyingGame()
     {
         var gameDir = ResolveGameDir();
         if (gameDir == null)
@@ -287,7 +287,7 @@ public partial class MainWindowViewModel : ViewModelBase
             GameDirectory = gameDir,
             SelectedDlcIds = settings.SelectedDlcIds ?? [],
             NeedDefenderModal = needDefenderModal,
-            PackageIdsToRemove = packageIdsToRemove,
+            InstalledPackageIds = settings.InstalledPackageIds,
             OnDefenderDecisionMade = accepted =>
             {
                 var s = _settingsStorage.Get();
@@ -328,10 +328,10 @@ public partial class MainWindowViewModel : ViewModelBase
             _dotakeysProfileService);
         vm.OnGameDirectoryChanged = _ => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirChanged(AppState)));
         vm.RequestGameDirectoryChange = () => Dispatcher.UIThread.Post(() => EnterState(AppState.SelectGameDirectory));
-        vm.OnDlcChanged = removedIds => Dispatcher.UIThread.Post(() =>
+        vm.OnDlcChanged = _ => Dispatcher.UIThread.Post(() =>
         {
             AppState = AppState.VerifyingGame;
-            EnterVerifyingGame(removedIds);
+            EnterVerifyingGame();
         });
         vm.RequestReverify = () => Dispatcher.UIThread.Post(() =>
         {

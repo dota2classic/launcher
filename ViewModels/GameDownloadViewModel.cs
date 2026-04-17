@@ -34,10 +34,11 @@ public partial class GameDownloadViewModel : ViewModelBase
     public List<string>? SelectedDlcIds { get; set; }
 
     /// <summary>
-    /// IDs of packages whose local files should be deleted before verification.
-    /// Set when the user unchecks a DLC in Settings.
+    /// IDs of ALL packages that were previously installed (required + optional).
+    /// Used to detect which optional packages have been deselected and whose files
+    /// should be removed before the next verification pass.
     /// </summary>
-    public List<string>? PackageIdsToRemove { get; set; }
+    public List<string>? InstalledPackageIds { get; set; }
 
     public Action? OnCompleted { get; set; }
 
@@ -217,17 +218,33 @@ public partial class GameDownloadViewModel : ViewModelBase
 
     private async Task DeleteRemovedPackagesAsync()
     {
-        if (PackageIdsToRemove == null || PackageIdsToRemove.Count == 0)
+        if (InstalledPackageIds == null || InstalledPackageIds.Count == 0)
             return;
-
-        SetPhase(VerificationPhase.FetchingManifest, Strings.DeletingDlcFiles, indeterminate: true);
 
         var registry = await _registryService.GetAsync();
         if (registry == null) return;
 
+        var requiredIds = registry.Packages
+            .Where(p => !p.Optional)
+            .Select(p => p.Id)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var wantedIds = requiredIds
+            .Concat(SelectedDlcIds ?? [])
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var idsToRemove = InstalledPackageIds
+            .Where(id => !wantedIds.Contains(id))
+            .ToList();
+
+        if (idsToRemove.Count == 0)
+            return;
+
+        SetPhase(VerificationPhase.FetchingManifest, Strings.DeletingDlcFiles, indeterminate: true);
+
         using var http = new HttpClient();
 
-        foreach (var id in PackageIdsToRemove)
+        foreach (var id in idsToRemove)
         {
             var pkg = registry.Packages.FirstOrDefault(p => p.Id == id);
             if (pkg == null) continue;
