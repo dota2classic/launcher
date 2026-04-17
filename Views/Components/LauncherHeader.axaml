@@ -39,6 +39,19 @@
     <Style Selector="Button.nav-tab.active Rectangle.nav-indicator">
       <Setter Property="Fill" Value="#4a7eff"/>
     </Style>
+    <!-- Pulsating status dot -->
+    <Style Selector="Ellipse.pulse-dot">
+      <Style.Animations>
+        <Animation Duration="0:0:2" IterationCount="INFINITE" PlaybackDirection="Alternate" Easing="SineEaseInOut">
+          <KeyFrame Cue="0%">
+            <Setter Property="Opacity" Value="1"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="Opacity" Value="0.25"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
     <!-- Settings button -->
     <Style Selector="Button#SettingsButton materialIcons|MaterialIcon">
       <Setter Property="Foreground" Value="#4a5668"/>
@@ -74,7 +87,7 @@
         <Button x:Name="LiveTabButton" Classes="nav-tab" Classes.active="{Binding IsLiveTabActive}" Click="OnLiveTabClicked">
           <Grid RowDefinitions="*,2">
             <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">
-              <Ellipse Width="7" Height="7" Fill="#27AE60" VerticalAlignment="Center"
+              <Ellipse Classes="pulse-dot" Width="7" Height="7" Fill="#27AE60" VerticalAlignment="Center"
                        IsVisible="{Binding AnyLiveGame}"/>
               <TextBlock Classes="nav-label" Text="LIVE" LetterSpacing="2"/>
             </StackPanel>
@@ -88,7 +101,7 @@
                 Click="OnStreamsTabClicked">
           <Grid RowDefinitions="*,2">
             <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">
-              <Ellipse Width="7" Height="7" Fill="#e74c3c" VerticalAlignment="Center"/>
+              <Ellipse Classes="pulse-dot" Width="7" Height="7" Fill="#e74c3c" VerticalAlignment="Center"/>
               <TextBlock Classes="nav-label" Text="{l:T 'streams.tabLabel'}" LetterSpacing="2"/>
             </StackPanel>
             <Rectangle Grid.Row="1" Classes="nav-indicator"
