@@ -3,6 +3,7 @@
            xmlns:vm="using:d2c_launcher.ViewModels"
            xmlns:materialIcons="using:Material.Icons.Avalonia"
            xmlns:res="clr-namespace:d2c_launcher.Resources"
+           xmlns:l="clr-namespace:d2c_launcher.Util"
            x:Class="d2c_launcher.Views.Components.LauncherHeader"
            x:DataType="vm:MainLauncherViewModel">
   <UserControl.Styles>
@@ -76,6 +77,19 @@
               <Ellipse Width="7" Height="7" Fill="#27AE60" VerticalAlignment="Center"
                        IsVisible="{Binding AnyLiveGame}"/>
               <TextBlock Classes="nav-label" Text="LIVE" LetterSpacing="2"/>
+            </StackPanel>
+            <Rectangle Grid.Row="1" Classes="nav-indicator"
+                       HorizontalAlignment="Stretch"/>
+          </Grid>
+        </Button>
+        <Button x:Name="StreamsTabButton" Classes="nav-tab"
+                Classes.active="{Binding IsStreamsTabActive}"
+                IsVisible="{Binding HasStreams}"
+                Click="OnStreamsTabClicked">
+          <Grid RowDefinitions="*,2">
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">
+              <Ellipse Width="7" Height="7" Fill="#e74c3c" VerticalAlignment="Center"/>
+              <TextBlock Classes="nav-label" Text="{l:T 'streams.tabLabel'}" LetterSpacing="2"/>
             </StackPanel>
             <Rectangle Grid.Row="1" Classes="nav-indicator"
                        HorizontalAlignment="Stretch"/>

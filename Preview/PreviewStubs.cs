@@ -140,6 +140,9 @@ internal sealed class StubBackendApiService : IBackendApiService
     public Task<IReadOnlyList<d2c_launcher.Api.LiveMatchDto>> GetLiveMatchesAsync(CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<d2c_launcher.Api.LiveMatchDto>>([]);
 
+    public Task<IReadOnlyList<d2c_launcher.Api.TwitchStreamDto>> GetTwitchStreamsAsync(CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<d2c_launcher.Api.TwitchStreamDto>>([]);
+
     public async IAsyncEnumerable<d2c_launcher.Api.LiveMatchDto> SubscribeLiveMatchAsync(
         int matchId,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)

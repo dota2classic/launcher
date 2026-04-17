@@ -14,7 +14,7 @@ using d2c_launcher.Util;
 
 namespace d2c_launcher.ViewModels;
 
-public enum LauncherTab { Play, Live, Profile }
+public enum LauncherTab { Play, Live, Streams, Profile }
 
 public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 {
@@ -53,6 +53,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public ChatViewModel Chat { get; }
     public ProfileViewModel Profile { get; }
     public LiveViewModel Live { get; }
+    public StreamsViewModel Streams { get; }
 
     // ── Auth / user state ─────────────────────────────────────────────────────
     [ObservableProperty]
@@ -68,7 +69,10 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
     public bool IsPlayTabActive => ActiveTab == LauncherTab.Play;
     public bool IsLiveTabActive => ActiveTab == LauncherTab.Live;
+    public bool IsStreamsTabActive => ActiveTab == LauncherTab.Streams;
     public bool IsProfileTabActive => ActiveTab == LauncherTab.Profile;
+
+    public bool HasStreams => Streams.HasAnyStreams;
 
     [ObservableProperty]
     private bool _isSettingsOpen;
@@ -179,6 +183,18 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Live = new LiveViewModel(backendApiService);
         Live.OnSpectate = matchId => Launch.SpectateMatch((int)matchId);
         Live.OnOpenProfile = steam32Id => OpenPlayerProfile(steam32Id);
+
+        Streams = new StreamsViewModel(backendApiService);
+        Streams.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(StreamsViewModel.HasAnyStreams))
+            {
+                OnPropertyChanged(nameof(HasStreams));
+                // If streams disappear while the tab is active, fall back to Play.
+                if (!Streams.HasAnyStreams && ActiveTab == LauncherTab.Streams)
+                    ActiveTab = LauncherTab.Play;
+            }
+        };
 
         _soundCoordinator = new SocketEventCoordinator(queueSocketService, NotificationArea, windowService, backendApiService,
             mode => Queue.MatchmakingModes.FirstOrDefault(m => m.ModeId == (int)mode)?.Name ?? mode.ToString());
@@ -312,7 +328,10 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     {
         OnPropertyChanged(nameof(IsPlayTabActive));
         OnPropertyChanged(nameof(IsLiveTabActive));
+        OnPropertyChanged(nameof(IsStreamsTabActive));
         OnPropertyChanged(nameof(IsProfileTabActive));
+        if (value == LauncherTab.Streams)
+            Streams.RequestRefresh();
     }
 
     // ── Tab navigation ────────────────────────────────────────────────────────
@@ -427,5 +446,6 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Room.Dispose();
         Chat.Dispose();
         Live.Dispose();
+        Streams.Dispose();
     }
 }

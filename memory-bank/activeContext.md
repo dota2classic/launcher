@@ -33,6 +33,12 @@ All major features are shipped. The launcher is in maintenance/polish mode. Work
 
 ---
 
+## Recently Completed (last few sessions)
+
+| Issue | What was done |
+|-------|--------------|
+| #148 | Streams tab — `StreamsViewModel` polls `/v1/stats/twitch` every 60s; `StreamsPanel` shows Twitch-like preview cards (thumbnail, title, viewer count, streamer name, clickable link); tab only visible in header when `HasStreams` is true; auto-navigates to Play if streams disappear while tab is active |
+
 ## Next Steps / Open Issues
 
 | Issue | Title |

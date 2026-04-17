@@ -423,6 +423,21 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         }
     }
 
+    public async Task<IReadOnlyList<Api.TwitchStreamDto>> GetTwitchStreamsAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var api = new DotaclassicApiClient(_httpClient);
+            var result = await api.StatsController_getTwitchStreamsAsync(cancellationToken).ConfigureAwait(false);
+            return result?.ToList() ?? [];
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("GetTwitchStreamsAsync failed", ex);
+            return [];
+        }
+    }
+
     public async IAsyncEnumerable<Api.LiveMatchDto> SubscribeLiveMatchAsync(
         int matchId,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)

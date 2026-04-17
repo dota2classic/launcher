@@ -229,6 +229,11 @@
     "abandonedGames": "Покинутых игр",
     "timeInGame": "Времени в игре"
   },
+  "streams": {
+    "tabLabel": "СТРИМЫ",
+    "viewers": "зрителей",
+    "noStreams": "Нет активных стримов"
+  },
   "live": {
     "broadcasts": "ТРАНСЛЯЦИИ",
     "noActiveGames": "Нет активных игр",

@@ -66,6 +66,12 @@
                   <components:LivePanel DataContext="{Binding Live}"/>
               </Grid>
 
+              <!-- STREAMS tab content -->
+              <Grid Grid.Row="1" Margin="20,8,20,10"
+                    IsVisible="{Binding IsStreamsTabActive}">
+                  <components:StreamsPanel DataContext="{Binding Streams}"/>
+              </Grid>
+
               <!-- PROFILE tab content -->
                <Grid Grid.Row="1" Margin="20,8,20,10"
                      IsVisible="{Binding IsProfileTabActive}">

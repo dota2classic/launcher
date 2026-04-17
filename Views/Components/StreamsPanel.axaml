@@ -1,0 +1,99 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:d2c_launcher.ViewModels"
+             xmlns:api="using:d2c_launcher.Api"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:l="clr-namespace:d2c_launcher.Util"
+             x:Class="d2c_launcher.Views.Components.StreamsPanel"
+             x:DataType="vm:StreamsViewModel">
+
+  <Grid>
+
+    <!-- Loading -->
+    <TextBlock IsVisible="{Binding IsLoading}"
+               Text="{l:T 'common.loading'}"
+               Foreground="#3a4a5a" FontSize="{DynamicResource FontSizeSM}"
+               VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+    <!-- Empty state (loaded but no streams) -->
+    <TextBlock IsVisible="{Binding !HasAnyStreams}"
+               Text="{l:T 'streams.noStreams'}"
+               Foreground="#3a4a5a" FontSize="{DynamicResource FontSizeSM}"
+               VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+    <!-- Stream cards -->
+    <ScrollViewer IsVisible="{Binding HasAnyStreams}"
+                  HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+      <ItemsControl ItemsSource="{Binding Streams}" Margin="0,4">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <WrapPanel Orientation="Horizontal"/>
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="api:TwitchStreamDto">
+            <Button Click="OnStreamCardClicked"
+                    Tag="{Binding Link}"
+                    Background="Transparent" BorderThickness="0"
+                    Padding="0" Margin="0,0,12,12"
+                    Cursor="Hand" CornerRadius="0">
+              <Button.Styles>
+                <Style Selector="Button /template/ ContentPresenter">
+                  <Setter Property="Background" Value="Transparent"/>
+                </Style>
+                <Style Selector="Button:pointerover /template/ ContentPresenter">
+                  <Setter Property="Background" Value="Transparent"/>
+                </Style>
+              </Button.Styles>
+              <Border Width="260"
+                      Background="#0d1520"
+                      BorderBrush="#1e2a38" BorderThickness="1"
+                      CornerRadius="0">
+                <Border.Styles>
+                  <Style Selector="Border.stream-card:pointerover">
+                    <Setter Property="BorderBrush" Value="#3a5a7a"/>
+                  </Style>
+                </Border.Styles>
+                <StackPanel>
+                  <!-- Thumbnail -->
+                  <Border Height="146" ClipToBounds="True" Background="#0a0f18">
+                    <Image asyncImageLoader:ImageLoader.Source="{Binding Preview}"
+                           Stretch="UniformToFill"/>
+                  </Border>
+                  <!-- Info -->
+                  <StackPanel Margin="10,8,10,10" Spacing="4">
+                    <!-- Title -->
+                    <TextBlock Text="{Binding Title}"
+                               Foreground="#d0d8e0"
+                               FontSize="{DynamicResource FontSizeSM}"
+                               FontWeight="SemiBold"
+                               TextTrimming="CharacterEllipsis"
+                               MaxLines="2"
+                               TextWrapping="Wrap"/>
+                    <!-- Streamer + viewers -->
+                    <Grid ColumnDefinitions="*,Auto" Margin="0,2,0,0">
+                      <TextBlock Grid.Column="0"
+                                 Text="{Binding User.Name}"
+                                 Foreground="#5a90c0"
+                                 FontSize="{DynamicResource FontSizeXS}"
+                                 TextTrimming="CharacterEllipsis"/>
+                      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                        <Ellipse Width="6" Height="6" Fill="#e74c3c" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding Viewers}"
+                                   Foreground="#8a9aaa" FontSize="{DynamicResource FontSizeXS}"/>
+                        <TextBlock Text="{l:T 'streams.viewers'}"
+                                   Foreground="#8a9aaa" FontSize="{DynamicResource FontSizeXS}"/>
+                      </StackPanel>
+                    </Grid>
+                  </StackPanel>
+                </StackPanel>
+              </Border>
+            </Button>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+
+  </Grid>
+</UserControl>
