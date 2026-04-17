@@ -24,123 +24,128 @@
                    Foreground="#888888" FontSize="{DynamicResource FontSizeSM}"
                    VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
-        <!-- Empty state (loaded but no streams) -->
+        <!-- Empty state -->
         <TextBlock IsVisible="{Binding HasNoStreams}"
                    Text="{l:T 'streams.noStreams'}"
                    Foreground="#888888" FontSize="{DynamicResource FontSizeSM}"
                    VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
-        <!-- Stream cards + CTA -->
+        <!-- Stream list + CTA -->
         <ScrollViewer IsVisible="{Binding !IsLoading}"
                       HorizontalScrollBarVisibility="Disabled"
                       VerticalScrollBarVisibility="Auto">
-          <StackPanel Margin="12,12,0,12">
+          <StackPanel>
 
-            <!-- Stream cards -->
+            <!-- Stream rows -->
             <ItemsControl ItemsSource="{Binding Streams}" IsVisible="{Binding HasAnyStreams}">
-              <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                  <WrapPanel Orientation="Horizontal"/>
-                </ItemsPanelTemplate>
-              </ItemsControl.ItemsPanel>
               <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="api:TwitchStreamDto">
                   <Button Click="OnStreamCardClicked"
                           Tag="{Binding Link}"
                           Background="Transparent" BorderThickness="0"
-                          Padding="0" Margin="0,0,12,12"
+                          Padding="0" HorizontalAlignment="Stretch"
+                          HorizontalContentAlignment="Stretch"
                           Cursor="Hand" CornerRadius="0">
                     <Button.Styles>
                       <Style Selector="Button /template/ ContentPresenter">
                         <Setter Property="Background" Value="Transparent"/>
                       </Style>
                       <Style Selector="Button:pointerover /template/ ContentPresenter">
-                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Background" Value="#0d1520"/>
                       </Style>
                     </Button.Styles>
-                    <Border Classes="stream-card"
-                            Width="360"
-                            Background="#0d1520"
-                            BorderBrush="#1e2a38" BorderThickness="1"
-                            CornerRadius="0">
-                      <Border.Styles>
-                        <Style Selector="Border.stream-card:pointerover">
-                          <Setter Property="BorderBrush" Value="#3a5a7a"/>
-                        </Style>
-                      </Border.Styles>
-                      <StackPanel>
-                        <!-- Thumbnail -->
-                        <Border Height="202" ClipToBounds="True" Background="#0a0f18">
-                          <Image asyncImageLoader:ImageLoader.Source="{Binding Preview}"
-                                 Stretch="UniformToFill"/>
-                        </Border>
-                        <!-- Info -->
-                        <StackPanel Margin="10,8,10,10" Spacing="4">
-                          <TextBlock Text="{Binding Title}"
-                                     Foreground="#d0d8e0"
-                                     FontSize="{DynamicResource FontSizeSM}"
-                                     FontWeight="SemiBold"
-                                     TextTrimming="CharacterEllipsis"
-                                     MaxLines="2"
-                                     TextWrapping="Wrap"/>
-                          <Grid ColumnDefinitions="*,Auto" Margin="0,2,0,0">
-                            <TextBlock Grid.Column="0"
-                                       Text="{Binding User.Name}"
+                    <Grid ColumnDefinitions="Auto,*"
+                          Height="110"
+                          Margin="0,0,0,0">
+                      <!-- Bottom separator -->
+                      <Border Grid.ColumnSpan="2"
+                              BorderBrush="#1e2a38" BorderThickness="0,0,0,1"
+                              VerticalAlignment="Stretch"/>
+
+                      <!-- Thumbnail -->
+                      <Border Grid.Column="0"
+                              Width="196" Height="110"
+                              ClipToBounds="True" Background="#0a0f18">
+                        <Image asyncImageLoader:ImageLoader.Source="{Binding Preview}"
+                               Stretch="UniformToFill"/>
+                      </Border>
+
+                      <!-- Info -->
+                      <StackPanel Grid.Column="1"
+                                  Margin="16,0,16,0"
+                                  Spacing="6"
+                                  VerticalAlignment="Center">
+
+                        <!-- Title -->
+                        <TextBlock Text="{Binding Title}"
+                                   Foreground="#d0d8e0"
+                                   FontSize="{DynamicResource FontSizeLG}"
+                                   FontWeight="SemiBold"
+                                   TextTrimming="CharacterEllipsis"
+                                   MaxLines="2"
+                                   TextWrapping="Wrap"/>
+
+                        <!-- Streamer row -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
+
+                          <!-- Avatar + name -->
+                          <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                            <Border Width="22" Height="22" CornerRadius="11" ClipToBounds="True"
+                                    Background="#1a2535">
+                              <Image asyncImageLoader:ImageLoader.Source="{Binding User.AvatarSmall}"
+                                     Stretch="UniformToFill"/>
+                            </Border>
+                            <TextBlock Text="{Binding User.Name}"
                                        Foreground="#5a90c0"
-                                       FontSize="{DynamicResource FontSizeXS}"
-                                       TextTrimming="CharacterEllipsis"/>
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
-                              <Ellipse Width="6" Height="6" Fill="#e74c3c" VerticalAlignment="Center"/>
-                              <TextBlock Text="{Binding Viewers}"
-                                         Foreground="#8a9aaa" FontSize="{DynamicResource FontSizeXS}"/>
-                              <TextBlock Text="{l:T 'streams.viewers'}"
-                                         Foreground="#8a9aaa" FontSize="{DynamicResource FontSizeXS}"/>
-                            </StackPanel>
-                          </Grid>
-                        </StackPanel>
+                                       FontSize="{DynamicResource FontSizeSM}"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"/>
+                          </StackPanel>
+
+                          <!-- Viewer count -->
+                          <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="5"
+                                      VerticalAlignment="Center">
+                            <Ellipse Width="6" Height="6" Fill="#e74c3c" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Viewers}"
+                                       Foreground="#8a9aaa" FontSize="{DynamicResource FontSizeSM}"/>
+                            <TextBlock Text="{l:T 'streams.viewers'}"
+                                       Foreground="#8a9aaa" FontSize="{DynamicResource FontSizeSM}"/>
+                          </StackPanel>
+
+                        </Grid>
                       </StackPanel>
-                    </Border>
+                    </Grid>
                   </Button>
                 </DataTemplate>
               </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <!-- CTA placeholder card -->
+            <!-- CTA row -->
             <Button Click="OnCtaClicked"
                     Tag="{Binding PlayerSettingsUrl}"
                     IsVisible="{Binding PlayerSettingsUrl, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                     Background="Transparent" BorderThickness="0"
-                    Padding="0" Margin="0,0,12,0"
-                    Cursor="Hand" CornerRadius="0" Width="360" HorizontalAlignment="Left">
+                    Padding="0" HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
+                    Cursor="Hand" CornerRadius="0">
               <Button.Styles>
                 <Style Selector="Button /template/ ContentPresenter">
                   <Setter Property="Background" Value="Transparent"/>
                 </Style>
                 <Style Selector="Button:pointerover /template/ ContentPresenter">
-                  <Setter Property="Background" Value="Transparent"/>
+                  <Setter Property="Background" Value="#0d1118"/>
                 </Style>
               </Button.Styles>
-              <Border Classes="cta-card"
-                      Background="#0a0d12"
-                      BorderBrush="#252E3A" BorderThickness="1"
-                      CornerRadius="0">
-                <Border.Styles>
-                  <Style Selector="Border.cta-card:pointerover">
-                    <Setter Property="BorderBrush" Value="#3a5a7a"/>
-                  </Style>
-                </Border.Styles>
-                <StackPanel Margin="16,16,16,18" Spacing="8" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Border BorderBrush="#1e2a38" BorderThickness="0,0,0,1" Padding="16,14">
+                <StackPanel Spacing="4">
                   <TextBlock Text="{l:T 'streams.cta'}"
-                             Foreground="#8a9aaa"
+                             Foreground="#556070"
                              FontSize="{DynamicResource FontSizeSM}"
-                             TextWrapping="Wrap"
-                             TextAlignment="Center"
-                             HorizontalAlignment="Center"/>
+                             TextWrapping="Wrap"/>
                   <TextBlock Text="{l:T 'streams.ctaOpen'}"
                              Foreground="#4a90d6"
                              FontSize="{DynamicResource FontSizeSM}"
-                             FontWeight="SemiBold"
-                             HorizontalAlignment="Center"/>
+                             FontWeight="SemiBold"/>
                 </StackPanel>
               </Border>
             </Button>

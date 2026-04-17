@@ -761,6 +761,12 @@ public static class PreviewRegistry
                     Child = col,
                 }, null);
             },
+            ["StreamsPanel"] = () =>
+            {
+                var api = new StubBackendApiService();
+                var vm = new StreamsViewModel(api);
+                return (new StreamsPanel { Width = 900, Height = 700, DataContext = vm }, null);
+            },
             ["InviteModal"] = () =>
             {
                 var stub = new StubQueueSocketService();
