@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -52,10 +53,11 @@ public partial class StreamsViewModel : ObservableObject, IDisposable
         try
         {
             var streams = await _backendApiService.GetTwitchStreamsAsync().ConfigureAwait(false);
+            var repeated = Enumerable.Range(0, 5).SelectMany(_ => streams).ToList();
             Dispatcher.UIThread.Post(() =>
             {
                 Streams.Clear();
-                foreach (var s in streams)
+                foreach (var s in repeated)
                     Streams.Add(s);
                 HasAnyStreams = Streams.Count > 0;
                 HasNoStreams = Streams.Count == 0;
