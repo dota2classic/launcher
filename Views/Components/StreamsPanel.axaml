@@ -16,7 +16,7 @@
                VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
     <!-- Empty state (loaded but no streams) -->
-    <TextBlock IsVisible="{Binding !HasAnyStreams}"
+    <TextBlock IsVisible="{Binding HasNoStreams}"
                Text="{l:T 'streams.noStreams'}"
                Foreground="#3a4a5a" FontSize="{DynamicResource FontSizeSM}"
                VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -46,7 +46,8 @@
                   <Setter Property="Background" Value="Transparent"/>
                 </Style>
               </Button.Styles>
-              <Border Width="260"
+              <Border Classes="stream-card"
+                      Width="260"
                       Background="#0d1520"
                       BorderBrush="#1e2a38" BorderThickness="1"
                       CornerRadius="0">

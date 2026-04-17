@@ -17,6 +17,7 @@ public partial class StreamsViewModel : ObservableObject, IDisposable
 
     [ObservableProperty] private bool _isLoading = true;
     [ObservableProperty] private bool _hasAnyStreams;
+    [ObservableProperty] private bool _hasNoStreams;
 
     public ObservableCollection<TwitchStreamDto> Streams { get; } = [];
 
@@ -29,7 +30,13 @@ public partial class StreamsViewModel : ObservableObject, IDisposable
             if (!_isRefreshing)
                 FireAndForget(RefreshAsync(), "StreamsViewModel.RefreshAsync");
         };
-        FireAndForget(RefreshAsync(), "StreamsViewModel.RefreshAsync (init)");
+        FireAndForget(InitAsync(), "StreamsViewModel.InitAsync");
+    }
+
+    private async Task InitAsync()
+    {
+        await RefreshAsync();
+        _pollTimer.Start();
     }
 
     public void RequestRefresh()
@@ -50,6 +57,7 @@ public partial class StreamsViewModel : ObservableObject, IDisposable
                 foreach (var s in streams)
                     Streams.Add(s);
                 HasAnyStreams = Streams.Count > 0;
+                HasNoStreams = Streams.Count == 0;
                 IsLoading = false;
             });
         }
