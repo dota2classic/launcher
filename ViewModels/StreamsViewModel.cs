@@ -18,6 +18,7 @@ public partial class StreamsViewModel : ObservableObject, IDisposable
     [ObservableProperty] private bool _isLoading = true;
     [ObservableProperty] private bool _hasAnyStreams;
     [ObservableProperty] private bool _hasNoStreams;
+    [ObservableProperty] private string? _playerSettingsUrl;
 
     public ObservableCollection<TwitchStreamDto> Streams { get; } = [];
 

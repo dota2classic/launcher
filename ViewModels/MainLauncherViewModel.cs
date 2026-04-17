@@ -185,6 +185,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Live.OnOpenProfile = steam32Id => OpenPlayerProfile(steam32Id);
 
         Streams = new StreamsViewModel(backendApiService);
+        Streams.PlayerSettingsUrl = BuildStreamsSettingsUrl(_currentUser);
         Streams.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(StreamsViewModel.HasAnyStreams))
@@ -244,6 +245,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
             AvatarImage = SteamAvatarHelper.FromUser(u);
             oldBitmap?.Dispose();
             OnPropertyChanged(nameof(LoggedInAsText));
+            Streams.PlayerSettingsUrl = BuildStreamsSettingsUrl(u);
         });
         _steamManager.OnUserUpdated += _onUserUpdatedHandler;
 
@@ -430,6 +432,9 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
             cp: 10);
         if (vm != null) NotificationArea.AddNotificationDirect(vm);
     }
+
+    private static string? BuildStreamsSettingsUrl(Models.User? user) =>
+        user != null ? $"https://dotaclassic.ru/players/{user.SteamId32}/settings" : null;
 
     public void Dispose()
     {

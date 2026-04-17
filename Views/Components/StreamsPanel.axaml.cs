@@ -16,4 +16,10 @@ public partial class StreamsPanel : UserControl
         if (sender is Button { Tag: string url } && !string.IsNullOrEmpty(url))
             Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
     }
+
+    private void OnCtaClicked(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button { Tag: string url } && !string.IsNullOrEmpty(url))
+            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+    }
 }
