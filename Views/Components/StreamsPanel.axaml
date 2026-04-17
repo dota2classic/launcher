@@ -65,7 +65,7 @@
                       </Style>
                     </Button.Styles>
 
-                    <Border Width="272"
+                    <Border Width="272" Height="240"
                             Background="#0d1520"
                             BorderBrush="#252E3A" BorderThickness="1"
                             CornerRadius="4" ClipToBounds="True">
