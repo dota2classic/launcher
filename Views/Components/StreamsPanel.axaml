@@ -47,7 +47,7 @@
                 </Style>
               </Button.Styles>
               <Border Classes="stream-card"
-                      Width="300"
+                      Width="360"
                       Background="#0d1520"
                       BorderBrush="#1e2a38" BorderThickness="1"
                       CornerRadius="0">
@@ -58,7 +58,7 @@
                 </Border.Styles>
                 <StackPanel>
                   <!-- Thumbnail -->
-                  <Border Height="168" ClipToBounds="True" Background="#0a0f18">
+                  <Border Height="202" ClipToBounds="True" Background="#0a0f18">
                     <Image asyncImageLoader:ImageLoader.Source="{Binding Preview}"
                            Stretch="UniformToFill"/>
                   </Border>
