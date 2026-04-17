@@ -23,7 +23,7 @@ public partial class SettingsViewModel : ViewModelBase
         set => Gameplay.PushCvar = value;
     }
 
-    public Action<List<string>>? OnDlcChanged
+    public Action? OnDlcChanged
     {
         get => Dlc.OnDlcChanged;
         set => Dlc.OnDlcChanged = value;

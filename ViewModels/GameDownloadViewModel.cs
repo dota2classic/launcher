@@ -33,12 +33,6 @@ public partial class GameDownloadViewModel : ViewModelBase
     /// </summary>
     public List<string>? SelectedDlcIds { get; set; }
 
-    /// <summary>
-    /// IDs of packages whose local files should be deleted before verification.
-    /// Set when the user unchecks a DLC in Settings.
-    /// </summary>
-    public List<string>? PackageIdsToRemove { get; set; }
-
     public Action? OnCompleted { get; set; }
 
     /// <summary>
@@ -217,20 +211,25 @@ public partial class GameDownloadViewModel : ViewModelBase
 
     private async Task DeleteRemovedPackagesAsync()
     {
-        if (PackageIdsToRemove == null || PackageIdsToRemove.Count == 0)
+        var registry = await _registryService.GetAsync();
+        if (registry == null) return;
+
+        // Delete files for every optional package the user has NOT selected.
+        // File.Exists guards handle packages that were never on disk.
+        var selectedIds = (SelectedDlcIds ?? []).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var packagesToRemove = registry.Packages
+            .Where(p => p.Optional && !selectedIds.Contains(p.Id))
+            .ToList();
+
+        if (packagesToRemove.Count == 0)
             return;
 
         SetPhase(VerificationPhase.FetchingManifest, Strings.DeletingDlcFiles, indeterminate: true);
 
-        var registry = await _registryService.GetAsync();
-        if (registry == null) return;
-
         using var http = new HttpClient();
 
-        foreach (var id in PackageIdsToRemove)
+        foreach (var pkg in packagesToRemove)
         {
-            var pkg = registry.Packages.FirstOrDefault(p => p.Id == id);
-            if (pkg == null) continue;
 
             Dispatcher.UIThread.Post(() => CurrentFileText = pkg.Name);
 

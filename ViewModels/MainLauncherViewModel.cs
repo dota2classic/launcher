@@ -30,10 +30,10 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     private readonly INetConService _netConService;
 
     /// <summary>
-    /// Called when the user applies DLC changes in Settings. Receives the list of
-    /// package IDs to remove. The parent ViewModel uses this to re-enter VerifyingGame.
+    /// Called when the user applies DLC changes in Settings.
+    /// The parent ViewModel uses this to re-enter VerifyingGame.
     /// </summary>
-    public Action<List<string>>? OnDlcChanged { get; set; }
+    public Action? OnDlcChanged { get; set; }
 
     /// <summary>Called when the user requests game re-verification (e.g. after corrupted files detected).</summary>
     public Action? RequestReverify { get; set; }
@@ -172,7 +172,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
             NotificationArea.AddInviteSentToast(new InviteSentToastViewModel(name, initials, avatarUrl));
         Settings = new SettingsViewModel(launchSettingsStorage, cvarProvider, settingsStorage, videoProvider, registryService);
         Settings.PushCvar = PushCvarIfGameRunning;
-        Settings.OnDlcChanged = removedIds => OnDlcChanged?.Invoke(removedIds);
+        Settings.OnDlcChanged = () => OnDlcChanged?.Invoke();
         Chat = chatViewModelFactory.Create("17aa3530-d152-462e-a032-909ae69019ed");
         Chat.OpenPlayerProfile = OpenPlayerProfile;
         Profile = new ProfileViewModel(backendApiService);
