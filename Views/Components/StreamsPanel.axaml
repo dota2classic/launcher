@@ -47,18 +47,28 @@
                 </Style>
               </Button.Styles>
               <Border Classes="stream-card"
-                      Width="260"
+                      Width="300"
                       Background="#0d1520"
                       BorderBrush="#1e2a38" BorderThickness="1"
-                      CornerRadius="0">
+                      CornerRadius="0"
+                      BoxShadow="0 2 8 0 #00000000">
+                <Border.Transitions>
+                  <Transitions>
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.15"/>
+                    <BrushTransition Property="Background" Duration="0:0:0.15"/>
+                    <BoxShadowsTransition Property="BoxShadow" Duration="0:0:0.15"/>
+                  </Transitions>
+                </Border.Transitions>
                 <Border.Styles>
                   <Style Selector="Border.stream-card:pointerover">
-                    <Setter Property="BorderBrush" Value="#3a5a7a"/>
+                    <Setter Property="Background" Value="#111d2c"/>
+                    <Setter Property="BorderBrush" Value="#4a90d6"/>
+                    <Setter Property="BoxShadow" Value="0 4 16 0 #4020406040"/>
                   </Style>
                 </Border.Styles>
                 <StackPanel>
                   <!-- Thumbnail -->
-                  <Border Height="146" ClipToBounds="True" Background="#0a0f18">
+                  <Border Height="168" ClipToBounds="True" Background="#0a0f18">
                     <Image asyncImageLoader:ImageLoader.Source="{Binding Preview}"
                            Stretch="UniformToFill"/>
                   </Border>
