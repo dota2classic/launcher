@@ -208,7 +208,8 @@ public sealed record PlayerRoomStateMessage(
     [property: JsonPropertyName("entries")] PlayerRoomEntry[] Entries);
 
 public sealed record PlayerGameStateMessage(
-    [property: JsonPropertyName("serverUrl")] string ServerUrl);
+    [property: JsonPropertyName("serverUrl")] string ServerUrl,
+    [property: JsonPropertyName("canAbandon")] bool? CanAbandon);
 
 public sealed record PlayerPartyInvitationsMessage(
     [property: JsonPropertyName("invitations")] PartyInviteReceivedMessage[] Invitations);

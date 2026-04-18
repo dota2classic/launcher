@@ -80,19 +80,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     [ObservableProperty]
     private bool _isAbandonConfirmOpen;
 
-    /// <summary>True when a game server URL is active AND the mode allows abandoning (not unranked 5x5 or highroom).</summary>
-    public bool CanAbandonGame
-    {
-        get
-        {
-            if (!Launch.HasServerUrl) return false;
-            var mode = Room.RoomMode;
-            if (mode == null) return false; // no room state = spectating or no active match
-            var modeId = (int)mode.Value;
-            // Unranked 5x5 (1) and Highroom (8) do not allow abandoning
-            return modeId != 1 && modeId != 8;
-        }
-    }
+    /// <summary>True when the server reports an active game that can be abandoned.</summary>
+    public bool CanAbandonGame => Launch.HasServerUrl && (Launch.CanAbandonFromServer ?? false);
 
     [ObservableProperty]
     private int _onlineInGame;
@@ -191,12 +180,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
         Launch.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName == nameof(GameLaunchViewModel.HasServerUrl))
-                OnPropertyChanged(nameof(CanAbandonGame));
-        };
-        Room.PropertyChanged += (_, e) =>
-        {
-            if (e.PropertyName == nameof(RoomViewModel.RoomMode))
+            if (e.PropertyName is nameof(GameLaunchViewModel.HasServerUrl) or nameof(GameLaunchViewModel.CanAbandonFromServer))
                 OnPropertyChanged(nameof(CanAbandonGame));
         };
 
