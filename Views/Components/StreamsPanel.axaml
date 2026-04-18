@@ -48,7 +48,7 @@
               </ItemsControl.ItemsPanel>
               <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="api:TwitchStreamDto">
-                  <Button Click="OnStreamCardClicked"
+                  <Button Click="OnUrlButtonClicked"
                           Tag="{Binding Link}"
                           Background="Transparent" BorderThickness="0"
                           Padding="0" Margin="0,0,12,12"
@@ -133,7 +133,7 @@
             </ItemsControl>
 
             <!-- CTA row -->
-            <Button Click="OnCtaClicked"
+            <Button Click="OnUrlButtonClicked"
                     Tag="{Binding PlayerSettingsUrl}"
                     IsVisible="{Binding PlayerSettingsUrl, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                     Background="Transparent" BorderThickness="0"

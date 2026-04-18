@@ -97,7 +97,7 @@
         </Button>
         <Button x:Name="StreamsTabButton" Classes="nav-tab"
                 Classes.active="{Binding IsStreamsTabActive}"
-                IsVisible="{Binding HasStreams}"
+                IsVisible="{Binding Streams.HasAnyStreams}"
                 Click="OnStreamsTabClicked">
           <Grid RowDefinitions="*,2">
             <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">

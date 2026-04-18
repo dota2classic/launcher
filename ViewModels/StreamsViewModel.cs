@@ -16,8 +16,10 @@ public partial class StreamsViewModel : ObservableObject, IDisposable
     private bool _isRefreshing;
 
     [ObservableProperty] private bool _isLoading = true;
+    [NotifyPropertyChangedFor(nameof(HasNoStreams))]
     [ObservableProperty] private bool _hasAnyStreams;
-    [ObservableProperty] private bool _hasNoStreams;
+
+    public bool HasNoStreams => !HasAnyStreams;
     [ObservableProperty] private string? _playerSettingsUrl;
 
     public ObservableCollection<TwitchStreamDto> Streams { get; } = [];
@@ -29,9 +31,9 @@ public partial class StreamsViewModel : ObservableObject, IDisposable
         _pollTimer.Tick += (_, _) =>
         {
             if (!_isRefreshing)
-                FireAndForget(RefreshAsync(), "StreamsViewModel.RefreshAsync");
+                RefreshAsync().FireAndForget("StreamsViewModel.RefreshAsync");
         };
-        FireAndForget(InitAsync(), "StreamsViewModel.InitAsync");
+        InitAsync().FireAndForget("StreamsViewModel.InitAsync");
     }
 
     private async Task InitAsync()
@@ -43,7 +45,7 @@ public partial class StreamsViewModel : ObservableObject, IDisposable
     public void RequestRefresh()
     {
         if (!_isRefreshing)
-            FireAndForget(RefreshAsync(), "StreamsViewModel.RefreshAsync (requested)");
+            RefreshAsync().FireAndForget("StreamsViewModel.RefreshAsync (requested)");
     }
 
     private async Task RefreshAsync()
@@ -58,25 +60,15 @@ public partial class StreamsViewModel : ObservableObject, IDisposable
                 foreach (var s in streams)
                     Streams.Add(s);
                 HasAnyStreams = Streams.Count > 0;
-                HasNoStreams = Streams.Count == 0;
                 IsLoading = false;
+                _isRefreshing = false;
             });
         }
         catch (Exception ex)
         {
             AppLog.Error("StreamsViewModel.RefreshAsync", ex);
-            Dispatcher.UIThread.Post(() => IsLoading = false);
+            Dispatcher.UIThread.Post(() => { IsLoading = false; _isRefreshing = false; });
         }
-        finally
-        {
-            _isRefreshing = false;
-        }
-    }
-
-    private static async void FireAndForget(Task task, string context)
-    {
-        try { await task; }
-        catch (Exception ex) { AppLog.Error($"FireAndForget({context})", ex); }
     }
 
     public void Dispose() => _pollTimer.Stop();

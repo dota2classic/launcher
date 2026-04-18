@@ -40,10 +40,10 @@ public partial class LiveViewModel : ObservableObject, IDisposable
         _pollTimer.Tick += (_, _) =>
         {
             if (!_isRefreshing)
-                FireAndForget(RefreshListAsync(), "LiveViewModel.RefreshListAsync");
+                RefreshListAsync().FireAndForget("LiveViewModel.RefreshListAsync");
         };
         // Timer starts only after InitAsync so mode names are populated before first refresh
-        FireAndForget(InitAsync(), "LiveViewModel.InitAsync");
+        InitAsync().FireAndForget("LiveViewModel.InitAsync");
     }
 
 
@@ -114,12 +114,6 @@ public partial class LiveViewModel : ObservableObject, IDisposable
     {
         if (SelectedMatch == null) return;
         OnSpectate?.Invoke(SelectedMatch.MatchId);
-    }
-
-    private static async void FireAndForget(Task task, string context)
-    {
-        try { await task; }
-        catch (Exception ex) { AppLog.Error($"FireAndForget({context})", ex); }
     }
 
     public void Dispose()
