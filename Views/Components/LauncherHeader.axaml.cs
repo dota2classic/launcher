@@ -22,6 +22,12 @@ public partial class LauncherHeader : UserControl
             vm.NavigateTo(LauncherTab.Live);
     }
 
+    private void OnStreamsTabClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is MainLauncherViewModel vm)
+            vm.NavigateTo(LauncherTab.Streams);
+    }
+
     private void OnSettingsTabClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         if (DataContext is MainLauncherViewModel vm)

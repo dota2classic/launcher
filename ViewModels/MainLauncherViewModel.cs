@@ -14,7 +14,7 @@ using d2c_launcher.Util;
 
 namespace d2c_launcher.ViewModels;
 
-public enum LauncherTab { Play, Live, Profile }
+public enum LauncherTab { Play, Live, Streams, Profile }
 
 public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 {
@@ -53,6 +53,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public ChatViewModel Chat { get; }
     public ProfileViewModel Profile { get; }
     public LiveViewModel Live { get; }
+    public StreamsViewModel Streams { get; }
 
     // ── Auth / user state ─────────────────────────────────────────────────────
     [ObservableProperty]
@@ -68,6 +69,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
     public bool IsPlayTabActive => ActiveTab == LauncherTab.Play;
     public bool IsLiveTabActive => ActiveTab == LauncherTab.Live;
+    public bool IsStreamsTabActive => ActiveTab == LauncherTab.Streams;
     public bool IsProfileTabActive => ActiveTab == LauncherTab.Profile;
 
     [ObservableProperty]
@@ -180,6 +182,10 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Live.OnSpectate = matchId => Launch.SpectateMatch((int)matchId);
         Live.OnOpenProfile = steam32Id => OpenPlayerProfile(steam32Id);
 
+        Streams = new StreamsViewModel(backendApiService);
+        Streams.PlayerSettingsUrl = BuildStreamsSettingsUrl(_currentUser);
+        Streams.PropertyChanged += OnStreamsPropertyChanged;
+
         _soundCoordinator = new SocketEventCoordinator(queueSocketService, NotificationArea, windowService, backendApiService,
             mode => Queue.MatchmakingModes.FirstOrDefault(m => m.ModeId == (int)mode)?.Name ?? mode.ToString());
 
@@ -216,9 +222,9 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
         // в игре: polled from API every 5 seconds
         _onlineStatsTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
-        _onlineStatsTimer.Tick += (_, _) => FireAndForget(RefreshInGameCountAsync(), "RefreshInGameCountAsync (timer)");
+        _onlineStatsTimer.Tick += (_, _) => RefreshInGameCountAsync().FireAndForget("RefreshInGameCountAsync (timer)");
         _onlineStatsTimer.Start();
-        FireAndForget(RefreshInGameCountAsync(), "RefreshInGameCountAsync (startup)");
+        RefreshInGameCountAsync().FireAndForget("RefreshInGameCountAsync (startup)");
 
         // Steam user profile events
         _onUserUpdatedHandler = u => Dispatcher.UIThread.Post(() =>
@@ -228,6 +234,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
             AvatarImage = SteamAvatarHelper.FromUser(u);
             oldBitmap?.Dispose();
             OnPropertyChanged(nameof(LoggedInAsText));
+            Streams.PlayerSettingsUrl = BuildStreamsSettingsUrl(u);
         });
         _steamManager.OnUserUpdated += _onUserUpdatedHandler;
 
@@ -235,7 +242,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         {
             if (token != null)
             {
-                FireAndForget(Party.RefreshPartyAsync(), "RefreshPartyAsync (TokenApplied)");
+                Party.RefreshPartyAsync().FireAndForget("RefreshPartyAsync (TokenApplied)");
                 Chat.RestartSse();
             }
             else
@@ -250,17 +257,11 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         _cvarProvider.CvarChanged += OnCvarChanged;
 
         // Start after auth so the token is present for the initial requests.
-        FireAndForget(Chat.StartAsync(), "Chat.StartAsync");
-        FireAndForget(_soundCoordinator.LoadPendingNotificationsAsync(), "LoadPendingNotificationsAsync");
-        FireAndForget(Party.RefreshPartyAsync(), "Party.RefreshPartyAsync (startup)");
-        FireAndForget(Queue.RefreshMatchmakingModesAsync(), "Queue.RefreshMatchmakingModesAsync (startup)");
+        Chat.StartAsync().FireAndForget("Chat.StartAsync");
+        _soundCoordinator.LoadPendingNotificationsAsync().FireAndForget("LoadPendingNotificationsAsync");
+        Party.RefreshPartyAsync().FireAndForget("Party.RefreshPartyAsync (startup)");
+        Queue.RefreshMatchmakingModesAsync().FireAndForget("Queue.RefreshMatchmakingModesAsync (startup)");
 
-    }
-
-    private static async void FireAndForget(Task task, string context)
-    {
-        try { await task; }
-        catch (Exception ex) { AppLog.Error($"FireAndForget({context})", ex); }
     }
 
     private void OnCvarChanged()
@@ -312,7 +313,10 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     {
         OnPropertyChanged(nameof(IsPlayTabActive));
         OnPropertyChanged(nameof(IsLiveTabActive));
+        OnPropertyChanged(nameof(IsStreamsTabActive));
         OnPropertyChanged(nameof(IsProfileTabActive));
+        if (value == LauncherTab.Streams)
+            Streams.RequestRefresh();
     }
 
     // ── Tab navigation ────────────────────────────────────────────────────────
@@ -330,7 +334,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
                 _videoProvider.LoadFromVideoTxt(gameDir);
                 Settings.RefreshFromVideoProvider();
             }
-            FireAndForget(Settings.LoadDlcPackagesAsync(), "Settings.LoadDlcPackagesAsync");
+            Settings.LoadDlcPackagesAsync().FireAndForget("Settings.LoadDlcPackagesAsync");
         }
     }
 
@@ -353,7 +357,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public void OpenPlayerProfile(string steam32Id)
     {
         _previousTab = ActiveTab != LauncherTab.Profile ? ActiveTab : _previousTab;
-        FireAndForget(Profile.LoadAsync(steam32Id), "Profile.LoadAsync");
+        Profile.LoadAsync(steam32Id).FireAndForget("Profile.LoadAsync");
         Profile.CanGoBack = _previousTab.HasValue;
         Profile.GoBackAction = _previousTab.HasValue
             ? () => NavigateTo(_previousTab.Value)
@@ -412,6 +416,16 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         if (vm != null) NotificationArea.AddNotificationDirect(vm);
     }
 
+    private static string? BuildStreamsSettingsUrl(Models.User? user) =>
+        user != null ? $"https://dotaclassic.ru/players/{user.SteamId32}/settings" : null;
+
+    private void OnStreamsPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(StreamsViewModel.HasAnyStreams) &&
+            !Streams.HasAnyStreams && ActiveTab == LauncherTab.Streams)
+            ActiveTab = LauncherTab.Play;
+    }
+
     public void Dispose()
     {
         _onlineStatsTimer.Stop();
@@ -419,6 +433,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         _steamManager.OnUserUpdated -= _onUserUpdatedHandler;
         _authCoordinator.TokenApplied -= _tokenAppliedHandler;
         _cvarProvider.CvarChanged -= OnCvarChanged;
+        Streams.PropertyChanged -= OnStreamsPropertyChanged;
         _soundCoordinator.Dispose();
         _authCoordinator.Dispose();
         Launch.Dispose();
@@ -427,5 +442,6 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Room.Dispose();
         Chat.Dispose();
         Live.Dispose();
+        Streams.Dispose();
     }
 }

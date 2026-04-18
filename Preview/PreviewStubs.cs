@@ -140,6 +140,35 @@ internal sealed class StubBackendApiService : IBackendApiService
     public Task<IReadOnlyList<d2c_launcher.Api.LiveMatchDto>> GetLiveMatchesAsync(CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<d2c_launcher.Api.LiveMatchDto>>([]);
 
+    public Task<IReadOnlyList<d2c_launcher.Api.TwitchStreamDto>> GetTwitchStreamsAsync(CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<d2c_launcher.Api.TwitchStreamDto>>(
+        [
+            new d2c_launcher.Api.TwitchStreamDto
+            {
+                Link    = "https://twitch.tv/preview1",
+                Title   = "Рейтинговые игры | Dota Classic | !discord",
+                Preview = "https://static-cdn.jtvnw.net/previews-ttv/live_user_gorgc-196x110.jpg",
+                Viewers = 1247,
+                User    = new d2c_launcher.Api.UserDTO { Name = "enchantinggg4", AvatarSmall = "https://static-cdn.jtvnw.net/jtv_user_pictures/9847eea3-2b4d-4f3a-a1ec-c5b56b2d5dd1-profile_image-70x70.png" },
+            },
+            new d2c_launcher.Api.TwitchStreamDto
+            {
+                Link    = "https://twitch.tv/preview2",
+                Title   = "Играю на Invoker | Топ 100 | С подписчиками",
+                Preview = "https://static-cdn.jtvnw.net/previews-ttv/live_user_bzm-196x110.jpg",
+                Viewers = 384,
+                User    = new d2c_launcher.Api.UserDTO { Name = "rampage_dota", AvatarSmall = "https://static-cdn.jtvnw.net/jtv_user_pictures/d5cbde52-6c23-4928-ad80-da77efe94f2e-profile_image-70x70.png" },
+            },
+            new d2c_launcher.Api.TwitchStreamDto
+            {
+                Link    = "https://twitch.tv/preview3",
+                Title   = "Casual Dota Classic — Pudge Wars спецвыпуск",
+                Preview = "https://static-cdn.jtvnw.net/previews-ttv/live_user_arteezy-196x110.jpg",
+                Viewers = 92,
+                User    = new d2c_launcher.Api.UserDTO { Name = "classicfan99", AvatarSmall = "https://static-cdn.jtvnw.net/jtv_user_pictures/4c58ee11-e96c-43e4-ad09-34bd26dbea15-profile_image-70x70.png" },
+            },
+        ]);
+
     public async IAsyncEnumerable<d2c_launcher.Api.LiveMatchDto> SubscribeLiveMatchAsync(
         int matchId,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
