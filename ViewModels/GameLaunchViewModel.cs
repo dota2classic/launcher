@@ -43,6 +43,9 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
     [ObservableProperty]
     private string? _serverUrl;
 
+    [ObservableProperty]
+    private bool? _canAbandonFromServer;
+
     public bool HasServerUrl => !string.IsNullOrEmpty(ServerUrl);
 
     partial void OnServerUrlChanged(string? value) => OnPropertyChanged(nameof(HasServerUrl));
@@ -129,6 +132,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
     {
         var serverUrl = msg?.ServerUrl;
         ServerUrl = serverUrl;
+        CanAbandonFromServer = msg?.CanAbandon;
 
         if (_serverUrlTracker.ShouldConnect(serverUrl) && _settingsStorage.Get().AutoConnectToGame)
         {
