@@ -76,7 +76,6 @@ public sealed class SocketEventCoordinator : IDisposable
             return;
 
         _lastServerUrl = serverUrl;
-        SoundPlayer.Play("ready_check_no_focus.wav");
         Dispatcher.UIThread.Post(_windowService.ShowAndActivate);
     }
 

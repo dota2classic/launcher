@@ -77,8 +77,12 @@ public static class DotaConsoleConnector
     public static void FocusWindow()
     {
         var hwnd = WinApi.FindWindowA(null, DotaWindowTitle);
-        if (hwnd != IntPtr.Zero)
-            WinApi.SetForegroundWindow(hwnd);
+        if (hwnd == IntPtr.Zero)
+            return;
+
+        WinApi.ShowWindow(hwnd, WinApi.SW_RESTORE);
+        if (!WinApi.SetForegroundWindow(hwnd))
+            AppLog.Info("DotaConsoleConnector.FocusWindow: SetForegroundWindow returned false");
     }
 
     /// <summary>Sends a console command string to the Dota 2 window. Returns false if the window was not found.</summary>

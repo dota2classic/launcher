@@ -290,7 +290,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
     {
         _connectCts?.Cancel();
         _connectCts = new CancellationTokenSource();
-        _ = ConnectToGameAsync(_connectCts.Token);
+        _ = ConnectToGameAsync(_connectCts.Token, playSound: true);
     }
 
     /// <summary>
@@ -344,7 +344,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         }
     }
 
-    private async Task ConnectToGameAsync(CancellationToken ct)
+    private async Task ConnectToGameAsync(CancellationToken ct, bool playSound = false)
     {
         var url = ServerUrl;
         if (string.IsNullOrEmpty(url))
@@ -376,6 +376,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
             }
 
             AppLog.Info($"ConnectToGame: launching our Dota with +connect {url}");
+            if (playSound) SoundPlayer.Play("ready_check_no_focus.wav");
             LaunchGame($"+connect {url}");
             return;
         }
@@ -414,6 +415,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         }
 
         AppLog.Info($"ConnectToGame: sending 'connect {url}'");
+        if (playSound) SoundPlayer.Play("ready_check_no_focus.wav");
         await _netConService.SendCommandAsync($"connect {url}").ConfigureAwait(false);
         _gameWindowService.FocusWindow();
     }
