@@ -301,6 +301,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(IsProfileTabActive));
         if (value == LauncherTab.Streams)
             Streams.RequestRefresh();
+        Chat.RefreshIfEmpty();
     }
 
     // ── Tab navigation ────────────────────────────────────────────────────────
