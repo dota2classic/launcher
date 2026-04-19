@@ -212,12 +212,15 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     public async Task RefreshAsync()
     {
         _loadCts?.Cancel();
-        _loadCts = new CancellationTokenSource();
-        var ct = _loadCts.Token;
+        var cts = new CancellationTokenSource();
+        _loadCts = cts;
+        var ct = cts.Token;
+
+        bool IsLatest() => ReferenceEquals(_loadCts, cts);
 
         try
         {
-            _dispatcher.Post(() => IsLoading = Messages.Count == 0);
+            _dispatcher.Post(() => { if (IsLatest()) IsLoading = Messages.Count == 0; });
 
             var data = await _backendApiService.GetChatMessagesAsync(
                 _threadId, MessageLimit, ct).ConfigureAwait(false);
@@ -233,15 +236,25 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 if (ct.IsCancellationRequested) return;
                 ApplyMessages(grouped);
                 MessagesUpdated?.Invoke();
-                IsLoading = false;
             });
         }
         catch (OperationCanceledException) { }
         catch (Exception ex)
         {
             AppLog.Error($"Chat refresh failed: {ex.Message}", ex);
-            _dispatcher.Post(() => IsLoading = false);
         }
+        finally
+        {
+            _dispatcher.Post(() => { if (IsLatest()) IsLoading = false; });
+        }
+    }
+
+    /// <summary>Triggers a refresh if the message list is empty. Call on user-driven events (e.g. tab switch)
+    /// to recover from a failed initial load.</summary>
+    public void RefreshIfEmpty()
+    {
+        if (Messages.Count == 0)
+            _ = RefreshAsync();
     }
 
     public void SetReplyTarget(ChatMessageView msg)
