@@ -32,7 +32,6 @@ public sealed class SocketEventCoordinator : IDisposable
     private readonly Func<MatchmakingMode, string> _getModeName;
 
     private string? _lastServerUrl;
-    private bool _playerRoomFoundSeen;
 
     public SocketEventCoordinator(
         IQueueSocketService queueSocketService,
@@ -66,7 +65,6 @@ public sealed class SocketEventCoordinator : IDisposable
 
     private void OnPlayerRoomFound(PlayerRoomStateMessage? _)
     {
-        _playerRoomFoundSeen = true;
         SoundPlayer.Play("match_found.mp3");
         Dispatcher.UIThread.Post(_windowService.ShowAndActivate);
     }
@@ -77,16 +75,7 @@ public sealed class SocketEventCoordinator : IDisposable
         if (string.IsNullOrEmpty(serverUrl) || serverUrl == _lastServerUrl)
             return;
 
-        var wasNull = _lastServerUrl == null;
         _lastServerUrl = serverUrl;
-
-        // Suppress sound and window pop-up on the first update after a launcher restart:
-        // a null→url transition without a preceding PlayerRoomFound means the game was
-        // already running when we connected — not a newly found match.
-        if (wasNull && !_playerRoomFoundSeen)
-            return;
-
-        SoundPlayer.Play("ready_check_no_focus.wav");
         Dispatcher.UIThread.Post(_windowService.ShowAndActivate);
     }
 
