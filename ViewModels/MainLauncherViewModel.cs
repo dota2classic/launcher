@@ -114,7 +114,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         ITimerFactory timerFactory,
         INetConService netConService,
         IGameWindowService gameWindowService,
-        IDotakeysProfileService dotakeysProfileService)
+        IDotakeysProfileService dotakeysProfileService,
+        IToastNotificationService toastNotificationService)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -176,6 +177,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Streams.PropertyChanged += OnStreamsPropertyChanged;
 
         _soundCoordinator = new SocketEventCoordinator(queueSocketService, NotificationArea, windowService, backendApiService,
+            toastNotificationService,
             mode => Queue.MatchmakingModes.FirstOrDefault(m => m.ModeId == (int)mode)?.Name ?? mode.ToString());
 
         Launch.PropertyChanged += (_, e) =>
@@ -301,7 +303,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(IsProfileTabActive));
         if (value == LauncherTab.Streams)
             Streams.RequestRefresh();
-        Chat.RefreshIfEmpty();
+        if (value == LauncherTab.Live)
+            Chat.RefreshIfEmpty();
     }
 
     // ── Tab navigation ────────────────────────────────────────────────────────

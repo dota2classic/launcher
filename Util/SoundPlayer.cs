@@ -9,7 +9,7 @@ namespace d2c_launcher.Util;
 
 public static class SoundPlayer
 {
-    public static void Play(string fileName)
+    public static void Play(string fileName, float volume = 1.0f)
     {
         Task.Run(() =>
         {
@@ -35,6 +35,7 @@ public static class SoundPlayer
                     using (reader)
                     using (var output = new WaveOutEvent())
                     {
+                        output.Volume = Math.Clamp(volume, 0f, 1f);
                         output.Init(reader);
                         output.Play();
                         while (output.PlaybackState == PlaybackState.Playing)

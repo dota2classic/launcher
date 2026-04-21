@@ -346,6 +346,8 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
 
     private async Task ConnectToGameAsync(CancellationToken ct, bool playSound = false)
     {
+        void PlayIfRequested() { if (playSound) SoundPlayer.Play("ready_check_no_focus.wav", volume: 0.5f); }
+
         var url = ServerUrl;
         if (string.IsNullOrEmpty(url))
             return;
@@ -376,7 +378,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
             }
 
             AppLog.Info($"ConnectToGame: launching our Dota with +connect {url}");
-            if (playSound) SoundPlayer.Play("ready_check_no_focus.wav");
+            PlayIfRequested();
             LaunchGame($"+connect {url}");
             return;
         }
@@ -415,7 +417,7 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         }
 
         AppLog.Info($"ConnectToGame: sending 'connect {url}'");
-        if (playSound) SoundPlayer.Play("ready_check_no_focus.wav");
+        PlayIfRequested();
         await _netConService.SendCommandAsync($"connect {url}").ConfigureAwait(false);
         _gameWindowService.FocusWindow();
     }

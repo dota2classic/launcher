@@ -197,4 +197,11 @@ Other known technical debt:
 | `memory-bank/docs/client-dll-patching.md` | ✅ Written — patching done server-side (CDN); enables `dota_camera_distance` cvar; released |
 | Memory bank (`memory-bank/`) | ✅ Written |
 
+### AI Workflow Tooling
+
+| Item | Status | Notes |
+| ---- | ------ | ----- |
+| Shared `.agents` prompt layout | ✅ Done | Canonical command / agent prompts moved under `.agents`; Codex skills wrap shared workflows from `.agents/skills/` |
+| Claude compatibility bridge | ✅ Done | `.claude/commands` and `.claude/agents` are Windows junctions to `.agents/commands` and `.agents/agents`, so shared prompts stay single-source |
+
 

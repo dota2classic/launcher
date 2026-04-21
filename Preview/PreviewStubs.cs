@@ -376,3 +376,11 @@ internal sealed class StubDotakeysProfileService : IDotakeysProfileService
 {
     public bool PrepareProfile(ulong steamId32) => true;
 }
+
+internal sealed class StubToastNotificationService : IToastNotificationService
+{
+    public void ShowMatchFound() { }
+    public void ShowPartyInvite(string inviterName) { }
+    public void Show(string title, string body, string? tag = null, string? launchArg = null) { }
+    public void ShowGoQueue(string title, string body, int modeId) { }
+}

@@ -15,6 +15,7 @@ using d2c_launcher.Services;
 using d2c_launcher.ViewModels;
 using d2c_launcher.Views;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace d2c_launcher;
 
@@ -97,6 +98,8 @@ public partial class App : Application
             services.AddSingleton<IEmoticonSnapshotBuilder, EmoticonSnapshotBuilder>();
             services.AddSingleton<IChatViewModelFactory, ChatViewModelFactory>();
             services.AddSingleton<IWindowService, WindowService>();
+            services.AddSingleton<IToastNotificationService, ToastNotificationService>(
+                _ => new ToastNotificationService());
             services.AddSingleton<INetConService, NetConService>();
             services.AddSingleton<IDotakeysProfileService, DotakeysProfileService>();
             services.AddSingleton<MainWindowViewModel>();
@@ -120,17 +123,33 @@ public partial class App : Application
             if (protocolArg != null)
                 mainVm.HandleProtocolUrl(protocolArg);
 
+            // In-process toast activation: fires when the user clicks a toast while the app
+            // is running.  Show the window, then handle any d2c:// launch arg (e.g. d2c://game).
+            ToastNotificationManagerCompat.OnActivated += e =>
+            {
+                var launchArg = e.Argument;
+                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                {
+                    windowService.ShowAndActivate();
+                    if (!string.IsNullOrEmpty(launchArg) && launchArg.StartsWith("d2c://", StringComparison.OrdinalIgnoreCase))
+                        mainVm.HandleProtocolUrl(launchArg);
+                });
+            };
+
             // Handle messages forwarded from second instances.
             // "__show__" means a second launch with no args — restore from tray.
-            // d2c:// URLs are forwarded to the protocol handler.
+            // d2c:// URLs (including toast launch args) are forwarded to the protocol handler.
             if (SingleInstance != null)
             {
                 SingleInstance.OnMessageReceived += msg =>
                 {
-                    if (msg == "__show__")
-                        Avalonia.Threading.Dispatcher.UIThread.Post(windowService.ShowAndActivate);
-                    else
-                        mainVm.HandleProtocolUrl(msg);
+                    Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                    {
+                        if (msg == "__show__" || msg.Contains("-ToastActivated") || msg.StartsWith("d2c://", StringComparison.OrdinalIgnoreCase))
+                            windowService.ShowAndActivate();
+                        if (msg.StartsWith("d2c://", StringComparison.OrdinalIgnoreCase))
+                            mainVm.HandleProtocolUrl(msg);
+                    });
                 };
             }
 

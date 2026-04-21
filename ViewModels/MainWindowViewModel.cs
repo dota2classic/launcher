@@ -40,6 +40,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly INetConService _netConService;
     private readonly IGameWindowService _gameWindowService;
     private readonly IDotakeysProfileService _dotakeysProfileService;
+    private readonly IToastNotificationService _toastNotificationService;
 
     /// <summary>Pending spectate match ID received before the Launcher state was entered.</summary>
     private int? _pendingSpectateMatchId;
@@ -99,7 +100,8 @@ public partial class MainWindowViewModel : ViewModelBase
         ITimerFactory timerFactory,
         INetConService netConService,
         IGameWindowService gameWindowService,
-        IDotakeysProfileService dotakeysProfileService)
+        IDotakeysProfileService dotakeysProfileService,
+        IToastNotificationService toastNotificationService)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -123,6 +125,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _netConService = netConService;
         _gameWindowService = gameWindowService;
         _dotakeysProfileService = dotakeysProfileService;
+        _toastNotificationService = toastNotificationService;
 
         // Eagerly prefetch the registry so it's cached by the time GameDownloadViewModel needs it.
         var initialGameDir = _settingsStorage.Get().GameDirectory;
@@ -325,7 +328,7 @@ public partial class MainWindowViewModel : ViewModelBase
             _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider, _videoProvider,
             _backendApiService, _queueSocketService, _registryService, _chatViewModelFactory, _windowService,
             _steamAuthApi, _uiDispatcher, _triviaRepository, _timerFactory, _netConService, _gameWindowService,
-            _dotakeysProfileService);
+            _dotakeysProfileService, _toastNotificationService);
         vm.OnGameDirectoryChanged = _ => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirChanged(AppState)));
         vm.RequestGameDirectoryChange = () => Dispatcher.UIThread.Post(() => EnterState(AppState.SelectGameDirectory));
         vm.OnDlcChanged = () => Dispatcher.UIThread.Post(() =>
@@ -357,8 +360,36 @@ public partial class MainWindowViewModel : ViewModelBase
         AppLog.Info($"[Protocol] handling URL: {url}");
         if (TryParseSpectateUrl(url, out var matchId))
             Dispatcher.UIThread.Post(() => HandleSpectate(matchId));
+        else if (url.Equals("d2c://game", StringComparison.OrdinalIgnoreCase))
+            Dispatcher.UIThread.Post(HandleNavigateToGame);
+        else if (TryParseEnterQueueUrl(url, out var modeId))
+            Dispatcher.UIThread.Post(() => HandleEnterQueue(modeId));
         else
             AppLog.Info($"[Protocol] unrecognised URL: {url}");
+    }
+
+    private static bool TryParseEnterQueueUrl(string url, out int modeId)
+    {
+        modeId = 0;
+        const string prefix = "d2c://enter-queue/";
+        if (!url.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            return false;
+        return int.TryParse(url[prefix.Length..], out modeId);
+    }
+
+    private void HandleNavigateToGame()
+    {
+        if (CurrentContentViewModel is MainLauncherViewModel vm)
+            vm.NavigateTo(LauncherTab.Play);
+    }
+
+    private void HandleEnterQueue(int modeId)
+    {
+        if (CurrentContentViewModel is MainLauncherViewModel vm)
+        {
+            vm.NavigateTo(LauncherTab.Play);
+            vm.Queue.EnterQueueForModeAsync(modeId).FireAndForget("HandleEnterQueue (toast button)");
+        }
     }
 
     private static bool TryParseSpectateUrl(string url, out int matchId)

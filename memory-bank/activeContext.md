@@ -4,6 +4,8 @@
 
 All major features are shipped. The launcher is in maintenance/polish mode. Working on #135 (replace static CvarMapping and DotaConsoleConnector with injectable services).
 
+Repository AI workflow files now use a shared `.agents/` layout. `.agents/commands/` and `.agents/agents/` are the canonical copies, Codex picks up wrappers from `.agents/skills/`, and `.claude/commands` plus `.claude/agents` are directory junctions that preserve Claude compatibility without duplicating prompt files.
+
 ---
 
 ## Recently Completed (last few sessions)

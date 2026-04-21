@@ -29,6 +29,7 @@ public sealed class SocketEventCoordinator : IDisposable
     private readonly NotificationAreaViewModel _notificationArea;
     private readonly IWindowService _windowService;
     private readonly IBackendApiService _backendApiService;
+    private readonly IToastNotificationService _toastService;
     private readonly Func<MatchmakingMode, string> _getModeName;
 
     private string? _lastServerUrl;
@@ -38,12 +39,14 @@ public sealed class SocketEventCoordinator : IDisposable
         NotificationAreaViewModel notificationArea,
         IWindowService windowService,
         IBackendApiService backendApiService,
+        IToastNotificationService toastService,
         Func<MatchmakingMode, string> getModeName)
     {
         _queueSocketService = queueSocketService;
         _notificationArea = notificationArea;
         _windowService = windowService;
         _backendApiService = backendApiService;
+        _toastService = toastService;
         _getModeName = getModeName;
 
         queueSocketService.PartyInviteReceived += OnPartyInviteReceived;
@@ -56,7 +59,7 @@ public sealed class SocketEventCoordinator : IDisposable
 
     private void OnPartyInviteReceived(PartyInviteReceivedMessage msg)
     {
-        SoundPlayer.Play("party_invite.mp3");
+        SoundPlayer.Play("party_invite.mp3", volume: 0.5f);
         Dispatcher.UIThread.Post(() => _notificationArea.AddInvite(msg));
     }
 
@@ -65,7 +68,7 @@ public sealed class SocketEventCoordinator : IDisposable
 
     private void OnPlayerRoomFound(PlayerRoomStateMessage? _)
     {
-        SoundPlayer.Play("match_found.mp3");
+        SoundPlayer.Play("match_found.mp3", volume: 0.5f);
         Dispatcher.UIThread.Post(_windowService.ShowAndActivate);
     }
 
@@ -81,10 +84,13 @@ public sealed class SocketEventCoordinator : IDisposable
 
     private void OnPleaseEnterQueue(PleaseEnterQueueMessage msg)
     {
-        SoundPlayer.Play("party_invite.mp3");
+        SoundPlayer.Play("party_invite.mp3", volume: 0.5f);
         var title = string.Format(Strings.GoQueueTitle, _getModeName(msg.Mode));
         var content = string.Format(Strings.GoQueueContent, msg.InQueue);
-        Dispatcher.UIThread.Post(() => _notificationArea.AddGoQueueToast(title, content));
+        if (_windowService.IsWindowVisible)
+            Dispatcher.UIThread.Post(() => _notificationArea.AddGoQueueToast(title, content));
+        else
+            Dispatcher.UIThread.Post(() => _toastService.ShowGoQueue(title, content, (int)msg.Mode));
     }
 
     private void OnNotificationCreated(NotificationCreatedMessage msg)
