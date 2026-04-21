@@ -303,7 +303,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(IsProfileTabActive));
         if (value == LauncherTab.Streams)
             Streams.RequestRefresh();
-        if (value == LauncherTab.Live)
+        if (value == LauncherTab.Play)
             Chat.RefreshIfEmpty();
     }
 

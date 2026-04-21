@@ -13,6 +13,9 @@ public interface IWindowService
     /// <summary>True while the main window is visible to the user.</summary>
     bool IsWindowVisible { get; }
 
+    /// <summary>True while the main window is the active foreground window.</summary>
+    bool IsWindowActive { get; }
+
     /// <summary>Raised on the UI thread whenever the window becomes visible.</summary>
     event Action? WindowShown;
 }

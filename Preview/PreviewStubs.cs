@@ -278,6 +278,7 @@ internal sealed class StubContentRegistryService : IContentRegistryService
 internal sealed class StubWindowService : IWindowService
 {
     public bool IsWindowVisible => true;
+    public bool IsWindowActive => true;
 #pragma warning disable CS0067
     public event Action? WindowShown;
 #pragma warning restore CS0067
@@ -379,8 +380,8 @@ internal sealed class StubDotakeysProfileService : IDotakeysProfileService
 
 internal sealed class StubToastNotificationService : IToastNotificationService
 {
-    public void ShowMatchFound() { }
-    public void ShowPartyInvite(string inviterName) { }
+    public void ShowMatchFound(string roomId) { }
+    public void ShowPartyInvite(string inviteId, string inviterName) { }
     public void Show(string title, string body, string? tag = null, string? launchArg = null) { }
     public void ShowGoQueue(string title, string body, int modeId) { }
 }

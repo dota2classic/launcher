@@ -364,6 +364,10 @@ public partial class MainWindowViewModel : ViewModelBase
             Dispatcher.UIThread.Post(HandleNavigateToGame);
         else if (TryParseEnterQueueUrl(url, out var modeId))
             Dispatcher.UIThread.Post(() => HandleEnterQueue(modeId));
+        else if (TryParsePartyInviteResponseUrl(url, out var inviteId, out var acceptInvite))
+            Dispatcher.UIThread.Post(() => HandlePartyInviteResponse(inviteId, acceptInvite));
+        else if (TryParseReadyCheckResponseUrl(url, out var roomId, out var acceptReadyCheck))
+            Dispatcher.UIThread.Post(() => HandleReadyCheckResponse(roomId, acceptReadyCheck));
         else
             AppLog.Info($"[Protocol] unrecognised URL: {url}");
     }
@@ -390,6 +394,61 @@ public partial class MainWindowViewModel : ViewModelBase
             vm.NavigateTo(LauncherTab.Play);
             vm.Queue.EnterQueueForModeAsync(modeId).FireAndForget("HandleEnterQueue (toast button)");
         }
+    }
+
+    private static bool TryParsePartyInviteResponseUrl(string url, out string inviteId, out bool accept)
+    {
+        inviteId = "";
+        accept = false;
+        return TryParseBooleanActionUrl(url, "d2c://party-invite/", out inviteId, out accept);
+    }
+
+    private static bool TryParseReadyCheckResponseUrl(string url, out string roomId, out bool accept)
+    {
+        roomId = "";
+        accept = false;
+        return TryParseBooleanActionUrl(url, "d2c://ready-check/", out roomId, out accept);
+    }
+
+    private static bool TryParseBooleanActionUrl(string url, string prefix, out string id, out bool accept)
+    {
+        id = "";
+        accept = false;
+        if (!url.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        var remainder = url[prefix.Length..].Trim('/');
+        var slashIndex = remainder.LastIndexOf('/');
+        if (slashIndex <= 0 || slashIndex == remainder.Length - 1)
+            return false;
+
+        id = remainder[..slashIndex];
+        var action = remainder[(slashIndex + 1)..];
+        if (action.Equals("accept", StringComparison.OrdinalIgnoreCase))
+        {
+            accept = true;
+            return true;
+        }
+
+        if (action.Equals("decline", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        id = "";
+        return false;
+    }
+
+    private void HandlePartyInviteResponse(string inviteId, bool accept)
+    {
+        HandleNavigateToGame();
+        _queueSocketService.AcceptPartyInviteAsync(inviteId, accept)
+            .FireAndForget($"HandlePartyInviteResponse ({(accept ? "accept" : "decline")})");
+    }
+
+    private void HandleReadyCheckResponse(string roomId, bool accept)
+    {
+        HandleNavigateToGame();
+        _queueSocketService.SetReadyCheckAsync(roomId, accept)
+            .FireAndForget($"HandleReadyCheckResponse ({(accept ? "accept" : "decline")})");
     }
 
     private static bool TryParseSpectateUrl(string url, out int matchId)

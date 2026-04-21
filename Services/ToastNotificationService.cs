@@ -8,6 +8,7 @@ namespace d2c_launcher.Services;
 public sealed class ToastNotificationService : IToastNotificationService
 {
     private readonly ToastNotifierCompat _notifier;
+    private const string LaunchGameArg = "d2c://game";
 
     public ToastNotificationService()
     {
@@ -18,16 +19,46 @@ public sealed class ToastNotificationService : IToastNotificationService
         _notifier = ToastNotificationManagerCompat.CreateToastNotifier();
     }
 
-    public void ShowMatchFound()
+    public void ShowMatchFound(string roomId)
     {
-        Show(I18n.T("toast.matchFound.title"), I18n.T("toast.matchFound.body"));
+        try
+        {
+            var content = new ToastContentBuilder()
+                .AddText(I18n.T("toast.matchFound.title"))
+                .AddText(I18n.T("toast.matchFound.body"))
+                .AddButton(new ToastButton(I18n.T("common.accept"), $"d2c://ready-check/{roomId}/accept"))
+                .AddButton(new ToastButton(I18n.T("common.decline"), $"d2c://ready-check/{roomId}/decline"))
+                .GetToastContent();
+            content.Launch = LaunchGameArg;
+
+            var toast = new ToastNotification(content.GetXml()) { Tag = $"room-{roomId}" };
+            _notifier.Show(toast);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("Failed to show match found toast notification.", ex);
+        }
     }
 
-    public void ShowPartyInvite(string inviterName)
+    public void ShowPartyInvite(string inviteId, string inviterName)
     {
-        Show(
-            I18n.T("toast.partyInvite.title"),
-            I18n.T("toast.partyInvite.body", ("name", inviterName)));
+        try
+        {
+            var content = new ToastContentBuilder()
+                .AddText(I18n.T("toast.partyInvite.title"))
+                .AddText(I18n.T("toast.partyInvite.body", ("name", inviterName)))
+                .AddButton(new ToastButton(I18n.T("common.accept"), $"d2c://party-invite/{inviteId}/accept"))
+                .AddButton(new ToastButton(I18n.T("common.decline"), $"d2c://party-invite/{inviteId}/decline"))
+                .GetToastContent();
+            content.Launch = LaunchGameArg;
+
+            var toast = new ToastNotification(content.GetXml()) { Tag = $"party-invite-{inviteId}" };
+            _notifier.Show(toast);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("Failed to show party invite toast notification.", ex);
+        }
     }
 
     public void Show(string title, string body, string? tag = null, string? launchArg = null)
@@ -62,7 +93,7 @@ public sealed class ToastNotificationService : IToastNotificationService
                 .AddText(body)
                 .AddButton(new ToastButton(I18n.T("toast.goQueue.enterQueueButton"), $"d2c://enter-queue/{modeId}"))
                 .GetToastContent();
-            content.Launch = "d2c://game";
+            content.Launch = LaunchGameArg;
 
             // Remove the previous go-queue notification first — Windows suppresses the
             // popup when replacing a toast with the same tag in place.

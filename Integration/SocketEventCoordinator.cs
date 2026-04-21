@@ -61,15 +61,20 @@ public sealed class SocketEventCoordinator : IDisposable
     {
         SoundPlayer.Play("party_invite.mp3", volume: 0.5f);
         Dispatcher.UIThread.Post(() => _notificationArea.AddInvite(msg));
+        if (!_windowService.IsWindowActive)
+            Dispatcher.UIThread.Post(() => _toastService.ShowPartyInvite(msg.InviteId, msg.Inviter?.Name ?? "Unknown"));
     }
 
     private void OnPartyInviteExpired(PartyInviteExpiredMessage msg) =>
         Dispatcher.UIThread.Post(() => _notificationArea.RemoveByInviteId(msg.InviteId));
 
-    private void OnPlayerRoomFound(PlayerRoomStateMessage? _)
+    private void OnPlayerRoomFound(PlayerRoomStateMessage? msg)
     {
         SoundPlayer.Play("match_found.mp3", volume: 0.5f);
-        Dispatcher.UIThread.Post(_windowService.ShowAndActivate);
+        if (_windowService.IsWindowVisible)
+            Dispatcher.UIThread.Post(_windowService.ShowAndActivate);
+        else if (!string.IsNullOrWhiteSpace(msg?.RoomId))
+            Dispatcher.UIThread.Post(() => _toastService.ShowMatchFound(msg.RoomId));
     }
 
     private void OnPlayerGameStateUpdated(PlayerGameStateMessage? msg)
@@ -87,9 +92,8 @@ public sealed class SocketEventCoordinator : IDisposable
         SoundPlayer.Play("party_invite.mp3", volume: 0.5f);
         var title = string.Format(Strings.GoQueueTitle, _getModeName(msg.Mode));
         var content = string.Format(Strings.GoQueueContent, msg.InQueue);
-        if (_windowService.IsWindowVisible)
-            Dispatcher.UIThread.Post(() => _notificationArea.AddGoQueueToast(title, content));
-        else
+        Dispatcher.UIThread.Post(() => _notificationArea.AddGoQueueToast(title, content));
+        if (!_windowService.IsWindowActive)
             Dispatcher.UIThread.Post(() => _toastService.ShowGoQueue(title, content, (int)msg.Mode));
     }
 
