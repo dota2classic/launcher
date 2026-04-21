@@ -130,7 +130,7 @@ On each scan, if a file's `Length` and `LastWriteTimeUtc.Ticks` match the cached
 
 1. `Win32_LogicalDisk` → `Win32_DiskPartition` (via `Win32_LogicalDiskToPartition`)
 2. `Win32_DiskPartition` → `Win32_DiskDrive` (via `Win32_DiskDriveToDiskPartition`)
-3. `MSFT_PhysicalDisk.MediaType` where `Number` matches the physical drive index
+3. `MSFT_PhysicalDisk.MediaType` where `DeviceId` matches `Win32_DiskDrive.Index`
 
 | `MediaType` | Meaning | Parallelism |
 |-------------|---------|-------------|

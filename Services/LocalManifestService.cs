@@ -96,6 +96,7 @@ public class LocalManifestService : ILocalManifestService
     /// Returns the ideal <see cref="ParallelOptions.MaxDegreeOfParallelism"/> for reading
     /// files under <paramref name="gameDirectory"/>.
     /// Detects whether the drive is an SSD via WMI MSFT_PhysicalDisk.MediaType:
+    ///   Win32_DiskDrive.Index maps to MSFT_PhysicalDisk.DeviceId
     ///   4 = SSD → parallel reads (CPU-bound MD5 benefits from concurrency)
     ///   3 = HDD or unknown → 1 (sequential, avoids disk-head thrashing)
     /// Falls back to 1 on any WMI failure so HDD users are always protected.
@@ -128,17 +129,16 @@ public class LocalManifestService : ILocalManifestService
 
                 foreach (ManagementObject disk in dpSearcher.Get())
                 {
-                    // DeviceID looks like "\\.\PHYSICALDRIVE0" — extract the trailing number.
-                    var deviceId = disk["DeviceID"]?.ToString() ?? "";
-                    var numStr = new string(deviceId.Where(char.IsDigit).ToArray());
-                    if (!int.TryParse(numStr, out var diskNum)) continue;
+                    if (!TryGetDiskIndex(disk, out var diskNum))
+                        continue;
 
                     // Step 3: query MSFT_PhysicalDisk for MediaType
                     var scope = new ManagementScope(@"\\.\root\Microsoft\Windows\Storage");
                     scope.Connect();
                     using var pdSearcher = new ManagementObjectSearcher(
                         scope,
-                        new ObjectQuery($"SELECT MediaType FROM MSFT_PhysicalDisk WHERE Number = {diskNum}"));
+                        new ObjectQuery(
+                            $"SELECT DeviceId, MediaType FROM MSFT_PhysicalDisk WHERE DeviceId = '{diskNum}'"));
 
                     foreach (ManagementObject physDisk in pdSearcher.Get())
                     {
@@ -157,5 +157,19 @@ public class LocalManifestService : ILocalManifestService
         catch { /* WMI unavailable or failed — fall through to safe default */ }
 
         return 1; // Sequential: safe for HDD, acceptable for SSD
+    }
+
+    private static bool TryGetDiskIndex(ManagementObject disk, out int diskIndex)
+    {
+        if (disk["Index"] != null)
+        {
+            diskIndex = Convert.ToInt32(disk["Index"]);
+            return true;
+        }
+
+        // Older APIs expose the physical drive number only via DeviceID ("\\.\PHYSICALDRIVE2").
+        var deviceId = disk["DeviceID"]?.ToString() ?? "";
+        var digits = new string(deviceId.Where(char.IsDigit).ToArray());
+        return int.TryParse(digits, out diskIndex);
     }
 }

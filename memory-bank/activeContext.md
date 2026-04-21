@@ -39,6 +39,7 @@ Repository AI workflow files now use a shared `.agents/` layout. `.agents/comman
 
 | Issue | What was done |
 |-------|--------------|
+| #159 | Fixed local scan drive detection always falling back to `HDD/unknown` — `LocalManifestService` now maps `Win32_DiskDrive.Index` to `MSFT_PhysicalDisk.DeviceId` instead of querying non-existent `MSFT_PhysicalDisk.Number`; SSD installs can use parallel hashing again |
 | #148 | Streams tab — `StreamsViewModel` polls `/v1/stats/twitch` every 60s; `StreamsPanel` shows Twitch-like preview cards (thumbnail, title, viewer count, streamer name, clickable link); tab only visible in header when `HasStreams` is true; auto-navigates to Play if streams disappear while tab is active |
 | #154 | Chat stuck in loading state — `ChatViewModel.RefreshAsync` now clears `IsLoading` in `finally` (only when the call is still the latest), fixing leaks on cancel paths; added `RefreshIfEmpty()` called from `MainLauncherViewModel.OnActiveTabChanged` so tab switches retry a failed initial load |
 | #155 | Matchmaking Windows toasts — hidden launcher now shows actionable native toasts for party invites and ready checks; toast buttons route through `d2c://party-invite/...` and `d2c://ready-check/...`; `WindowService` preserves `WindowShown` after eager visibility updates |

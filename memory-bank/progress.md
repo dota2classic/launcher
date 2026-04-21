@@ -37,7 +37,7 @@
 | --------------------------------- | ------ | ---------------------------------- |
 | Game directory validation         | ✅ Done |                                    |
 | Game download / verify on launch  | ✅ Done | `GameDownloadView`, manifest diff, HTTP download |
-| HDD scan optimization (issue #9)  | ✅ Done | mtime+size hash cache + WMI SSD detection for parallelism |
+| HDD scan optimization (issue #9)  | ✅ Done | mtime+size hash cache + WMI SSD detection for parallelism; issue #159 fixed `MSFT_PhysicalDisk` lookup to use `DeviceId` so SSD installs no longer fall back to sequential `HDD/unknown` |
 | Scan duration metric to Faro (issue #10) | ✅ Done | `TrackEvent("scan_completed")` with `duration_ms` + `file_count` |
 | Redist install after verify (issue #6) | ✅ Done | `RedistInstallService` — runs `_CommonRedist` DirectX + vcredist silently once per game dir |
 | Game launch with Source 1 args    | ✅ Done |                                    |
