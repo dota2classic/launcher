@@ -30,6 +30,25 @@ public partial class App : Application
     private ServiceProvider? _services;
     private MainWindow? _mainWindow;
 
+    private static void HandleActivationArgument(WindowService windowService, MainWindowViewModel mainVm, string? arg)
+    {
+        if (string.IsNullOrWhiteSpace(arg))
+            return;
+
+        windowService.ShowAndActivate();
+        if (arg.StartsWith("d2c://", StringComparison.OrdinalIgnoreCase))
+            mainVm.HandleProtocolUrl(arg);
+    }
+
+    private static string? TryExtractProtocolArg(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+            return null;
+
+        var args = message.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return Array.Find(args, a => a.StartsWith("d2c://", StringComparison.OrdinalIgnoreCase));
+    }
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -121,34 +140,36 @@ public partial class App : Application
             // Handle protocol URL passed as initial arg (e.g. launched via d2c:// link).
             var protocolArg = Array.Find(args, a => a.StartsWith("d2c://", StringComparison.OrdinalIgnoreCase));
             if (protocolArg != null)
-                mainVm.HandleProtocolUrl(protocolArg);
+                HandleActivationArgument(windowService, mainVm, protocolArg);
 
-            // In-process toast activation: fires when the user clicks a toast while the app
-            // is running.  Show the window, then handle any d2c:// launch arg (e.g. d2c://game).
+            // All external activations (toast callback, startup args, second-instance forwarding)
+            // are normalized to an activation argument and routed through the same handler.
             ToastNotificationManagerCompat.OnActivated += e =>
             {
                 var launchArg = e.Argument;
                 Avalonia.Threading.Dispatcher.UIThread.Post(() =>
                 {
-                    windowService.ShowAndActivate();
-                    if (!string.IsNullOrEmpty(launchArg) && launchArg.StartsWith("d2c://", StringComparison.OrdinalIgnoreCase))
-                        mainVm.HandleProtocolUrl(launchArg);
+                    HandleActivationArgument(windowService, mainVm, launchArg);
                 });
             };
 
             // Handle messages forwarded from second instances.
             // "__show__" means a second launch with no args — restore from tray.
-            // d2c:// URLs (including toast launch args) are forwarded to the protocol handler.
+            // d2c:// URLs are extracted from the forwarded argv payload and routed the same
+            // way as in-process toast activations.
             if (SingleInstance != null)
             {
                 SingleInstance.OnMessageReceived += msg =>
                 {
                     Avalonia.Threading.Dispatcher.UIThread.Post(() =>
                     {
-                        if (msg == "__show__" || msg.Contains("-ToastActivated") || msg.StartsWith("d2c://", StringComparison.OrdinalIgnoreCase))
+                        if (msg == "__show__")
+                        {
                             windowService.ShowAndActivate();
-                        if (msg.StartsWith("d2c://", StringComparison.OrdinalIgnoreCase))
-                            mainVm.HandleProtocolUrl(msg);
+                            return;
+                        }
+
+                        HandleActivationArgument(windowService, mainVm, TryExtractProtocolArg(msg));
                     });
                 };
             }
