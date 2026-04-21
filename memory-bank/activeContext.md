@@ -42,7 +42,7 @@ Repository AI workflow files now use a shared `.agents/` layout. `.agents/comman
 | #148 | Streams tab — `StreamsViewModel` polls `/v1/stats/twitch` every 60s; `StreamsPanel` shows Twitch-like preview cards (thumbnail, title, viewer count, streamer name, clickable link); tab only visible in header when `HasStreams` is true; auto-navigates to Play if streams disappear while tab is active |
 | #154 | Chat stuck in loading state — `ChatViewModel.RefreshAsync` now clears `IsLoading` in `finally` (only when the call is still the latest), fixing leaks on cancel paths; added `RefreshIfEmpty()` called from `MainLauncherViewModel.OnActiveTabChanged` so tab switches retry a failed initial load |
 | #155 | Matchmaking Windows toasts — hidden launcher now shows actionable native toasts for party invites and ready checks; toast buttons route through `d2c://party-invite/...` and `d2c://ready-check/...`; `WindowService` preserves `WindowShown` after eager visibility updates |
-| #155 follow-up | Activation-path cleanup in progress — `App.axaml.cs` now routes startup args, `ToastNotificationManagerCompat.OnActivated`, and second-instance forwarded args through one shared activation handler; local verification pending because a running launcher instance locked `bin\\Debug\\...\\d2c-launcher.exe` during rebuild |
+| #155 follow-up | Activation-path cleanup refined — `App.axaml.cs` now keeps normal protocol launches foregrounding the launcher, preserves forwarded `-ToastActivated` restore behavior, restores the launcher for positive toast actions (`accept`, `enter queue`, `d2c://game`), and leaves negative actions like `decline` in the background |
 
 ## Next Steps / Open Issues
 

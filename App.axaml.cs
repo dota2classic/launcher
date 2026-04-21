@@ -30,12 +30,20 @@ public partial class App : Application
     private ServiceProvider? _services;
     private MainWindow? _mainWindow;
 
-    private static void HandleActivationArgument(WindowService windowService, MainWindowViewModel mainVm, string? arg)
+    private const string OpenLauncherArg = "d2c://game";
+
+    private static void HandleActivationArgument(
+        WindowService windowService,
+        MainWindowViewModel mainVm,
+        string? arg,
+        bool restoreWindow)
     {
         if (string.IsNullOrWhiteSpace(arg))
             return;
 
-        windowService.ShowAndActivate();
+        if (restoreWindow)
+            windowService.ShowAndActivate();
+
         if (arg.StartsWith("d2c://", StringComparison.OrdinalIgnoreCase))
             mainVm.HandleProtocolUrl(arg);
     }
@@ -47,6 +55,17 @@ public partial class App : Application
 
         var args = message.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         return Array.Find(args, a => a.StartsWith("d2c://", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static bool ShouldRestoreForProtocolArg(string arg)
+    {
+        if (string.IsNullOrWhiteSpace(arg))
+            return false;
+
+        if (string.Equals(arg, OpenLauncherArg, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return !arg.EndsWith("/decline", StringComparison.OrdinalIgnoreCase);
     }
 
     public override void Initialize()
@@ -140,7 +159,7 @@ public partial class App : Application
             // Handle protocol URL passed as initial arg (e.g. launched via d2c:// link).
             var protocolArg = Array.Find(args, a => a.StartsWith("d2c://", StringComparison.OrdinalIgnoreCase));
             if (protocolArg != null)
-                HandleActivationArgument(windowService, mainVm, protocolArg);
+                HandleActivationArgument(windowService, mainVm, protocolArg, restoreWindow: true);
 
             // All external activations (toast callback, startup args, second-instance forwarding)
             // are normalized to an activation argument and routed through the same handler.
@@ -149,7 +168,11 @@ public partial class App : Application
                 var launchArg = e.Argument;
                 Avalonia.Threading.Dispatcher.UIThread.Post(() =>
                 {
-                    HandleActivationArgument(windowService, mainVm, launchArg);
+                    HandleActivationArgument(
+                        windowService,
+                        mainVm,
+                        launchArg,
+                        restoreWindow: ShouldRestoreForProtocolArg(launchArg));
                 });
             };
 
@@ -169,7 +192,17 @@ public partial class App : Application
                             return;
                         }
 
-                        HandleActivationArgument(windowService, mainVm, TryExtractProtocolArg(msg));
+                        var forwardedProtocolArg = TryExtractProtocolArg(msg);
+                        if (forwardedProtocolArg != null)
+                        {
+                            var isToastActivation = msg.Contains("-ToastActivated", StringComparison.OrdinalIgnoreCase);
+                            var shouldRestore = !isToastActivation || ShouldRestoreForProtocolArg(forwardedProtocolArg);
+                            HandleActivationArgument(windowService, mainVm, forwardedProtocolArg, shouldRestore);
+                            return;
+                        }
+
+                        if (msg.Contains("-ToastActivated", StringComparison.OrdinalIgnoreCase))
+                            windowService.ShowAndActivate();
                     });
                 };
             }
