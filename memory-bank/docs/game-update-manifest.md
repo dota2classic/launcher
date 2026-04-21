@@ -130,7 +130,9 @@ On each scan, if a file's `Length` and `LastWriteTimeUtc.Ticks` match the cached
 
 1. `Win32_LogicalDisk` → `Win32_DiskPartition` (via `Win32_LogicalDiskToPartition`)
 2. `Win32_DiskPartition` → `Win32_DiskDrive` (via `Win32_DiskDriveToDiskPartition`)
-3. `MSFT_PhysicalDisk.MediaType` where `DeviceId` matches `Win32_DiskDrive.Index`
+3. Try `MSFT_PhysicalDisk.MediaType` where `DeviceId` matches `Win32_DiskDrive.Index` (fast path that works on common desktop providers)
+4. If that fails, use `MSFT_StorageNodeToPhysicalDisk.DiskNumber` where it matches `Win32_DiskDrive.Index`
+5. Follow the associated `PhysicalDisk` reference and read `MSFT_PhysicalDisk.MediaType`
 
 | `MediaType` | Meaning | Parallelism |
 |-------------|---------|-------------|
