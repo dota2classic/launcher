@@ -15,6 +15,7 @@ using d2c_launcher.Services;
 using d2c_launcher.ViewModels;
 using d2c_launcher.Views;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace d2c_launcher;
 
@@ -28,6 +29,44 @@ public partial class App : Application
 
     private ServiceProvider? _services;
     private MainWindow? _mainWindow;
+
+    private const string OpenLauncherArg = "d2c://game";
+
+    private static void HandleActivationArgument(
+        WindowService windowService,
+        MainWindowViewModel mainVm,
+        string? arg,
+        bool restoreWindow)
+    {
+        if (string.IsNullOrWhiteSpace(arg))
+            return;
+
+        if (restoreWindow)
+            windowService.ShowAndActivate();
+
+        if (arg.StartsWith("d2c://", StringComparison.OrdinalIgnoreCase))
+            mainVm.HandleProtocolUrl(arg);
+    }
+
+    private static string? TryExtractProtocolArg(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+            return null;
+
+        var args = message.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return Array.Find(args, a => a.StartsWith("d2c://", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static bool ShouldRestoreForProtocolArg(string arg)
+    {
+        if (string.IsNullOrWhiteSpace(arg))
+            return false;
+
+        if (string.Equals(arg, OpenLauncherArg, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return !arg.EndsWith("/decline", StringComparison.OrdinalIgnoreCase);
+    }
 
     public override void Initialize()
     {
@@ -97,6 +136,8 @@ public partial class App : Application
             services.AddSingleton<IEmoticonSnapshotBuilder, EmoticonSnapshotBuilder>();
             services.AddSingleton<IChatViewModelFactory, ChatViewModelFactory>();
             services.AddSingleton<IWindowService, WindowService>();
+            services.AddSingleton<IToastNotificationService, ToastNotificationService>(
+                _ => new ToastNotificationService());
             services.AddSingleton<INetConService, NetConService>();
             services.AddSingleton<IDotakeysProfileService, DotakeysProfileService>();
             services.AddSingleton<MainWindowViewModel>();
@@ -118,19 +159,51 @@ public partial class App : Application
             // Handle protocol URL passed as initial arg (e.g. launched via d2c:// link).
             var protocolArg = Array.Find(args, a => a.StartsWith("d2c://", StringComparison.OrdinalIgnoreCase));
             if (protocolArg != null)
-                mainVm.HandleProtocolUrl(protocolArg);
+                HandleActivationArgument(windowService, mainVm, protocolArg, restoreWindow: true);
+
+            // All external activations (toast callback, startup args, second-instance forwarding)
+            // are normalized to an activation argument and routed through the same handler.
+            ToastNotificationManagerCompat.OnActivated += e =>
+            {
+                var launchArg = e.Argument;
+                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                {
+                    HandleActivationArgument(
+                        windowService,
+                        mainVm,
+                        launchArg,
+                        restoreWindow: ShouldRestoreForProtocolArg(launchArg));
+                });
+            };
 
             // Handle messages forwarded from second instances.
             // "__show__" means a second launch with no args — restore from tray.
-            // d2c:// URLs are forwarded to the protocol handler.
+            // d2c:// URLs are extracted from the forwarded argv payload and routed the same
+            // way as in-process toast activations.
             if (SingleInstance != null)
             {
                 SingleInstance.OnMessageReceived += msg =>
                 {
-                    if (msg == "__show__")
-                        Avalonia.Threading.Dispatcher.UIThread.Post(windowService.ShowAndActivate);
-                    else
-                        mainVm.HandleProtocolUrl(msg);
+                    Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                    {
+                        if (msg == "__show__")
+                        {
+                            windowService.ShowAndActivate();
+                            return;
+                        }
+
+                        var forwardedProtocolArg = TryExtractProtocolArg(msg);
+                        if (forwardedProtocolArg != null)
+                        {
+                            var isToastActivation = msg.Contains("-ToastActivated", StringComparison.OrdinalIgnoreCase);
+                            var shouldRestore = !isToastActivation || ShouldRestoreForProtocolArg(forwardedProtocolArg);
+                            HandleActivationArgument(windowService, mainVm, forwardedProtocolArg, shouldRestore);
+                            return;
+                        }
+
+                        if (msg.Contains("-ToastActivated", StringComparison.OrdinalIgnoreCase))
+                            windowService.ShowAndActivate();
+                    });
                 };
             }
 

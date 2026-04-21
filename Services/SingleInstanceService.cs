@@ -72,25 +72,17 @@ public sealed class SingleInstanceService : IDisposable
     {
         while (!ct.IsCancellationRequested)
         {
+            NamedPipeServerStream server;
             try
             {
-                await using var server = new NamedPipeServerStream(
+                server = new NamedPipeServerStream(
                     PipeName,
                     PipeDirection.In,
-                    maxNumberOfServerInstances: 1,
+                    maxNumberOfServerInstances: 2,
                     transmissionMode: PipeTransmissionMode.Byte,
                     options: PipeOptions.Asynchronous);
 
                 await server.WaitForConnectionAsync(ct).ConfigureAwait(false);
-
-                using var reader = new StreamReader(server);
-                var message = await reader.ReadToEndAsync(ct).ConfigureAwait(false);
-
-                if (!string.IsNullOrWhiteSpace(message))
-                {
-                    AppLog.Info($"[SingleInstance] received message: {message}");
-                    OnMessageReceived?.Invoke(message.Trim());
-                }
             }
             catch (OperationCanceledException)
             {
@@ -99,8 +91,33 @@ public sealed class SingleInstanceService : IDisposable
             catch (Exception ex)
             {
                 AppLog.Error("[SingleInstance] pipe server error", ex);
-                // Brief pause to avoid tight error loop
                 await Task.Delay(500, ct).ConfigureAwait(false);
+                continue;
+            }
+
+            // Handle the connected client on a background task so the loop
+            // immediately creates the next server instance — no gap between connections.
+            _ = Task.Run(() => HandlePipeConnectionAsync(server, ct), ct);
+        }
+    }
+
+    private async Task HandlePipeConnectionAsync(NamedPipeServerStream server, CancellationToken ct)
+    {
+        await using (server)
+        {
+            try
+            {
+                using var reader = new StreamReader(server);
+                var message = await reader.ReadToEndAsync(ct).ConfigureAwait(false);
+                if (!string.IsNullOrWhiteSpace(message))
+                {
+                    AppLog.Info($"[SingleInstance] received message: {message}");
+                    OnMessageReceived?.Invoke(message.Trim());
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLog.Error("[SingleInstance] pipe read error", ex);
             }
         }
     }

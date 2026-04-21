@@ -167,6 +167,18 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
             new System.Collections.Generic.Dictionary<string, string> { ["modes"] = modesStr });
     }
 
+    public async Task EnterQueueForModeAsync(int modeId)
+    {
+        var target = MatchmakingModes.FirstOrDefault(m => m.ModeId == modeId);
+        if (target == null || IsSearching)
+            return;
+
+        foreach (var m in MatchmakingModes)
+            m.IsSelected = m.ModeId == modeId;
+
+        await ToggleSearchAsync();
+    }
+
     public async Task RefreshMatchmakingModesAsync()
     {
         try

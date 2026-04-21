@@ -106,6 +106,7 @@
 | Release notes in update banner | ✅ Done | `feat: display release notes in update banner` |
 | Matchmaking telemetry events to Faro | ✅ Done | `feat: add matchmaking telemetry events to Faro` |
 | Close to tray (issue #46) | ✅ Done | X button hides to tray; tray menu Open/Exit; second instance restores; match found restores window automatically; `CloseToTray` setting (default true) |
+| Native Windows matchmaking toasts (issue #155) | ✅ Done | Hidden launcher now shows actionable toast buttons for party invite accept/decline and ready-check accept/decline; body click restores launcher |
 | Reply preview in chat messages (issue #50) | ✅ Done | Blue left-border preview block above message; shows quoted author + truncated text; from `ThreadMessageDTO.Reply` via REST and SSE |
 | Abandon game (issue #23) | ✅ Done | Red X button next to QueueButton; confirm overlay; excludes unranked 5x5 and highroom modes |
 | Settings split into sub-VMs (issue #88) | ✅ Done | `GameSettingsViewModel`, `LauncherPrefsViewModel`, `DlcViewModel`; `SettingsPanel` is now a tab shell |
@@ -196,5 +197,12 @@ Other known technical debt:
 | `memory-bank/docs/game-update-manifest.md` | ✅ Written |
 | `memory-bank/docs/client-dll-patching.md` | ✅ Written — patching done server-side (CDN); enables `dota_camera_distance` cvar; released |
 | Memory bank (`memory-bank/`) | ✅ Written |
+
+### AI Workflow Tooling
+
+| Item | Status | Notes |
+| ---- | ------ | ----- |
+| Shared `.agents` prompt layout | ✅ Done | Canonical command / agent prompts moved under `.agents`; Codex skills wrap shared workflows from `.agents/skills/` |
+| Claude compatibility bridge | ✅ Done | `.claude/commands` and `.claude/agents` are Windows junctions to `.agents/commands` and `.agents/agents`, so shared prompts stay single-source |
 
 

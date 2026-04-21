@@ -80,7 +80,8 @@ public static class DotaConsoleConnector
         if (hwnd == IntPtr.Zero)
             return;
 
-        WinApi.ShowWindow(hwnd, WinApi.SW_RESTORE);
+        if (WinApi.IsIconic(hwnd))
+            WinApi.ShowWindow(hwnd, WinApi.SW_RESTORE);
         if (!WinApi.SetForegroundWindow(hwnd))
             AppLog.Info("DotaConsoleConnector.FocusWindow: SetForegroundWindow returned false");
     }

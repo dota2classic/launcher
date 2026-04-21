@@ -212,6 +212,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     public async Task RefreshAsync()
     {
         _loadCts?.Cancel();
+        _loadCts?.Dispose();
         var cts = new CancellationTokenSource();
         _loadCts = cts;
         var ct = cts.Token;

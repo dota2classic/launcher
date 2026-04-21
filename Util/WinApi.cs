@@ -27,6 +27,9 @@ internal static class WinApi
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool SetForegroundWindow(IntPtr hWnd);
 
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool IsIconic(IntPtr hWnd);
     public const int SW_RESTORE = 9;
 
     [DllImport("user32.dll")]
