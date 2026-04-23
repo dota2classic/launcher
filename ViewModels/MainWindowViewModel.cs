@@ -18,6 +18,8 @@ namespace d2c_launcher.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
+    private static readonly TimeSpan BackgroundVerificationDelay = TimeSpan.FromSeconds(45);
+
     private readonly ISteamManager _steamManager;
     private readonly ISettingsStorage _settingsStorage;
     private readonly IGameLaunchSettingsStorage _launchSettingsStorage;
@@ -41,6 +43,8 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IGameWindowService _gameWindowService;
     private readonly IDotakeysProfileService _dotakeysProfileService;
     private readonly IToastNotificationService _toastNotificationService;
+    private readonly IStartupRegistrationService _startupRegistrationService;
+    private readonly AppStartupContext _startupContext;
 
     /// <summary>Pending spectate match ID received before the Launcher state was entered.</summary>
     private int? _pendingSpectateMatchId;
@@ -50,6 +54,10 @@ public partial class MainWindowViewModel : ViewModelBase
 
     /// <summary>Error message to display on the SelectGame screen after an invalid directory reset.</summary>
     private string? _pendingSelectGameError;
+
+    private bool _backgroundWindowMode;
+    private bool _verificationSatisfied;
+    private bool _backgroundVerificationStarted;
 
     [ObservableProperty]
     private AppState _appState;
@@ -101,7 +109,9 @@ public partial class MainWindowViewModel : ViewModelBase
         INetConService netConService,
         IGameWindowService gameWindowService,
         IDotakeysProfileService dotakeysProfileService,
-        IToastNotificationService toastNotificationService)
+        IToastNotificationService toastNotificationService,
+        IStartupRegistrationService startupRegistrationService,
+        AppStartupContext startupContext)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -126,6 +136,11 @@ public partial class MainWindowViewModel : ViewModelBase
         _gameWindowService = gameWindowService;
         _dotakeysProfileService = dotakeysProfileService;
         _toastNotificationService = toastNotificationService;
+        _startupRegistrationService = startupRegistrationService;
+        _startupContext = startupContext;
+        _backgroundWindowMode = startupContext.IsBackgroundStart;
+
+        _windowService.WindowShown += OnWindowShown;
 
         // Eagerly prefetch the registry so it's cached by the time GameDownloadViewModel needs it.
         var initialGameDir = _settingsStorage.Get().GameDirectory;
@@ -138,6 +153,8 @@ public partial class MainWindowViewModel : ViewModelBase
             steamManager.SteamStatus,
             steamManager.CurrentUser != null,
             HasValidGameDir());
+        if (ShouldRouteToBackgroundLauncher(initialState))
+            initialState = AppState.Launcher;
         EnterState(initialState);
 
         _steamManager.OnSteamStatusUpdated += _ =>
@@ -188,7 +205,28 @@ public partial class MainWindowViewModel : ViewModelBase
             _steamManager.SteamStatus,
             _steamManager.CurrentUser != null,
             HasValidGameDir());
+        if (ShouldRouteToBackgroundLauncher(next))
+            next = AppState.Launcher;
         EnterState(next);
+    }
+
+    private bool ShouldRouteToBackgroundLauncher(AppState nextState)
+    {
+        return _backgroundWindowMode
+            && nextState == AppState.VerifyingGame
+            && !_verificationSatisfied;
+    }
+
+    private void OnWindowShown()
+    {
+        _backgroundWindowMode = false;
+        if (_startupContext.IsBackgroundStart &&
+            !_verificationSatisfied &&
+            CurrentContentViewModel is MainLauncherViewModel &&
+            HasValidGameDir())
+        {
+            EnterForegroundVerification();
+        }
     }
 
     /// <summary>
@@ -258,7 +296,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 // Guard: already verifying — don't restart
                 if (CurrentContentViewModel is GameDownloadViewModel)
                     return;
-                EnterVerifyingGame();
+                EnterVerifyingGame(VerificationMode.Foreground);
                 break;
 
             case AppState.Launcher:
@@ -270,7 +308,7 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    private void EnterVerifyingGame()
+    private void EnterVerifyingGame(VerificationMode verificationMode)
     {
         var gameDir = ResolveGameDir();
         if (gameDir == null)
@@ -288,6 +326,7 @@ public partial class MainWindowViewModel : ViewModelBase
         var vm = new GameDownloadViewModel(_registryService, _localManifestService, _manifestDiffService, _gameDownloadService, _redistInstallService)
         {
             GameDirectory = gameDir,
+            VerificationMode = verificationMode,
             SelectedDlcIds = settings.SelectedDlcIds ?? [],
             NeedDefenderModal = needDefenderModal,
 
@@ -304,7 +343,11 @@ public partial class MainWindowViewModel : ViewModelBase
                 s.InstalledPackageIds = ids;
                 _settingsStorage.Save(s);
             },
-            OnCompleted = () => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnVerificationCompleted(AppState))),
+            OnCompleted = () => Dispatcher.UIThread.Post(() =>
+            {
+                _verificationSatisfied = true;
+                EnterState(AppStateMachine.OnVerificationCompleted(AppState));
+            }),
             OnInvalidGameDirectory = errorMessage => Dispatcher.UIThread.Post(() =>
             {
                 var s = _settingsStorage.Get();
@@ -321,6 +364,15 @@ public partial class MainWindowViewModel : ViewModelBase
         vm.StartAsync();
     }
 
+    private void EnterForegroundVerification()
+    {
+        if (CurrentContentViewModel is GameDownloadViewModel)
+            return;
+
+        AppState = AppState.VerifyingGame;
+        EnterVerifyingGame(VerificationMode.Foreground);
+    }
+
     private void EnterLauncher()
     {
         DisposeCurrentVm();
@@ -328,20 +380,22 @@ public partial class MainWindowViewModel : ViewModelBase
             _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider, _videoProvider,
             _backendApiService, _queueSocketService, _registryService, _chatViewModelFactory, _windowService,
             _steamAuthApi, _uiDispatcher, _triviaRepository, _timerFactory, _netConService, _gameWindowService,
-            _dotakeysProfileService, _toastNotificationService);
+            _dotakeysProfileService, _toastNotificationService, _startupRegistrationService);
         vm.OnGameDirectoryChanged = _ => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirChanged(AppState)));
         vm.RequestGameDirectoryChange = () => Dispatcher.UIThread.Post(() => EnterState(AppState.SelectGameDirectory));
         vm.OnDlcChanged = () => Dispatcher.UIThread.Post(() =>
         {
             AppState = AppState.VerifyingGame;
-            EnterVerifyingGame();
+            EnterVerifyingGame(VerificationMode.Foreground);
         });
         vm.RequestReverify = () => Dispatcher.UIThread.Post(() =>
         {
             AppState = AppState.VerifyingGame;
-            EnterVerifyingGame();
+            EnterVerifyingGame(VerificationMode.Foreground);
         });
         CurrentContentViewModel = vm;
+        if (_startupContext.IsBackgroundStart && !_verificationSatisfied)
+            StartBackgroundVerificationIfNeeded();
 
         if (_pendingSpectateMatchId.HasValue)
         {
@@ -358,6 +412,25 @@ public partial class MainWindowViewModel : ViewModelBase
     public void HandleProtocolUrl(string url)
     {
         AppLog.Info($"[Protocol] handling URL: {url}");
+        if (ShouldVerifyBeforeProtocolAction(url))
+        {
+            if (TryParsePartyInviteResponseUrl(url, out var pendingInviteId, out var pendingAcceptInvite))
+                _queueSocketService.AcceptPartyInviteAsync(pendingInviteId, pendingAcceptInvite)
+                    .FireAndForget($"HandlePartyInviteResponse ({(pendingAcceptInvite ? "accept" : "decline")}) before verification");
+            else if (TryParseReadyCheckResponseUrl(url, out var pendingRoomId, out var pendingAcceptReadyCheck))
+                _queueSocketService.SetReadyCheckAsync(pendingRoomId, pendingAcceptReadyCheck)
+                    .FireAndForget($"HandleReadyCheckResponse ({(pendingAcceptReadyCheck ? "accept" : "decline")}) before verification");
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (TryParseSpectateUrl(url, out var pendingSpectateMatchId))
+                    _pendingSpectateMatchId = pendingSpectateMatchId;
+
+                EnterForegroundVerification();
+            });
+            return;
+        }
+
         if (TryParseSpectateUrl(url, out var matchId))
             Dispatcher.UIThread.Post(() => HandleSpectate(matchId));
         else if (url.Equals("d2c://game", StringComparison.OrdinalIgnoreCase))
@@ -370,6 +443,15 @@ public partial class MainWindowViewModel : ViewModelBase
             Dispatcher.UIThread.Post(() => HandleReadyCheckResponse(roomId, acceptReadyCheck));
         else
             AppLog.Info($"[Protocol] unrecognised URL: {url}");
+    }
+
+    private bool ShouldVerifyBeforeProtocolAction(string url)
+    {
+        return _startupContext.IsBackgroundStart
+            && !_verificationSatisfied
+            && CurrentContentViewModel is MainLauncherViewModel
+            && HasValidGameDir()
+            && !url.EndsWith("/decline", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool TryParseEnterQueueUrl(string url, out int modeId)
@@ -533,6 +615,40 @@ public partial class MainWindowViewModel : ViewModelBase
         _currentVmCleanup = null;
         (CurrentContentViewModel as System.IDisposable)?.Dispose();
         CurrentContentViewModel = null;
+    }
+
+    private void StartBackgroundVerificationIfNeeded()
+    {
+        if (_backgroundVerificationStarted ||
+            CurrentContentViewModel is GameDownloadViewModel ||
+            !HasValidGameDir())
+        {
+            return;
+        }
+
+        _backgroundVerificationStarted = true;
+        _ = RunBackgroundVerificationAsync();
+    }
+
+    private async Task RunBackgroundVerificationAsync()
+    {
+        try
+        {
+            await Task.Delay(BackgroundVerificationDelay);
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (_verificationSatisfied || CurrentContentViewModel is not MainLauncherViewModel)
+                    return;
+
+                AppLog.Info("[BackgroundVerify] Starting full verification in background mode");
+                AppState = AppState.VerifyingGame;
+                EnterVerifyingGame(VerificationMode.Background);
+            });
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("[BackgroundVerify] Failed to start background verification", ex);
+        }
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────

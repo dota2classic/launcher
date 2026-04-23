@@ -2,7 +2,7 @@
 
 ## Current State
 
-All major features are shipped. The launcher is in maintenance/polish mode. Working on #135 (replace static CvarMapping and DotaConsoleConnector with injectable services).
+All major features are shipped. The launcher is in maintenance/polish mode. Working on #69 (Windows auto-launch on login, hidden tray startup, and throttled background verification).
 
 Repository AI workflow files now use a shared `.agents/` layout. `.agents/commands/` and `.agents/agents/` are the canonical copies, Codex picks up wrappers from `.agents/skills/`, and `.claude/commands` plus `.claude/agents` are directory junctions that preserve Claude compatibility without duplicating prompt files.
 
@@ -39,6 +39,8 @@ Repository AI workflow files now use a shared `.agents/` layout. `.agents/comman
 
 | Issue | What was done |
 |-------|--------------|
+| #69 | Added default-on Windows auto-launch via HKCU Run with `--background-start`; background starts hidden in tray, enters launcher for auth/socket notifications, then runs throttled manifest scan/diff after a delay; foreground/manual launches keep full verification; opening the hidden launcher before verification completes escalates to the normal verification UI |
+| #69 follow-up | Review fixes: `HandleProtocolUrl()` now marshals the pre-verification branch back to the UI thread before changing `AppState`, and background verification failures now log `[GameDownload]` errors plus Faro `verification_failed` telemetry so hidden-start problems are observable |
 | #164 | Cleared build/test warnings: pinned patched `System.Drawing.Common` 4.7.2 and `Tmds.DBus.Protocol` 0.21.3, targeted tests to `net10.0-windows`, and removed invalid xUnit value-tuple null asserts; `dotnet build` and `dotnet test d2c-launcher.Tests` now report 0 warnings |
 | #159 | Fixed local scan drive detection always falling back to `HDD/unknown` — `LocalManifestService` now uses a hybrid lookup: first `MSFT_PhysicalDisk.DeviceId == Win32_DiskDrive.Index` (works on common desktop providers), then `MSFT_StorageNodeToPhysicalDisk.DiskNumber` as a fallback before reading `MSFT_PhysicalDisk.MediaType`; SSD installs can use parallel hashing again on the machines we tested |
 | #148 | Streams tab — `StreamsViewModel` polls `/v1/stats/twitch` every 60s; `StreamsPanel` shows Twitch-like preview cards (thumbnail, title, viewer count, streamer name, clickable link); tab only visible in header when `HasStreams` is true; auto-navigates to Play if streams disappear while tab is active |

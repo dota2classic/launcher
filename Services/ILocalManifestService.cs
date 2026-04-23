@@ -10,5 +10,6 @@ public interface ILocalManifestService
     Task<GameManifest> BuildAsync(
         string gameDirectory,
         IProgress<(int done, int total)>? progress = null,
-        CancellationToken ct = default);
+        CancellationToken ct = default,
+        ManifestScanOptions? options = null);
 }

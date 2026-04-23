@@ -33,7 +33,7 @@ public partial class App : Application
     private const string OpenLauncherArg = "d2c://game";
 
     private static void HandleActivationArgument(
-        WindowService windowService,
+        Action showAndActivate,
         MainWindowViewModel mainVm,
         string? arg,
         bool restoreWindow)
@@ -42,7 +42,7 @@ public partial class App : Application
             return;
 
         if (restoreWindow)
-            windowService.ShowAndActivate();
+            showAndActivate();
 
         if (arg.StartsWith("d2c://", StringComparison.OrdinalIgnoreCase))
             mainVm.HandleProtocolUrl(arg);
@@ -110,6 +110,11 @@ public partial class App : Application
             };
 
             var services = new ServiceCollection();
+            var isBackgroundStart = Array.IndexOf(args, StartupRegistrationService.BackgroundStartArg) >= 0;
+            services.AddSingleton(new Models.AppStartupContext
+            {
+                IsBackgroundStart = isBackgroundStart
+            });
             services.AddSingleton<ICvarFileService, CvarFileService>();
             services.AddSingleton<IGameWindowService, GameWindowService>();
             services.AddSingleton<ISteamManager, SteamManager>();
@@ -136,6 +141,7 @@ public partial class App : Application
             services.AddSingleton<IEmoticonSnapshotBuilder, EmoticonSnapshotBuilder>();
             services.AddSingleton<IChatViewModelFactory, ChatViewModelFactory>();
             services.AddSingleton<IWindowService, WindowService>();
+            services.AddSingleton<IStartupRegistrationService, StartupRegistrationService>();
             services.AddSingleton<IToastNotificationService, ToastNotificationService>(
                 _ => new ToastNotificationService());
             services.AddSingleton<INetConService, NetConService>();
@@ -152,14 +158,21 @@ public partial class App : Application
             var windowService = (WindowService)_services.GetRequiredService<IWindowService>();
 
             var settingsStorage = _services.GetRequiredService<ISettingsStorage>();
+            _services.GetRequiredService<IStartupRegistrationService>()
+                .SetEnabled(settingsStorage.Get().AutoLaunchOnStartup);
             Services.UiScaleService.Apply(settingsStorage.Get().UiScale);
             _mainWindow = new MainWindow(settingsStorage) { DataContext = mainVm };
             windowService.SetWindow(_mainWindow);
 
+            if (isBackgroundStart)
+                desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            else
+                desktop.MainWindow = _mainWindow;
+
             // Handle protocol URL passed as initial arg (e.g. launched via d2c:// link).
             var protocolArg = Array.Find(args, a => a.StartsWith("d2c://", StringComparison.OrdinalIgnoreCase));
             if (protocolArg != null)
-                HandleActivationArgument(windowService, mainVm, protocolArg, restoreWindow: true);
+                HandleActivationArgument(ShowMainWindow, mainVm, protocolArg, restoreWindow: true);
 
             // All external activations (toast callback, startup args, second-instance forwarding)
             // are normalized to an activation argument and routed through the same handler.
@@ -169,7 +182,7 @@ public partial class App : Application
                 Avalonia.Threading.Dispatcher.UIThread.Post(() =>
                 {
                     HandleActivationArgument(
-                        windowService,
+                        ShowMainWindow,
                         mainVm,
                         launchArg,
                         restoreWindow: ShouldRestoreForProtocolArg(launchArg));
@@ -188,7 +201,7 @@ public partial class App : Application
                     {
                         if (msg == "__show__")
                         {
-                            windowService.ShowAndActivate();
+                            ShowMainWindow();
                             return;
                         }
 
@@ -197,12 +210,12 @@ public partial class App : Application
                         {
                             var isToastActivation = msg.Contains("-ToastActivated", StringComparison.OrdinalIgnoreCase);
                             var shouldRestore = !isToastActivation || ShouldRestoreForProtocolArg(forwardedProtocolArg);
-                            HandleActivationArgument(windowService, mainVm, forwardedProtocolArg, shouldRestore);
+                            HandleActivationArgument(ShowMainWindow, mainVm, forwardedProtocolArg, shouldRestore);
                             return;
                         }
 
                         if (msg.Contains("-ToastActivated", StringComparison.OrdinalIgnoreCase))
-                            windowService.ShowAndActivate();
+                            ShowMainWindow();
                     });
                 };
             }
@@ -214,8 +227,6 @@ public partial class App : Application
                 _services.Dispose();
                 SingleInstance?.Dispose();
             };
-
-            desktop.MainWindow = _mainWindow;
         }
 
         base.OnFrameworkInitializationCompleted();
@@ -223,6 +234,19 @@ public partial class App : Application
 
     private void TrayOpen_Click(object? sender, EventArgs e)
     {
+        ShowMainWindow();
+    }
+
+    private void ShowMainWindow()
+    {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop &&
+            desktop.MainWindow == null &&
+            _mainWindow != null)
+        {
+            desktop.MainWindow = _mainWindow;
+            desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
+        }
+
         _mainWindow?.ShowAndActivate();
     }
 

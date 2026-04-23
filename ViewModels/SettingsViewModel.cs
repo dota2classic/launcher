@@ -39,11 +39,12 @@ public partial class SettingsViewModel : ViewModelBase
         ICvarSettingsProvider cvarProvider,
         ISettingsStorage settingsStorage,
         IVideoSettingsProvider videoProvider,
-        IContentRegistryService registryService)
+        IContentRegistryService registryService,
+        IStartupRegistrationService startupRegistrationService)
     {
         VideoSettings = new VideoSettingsViewModel(videoProvider, launchStorage);
         Gameplay = new GameplayViewModel(cvarProvider);
-        LauncherPrefs = new LauncherPrefsViewModel(settingsStorage);
+        LauncherPrefs = new LauncherPrefsViewModel(settingsStorage, startupRegistrationService);
         Dlc = new DlcViewModel(settingsStorage, registryService);
     }
 }

@@ -107,6 +107,7 @@
 | Release notes in update banner | ✅ Done | `feat: display release notes in update banner` |
 | Matchmaking telemetry events to Faro | ✅ Done | `feat: add matchmaking telemetry events to Faro` |
 | Close to tray (issue #46) | ✅ Done | X button hides to tray; tray menu Open/Exit; second instance restores; match found restores window automatically; `CloseToTray` setting (default true) |
+| Auto-launch on Windows startup (issue #69) | ✅ Done | Default-on HKCU Run registration starts `"d2c-launcher.exe" --background-start`; background launch stays hidden in tray, brings up auth/socket notifications, and runs throttled manifest scan/diff after a delay; user opening the window before completion escalates to normal foreground verification |
 | Native Windows matchmaking toasts (issue #155) | ✅ Done | Hidden launcher now shows actionable toast buttons for party invite accept/decline and ready-check accept/decline; body click restores launcher |
 | Reply preview in chat messages (issue #50) | ✅ Done | Blue left-border preview block above message; shows quoted author + truncated text; from `ThreadMessageDTO.Reply` via REST and SSE |
 | Abandon game (issue #23) | ✅ Done | Red X button next to QueueButton; confirm overlay; excludes unranked 5x5 and highroom modes |
@@ -207,3 +208,8 @@ Other known technical debt:
 | Claude compatibility bridge | ✅ Done | `.claude/commands` and `.claude/agents` are Windows junctions to `.agents/commands` and `.agents/agents`, so shared prompts stay single-source |
 
 
+
+### Recent Notes
+
+- Background-start verification failures are now observable: `GameDownloadViewModel` logs `[GameDownload]` errors and emits Faro `verification_failed` telemetry.
+- Protocol-triggered pre-verification routing now marshals back onto the UI thread before changing `MainWindowViewModel` state.

@@ -13,6 +13,7 @@ namespace d2c_launcher.ViewModels;
 public partial class LauncherPrefsViewModel : ViewModelBase
 {
     private readonly ISettingsStorage _settingsStorage;
+    private readonly IStartupRegistrationService _startupRegistrationService;
 
     // ── Game directory ─────────────────────────────────────────────────────────
 
@@ -77,6 +78,20 @@ public partial class LauncherPrefsViewModel : ViewModelBase
             if (s.CloseToTray == value) return;
             s.CloseToTray = value;
             _settingsStorage.Save(s);
+            OnPropertyChanged();
+        }
+    }
+
+    public bool AutoLaunchOnStartup
+    {
+        get => _settingsStorage.Get().AutoLaunchOnStartup;
+        set
+        {
+            var s = _settingsStorage.Get();
+            if (s.AutoLaunchOnStartup == value) return;
+            s.AutoLaunchOnStartup = value;
+            _settingsStorage.Save(s);
+            _startupRegistrationService.SetEnabled(value);
             OnPropertyChanged();
         }
     }
@@ -169,9 +184,12 @@ public partial class LauncherPrefsViewModel : ViewModelBase
 
     // ── Constructor ────────────────────────────────────────────────────────────
 
-    public LauncherPrefsViewModel(ISettingsStorage settingsStorage)
+    public LauncherPrefsViewModel(
+        ISettingsStorage settingsStorage,
+        IStartupRegistrationService startupRegistrationService)
     {
         _settingsStorage = settingsStorage;
+        _startupRegistrationService = startupRegistrationService;
 
         // Initialize Vista compat cache from registry at construction time.
         var dir = settingsStorage.Get().GameDirectory;
