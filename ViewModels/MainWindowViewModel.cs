@@ -414,6 +414,13 @@ public partial class MainWindowViewModel : ViewModelBase
         AppLog.Info($"[Protocol] handling URL: {url}");
         if (ShouldVerifyBeforeProtocolAction(url))
         {
+            if (TryParsePartyInviteResponseUrl(url, out var pendingInviteId, out var pendingAcceptInvite))
+                _queueSocketService.AcceptPartyInviteAsync(pendingInviteId, pendingAcceptInvite)
+                    .FireAndForget($"HandlePartyInviteResponse ({(pendingAcceptInvite ? "accept" : "decline")}) before verification");
+            else if (TryParseReadyCheckResponseUrl(url, out var pendingRoomId, out var pendingAcceptReadyCheck))
+                _queueSocketService.SetReadyCheckAsync(pendingRoomId, pendingAcceptReadyCheck)
+                    .FireAndForget($"HandleReadyCheckResponse ({(pendingAcceptReadyCheck ? "accept" : "decline")}) before verification");
+
             if (TryParseSpectateUrl(url, out var pendingSpectateMatchId))
                 _pendingSpectateMatchId = pendingSpectateMatchId;
 
