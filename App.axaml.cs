@@ -244,6 +244,7 @@ public partial class App : Application
             _mainWindow != null)
         {
             desktop.MainWindow = _mainWindow;
+            desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
         }
 
         _mainWindow?.ShowAndActivate();
