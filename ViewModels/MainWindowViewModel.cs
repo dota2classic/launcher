@@ -2,12 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Net.Http;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -22,7 +18,6 @@ namespace d2c_launcher.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    private const string BaseManifestUrl = "https://launcher.dotaclassic.ru/files/";
     private static readonly TimeSpan BackgroundVerificationDelay = TimeSpan.FromSeconds(45);
 
     private readonly ISteamManager _steamManager;
@@ -63,8 +58,6 @@ public partial class MainWindowViewModel : ViewModelBase
     private bool _backgroundWindowMode;
     private bool _verificationSatisfied;
     private bool _backgroundVerificationStarted;
-    private bool _backgroundVerificationNeedsForeground;
-    private CancellationTokenSource? _backgroundVerificationCts;
 
     [ObservableProperty]
     private AppState _appState;
@@ -232,8 +225,6 @@ public partial class MainWindowViewModel : ViewModelBase
             CurrentContentViewModel is MainLauncherViewModel &&
             HasValidGameDir())
         {
-            if (_backgroundVerificationNeedsForeground)
-                AppLog.Info("[BackgroundVerify] Foreground window opened after background check requested full verification");
             EnterForegroundVerification();
         }
     }
@@ -375,7 +366,9 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private void EnterForegroundVerification()
     {
-        _backgroundVerificationCts?.Cancel();
+        if (CurrentContentViewModel is GameDownloadViewModel)
+            return;
+
         AppState = AppState.VerifyingGame;
         EnterVerifyingGame(VerificationMode.Foreground);
     }
@@ -616,110 +609,36 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private void StartBackgroundVerificationIfNeeded()
     {
-        if (_backgroundVerificationStarted || !HasValidGameDir())
-            return;
-
-        var settings = _settingsStorage.Get();
-        if (settings.ShouldShowDefenderPrompt)
+        if (_backgroundVerificationStarted ||
+            CurrentContentViewModel is GameDownloadViewModel ||
+            !HasValidGameDir())
         {
-            _backgroundVerificationNeedsForeground = true;
-            AppLog.Info("[BackgroundVerify] Deferred: Defender prompt requires foreground UI");
             return;
         }
 
         _backgroundVerificationStarted = true;
-        _backgroundVerificationCts = new CancellationTokenSource();
-        _ = RunBackgroundVerificationAsync(_backgroundVerificationCts.Token);
+        _ = RunBackgroundVerificationAsync();
     }
 
-    private async Task RunBackgroundVerificationAsync(CancellationToken ct)
+    private async Task RunBackgroundVerificationAsync()
     {
         try
         {
-            await Task.Delay(BackgroundVerificationDelay, ct).ConfigureAwait(false);
-
-            var settings = _settingsStorage.Get();
-            var gameDir = settings.GameDirectory;
-            if (string.IsNullOrWhiteSpace(gameDir) || !Directory.Exists(gameDir))
-                return;
-
-            if (!GameDirectoryValidator.IsAcceptable(gameDir, out _))
+            await Task.Delay(BackgroundVerificationDelay);
+            Dispatcher.UIThread.Post(() =>
             {
-                _backgroundVerificationNeedsForeground = true;
-                return;
-            }
-
-            AppLog.Info("[BackgroundVerify] Starting throttled manifest check");
-            var registry = await _registryService.GetAsync().ConfigureAwait(false);
-            if (registry == null || registry.Packages.Count == 0)
-            {
-                _backgroundVerificationNeedsForeground = true;
-                return;
-            }
-
-            var selectedDlcIds = (settings.SelectedDlcIds ?? []).ToHashSet(StringComparer.OrdinalIgnoreCase);
-            var packagesToInstall = registry.Packages
-                .Where(p => !p.Optional || selectedDlcIds.Contains(p.Id))
-                .ToList();
-
-            var packageManifests = await FetchPackageManifestsForBackgroundAsync(packagesToInstall, ct)
-                .ConfigureAwait(false);
-
-            var scanOptions = new ManifestScanOptions
-            {
-                Throttled = true,
-                MaxDegreeOfParallelism = 1,
-                BatchDelay = TimeSpan.FromMilliseconds(25),
-                BatchSize = 64,
-            };
-            var local = await _localManifestService.BuildAsync(gameDir, ct: ct, options: scanOptions)
-                .ConfigureAwait(false);
-
-            foreach (var manifest in packageManifests)
-            {
-                if (_manifestDiffService.ComputeFilesToDownload(manifest, local).Count > 0)
-                {
-                    _backgroundVerificationNeedsForeground = true;
-                    AppLog.Info("[BackgroundVerify] Updates required; foreground verification deferred");
+                if (_verificationSatisfied || CurrentContentViewModel is not MainLauncherViewModel)
                     return;
-                }
-            }
 
-            settings = _settingsStorage.Get();
-            settings.InstalledPackageIds = packagesToInstall.Select(p => p.Id).ToList();
-            _settingsStorage.Save(settings);
-            _verificationSatisfied = true;
-            AppLog.Info("[BackgroundVerify] Complete: local files are current");
-        }
-        catch (OperationCanceledException)
-        {
-            AppLog.Info("[BackgroundVerify] Canceled");
+                AppLog.Info("[BackgroundVerify] Starting full verification in background mode");
+                AppState = AppState.VerifyingGame;
+                EnterVerifyingGame(VerificationMode.Background);
+            });
         }
         catch (Exception ex)
         {
-            _backgroundVerificationNeedsForeground = true;
-            AppLog.Error("[BackgroundVerify] Failed; foreground verification required", ex);
+            AppLog.Error("[BackgroundVerify] Failed to start background verification", ex);
         }
-    }
-
-    private static async Task<List<GameManifest>> FetchPackageManifestsForBackgroundAsync(
-        IReadOnlyList<ContentPackage> packagesToInstall,
-        CancellationToken ct)
-    {
-        var result = new List<GameManifest>();
-        using var http = new HttpClient();
-
-        foreach (var package in packagesToInstall)
-        {
-            ct.ThrowIfCancellationRequested();
-            var manifestUrl = $"{BaseManifestUrl}{package.Folder}/manifest.json";
-            var json = await http.GetStringAsync(manifestUrl, ct).ConfigureAwait(false);
-            var manifest = JsonSerializer.Deserialize<GameManifest>(json)
-                ?? throw new InvalidOperationException($"Package manifest '{package.Name}' is empty.");
-            result.Add(manifest);
-        }
-
-        return result;
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
