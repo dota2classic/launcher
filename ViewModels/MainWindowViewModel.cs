@@ -2,8 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -18,6 +22,9 @@ namespace d2c_launcher.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
+    private const string BaseManifestUrl = "https://launcher.dotaclassic.ru/files/";
+    private static readonly TimeSpan BackgroundVerificationDelay = TimeSpan.FromSeconds(45);
+
     private readonly ISteamManager _steamManager;
     private readonly ISettingsStorage _settingsStorage;
     private readonly IGameLaunchSettingsStorage _launchSettingsStorage;
@@ -41,6 +48,8 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IGameWindowService _gameWindowService;
     private readonly IDotakeysProfileService _dotakeysProfileService;
     private readonly IToastNotificationService _toastNotificationService;
+    private readonly IStartupRegistrationService _startupRegistrationService;
+    private readonly AppStartupContext _startupContext;
 
     /// <summary>Pending spectate match ID received before the Launcher state was entered.</summary>
     private int? _pendingSpectateMatchId;
@@ -50,6 +59,12 @@ public partial class MainWindowViewModel : ViewModelBase
 
     /// <summary>Error message to display on the SelectGame screen after an invalid directory reset.</summary>
     private string? _pendingSelectGameError;
+
+    private bool _backgroundWindowMode;
+    private bool _verificationSatisfied;
+    private bool _backgroundVerificationStarted;
+    private bool _backgroundVerificationNeedsForeground;
+    private CancellationTokenSource? _backgroundVerificationCts;
 
     [ObservableProperty]
     private AppState _appState;
@@ -101,7 +116,9 @@ public partial class MainWindowViewModel : ViewModelBase
         INetConService netConService,
         IGameWindowService gameWindowService,
         IDotakeysProfileService dotakeysProfileService,
-        IToastNotificationService toastNotificationService)
+        IToastNotificationService toastNotificationService,
+        IStartupRegistrationService startupRegistrationService,
+        AppStartupContext startupContext)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -126,6 +143,11 @@ public partial class MainWindowViewModel : ViewModelBase
         _gameWindowService = gameWindowService;
         _dotakeysProfileService = dotakeysProfileService;
         _toastNotificationService = toastNotificationService;
+        _startupRegistrationService = startupRegistrationService;
+        _startupContext = startupContext;
+        _backgroundWindowMode = startupContext.IsBackgroundStart;
+
+        _windowService.WindowShown += OnWindowShown;
 
         // Eagerly prefetch the registry so it's cached by the time GameDownloadViewModel needs it.
         var initialGameDir = _settingsStorage.Get().GameDirectory;
@@ -138,6 +160,8 @@ public partial class MainWindowViewModel : ViewModelBase
             steamManager.SteamStatus,
             steamManager.CurrentUser != null,
             HasValidGameDir());
+        if (ShouldRouteToBackgroundLauncher(initialState))
+            initialState = AppState.Launcher;
         EnterState(initialState);
 
         _steamManager.OnSteamStatusUpdated += _ =>
@@ -188,7 +212,30 @@ public partial class MainWindowViewModel : ViewModelBase
             _steamManager.SteamStatus,
             _steamManager.CurrentUser != null,
             HasValidGameDir());
+        if (ShouldRouteToBackgroundLauncher(next))
+            next = AppState.Launcher;
         EnterState(next);
+    }
+
+    private bool ShouldRouteToBackgroundLauncher(AppState nextState)
+    {
+        return _backgroundWindowMode
+            && nextState == AppState.VerifyingGame
+            && !_verificationSatisfied;
+    }
+
+    private void OnWindowShown()
+    {
+        _backgroundWindowMode = false;
+        if (_startupContext.IsBackgroundStart &&
+            !_verificationSatisfied &&
+            CurrentContentViewModel is MainLauncherViewModel &&
+            HasValidGameDir())
+        {
+            if (_backgroundVerificationNeedsForeground)
+                AppLog.Info("[BackgroundVerify] Foreground window opened after background check requested full verification");
+            EnterForegroundVerification();
+        }
     }
 
     /// <summary>
@@ -258,7 +305,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 // Guard: already verifying — don't restart
                 if (CurrentContentViewModel is GameDownloadViewModel)
                     return;
-                EnterVerifyingGame();
+                EnterVerifyingGame(VerificationMode.Foreground);
                 break;
 
             case AppState.Launcher:
@@ -270,7 +317,7 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    private void EnterVerifyingGame()
+    private void EnterVerifyingGame(VerificationMode verificationMode)
     {
         var gameDir = ResolveGameDir();
         if (gameDir == null)
@@ -288,6 +335,7 @@ public partial class MainWindowViewModel : ViewModelBase
         var vm = new GameDownloadViewModel(_registryService, _localManifestService, _manifestDiffService, _gameDownloadService, _redistInstallService)
         {
             GameDirectory = gameDir,
+            VerificationMode = verificationMode,
             SelectedDlcIds = settings.SelectedDlcIds ?? [],
             NeedDefenderModal = needDefenderModal,
 
@@ -304,7 +352,11 @@ public partial class MainWindowViewModel : ViewModelBase
                 s.InstalledPackageIds = ids;
                 _settingsStorage.Save(s);
             },
-            OnCompleted = () => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnVerificationCompleted(AppState))),
+            OnCompleted = () => Dispatcher.UIThread.Post(() =>
+            {
+                _verificationSatisfied = true;
+                EnterState(AppStateMachine.OnVerificationCompleted(AppState));
+            }),
             OnInvalidGameDirectory = errorMessage => Dispatcher.UIThread.Post(() =>
             {
                 var s = _settingsStorage.Get();
@@ -321,6 +373,13 @@ public partial class MainWindowViewModel : ViewModelBase
         vm.StartAsync();
     }
 
+    private void EnterForegroundVerification()
+    {
+        _backgroundVerificationCts?.Cancel();
+        AppState = AppState.VerifyingGame;
+        EnterVerifyingGame(VerificationMode.Foreground);
+    }
+
     private void EnterLauncher()
     {
         DisposeCurrentVm();
@@ -328,20 +387,22 @@ public partial class MainWindowViewModel : ViewModelBase
             _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider, _videoProvider,
             _backendApiService, _queueSocketService, _registryService, _chatViewModelFactory, _windowService,
             _steamAuthApi, _uiDispatcher, _triviaRepository, _timerFactory, _netConService, _gameWindowService,
-            _dotakeysProfileService, _toastNotificationService);
+            _dotakeysProfileService, _toastNotificationService, _startupRegistrationService);
         vm.OnGameDirectoryChanged = _ => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirChanged(AppState)));
         vm.RequestGameDirectoryChange = () => Dispatcher.UIThread.Post(() => EnterState(AppState.SelectGameDirectory));
         vm.OnDlcChanged = () => Dispatcher.UIThread.Post(() =>
         {
             AppState = AppState.VerifyingGame;
-            EnterVerifyingGame();
+            EnterVerifyingGame(VerificationMode.Foreground);
         });
         vm.RequestReverify = () => Dispatcher.UIThread.Post(() =>
         {
             AppState = AppState.VerifyingGame;
-            EnterVerifyingGame();
+            EnterVerifyingGame(VerificationMode.Foreground);
         });
         CurrentContentViewModel = vm;
+        if (_startupContext.IsBackgroundStart && !_verificationSatisfied)
+            StartBackgroundVerificationIfNeeded();
 
         if (_pendingSpectateMatchId.HasValue)
         {
@@ -358,6 +419,15 @@ public partial class MainWindowViewModel : ViewModelBase
     public void HandleProtocolUrl(string url)
     {
         AppLog.Info($"[Protocol] handling URL: {url}");
+        if (ShouldVerifyBeforeProtocolAction(url))
+        {
+            if (TryParseSpectateUrl(url, out var pendingSpectateMatchId))
+                _pendingSpectateMatchId = pendingSpectateMatchId;
+
+            EnterForegroundVerification();
+            return;
+        }
+
         if (TryParseSpectateUrl(url, out var matchId))
             Dispatcher.UIThread.Post(() => HandleSpectate(matchId));
         else if (url.Equals("d2c://game", StringComparison.OrdinalIgnoreCase))
@@ -370,6 +440,15 @@ public partial class MainWindowViewModel : ViewModelBase
             Dispatcher.UIThread.Post(() => HandleReadyCheckResponse(roomId, acceptReadyCheck));
         else
             AppLog.Info($"[Protocol] unrecognised URL: {url}");
+    }
+
+    private bool ShouldVerifyBeforeProtocolAction(string url)
+    {
+        return _startupContext.IsBackgroundStart
+            && !_verificationSatisfied
+            && CurrentContentViewModel is MainLauncherViewModel
+            && HasValidGameDir()
+            && !url.EndsWith("/decline", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool TryParseEnterQueueUrl(string url, out int modeId)
@@ -533,6 +612,114 @@ public partial class MainWindowViewModel : ViewModelBase
         _currentVmCleanup = null;
         (CurrentContentViewModel as System.IDisposable)?.Dispose();
         CurrentContentViewModel = null;
+    }
+
+    private void StartBackgroundVerificationIfNeeded()
+    {
+        if (_backgroundVerificationStarted || !HasValidGameDir())
+            return;
+
+        var settings = _settingsStorage.Get();
+        if (settings.ShouldShowDefenderPrompt)
+        {
+            _backgroundVerificationNeedsForeground = true;
+            AppLog.Info("[BackgroundVerify] Deferred: Defender prompt requires foreground UI");
+            return;
+        }
+
+        _backgroundVerificationStarted = true;
+        _backgroundVerificationCts = new CancellationTokenSource();
+        _ = RunBackgroundVerificationAsync(_backgroundVerificationCts.Token);
+    }
+
+    private async Task RunBackgroundVerificationAsync(CancellationToken ct)
+    {
+        try
+        {
+            await Task.Delay(BackgroundVerificationDelay, ct).ConfigureAwait(false);
+
+            var settings = _settingsStorage.Get();
+            var gameDir = settings.GameDirectory;
+            if (string.IsNullOrWhiteSpace(gameDir) || !Directory.Exists(gameDir))
+                return;
+
+            if (!GameDirectoryValidator.IsAcceptable(gameDir, out _))
+            {
+                _backgroundVerificationNeedsForeground = true;
+                return;
+            }
+
+            AppLog.Info("[BackgroundVerify] Starting throttled manifest check");
+            var registry = await _registryService.GetAsync().ConfigureAwait(false);
+            if (registry == null || registry.Packages.Count == 0)
+            {
+                _backgroundVerificationNeedsForeground = true;
+                return;
+            }
+
+            var selectedDlcIds = (settings.SelectedDlcIds ?? []).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var packagesToInstall = registry.Packages
+                .Where(p => !p.Optional || selectedDlcIds.Contains(p.Id))
+                .ToList();
+
+            var packageManifests = await FetchPackageManifestsForBackgroundAsync(packagesToInstall, ct)
+                .ConfigureAwait(false);
+
+            var scanOptions = new ManifestScanOptions
+            {
+                Throttled = true,
+                MaxDegreeOfParallelism = 1,
+                BatchDelay = TimeSpan.FromMilliseconds(25),
+                BatchSize = 64,
+            };
+            var local = await _localManifestService.BuildAsync(gameDir, ct: ct, options: scanOptions)
+                .ConfigureAwait(false);
+
+            foreach (var manifest in packageManifests)
+            {
+                if (_manifestDiffService.ComputeFilesToDownload(manifest, local).Count > 0)
+                {
+                    _backgroundVerificationNeedsForeground = true;
+                    AppLog.Info("[BackgroundVerify] Updates required; foreground verification deferred");
+                    return;
+                }
+            }
+
+            settings = _settingsStorage.Get();
+            settings.InstalledPackageIds = packagesToInstall.Select(p => p.Id).ToList();
+            _settingsStorage.Save(settings);
+            _verificationSatisfied = true;
+            AppLog.Info("[BackgroundVerify] Complete: local files are current");
+        }
+        catch (OperationCanceledException)
+        {
+            AppLog.Info("[BackgroundVerify] Canceled");
+        }
+        catch (Exception ex)
+        {
+            _backgroundVerificationNeedsForeground = true;
+            AppLog.Error("[BackgroundVerify] Failed; foreground verification required", ex);
+        }
+    }
+
+    private static async Task<List<GameManifest>> FetchPackageManifestsForBackgroundAsync(
+        IReadOnlyList<ContentPackage> packagesToInstall,
+        CancellationToken ct)
+    {
+        var result = new List<GameManifest>();
+        using var http = new HttpClient();
+
+        foreach (var package in packagesToInstall)
+        {
+            ct.ThrowIfCancellationRequested();
+            var manifestUrl = $"{BaseManifestUrl}{package.Folder}/manifest.json";
+            var json = await http.GetStringAsync(manifestUrl, ct).ConfigureAwait(false);
+            var manifest = JsonSerializer.Deserialize<GameManifest>(json)
+                ?? throw new InvalidOperationException($"Package manifest '{package.Name}' is empty.");
+            result.Add(manifest);
+        }
+
+        return result;
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────

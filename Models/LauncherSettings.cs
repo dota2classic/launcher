@@ -51,6 +51,13 @@ public class LauncherSettings
     public bool CloseToTray { get; set; } = true;
 
     /// <summary>
+    /// When true, Windows starts the launcher hidden in the tray after user login.
+    /// The background instance can receive notifications while throttling expensive
+    /// game verification work.
+    /// </summary>
+    public bool AutoLaunchOnStartup { get; set; } = true;
+
+    /// <summary>
     /// When true, the launcher automatically connects to the game server as soon as a
     /// server address is received (after the ready-check phase). Defaults to true.
     /// </summary>

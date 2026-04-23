@@ -69,6 +69,14 @@
                 </StackPanel>
             </CheckBox>
 
+            <!-- Auto-launch on Windows startup -->
+            <CheckBox IsChecked="{Binding AutoLaunchOnStartup}" Margin="0,0,0,10">
+                <StackPanel Spacing="2">
+                    <TextBlock Text="{l:T 'settings.autoLaunchOnStartup'}" Classes="setting-label"/>
+                    <TextBlock Text="{l:T 'settings.autoLaunchOnStartupDescription'}" Classes="setting-desc"/>
+                </StackPanel>
+            </CheckBox>
+
             <!-- Auto-connect to game -->
             <CheckBox IsChecked="{Binding AutoConnectToGame}" Margin="0,0,0,10">
                 <StackPanel Spacing="2">

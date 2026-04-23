@@ -140,6 +140,8 @@
     "change": "Изменить",
     "closeToTray": "Сворачивать в трей при закрытии",
     "closeToTrayDescription": "Закрытие окна скрывает лаунчер в трей",
+    "autoLaunchOnStartup": "Запускать вместе с Windows",
+    "autoLaunchOnStartupDescription": "Лаунчер стартует скрытым в трее, чтобы получать уведомления",
     "autoConnectToServer": "Автоподключение к серверу",
     "autoConnectDescription": "Автоматически подключаться к игре при нахождении сервера",
     "defenderExclusionTitle": "Исключение Windows Defender",

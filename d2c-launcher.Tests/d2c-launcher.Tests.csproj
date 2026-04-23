@@ -42,6 +42,8 @@
     <Compile Include="..\Services\IManifestDiffService.cs" Link="Services\IManifestDiffService.cs" />
     <Compile Include="..\Services\ManifestDiffService.cs" Link="Services\ManifestDiffService.cs" />
     <Compile Include="..\Models\LauncherSettings.cs" Link="Models\LauncherSettings.cs" />
+    <Compile Include="..\Services\StartupRegistrationService.cs" Link="Services\StartupRegistrationService.cs" />
+    <Compile Include="..\Services\IStartupRegistrationService.cs" Link="Services\IStartupRegistrationService.cs" />
     <!-- Chat grouping logic (no Avalonia/ViewModel dependencies) -->
     <Compile Include="..\Util\ChatGrouper.cs" Link="Util\ChatGrouper.cs" />
     <!-- Game directory validation (pure static logic, no Avalonia deps) -->

@@ -115,7 +115,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         INetConService netConService,
         IGameWindowService gameWindowService,
         IDotakeysProfileService dotakeysProfileService,
-        IToastNotificationService toastNotificationService)
+        IToastNotificationService toastNotificationService,
+        IStartupRegistrationService startupRegistrationService)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -162,7 +163,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
             NotificationArea.AddCorruptedFilesToast(() => RequestReverify?.Invoke());
         Party.ShowInviteSentToast = (name, initials, avatarUrl) =>
             NotificationArea.AddInviteSentToast(new InviteSentToastViewModel(name, initials, avatarUrl));
-        Settings = new SettingsViewModel(launchSettingsStorage, cvarProvider, settingsStorage, videoProvider, registryService);
+        Settings = new SettingsViewModel(launchSettingsStorage, cvarProvider, settingsStorage, videoProvider, registryService, startupRegistrationService);
         Settings.PushCvar = PushCvarIfGameRunning;
         Settings.OnDlcChanged = () => OnDlcChanged?.Invoke();
         Chat = chatViewModelFactory.Create("17aa3530-d152-462e-a032-909ae69019ed");

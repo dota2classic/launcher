@@ -26,6 +26,7 @@ public partial class GameDownloadViewModel : ViewModelBase
     private readonly RedistInstallService _redistInstallService;
 
     public string GameDirectory { get; set; } = "";
+    public VerificationMode VerificationMode { get; set; } = VerificationMode.Foreground;
 
     /// <summary>
     /// IDs of optional DLC packages the user has chosen to install.
@@ -123,7 +124,7 @@ public partial class GameDownloadViewModel : ViewModelBase
 
     private async Task RunAsync()
     {
-        AppLog.Info($"[GameDownload] RunAsync started. GameDirectory={GameDirectory}");
+        AppLog.Info($"[GameDownload] RunAsync started. GameDirectory={GameDirectory}, Mode={VerificationMode}");
         if (!GameDirectoryValidator.IsAcceptable(GameDirectory, out var dirError))
         {
             Dispatcher.UIThread.Post(() =>
@@ -319,13 +320,24 @@ public partial class GameDownloadViewModel : ViewModelBase
         });
 
         var sw = Stopwatch.StartNew();
-        var manifest = await _localManifestService.BuildAsync(GameDirectory, scanProgress);
+        var scanOptions = VerificationMode == VerificationMode.Background
+            ? new ManifestScanOptions
+            {
+                Throttled = true,
+                MaxDegreeOfParallelism = 1,
+                BatchDelay = TimeSpan.FromMilliseconds(25),
+                BatchSize = 64,
+            }
+            : ManifestScanOptions.Foreground;
+
+        var manifest = await _localManifestService.BuildAsync(GameDirectory, scanProgress, options: scanOptions);
         sw.Stop();
 
         FaroTelemetryService.TrackEvent("scan_completed", new Dictionary<string, string>
         {
             ["duration_ms"] = sw.ElapsedMilliseconds.ToString(),
             ["file_count"] = manifest.Files.Count.ToString(),
+            ["mode"] = VerificationMode.ToString().ToLowerInvariant(),
         });
 
         return manifest;

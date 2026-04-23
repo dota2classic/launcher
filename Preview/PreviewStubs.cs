@@ -243,7 +243,7 @@ internal sealed class StubSteamAuthApi : ISteamAuthApi
 
 internal sealed class StubLocalManifestService : ILocalManifestService
 {
-    public Task<GameManifest> BuildAsync(string gameDirectory, IProgress<(int done, int total)>? progress = null, CancellationToken ct = default)
+    public Task<GameManifest> BuildAsync(string gameDirectory, IProgress<(int done, int total)>? progress = null, CancellationToken ct = default, ManifestScanOptions? options = null)
         => Task.FromResult(new GameManifest());
 }
 
@@ -384,4 +384,9 @@ internal sealed class StubToastNotificationService : IToastNotificationService
     public void ShowPartyInvite(string inviteId, string inviterName) { }
     public void Show(string title, string body, string? tag = null, string? launchArg = null) { }
     public void ShowGoQueue(string title, string body, int modeId) { }
+}
+
+internal sealed class StubStartupRegistrationService : IStartupRegistrationService
+{
+    public void SetEnabled(bool enabled) { }
 }

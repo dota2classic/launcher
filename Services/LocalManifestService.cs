@@ -17,8 +17,10 @@ public class LocalManifestService : ILocalManifestService
     public async Task<GameManifest> BuildAsync(
         string gameDirectory,
         IProgress<(int done, int total)>? progress = null,
-        CancellationToken ct = default)
+        CancellationToken ct = default,
+        ManifestScanOptions? options = null)
     {
+        options ??= ManifestScanOptions.Foreground;
         var root = new DirectoryInfo(gameDirectory);
         var allFiles = root.GetFiles("*", SearchOption.AllDirectories);
         var files = new GameManifestFile[allFiles.Length];
@@ -30,8 +32,12 @@ public class LocalManifestService : ILocalManifestService
         var cacheUpdates = new ConcurrentDictionary<string, LocalManifestCacheEntry>(StringComparer.OrdinalIgnoreCase);
 
         // Use sequential I/O for HDD (avoids seek-head thrashing) and parallel for SSD.
-        var parallelism = GetOptimalParallelism(gameDirectory);
-        var driveLabel = parallelism == 1 ? "HDD/unknown (sequential)" : $"SSD (parallel x{parallelism})";
+        var parallelism = options.MaxDegreeOfParallelism ?? GetOptimalParallelism(gameDirectory);
+        var driveLabel = options.Throttled
+            ? $"background throttled (parallel x{parallelism})"
+            : parallelism == 1
+                ? "HDD/unknown (sequential)"
+                : $"SSD (parallel x{parallelism})";
         AppLog.Info($"[Scan] {allFiles.Length} files, cache entries: {cache.Count}, drive: {driveLabel}");
 
         await Parallel.ForEachAsync(
@@ -69,6 +75,14 @@ public class LocalManifestService : ILocalManifestService
 
                 var d = Interlocked.Increment(ref done);
                 progress?.Report((d, allFiles.Length));
+                if (options.Throttled &&
+                    options.BatchDelay > TimeSpan.Zero &&
+                    options.BatchSize > 0 &&
+                    d % options.BatchSize == 0)
+                {
+                    return new ValueTask(Task.Delay(options.BatchDelay, ct));
+                }
+
                 return ValueTask.CompletedTask;
             });
 
