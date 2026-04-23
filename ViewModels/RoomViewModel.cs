@@ -38,6 +38,9 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
 
     private ReadyState? _myLastState;
     private bool _isDeclinePending;
+    private int _roomClearResolutionVersion;
+    private bool? _inQueueAfterRoomClear;
+    private ReadyState? _pendingRoomClearState;
 
     [ObservableProperty]
     private ObservableCollection<RoomPlayerView> _roomPlayers = new();
@@ -62,6 +65,7 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
         _backendApiService = backendApiService;
 
         queueSocketService.PlayerRoomStateUpdated += OnPlayerRoomStateUpdated;
+        queueSocketService.PlayerQueueStateUpdated += OnPlayerQueueStateUpdated;
         queueSocketService.PlayerGameStateUpdated += OnPlayerGameStateUpdated;
         queueSocketService.ServerSearchingUpdated += OnServerSearchingUpdated;
 
@@ -76,12 +80,17 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
     private void OnPlayerGameStateUpdated(PlayerGameStateMessage? msg) =>
         Dispatcher.UIThread.Post(() => UpdatePlayerGameState(msg));
 
+    private void OnPlayerQueueStateUpdated(PlayerQueueStateMessage msg) =>
+        Dispatcher.UIThread.Post(() => UpdatePlayerQueueState(msg));
+
     private void OnServerSearchingUpdated(PlayerServerSearchingMessage msg) =>
         Dispatcher.UIThread.Post(() => UpdateServerSearching(msg));
 
     private void UpdateServerSearching(PlayerServerSearchingMessage msg)
     {
         AppLog.Info($"UpdateServerSearching: searching={msg.Searching}");
+        if (msg.Searching)
+            CancelPendingRoomClearResolution();
         IsServerSearchingModalOpen = msg.Searching;
         if (msg.Searching)
             IsAcceptGameModalOpen = true;
@@ -95,8 +104,17 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
         }
 
         AppLog.Info($"UpdatePlayerGameState (room): closing modals, serverUrl={msg.ServerUrl}");
+        CancelPendingRoomClearResolution();
         IsAcceptGameModalOpen = false;
         IsServerSearchingModalOpen = false;
+    }
+
+    private void UpdatePlayerQueueState(PlayerQueueStateMessage msg)
+    {
+        _inQueueAfterRoomClear = msg.InQueue;
+
+        if (msg.InQueue)
+            CancelPendingRoomClearResolution();
     }
 
     private async Task UpdatePlayerRoomStateAsync(PlayerRoomStateMessage? msg)
@@ -104,7 +122,9 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
         if (msg == null)
         {
             AppLog.Info($"UpdatePlayerRoomStateAsync: msg=null (room cleared), myLastState={_myLastState}");
-            if (RoomClearPolicy.ShouldShowTimeoutModal(_myLastState, _isDeclinePending))
+            if (RoomClearPolicy.ShouldResolveAfterQueueState(_myLastState, _isDeclinePending))
+                BeginPendingRoomClearResolution(_myLastState);
+            else if (RoomClearPolicy.ShouldShowTimeoutModal(_myLastState, _isDeclinePending, inQueueAfterRoomClear: false))
                 IsTimeoutModalOpen = true;
             ClearRoomState();
             return;
@@ -112,6 +132,7 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
 
         AppLog.Info($"UpdatePlayerRoomStateAsync: roomId={msg.RoomId}, mode={msg.Mode}, entries={msg.Entries?.Length ?? 0}");
 
+        CancelPendingRoomClearResolution();
         IsTimeoutModalOpen = false;
         CurrentRoomId = msg.RoomId;
         RoomMode = msg.Mode;
@@ -177,6 +198,39 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
 
         if (!IsAcceptGameModalOpen)
             IsAcceptGameModalOpen = true;
+    }
+
+    private void BeginPendingRoomClearResolution(ReadyState? myLastState)
+    {
+        _pendingRoomClearState = myLastState;
+        _inQueueAfterRoomClear = null;
+        var version = ++_roomClearResolutionVersion;
+
+        ResolvePendingRoomClearAsync(version).FireAndForget("RoomViewModel.ResolvePendingRoomClearAsync");
+    }
+
+    private async Task ResolvePendingRoomClearAsync(int version)
+    {
+        await Task.Delay(750);
+
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            if (version != _roomClearResolutionVersion)
+                return;
+
+            if (RoomClearPolicy.ShouldShowTimeoutModal(_pendingRoomClearState, _isDeclinePending, _inQueueAfterRoomClear))
+                IsTimeoutModalOpen = true;
+
+            _pendingRoomClearState = null;
+            _inQueueAfterRoomClear = null;
+        });
+    }
+
+    private void CancelPendingRoomClearResolution()
+    {
+        _roomClearResolutionVersion++;
+        _pendingRoomClearState = null;
+        _inQueueAfterRoomClear = null;
     }
 
     private async Task<(string? Name, string? AvatarUrl)?> FetchUserInfoAsync(string steamId)
@@ -248,6 +302,7 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
     public void Dispose()
     {
         _queueSocketService.PlayerRoomStateUpdated -= OnPlayerRoomStateUpdated;
+        _queueSocketService.PlayerQueueStateUpdated -= OnPlayerQueueStateUpdated;
         _queueSocketService.PlayerGameStateUpdated -= OnPlayerGameStateUpdated;
         _queueSocketService.ServerSearchingUpdated -= OnServerSearchingUpdated;
     }
