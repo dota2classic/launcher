@@ -44,6 +44,8 @@
     <PackageReference Include="SocketIOClient" Version="3.1.1" />
     <PackageReference Include="Steamworks.NET" Version="2024.8.0" />
     <PackageReference Include="System.Management" Version="9.0.0" />
+    <PackageReference Include="System.Drawing.Common" Version="4.7.2" />
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.3" />
     <PackageReference Include="Avalonia.Labs.Gif" Version="11.3.1" />
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.2" />
     <PackageReference Include="Velopack" Version="0.0.1251" />

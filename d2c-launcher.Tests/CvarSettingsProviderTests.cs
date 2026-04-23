@@ -67,8 +67,7 @@ public class CvarSettingsProviderTests : IDisposable
         _fileService.WriteLog.Clear();
         provider.Update(new CvarSettings { FpsMax = 144, Console = true });
 
-        var configWrite = _fileService.WriteLog.Find(w => w.Cvars.ContainsKey("fps_max"));
-        Assert.NotNull(configWrite);
+        var configWrite = Assert.Single(_fileService.WriteLog, w => w.Cvars.ContainsKey("fps_max"));
         Assert.Equal("144", configWrite.Cvars["fps_max"]);
         Assert.Equal("1", configWrite.Cvars["con_enable"]);
     }
@@ -83,8 +82,7 @@ public class CvarSettingsProviderTests : IDisposable
         _fileService.WriteLog.Clear();
         provider.Update(new CvarSettings { CameraDistance = 1200 });
 
-        var configWrite = _fileService.WriteLog.Find(w => w.Cvars.ContainsKey("cl_cloud_settings"));
-        Assert.NotNull(configWrite);
+        var configWrite = Assert.Single(_fileService.WriteLog, w => w.Cvars.ContainsKey("cl_cloud_settings"));
         Assert.DoesNotContain("dota_camera_distance", configWrite.Cvars.Keys);
     }
 
@@ -97,8 +95,7 @@ public class CvarSettingsProviderTests : IDisposable
         _fileService.WriteLog.Clear();
         provider.Update(new CvarSettings { AutoAttack = AutoAttackMode.Always });
 
-        var configWrite = _fileService.WriteLog.Find(w => w.Cvars.ContainsKey("cl_cloud_settings"));
-        Assert.NotNull(configWrite);
+        var configWrite = Assert.Single(_fileService.WriteLog, w => w.Cvars.ContainsKey("cl_cloud_settings"));
         Assert.Equal("1", configWrite.Cvars["dota_player_units_auto_attack"]);
         Assert.Equal("1", configWrite.Cvars["dota_player_units_auto_attack_after_spell"]);
     }
