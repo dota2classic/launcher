@@ -208,3 +208,8 @@ Other known technical debt:
 | Claude compatibility bridge | ✅ Done | `.claude/commands` and `.claude/agents` are Windows junctions to `.agents/commands` and `.agents/agents`, so shared prompts stay single-source |
 
 
+
+### Recent Notes
+
+- Background-start verification failures are now observable: `GameDownloadViewModel` logs `[GameDownload]` errors and emits Faro `verification_failed` telemetry.
+- Protocol-triggered pre-verification routing now marshals back onto the UI thread before changing `MainWindowViewModel` state.

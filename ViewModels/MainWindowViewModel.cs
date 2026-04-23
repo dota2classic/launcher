@@ -421,10 +421,13 @@ public partial class MainWindowViewModel : ViewModelBase
                 _queueSocketService.SetReadyCheckAsync(pendingRoomId, pendingAcceptReadyCheck)
                     .FireAndForget($"HandleReadyCheckResponse ({(pendingAcceptReadyCheck ? "accept" : "decline")}) before verification");
 
-            if (TryParseSpectateUrl(url, out var pendingSpectateMatchId))
-                _pendingSpectateMatchId = pendingSpectateMatchId;
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (TryParseSpectateUrl(url, out var pendingSpectateMatchId))
+                    _pendingSpectateMatchId = pendingSpectateMatchId;
 
-            EnterForegroundVerification();
+                EnterForegroundVerification();
+            });
             return;
         }
 

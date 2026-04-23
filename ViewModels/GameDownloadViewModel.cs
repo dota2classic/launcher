@@ -183,6 +183,13 @@ public partial class GameDownloadViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
+            AppLog.Error($"[GameDownload] Verification failed. Mode={VerificationMode}, Phase={Phase}", ex);
+            FaroTelemetryService.TrackEvent("verification_failed", new Dictionary<string, string>
+            {
+                ["mode"] = VerificationMode.ToString().ToLowerInvariant(),
+                ["phase"] = Phase.ToString().ToLowerInvariant(),
+                ["exception"] = ex.GetType().Name,
+            });
             Dispatcher.UIThread.Post(() =>
             {
                 Phase = VerificationPhase.Failed;
