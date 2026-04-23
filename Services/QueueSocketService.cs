@@ -29,6 +29,7 @@ public sealed class QueueSocketService : IQueueSocketService
     public event Action<PlayerQueueStateMessage>? PlayerQueueStateUpdated;
     public event Action<PlayerRoomStateMessage?>? PlayerRoomStateUpdated;
     public event Action<PlayerRoomStateMessage?>? PlayerRoomFound;
+    public event Action<PlayerDeclineGameMessage>? PlayerDeclineGame;
     public event Action<PlayerGameStateMessage?>? PlayerGameStateUpdated;
     public event Action<QueueStateMessage>? QueueStateUpdated;
     public event Action<PlayerServerSearchingMessage>? ServerSearchingUpdated;
@@ -76,6 +77,11 @@ public sealed class QueueSocketService : IQueueSocketService
             AppLog.Info($"PLAYER_ROOM_FOUND: {msg}");
             PlayerRoomFound?.Invoke(msg);
             PlayerRoomStateUpdated?.Invoke(msg);
+        });
+        socket.On<PlayerDeclineGameMessage>("PLAYER_DECLINE_GAME", msg =>
+        {
+            AppLog.Info($"PLAYER_DECLINE_GAME: {msg}");
+            PlayerDeclineGame?.Invoke(msg);
         });
         socket.On<PartyDto>("PLAYER_PARTY_STATE", msg => PartyUpdated?.Invoke(msg));
         socket.OnNullable<PlayerGameStateMessage>("PLAYER_GAME_STATE", msg => PlayerGameStateUpdated?.Invoke(msg));
@@ -206,6 +212,17 @@ public sealed record PlayerRoomStateMessage(
     [property: JsonPropertyName("roomId")] string RoomId,
     [property: JsonPropertyName("mode")] MatchmakingMode Mode,
     [property: JsonPropertyName("entries")] PlayerRoomEntry[] Entries);
+
+public enum DeclineReason
+{
+    DECLINED,
+    TIMEOUT
+}
+
+public sealed record PlayerDeclineGameMessage(
+    [property: JsonPropertyName("mode")] MatchmakingMode Mode,
+    [property: JsonPropertyName("reason")]
+    [property: JsonConverter(typeof(JsonStringEnumConverter<DeclineReason>))] DeclineReason Reason);
 
 public sealed record PlayerGameStateMessage(
     [property: JsonPropertyName("serverUrl")] string ServerUrl,

@@ -36,6 +36,7 @@ internal sealed class StubQueueSocketService : IQueueSocketService
     public event Action<PlayerQueueStateMessage>? PlayerQueueStateUpdated;
     public event Action<PlayerRoomStateMessage?>? PlayerRoomStateUpdated;
     public event Action<PlayerRoomStateMessage?>? PlayerRoomFound;
+    public event Action<PlayerDeclineGameMessage>? PlayerDeclineGame;
     public event Action<PlayerGameStateMessage?>? PlayerGameStateUpdated;
     public event Action<QueueStateMessage>? QueueStateUpdated;
     public event Action<PlayerServerSearchingMessage>? ServerSearchingUpdated;

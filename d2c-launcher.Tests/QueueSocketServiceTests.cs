@@ -103,4 +103,18 @@ public sealed class QueueSocketServiceTests
 
         Assert.Single(extraChanges); // only the first fires StateChanged
     }
+    [Fact]
+    public async Task PlayerDeclineGame_forwards_decline_reason_event()
+    {
+        var (svc, f) = Build();
+        await svc.ConnectAsync("token");
+
+        PlayerDeclineGameMessage? received = null;
+        svc.PlayerDeclineGame += msg => received = msg;
+
+        var payload = new PlayerDeclineGameMessage(MatchmakingMode._0, DeclineReason.TIMEOUT);
+        f.Socket.FireEvent("PLAYER_DECLINE_GAME", payload);
+
+        Assert.Equal(payload, received);
+    }
 }
