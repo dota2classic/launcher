@@ -37,6 +37,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
     /// <summary>Called when the user requests game re-verification (e.g. after corrupted files detected).</summary>
     public Action? RequestReverify { get; set; }
+    public Action? RequestInstallGameUpdate { get; set; }
     private readonly DispatcherTimer _onlineStatsTimer;
     private readonly SocketEventCoordinator _soundCoordinator;
     private readonly Action<OnlineUpdateMessage> _onlineUpdatedHandler;
@@ -80,8 +81,17 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     [ObservableProperty]
     private bool _isAbandonConfirmOpen;
 
+    [ObservableProperty]
+    private bool _isGameUpdatePending;
+
+    [ObservableProperty]
+    private bool _isGameUpdatePromptOpen;
+
     /// <summary>True when the server reports an active game that can be abandoned.</summary>
     public bool CanAbandonGame => Launch.HasServerUrl && (Launch.CanAbandonFromServer ?? false);
+    public string GameUpdatePromptText => Launch.RunState != GameRunState.None
+        ? I18n.T("game.updatePromptRunning")
+        : I18n.T("game.updatePromptIdle");
 
     [ObservableProperty]
     private int _onlineInGame;
@@ -159,6 +169,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
             NotificationArea.AddToast(Strings.SelectAtLeastOneMode);
         Queue.ShowRestrictedModesRemovedToast = () =>
             NotificationArea.AddToast(Strings.RestrictedModesUnselected);
+        Queue.InstallPendingGameUpdate = InstallPendingGameUpdate;
         Launch.OnExeNotFound = () =>
             NotificationArea.AddCorruptedFilesToast(() => RequestReverify?.Invoke());
         Party.ShowInviteSentToast = (name, initials, avatarUrl) =>
@@ -185,6 +196,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         {
             if (e.PropertyName is nameof(GameLaunchViewModel.HasServerUrl) or nameof(GameLaunchViewModel.CanAbandonFromServer))
                 OnPropertyChanged(nameof(CanAbandonGame));
+            if (e.PropertyName is nameof(GameLaunchViewModel.PlayButtonIsStop) or nameof(GameLaunchViewModel.RunState))
+                OnPropertyChanged(nameof(GameUpdatePromptText));
         };
 
         // Wire delegates into children that need auth state
@@ -296,6 +309,30 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         }
     }
 
+    [RelayCommand]
+    private void DismissGameUpdatePrompt() => IsGameUpdatePromptOpen = false;
+
+    [RelayCommand]
+    private void InstallGameUpdate()
+    {
+        IsGameUpdatePromptOpen = false;
+        InstallPendingGameUpdateAsync().FireAndForget("InstallPendingGameUpdateAsync (modal)");
+    }
+
+    private void InstallPendingGameUpdate()
+    {
+        InstallPendingGameUpdateAsync().FireAndForget("InstallPendingGameUpdateAsync");
+    }
+
+    private async Task InstallPendingGameUpdateAsync()
+    {
+        if (Launch.PlayButtonIsStop)
+            Launch.StopGame();
+
+        await _queueSocketService.LeaveAllQueuesAsync();
+        RequestInstallGameUpdate?.Invoke();
+    }
+
     partial void OnActiveTabChanged(LauncherTab value)
     {
         OnPropertyChanged(nameof(IsPlayTabActive));
@@ -388,6 +425,24 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public void OpenInviteModal() => Party.OpenInviteModal();
     public void CloseInviteModal() => Party.CloseInviteModal();
     public async Task InvitePlayerAsync(d2c_launcher.Models.InviteCandidateView candidate) => await Party.InvitePlayerAsync(candidate);
+
+    public void SetGameUpdatePending(bool pending)
+    {
+        var changed = IsGameUpdatePending != pending;
+        IsGameUpdatePending = pending;
+        Launch.IsGameUpdatePending = pending;
+        Queue.IsGameUpdatePending = pending;
+
+        if (pending)
+        {
+            if (changed)
+                IsGameUpdatePromptOpen = true;
+        }
+        else
+        {
+            IsGameUpdatePromptOpen = false;
+        }
+    }
 
     /// <summary>
     /// Dev shortcut (F12, nightly only): shows a fake winStreak10 achievement toast.

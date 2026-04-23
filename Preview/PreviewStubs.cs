@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using d2c_launcher.Api;
@@ -260,6 +261,38 @@ internal sealed class StubGameDownloadService : IGameDownloadService
         => Task.CompletedTask;
 }
 
+internal sealed class StubRemoteManifestService : IRemoteManifestService
+{
+    public Task<RemoteManifestSet> GetInstalledPackageManifestsAsync(
+        IReadOnlyCollection<string>? selectedDlcIds,
+        bool includeOptionalPackages = false,
+        bool forceRefreshRegistry = false,
+        CancellationToken cancellationToken = default)
+    {
+        var packages = new List<RemotePackageManifest>
+        {
+            new()
+            {
+                Package = new ContentPackage { Id = "base", Folder = "base", Name = "Dotaclassic", Optional = false },
+                Manifest = new GameManifest
+                {
+                    Files =
+                    [
+                        new GameManifestFile { Path = "dota.exe", Hash = "abc", Size = 123, Mode = "exact", PackageFolder = "base", PackageName = "Dotaclassic" }
+                    ]
+                }
+            }
+        };
+
+        return Task.FromResult(new RemoteManifestSet
+        {
+            Packages = packages,
+            CombinedManifest = new GameManifest { Files = [.. packages.SelectMany(p => p.Manifest.Files)] },
+            InstalledPackageIds = ["base"],
+        });
+    }
+}
+
 internal sealed class StubContentRegistryService : IContentRegistryService
 {
     private static readonly ContentRegistry StubRegistry = new()
@@ -383,6 +416,7 @@ internal sealed class StubToastNotificationService : IToastNotificationService
 {
     public void ShowMatchFound(string roomId) { }
     public void ShowPartyInvite(string inviteId, string inviterName) { }
+    public void ShowGameUpdateAvailable() { }
     public void Show(string title, string body, string? tag = null, string? launchArg = null) { }
     public void ShowGoQueue(string title, string body, int modeId) { }
 }

@@ -38,6 +38,7 @@
 | --------------------------------- | ------ | ---------------------------------- |
 | Game directory validation         | ✅ Done |                                    |
 | Game download / verify on launch  | ✅ Done | `GameDownloadView`, manifest diff, HTTP download |
+| Remote update detection while launcher stays open (issue #167) | ✅ Done | `MainWindowViewModel` keeps an in-memory verified manifest snapshot, polls fresh remote manifests every 3 minutes, diffs remote vs. cached local baseline, disables idle launch via `GameLaunchViewModel`, prompts to install immediately, and shows a one-shot native Windows toast when an update first becomes pending while the launcher window is hidden/inactive; no periodic local file rescans |
 | HDD scan optimization (issue #9)  | ✅ Done | mtime+size hash cache + WMI SSD detection for parallelism; issue #159 fixed the storage lookup with a hybrid strategy: `MSFT_PhysicalDisk.DeviceId == Win32_DiskDrive.Index` first, then `MSFT_StorageNodeToPhysicalDisk.DiskNumber` -> `MSFT_PhysicalDisk.MediaType` as a fallback, so tested SSD installs no longer fall back to sequential `HDD/unknown` |
 | Scan duration metric to Faro (issue #10) | ✅ Done | `TrackEvent("scan_completed")` with `duration_ms` + `file_count` |
 | Redist install after verify (issue #6) | ✅ Done | `RedistInstallService` — runs `_CommonRedist` DirectX + vcredist silently once per game dir |
@@ -198,6 +199,7 @@ Other known technical debt:
 | `memory-bank/docs/source-engine-config-persistence.md` | ✅ Written |
 | `memory-bank/docs/settings-architecture.md` | ✅ Written |
 | `memory-bank/docs/game-update-manifest.md` | ✅ Written |
+| `memory-bank/docs/game-update-polling.md` | ✅ Written |
 | `memory-bank/docs/client-dll-patching.md` | ✅ Written — patching done server-side (CDN); enables `dota_camera_distance` cvar; released |
 | Memory bank (`memory-bank/`) | ✅ Written |
 
@@ -214,3 +216,4 @@ Other known technical debt:
 
 - Background-start verification failures are now observable: `GameDownloadViewModel` logs `[GameDownload]` errors and emits Faro `verification_failed` telemetry.
 - Protocol-triggered pre-verification routing now marshals back onto the UI thread before changing `MainWindowViewModel` state.
+- Issue #167 follow-up: all "install update" entry points now share one path in `MainLauncherViewModel` that always stops Dota, leaves all queues, and then starts verification; `GameLaunchViewModel.PlayButtonIsStop` again reflects actual run state so the header stop/update behavior stays consistent while an update is pending.

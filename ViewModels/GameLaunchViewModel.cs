@@ -46,11 +46,15 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
     [ObservableProperty]
     private bool? _canAbandonFromServer;
 
+    [ObservableProperty]
+    private bool _isGameUpdatePending;
+
     public bool HasServerUrl => !string.IsNullOrEmpty(ServerUrl);
 
     partial void OnServerUrlChanged(string? value) => OnPropertyChanged(nameof(HasServerUrl));
 
     partial void OnRunStateChanged(GameRunState value) => NotifyLaunchProps();
+    partial void OnIsGameUpdatePendingChanged(bool value) => NotifyLaunchProps();
 
     partial void OnGameDirectoryChanged(string? value)
     {
@@ -73,11 +77,16 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
 
     public bool IsLaunchEnabled => !IsGameDirectorySet || RunState == GameRunState.None;
 
-    public string PlayButtonText => RunState is GameRunState.OurGameRunning or GameRunState.OtherDotaRunning
+    public string PlayButtonText => IsGameUpdatePending && RunState == GameRunState.None
+        ? I18n.T("game.update")
+        : RunState is GameRunState.OurGameRunning or GameRunState.OtherDotaRunning
         ? Strings.StopLabel
         : Strings.Launch;
 
     public bool PlayButtonIsStop => RunState is GameRunState.OurGameRunning or GameRunState.OtherDotaRunning;
+
+    public bool IsPlayButtonEnabled => !IsGameUpdatePending || RunState != GameRunState.None;
+    public bool ShowPlayButtonIcon => !PlayButtonIsStop && !IsGameUpdatePending;
 
     public GameLaunchViewModel(
         ISettingsStorage settingsStorage,
@@ -219,6 +228,8 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
     {
         if (string.IsNullOrEmpty(GameDirectory))
             return false;
+        if (IsGameUpdatePending)
+            return false;
         try
         {
             var exePath = Path.Combine(GameDirectory, "dota.exe");
@@ -288,6 +299,9 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
 
     public void ConnectToGame()
     {
+        if (IsGameUpdatePending && RunState == GameRunState.None)
+            return;
+
         _connectCts?.Cancel();
         _connectCts = new CancellationTokenSource();
         _ = ConnectToGameAsync(_connectCts.Token, playSound: true);
@@ -589,6 +603,8 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(IsLaunchEnabled));
         OnPropertyChanged(nameof(PlayButtonText));
         OnPropertyChanged(nameof(PlayButtonIsStop));
+        OnPropertyChanged(nameof(IsPlayButtonEnabled));
+        OnPropertyChanged(nameof(ShowPlayButtonIcon));
     }
 
     public void Dispose()

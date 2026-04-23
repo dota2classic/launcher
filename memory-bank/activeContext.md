@@ -2,7 +2,7 @@
 
 ## Current State
 
-All major features are shipped. The launcher is in maintenance/polish mode. Working on #69 (Windows auto-launch on login, hidden tray startup, and throttled background verification).
+All major features are shipped. The launcher is in maintenance/polish mode. Working on #167 (detect remote game updates while launcher stays open, gate launch until update installs, and prompt the user to install immediately).
 
 Repository AI workflow files now use a shared `.agents/` layout. `.agents/commands/` and `.agents/agents/` are the canonical copies, Codex picks up wrappers from `.agents/skills/`, and `.claude/commands` plus `.claude/agents` are directory junctions that preserve Claude compatibility without duplicating prompt files.
 
@@ -48,6 +48,7 @@ Repository AI workflow files now use a shared `.agents/` layout. `.agents/comman
 | #155 | Matchmaking Windows toasts — hidden launcher now shows actionable native toasts for party invites and ready checks; toast buttons route through `d2c://party-invite/...` and `d2c://ready-check/...`; `WindowService` preserves `WindowShown` after eager visibility updates |
 | #155 follow-up | Activation-path cleanup refined — `App.axaml.cs` now keeps normal protocol launches foregrounding the launcher, preserves forwarded `-ToastActivated` restore behavior, restores the launcher for positive toast actions (`accept`, `enter queue`, `d2c://game`), and leaves negative actions like `decline` in the background |
 | #169 | Ready-check decline false positive — backend now sends explicit `PLAYER_DECLINE_GAME` socket events with `reason=DECLINED|TIMEOUT`; `QueueSocketService` forwards that payload and `RoomViewModel` now shows the local timeout modal only for `TIMEOUT`, while `DECLINED` just closes the ready-check UI and returns to matchmaking without any heuristic queue-state delay |
+| #167 | Remote game updates while launcher stays open — `GameDownloadViewModel` now reports a combined verified manifest snapshot back to `MainWindowViewModel`; the root VM polls remote manifests every 3 minutes without rescanning disk, compares them against that in-memory snapshot, and marks `update pending` when remote files diverge. Launch is gated in `GameLaunchViewModel`, the Play-tab queue/search button now switches to `ОБНОВИТЬ ИГРУ` and starts install instead of queueing, `MainLauncherView` shows an install-now modal, hidden/inactive launcher windows receive a one-shot native Windows toast when an update first becomes pending, and all install-update entry points now converge on one path that stops Dota, leaves all queues, and then re-enters verification |
 
 ## Next Steps / Open Issues
 
@@ -79,3 +80,4 @@ Repository AI workflow files now use a shared `.agents/` layout. `.agents/comman
 - **Settings sub-VMs:** Gameplay/video cvars → `GameSettingsViewModel`; launcher prefs → `LauncherPrefsViewModel`. `SettingsViewModel` is a thin container.
 - **Game mode default:** Mode ID 7 (Bots). Mode 12 no longer exists.
 - **Preview tool:** Run `powershell -ExecutionPolicy Bypass -File tools/preview.ps1 <Name>` — always use `Read` on the screenshot to verify before declaring done.
+- **Remote game updates:** Keep the verified local manifest snapshot only in memory for the current session. Periodic update detection compares fresh remote manifests against that snapshot; it must not rescan local files on every poll.

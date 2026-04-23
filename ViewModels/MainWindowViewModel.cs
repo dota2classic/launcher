@@ -16,9 +16,10 @@ using Microsoft.Win32;
 
 namespace d2c_launcher.ViewModels;
 
-public partial class MainWindowViewModel : ViewModelBase
+public partial class MainWindowViewModel : ViewModelBase, IDisposable
 {
     private static readonly TimeSpan BackgroundVerificationDelay = TimeSpan.FromSeconds(45);
+    private static readonly TimeSpan RemoteUpdatePollInterval = TimeSpan.FromMinutes(3);
 
     private readonly ISteamManager _steamManager;
     private readonly ISettingsStorage _settingsStorage;
@@ -33,6 +34,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly ILocalManifestService _localManifestService;
     private readonly IManifestDiffService _manifestDiffService;
     private readonly IGameDownloadService _gameDownloadService;
+    private readonly IRemoteManifestService _remoteManifestService;
     private readonly RedistInstallService _redistInstallService;
     private readonly IContentRegistryService _registryService;
     private readonly IWindowService _windowService;
@@ -45,6 +47,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IToastNotificationService _toastNotificationService;
     private readonly IStartupRegistrationService _startupRegistrationService;
     private readonly AppStartupContext _startupContext;
+    private readonly IUiTimer _remoteUpdatePollTimer;
 
     /// <summary>Pending spectate match ID received before the Launcher state was entered.</summary>
     private int? _pendingSpectateMatchId;
@@ -58,6 +61,9 @@ public partial class MainWindowViewModel : ViewModelBase
     private bool _backgroundWindowMode;
     private bool _verificationSatisfied;
     private bool _backgroundVerificationStarted;
+    private bool _remoteUpdateCheckInFlight;
+    private bool _gameUpdateToastShownForCurrentPendingState;
+    private GameManifest? _verifiedLocalManifestSnapshot;
 
     [ObservableProperty]
     private AppState _appState;
@@ -100,6 +106,7 @@ public partial class MainWindowViewModel : ViewModelBase
         ILocalManifestService localManifestService,
         IManifestDiffService manifestDiffService,
         IGameDownloadService gameDownloadService,
+        IRemoteManifestService remoteManifestService,
         RedistInstallService redistInstallService,
         IContentRegistryService registryService,
         IWindowService windowService,
@@ -126,6 +133,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _localManifestService = localManifestService;
         _manifestDiffService = manifestDiffService;
         _gameDownloadService = gameDownloadService;
+        _remoteManifestService = remoteManifestService;
         _redistInstallService = redistInstallService;
         _registryService = registryService;
         _windowService = windowService;
@@ -139,6 +147,9 @@ public partial class MainWindowViewModel : ViewModelBase
         _startupRegistrationService = startupRegistrationService;
         _startupContext = startupContext;
         _backgroundWindowMode = startupContext.IsBackgroundStart;
+        _remoteUpdatePollTimer = timerFactory.Create();
+        _remoteUpdatePollTimer.Interval = RemoteUpdatePollInterval;
+        _remoteUpdatePollTimer.Tick += OnRemoteUpdatePollTick;
 
         _windowService.WindowShown += OnWindowShown;
 
@@ -262,6 +273,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 _steamManager.OnSteamPolled += steamFirstVm.FireCheck;
                 _currentVmCleanup = () => _steamManager.OnSteamPolled -= steamFirstVm.FireCheck;
                 CurrentContentViewModel = steamFirstVm;
+                StopRemoteUpdatePolling();
                 break;
 
             case AppState.SelectGameDirectory:
@@ -290,6 +302,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 };
                 _pendingSelectGameError = null;
                 CurrentContentViewModel = selectVm;
+                StopRemoteUpdatePolling();
                 break;
 
             case AppState.VerifyingGame:
@@ -297,6 +310,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 if (CurrentContentViewModel is GameDownloadViewModel)
                     return;
                 EnterVerifyingGame(VerificationMode.Foreground);
+                StopRemoteUpdatePolling();
                 break;
 
             case AppState.Launcher:
@@ -323,7 +337,7 @@ public partial class MainWindowViewModel : ViewModelBase
         var settings = _settingsStorage.Get();
         bool needDefenderModal = settings.ShouldShowDefenderPrompt;
 
-        var vm = new GameDownloadViewModel(_registryService, _localManifestService, _manifestDiffService, _gameDownloadService, _redistInstallService)
+        var vm = new GameDownloadViewModel(_localManifestService, _manifestDiffService, _gameDownloadService, _redistInstallService, _remoteManifestService)
         {
             GameDirectory = gameDir,
             VerificationMode = verificationMode,
@@ -343,6 +357,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 s.InstalledPackageIds = ids;
                 _settingsStorage.Save(s);
             },
+            OnCompletedWithManifest = manifest => _verifiedLocalManifestSnapshot = manifest,
             OnCompleted = () => Dispatcher.UIThread.Post(() =>
             {
                 _verificationSatisfied = true;
@@ -350,6 +365,7 @@ public partial class MainWindowViewModel : ViewModelBase
             }),
             OnInvalidGameDirectory = errorMessage => Dispatcher.UIThread.Post(() =>
             {
+                _verifiedLocalManifestSnapshot = null;
                 var s = _settingsStorage.Get();
                 s.GameDirectory = null;
                 _settingsStorage.Save(s);
@@ -393,9 +409,16 @@ public partial class MainWindowViewModel : ViewModelBase
             AppState = AppState.VerifyingGame;
             EnterVerifyingGame(VerificationMode.Foreground);
         });
+        vm.RequestInstallGameUpdate = () => Dispatcher.UIThread.Post(() =>
+        {
+            AppState = AppState.VerifyingGame;
+            EnterVerifyingGame(VerificationMode.Foreground);
+        });
+        vm.SetGameUpdatePending(false);
         CurrentContentViewModel = vm;
         if (_startupContext.IsBackgroundStart && !_verificationSatisfied)
             StartBackgroundVerificationIfNeeded();
+        StartRemoteUpdatePollingIfReady();
 
         if (_pendingSpectateMatchId.HasValue)
         {
@@ -628,6 +651,87 @@ public partial class MainWindowViewModel : ViewModelBase
 
         _backgroundVerificationStarted = true;
         _ = RunBackgroundVerificationAsync();
+    }
+
+    private void OnRemoteUpdatePollTick(object? sender, EventArgs e)
+    {
+        if (_remoteUpdateCheckInFlight)
+            return;
+
+        _ = CheckForRemoteGameUpdateAsync();
+    }
+
+    private void StartRemoteUpdatePollingIfReady()
+    {
+        if (_verifiedLocalManifestSnapshot == null || CurrentContentViewModel is not MainLauncherViewModel)
+            return;
+
+        _remoteUpdatePollTimer.Start();
+        _ = CheckForRemoteGameUpdateAsync();
+    }
+
+    private void StopRemoteUpdatePolling() => _remoteUpdatePollTimer.Stop();
+
+    private async Task CheckForRemoteGameUpdateAsync()
+    {
+        if (_remoteUpdateCheckInFlight ||
+            _verifiedLocalManifestSnapshot == null ||
+            CurrentContentViewModel is not MainLauncherViewModel launcherVm ||
+            CurrentContentViewModel is GameDownloadViewModel ||
+            !HasValidGameDir())
+        {
+            return;
+        }
+
+        _remoteUpdateCheckInFlight = true;
+        try
+        {
+            var selectedDlcIds = _settingsStorage.Get().SelectedDlcIds ?? [];
+            var remoteManifestSet = await _remoteManifestService.GetInstalledPackageManifestsAsync(
+                selectedDlcIds,
+                forceRefreshRegistry: true);
+            var hasUpdate = _manifestDiffService.ComputeFilesToDownload(
+                remoteManifestSet.CombinedManifest,
+                _verifiedLocalManifestSnapshot).Count > 0;
+
+            Dispatcher.UIThread.Post(() => ApplyRemoteGameUpdateState(launcherVm, hasUpdate));
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("[RemoteUpdatePoll] Failed to check for remote game updates", ex);
+        }
+        finally
+        {
+            _remoteUpdateCheckInFlight = false;
+        }
+    }
+
+    private void ApplyRemoteGameUpdateState(MainLauncherViewModel launcherVm, bool hasUpdate)
+    {
+        var wasPending = launcherVm.IsGameUpdatePending;
+        launcherVm.SetGameUpdatePending(hasUpdate);
+
+        if (!hasUpdate)
+        {
+            _gameUpdateToastShownForCurrentPendingState = false;
+            return;
+        }
+
+        if (wasPending || _gameUpdateToastShownForCurrentPendingState)
+            return;
+
+        if (_windowService.IsWindowVisible && _windowService.IsWindowActive)
+            return;
+
+        _toastNotificationService.ShowGameUpdateAvailable();
+        _gameUpdateToastShownForCurrentPendingState = true;
+    }
+
+    public void Dispose()
+    {
+        _remoteUpdatePollTimer.Tick -= OnRemoteUpdatePollTick;
+        _remoteUpdatePollTimer.Stop();
+        _windowService.WindowShown -= OnWindowShown;
     }
 
     private async Task RunBackgroundVerificationAsync()

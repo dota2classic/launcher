@@ -150,6 +150,7 @@
       <StackPanel Grid.Column="2" Orientation="Horizontal">
         <Button x:Name="LaunchGameButton" VerticalAlignment="Center" Margin="0,0,6,0"
                 Padding="12,6" CornerRadius="2" Cursor="Hand"
+                IsEnabled="{Binding Launch.IsPlayButtonEnabled}"
                 Click="OnLaunchGameClicked"
                 Classes.stop="{Binding Launch.PlayButtonIsStop}"
                 BorderThickness="1">
@@ -195,16 +196,12 @@
           <StackPanel Orientation="Horizontal" Spacing="6">
             <materialIcons:MaterialIcon Kind="PlayArrow" Width="16" Height="16"
                                         VerticalAlignment="Center"
-                                        IsVisible="{Binding !Launch.PlayButtonIsStop}"/>
+                                        IsVisible="{Binding Launch.ShowPlayButtonIcon}"/>
             <materialIcons:MaterialIcon Kind="Stop" Width="14" Height="14"
                                         VerticalAlignment="Center"
                                         IsVisible="{Binding Launch.PlayButtonIsStop}"/>
-            <TextBlock Text="{x:Static res:Strings.Play}" FontSize="{DynamicResource FontSizeBase}"
-                       FontWeight="SemiBold" LetterSpacing="1" VerticalAlignment="Center"
-                       IsVisible="{Binding !Launch.PlayButtonIsStop}"/>
-            <TextBlock Text="{x:Static res:Strings.Stop}" FontSize="{DynamicResource FontSizeBase}"
-                       FontWeight="SemiBold" LetterSpacing="1" VerticalAlignment="Center"
-                       IsVisible="{Binding Launch.PlayButtonIsStop}"/>
+            <TextBlock Text="{Binding Launch.PlayButtonText}" FontSize="{DynamicResource FontSizeBase}"
+                       FontWeight="SemiBold" LetterSpacing="1" VerticalAlignment="Center"/>
           </StackPanel>
         </Button>
         <Button x:Name="SettingsButton" VerticalAlignment="Stretch" Padding="10,8"
