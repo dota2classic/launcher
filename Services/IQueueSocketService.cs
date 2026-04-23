@@ -13,6 +13,7 @@ public interface IQueueSocketService : IDisposable
     event Action<PlayerQueueStateMessage>? PlayerQueueStateUpdated;
     event Action<PlayerRoomStateMessage?>? PlayerRoomStateUpdated;
     event Action<PlayerRoomStateMessage?>? PlayerRoomFound;
+    event Action<PlayerDeclineGameMessage>? PlayerDeclineGame;
     event Action<PlayerGameStateMessage?>? PlayerGameStateUpdated;
     event Action<QueueStateMessage>? QueueStateUpdated;
     event Action<PlayerServerSearchingMessage>? ServerSearchingUpdated;

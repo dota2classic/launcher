@@ -109,6 +109,7 @@
 | Close to tray (issue #46) | ✅ Done | X button hides to tray; tray menu Open/Exit; second instance restores; match found restores window automatically; `CloseToTray` setting (default true) |
 | Auto-launch on Windows startup (issue #69) | ✅ Done | Default-on HKCU Run registration starts `"d2c-launcher.exe" --background-start`; background launch stays hidden in tray, brings up auth/socket notifications, and runs throttled manifest scan/diff after a delay; user opening the window before completion escalates to normal foreground verification |
 | Native Windows matchmaking toasts (issue #155) | ✅ Done | Hidden launcher now shows actionable toast buttons for party invite accept/decline and ready-check accept/decline; body click restores launcher |
+| Ready-check decline false positive (issue #169) | ✅ Done | Added explicit `PLAYER_DECLINE_GAME` socket handling with `DECLINED`/`TIMEOUT`; `RoomViewModel` now shows "you did not accept" only for `TIMEOUT` and suppresses it for `DECLINED` without relying on event-order heuristics |
 | Reply preview in chat messages (issue #50) | ✅ Done | Blue left-border preview block above message; shows quoted author + truncated text; from `ThreadMessageDTO.Reply` via REST and SSE |
 | Abandon game (issue #23) | ✅ Done | Red X button next to QueueButton; confirm overlay; excludes unranked 5x5 and highroom modes |
 | Settings split into sub-VMs (issue #88) | ✅ Done | `GameSettingsViewModel`, `LauncherPrefsViewModel`, `DlcViewModel`; `SettingsPanel` is now a tab shell |

@@ -62,6 +62,7 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
         _backendApiService = backendApiService;
 
         queueSocketService.PlayerRoomStateUpdated += OnPlayerRoomStateUpdated;
+        queueSocketService.PlayerDeclineGame += OnPlayerDeclineGame;
         queueSocketService.PlayerGameStateUpdated += OnPlayerGameStateUpdated;
         queueSocketService.ServerSearchingUpdated += OnServerSearchingUpdated;
 
@@ -75,6 +76,9 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
 
     private void OnPlayerGameStateUpdated(PlayerGameStateMessage? msg) =>
         Dispatcher.UIThread.Post(() => UpdatePlayerGameState(msg));
+
+    private void OnPlayerDeclineGame(PlayerDeclineGameMessage msg) =>
+        Dispatcher.UIThread.Post(() => UpdatePlayerDeclineGame(msg));
 
     private void OnServerSearchingUpdated(PlayerServerSearchingMessage msg) =>
         Dispatcher.UIThread.Post(() => UpdateServerSearching(msg));
@@ -99,13 +103,20 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
         IsServerSearchingModalOpen = false;
     }
 
+    private void UpdatePlayerDeclineGame(PlayerDeclineGameMessage msg)
+    {
+        AppLog.Info($"UpdatePlayerDeclineGame: mode={msg.Mode}, reason={msg.Reason}");
+        IsAcceptGameModalOpen = false;
+        IsServerSearchingModalOpen = false;
+        IsTimeoutModalOpen = msg.Reason == DeclineReason.TIMEOUT && !_isDeclinePending;
+        ClearRoomState();
+    }
+
     private async Task UpdatePlayerRoomStateAsync(PlayerRoomStateMessage? msg)
     {
         if (msg == null)
         {
             AppLog.Info($"UpdatePlayerRoomStateAsync: msg=null (room cleared), myLastState={_myLastState}");
-            if ((_myLastState is ReadyState.Pending or ReadyState.Timeout) && !_isDeclinePending)
-                IsTimeoutModalOpen = true;
             ClearRoomState();
             return;
         }
@@ -248,6 +259,7 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
     public void Dispose()
     {
         _queueSocketService.PlayerRoomStateUpdated -= OnPlayerRoomStateUpdated;
+        _queueSocketService.PlayerDeclineGame -= OnPlayerDeclineGame;
         _queueSocketService.PlayerGameStateUpdated -= OnPlayerGameStateUpdated;
         _queueSocketService.ServerSearchingUpdated -= OnServerSearchingUpdated;
     }

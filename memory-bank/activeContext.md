@@ -47,6 +47,7 @@ Repository AI workflow files now use a shared `.agents/` layout. `.agents/comman
 | #154 | Chat stuck in loading state — `ChatViewModel.RefreshAsync` now clears `IsLoading` in `finally` (only when the call is still the latest), fixing leaks on cancel paths; added `RefreshIfEmpty()` called from `MainLauncherViewModel.OnActiveTabChanged` so tab switches retry a failed initial load |
 | #155 | Matchmaking Windows toasts — hidden launcher now shows actionable native toasts for party invites and ready checks; toast buttons route through `d2c://party-invite/...` and `d2c://ready-check/...`; `WindowService` preserves `WindowShown` after eager visibility updates |
 | #155 follow-up | Activation-path cleanup refined — `App.axaml.cs` now keeps normal protocol launches foregrounding the launcher, preserves forwarded `-ToastActivated` restore behavior, restores the launcher for positive toast actions (`accept`, `enter queue`, `d2c://game`), and leaves negative actions like `decline` in the background |
+| #169 | Ready-check decline false positive — backend now sends explicit `PLAYER_DECLINE_GAME` socket events with `reason=DECLINED|TIMEOUT`; `QueueSocketService` forwards that payload and `RoomViewModel` now shows the local timeout modal only for `TIMEOUT`, while `DECLINED` just closes the ready-check UI and returns to matchmaking without any heuristic queue-state delay |
 
 ## Next Steps / Open Issues
 
