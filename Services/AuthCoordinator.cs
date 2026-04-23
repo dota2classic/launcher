@@ -188,7 +188,10 @@ public sealed class AuthCoordinator : IDisposable
 
     public void Dispose()
     {
-        _cts?.Dispose();
+        // Do not dispose _cts here: ApplyTokenAsync may still be unwinding on a
+        // captured CancellationToken after this ViewModel is disposed during a
+        // state transition (for example hidden startup -> foreground verify).
+        _cts?.Cancel();
         _refreshCts?.Cancel();
         _refreshCts?.Dispose();
     }
