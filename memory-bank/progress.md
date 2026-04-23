@@ -14,7 +14,7 @@
 | Settings persistence (launcher JSON)       | ✅ Done         | `%AppData%\d2c-launcher\launcher_settings.json` |
 | Application auto-updates                   | ✅ Done         | Velopack + GitHub Releases                      |
 | Hardware info logging + HWID               | ✅ Done         | `HardwareInfoService` logs hardware; HWID sent to backend via SteamBridge steam auth ticket endpoint |
-| Build warning cleanup (issue #164)         | ✅ Done         | Pinned patched transitive packages: `System.Drawing.Common` 4.7.2 for Windows toast dependency and `Tmds.DBus.Protocol` 0.21.3 for Avalonia FreeDesktop/X11 dependency; `dotnet build` reports 0 warnings |
+| Build warning cleanup (issue #164)         | ✅ Done         | Pinned patched transitive packages: `System.Drawing.Common` 4.7.2 for Windows toast dependency and `Tmds.DBus.Protocol` 0.21.3 for Avalonia FreeDesktop/X11 dependency; test project now targets `net10.0-windows` and uses warning-clean xUnit assertions; build and tests report 0 warnings |
 
 
 ### Matchmaking

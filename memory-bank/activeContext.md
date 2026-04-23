@@ -39,7 +39,7 @@ Repository AI workflow files now use a shared `.agents/` layout. `.agents/comman
 
 | Issue | What was done |
 |-------|--------------|
-| #164 | Cleared build warnings from vulnerable transitive NuGet packages by pinning patched `System.Drawing.Common` 4.7.2 and `Tmds.DBus.Protocol` 0.21.3 in the launcher project; `dotnet build` now reports 0 warnings |
+| #164 | Cleared build/test warnings: pinned patched `System.Drawing.Common` 4.7.2 and `Tmds.DBus.Protocol` 0.21.3, targeted tests to `net10.0-windows`, and removed invalid xUnit value-tuple null asserts; `dotnet build` and `dotnet test d2c-launcher.Tests` now report 0 warnings |
 | #159 | Fixed local scan drive detection always falling back to `HDD/unknown` — `LocalManifestService` now uses a hybrid lookup: first `MSFT_PhysicalDisk.DeviceId == Win32_DiskDrive.Index` (works on common desktop providers), then `MSFT_StorageNodeToPhysicalDisk.DiskNumber` as a fallback before reading `MSFT_PhysicalDisk.MediaType`; SSD installs can use parallel hashing again on the machines we tested |
 | #148 | Streams tab — `StreamsViewModel` polls `/v1/stats/twitch` every 60s; `StreamsPanel` shows Twitch-like preview cards (thumbnail, title, viewer count, streamer name, clickable link); tab only visible in header when `HasStreams` is true; auto-navigates to Play if streams disappear while tab is active |
 | #154 | Chat stuck in loading state — `ChatViewModel.RefreshAsync` now clears `IsLoading` in `finally` (only when the call is still the latest), fixing leaks on cancel paths; added `RefreshIfEmpty()` called from `MainLauncherViewModel.OnActiveTabChanged` so tab switches retry a failed initial load |
