@@ -104,7 +104,7 @@ public partial class RoomViewModel : ViewModelBase, IDisposable
         if (msg == null)
         {
             AppLog.Info($"UpdatePlayerRoomStateAsync: msg=null (room cleared), myLastState={_myLastState}");
-            if ((_myLastState is ReadyState.Pending or ReadyState.Timeout) && !_isDeclinePending)
+            if (RoomClearPolicy.ShouldShowTimeoutModal(_myLastState, _isDeclinePending))
                 IsTimeoutModalOpen = true;
             ClearRoomState();
             return;
