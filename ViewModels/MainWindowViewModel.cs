@@ -61,7 +61,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private bool _backgroundWindowMode;
     private bool _verificationSatisfied;
     private bool _backgroundVerificationStarted;
-    private bool _remoteUpdateCheckInFlight;
+    private volatile bool _remoteUpdateCheckInFlight;
     private bool _gameUpdateToastShownForCurrentPendingState;
     private GameManifest? _verifiedLocalManifestSnapshot;
 
@@ -419,6 +419,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         if (_startupContext.IsBackgroundStart && !_verificationSatisfied)
             StartBackgroundVerificationIfNeeded();
         StartRemoteUpdatePollingIfReady();
+        _queueSocketService.ReconnectAsync().FireAndForget("ReconnectAsync on launcher mount");
 
         if (_pendingSpectateMatchId.HasValue)
         {
@@ -677,7 +678,6 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         if (_remoteUpdateCheckInFlight ||
             _verifiedLocalManifestSnapshot == null ||
             CurrentContentViewModel is not MainLauncherViewModel launcherVm ||
-            CurrentContentViewModel is GameDownloadViewModel ||
             !HasValidGameDir())
         {
             return;
@@ -708,6 +708,9 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     private void ApplyRemoteGameUpdateState(MainLauncherViewModel launcherVm, bool hasUpdate)
     {
+        if (CurrentContentViewModel != launcherVm)
+            return;
+
         var wasPending = launcherVm.IsGameUpdatePending;
         launcherVm.SetGameUpdatePending(hasUpdate);
 
@@ -717,14 +720,15 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             return;
         }
 
-        if (wasPending || _gameUpdateToastShownForCurrentPendingState)
+        _gameUpdateToastShownForCurrentPendingState = true;
+
+        if (wasPending)
             return;
 
         if (_windowService.IsWindowVisible && _windowService.IsWindowActive)
             return;
 
         _toastNotificationService.ShowGameUpdateAvailable();
-        _gameUpdateToastShownForCurrentPendingState = true;
     }
 
     public void Dispose()

@@ -307,6 +307,7 @@
     "noFolderAccess": "Нет доступа к выбранной папке. Выберите другую папку для установки.",
     "noFolderAccessTitle": "Нет доступа к папке",
     "noModeAccess": "Нет доступа к режиму",
+    "emptyPackageManifest": "Манифест пакета {name} пустой.",
     "connectingToServer": "Подключение к серверу...",
     "connectingToSteam": "Подключение к Steam...",
     "vsBots": "Против ботов",
@@ -409,6 +410,10 @@
       "title": "Доступно обновление игры",
       "body": "Новая версия Dotaclassic готова к установке. Откройте лаунчер, чтобы обновить игру.",
       "installButton": "Обновить"
+    },
+    "dev": {
+      "gameUpdateEnabled": "DEV: симулировано входящее обновление игры",
+      "gameUpdateDisabled": "DEV: симулированное обновление игры сброшено"
     }
   }
 }

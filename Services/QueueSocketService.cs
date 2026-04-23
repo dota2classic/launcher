@@ -97,6 +97,15 @@ public sealed class QueueSocketService : IQueueSocketService
         await socket.ConnectAsync().ConfigureAwait(false);
     }
 
+    public async Task ReconnectAsync(CancellationToken cancellationToken = default)
+    {
+        var token = _token;
+        if (string.IsNullOrWhiteSpace(token))
+            return;
+        await DisconnectAsync(cancellationToken).ConfigureAwait(false);
+        await ConnectAsync(token, cancellationToken).ConfigureAwait(false);
+    }
+
     public async Task DisconnectAsync(CancellationToken cancellationToken = default)
     {
         if (_socket == null)

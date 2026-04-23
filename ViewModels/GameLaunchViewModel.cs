@@ -77,16 +77,14 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
 
     public bool IsLaunchEnabled => !IsGameDirectorySet || RunState == GameRunState.None;
 
-    public string PlayButtonText => IsGameUpdatePending && RunState == GameRunState.None
-        ? I18n.T("game.update")
-        : RunState is GameRunState.OurGameRunning or GameRunState.OtherDotaRunning
+    public string PlayButtonText => RunState is GameRunState.OurGameRunning or GameRunState.OtherDotaRunning
         ? Strings.StopLabel
         : Strings.Launch;
 
     public bool PlayButtonIsStop => RunState is GameRunState.OurGameRunning or GameRunState.OtherDotaRunning;
 
-    public bool IsPlayButtonEnabled => !IsGameUpdatePending || RunState != GameRunState.None;
-    public bool ShowPlayButtonIcon => !PlayButtonIsStop && !IsGameUpdatePending;
+    public bool IsPlayButtonEnabled => PlayButtonIsStop || IsGameDirectorySet;
+    public bool ShowPlayButtonIcon => !PlayButtonIsStop;
 
     public GameLaunchViewModel(
         ISettingsStorage settingsStorage,
@@ -228,8 +226,6 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
     {
         if (string.IsNullOrEmpty(GameDirectory))
             return false;
-        if (IsGameUpdatePending)
-            return false;
         try
         {
             var exePath = Path.Combine(GameDirectory, "dota.exe");
@@ -299,9 +295,6 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
 
     public void ConnectToGame()
     {
-        if (IsGameUpdatePending && RunState == GameRunState.None)
-            return;
-
         _connectCts?.Cancel();
         _connectCts = new CancellationTokenSource();
         _ = ConnectToGameAsync(_connectCts.Token, playSound: true);

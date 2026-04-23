@@ -279,13 +279,16 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
     public async Task ToggleSearchAsync()
     {
-        if (Launch.HasServerUrl)
+        if (ShouldConnectToGame(Launch.HasServerUrl))
         {
             Launch.ConnectToGame();
             return;
         }
+
         await Queue.ToggleSearchAsync();
     }
+
+    internal static bool ShouldConnectToGame(bool hasServerUrl) => hasServerUrl;
 
     [RelayCommand]
     private void RequestAbandonGame() => IsAbandonConfirmOpen = true;
@@ -329,7 +332,11 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         if (Launch.PlayButtonIsStop)
             Launch.StopGame();
 
-        await _queueSocketService.LeaveAllQueuesAsync();
+        // Preserve reconnectable game state: only leave matchmaking if we're still searching
+        // and do not already have a server to connect to.
+        if (Queue.IsSearching && !Launch.HasServerUrl)
+            await _queueSocketService.LeaveAllQueuesAsync();
+
         RequestInstallGameUpdate?.Invoke();
     }
 
@@ -458,6 +465,20 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
             api: _backendApiService,
             cp: 10);
         if (vm != null) NotificationArea.AddNotificationDirect(vm);
+    }
+
+    /// <summary>
+    /// Dev shortcut (nightly only): toggles the pending-game-update UI state locally.
+    /// </summary>
+    public void ToggleDevGameUpdatePending()
+    {
+        if (!_settingsStorage.Get().NightlyUpdates) return;
+
+        var next = !IsGameUpdatePending;
+        SetGameUpdatePending(next);
+        NotificationArea.AddToast(next
+            ? I18n.T("toast.dev.gameUpdateEnabled")
+            : I18n.T("toast.dev.gameUpdateDisabled"));
     }
 
     private static string? BuildStreamsSettingsUrl(Models.User? user) =>

@@ -25,6 +25,7 @@ public interface IQueueSocketService : IDisposable
     event Action<PleaseEnterQueueMessage>? PleaseEnterQueue;
 
     Task ConnectAsync(string token, CancellationToken cancellationToken = default);
+    Task ReconnectAsync(CancellationToken cancellationToken = default);
     Task DisconnectAsync(CancellationToken cancellationToken = default);
 
     Task EnterQueueAsync(MatchmakingMode[] modes, CancellationToken cancellationToken = default);

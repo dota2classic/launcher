@@ -69,18 +69,18 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
     private string _searchingInQueueText = "";
 
     /// <summary>Blue when game ready, green when searching, dark gray when idle.</summary>
-    public IBrush QueueButtonBackground => IsGameUpdatePending ? BrushReady
-        : _hasServerUrl ? BrushReady
+    public IBrush QueueButtonBackground => _hasServerUrl ? BrushReady
+        : IsGameUpdatePending ? BrushReady
         : IsSearching ? BrushSearching : BrushIdle;
 
     /// <summary>Lighter version for hover state.</summary>
-    public IBrush QueueButtonHoverBackground => IsGameUpdatePending ? BrushReadyHover
-        : _hasServerUrl ? BrushReadyHover
+    public IBrush QueueButtonHoverBackground => _hasServerUrl ? BrushReadyHover
+        : IsGameUpdatePending ? BrushReadyHover
         : IsSearching ? BrushSearchingHover : BrushIdleHover;
 
     /// <summary>Subtle lighter border to give the button a framed look.</summary>
-    public IBrush QueueButtonBorderBrush => IsGameUpdatePending ? BrushBorderReady
-        : _hasServerUrl ? BrushBorderReady
+    public IBrush QueueButtonBorderBrush => _hasServerUrl ? BrushBorderReady
+        : IsGameUpdatePending ? BrushBorderReady
         : IsSearching ? BrushBorderSearching : BrushBorderIdle;
 
     /// <summary>Called when the user presses queue with no modes selected. Set by the parent VM.</summary>
@@ -315,15 +315,15 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
 
     public void UpdateQueueButtonState()
     {
-        if (IsGameUpdatePending)
+        if (_hasServerUrl)
         {
-            QueueButtonMainText = I18n.T("game.updateGame");
+            QueueButtonMainText = Strings.Connect;
             QueueButtonModeCountText = "";
             QueueButtonTimeText = "";
         }
-        else if (_hasServerUrl)
+        else if (IsGameUpdatePending)
         {
-            QueueButtonMainText = Strings.Connect;
+            QueueButtonMainText = I18n.T("game.updateGame");
             QueueButtonModeCountText = "";
             QueueButtonTimeText = "";
         }

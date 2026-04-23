@@ -48,7 +48,7 @@ public sealed class RemoteManifestService : IRemoteManifestService, IDisposable
             var manifestUrl = $"{BaseManifestUrl}{pkg.Folder}/manifest.json";
             var json = await _httpClient.GetStringAsync(manifestUrl, cancellationToken);
             var manifest = JsonSerializer.Deserialize<GameManifest>(json)
-                ?? throw new Exception($"Манифест пакета {pkg.Name} пустой.");
+                ?? throw new Exception(I18n.T("game.emptyPackageManifest", ("name", pkg.Name)));
 
             foreach (var file in manifest.Files)
             {

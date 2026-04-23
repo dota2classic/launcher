@@ -50,6 +50,7 @@ internal sealed class StubQueueSocketService : IQueueSocketService
 #pragma warning restore CS0067
 
     public Task ConnectAsync(string token, CancellationToken cancellationToken = default) => Task.CompletedTask;
+    public Task ReconnectAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
     public Task DisconnectAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
     public Task EnterQueueAsync(MatchmakingMode[] modes, CancellationToken cancellationToken = default) => Task.CompletedTask;
     public Task LeaveAllQueuesAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;

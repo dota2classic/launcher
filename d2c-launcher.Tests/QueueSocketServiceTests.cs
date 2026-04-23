@@ -64,6 +64,47 @@ public sealed class QueueSocketServiceTests
         Assert.True(factory.Socket.Connected);
     }
 
+    // ── ReconnectAsync ────────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task ReconnectAsync_after_natural_drop_reconnects()
+    {
+        var (svc, f) = Build();
+        await svc.ConnectAsync("token");
+        f.Socket.SimulateDisconnect(); // network drop — token still held
+
+        await svc.ReconnectAsync();
+
+        Assert.True(f.Socket.Connected);
+        Assert.Equal(GameCoordinatorState.Connected, svc.State);
+    }
+
+    [Fact]
+    public async Task ReconnectAsync_while_connected_disconnects_then_reconnects()
+    {
+        var (svc, f) = Build();
+        await svc.ConnectAsync("token");
+
+        var disconnects = 0;
+        f.Socket.OnDisconnected += (_, _) => disconnects++;
+
+        await svc.ReconnectAsync();
+
+        Assert.Equal(1, disconnects);
+        Assert.True(f.Socket.Connected);
+    }
+
+    [Fact]
+    public async Task ReconnectAsync_without_prior_connect_is_no_op()
+    {
+        var (svc, f) = Build();
+
+        await svc.ReconnectAsync(); // never connected, no token stored
+
+        Assert.False(f.Socket.Connected);
+        Assert.Equal(GameCoordinatorState.Disconnected, svc.State);
+    }
+
     // ── Emit guards ───────────────────────────────────────────────────────────
 
     [Fact]
