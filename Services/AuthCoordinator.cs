@@ -25,6 +25,7 @@ public sealed class AuthCoordinator : IDisposable
 
     private CancellationTokenSource? _cts;
     private CancellationTokenSource? _refreshCts;
+    private Action<string?>? _steamAuthorizationChangedHandler;
 
     /// <summary>
     /// Raised on the UI thread after a token is successfully applied or cleared.
@@ -62,8 +63,9 @@ public sealed class AuthCoordinator : IDisposable
             _backendApiService.SetBearerToken(persistedToken);
         }
 
-        _steamManager.OnSteamAuthorizationChanged += token =>
+        _steamAuthorizationChangedHandler = token =>
             _dispatcher.Post(() => _ = ApplyTokenAsync(token));
+        _steamManager.OnSteamAuthorizationChanged += _steamAuthorizationChangedHandler;
 
         var currentTicket = _steamManager.CurrentAuthTicket;
         if (!string.IsNullOrWhiteSpace(currentTicket))
@@ -191,6 +193,12 @@ public sealed class AuthCoordinator : IDisposable
         // Do not dispose _cts here: ApplyTokenAsync may still be unwinding on a
         // captured CancellationToken after this ViewModel is disposed during a
         // state transition (for example hidden startup -> foreground verify).
+        if (_steamAuthorizationChangedHandler != null)
+        {
+            _steamManager.OnSteamAuthorizationChanged -= _steamAuthorizationChangedHandler;
+            _steamAuthorizationChangedHandler = null;
+        }
+
         _cts?.Cancel();
         _refreshCts?.Cancel();
         _refreshCts?.Dispose();
