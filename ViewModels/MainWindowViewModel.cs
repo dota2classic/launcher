@@ -61,8 +61,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private bool _backgroundWindowMode;
     private bool _verificationSatisfied;
     private bool _backgroundVerificationStarted;
-    private volatile bool _remoteUpdateCheckInFlight;
-    private bool _gameUpdateToastShownForCurrentPendingState;
+    private int _remoteUpdateCheckInFlight; // 0 = idle, 1 = in-flight; use Interlocked
     private GameManifest? _verifiedLocalManifestSnapshot;
 
     [ObservableProperty]
@@ -399,27 +398,19 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             _dotakeysProfileService, _toastNotificationService, _startupRegistrationService);
         vm.OnGameDirectoryChanged = _ => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirChanged(AppState)));
         vm.RequestGameDirectoryChange = () => Dispatcher.UIThread.Post(() => EnterState(AppState.SelectGameDirectory));
-        vm.OnDlcChanged = () => Dispatcher.UIThread.Post(() =>
+        void StartForegroundVerification() => Dispatcher.UIThread.Post(() =>
         {
             AppState = AppState.VerifyingGame;
             EnterVerifyingGame(VerificationMode.Foreground);
         });
-        vm.RequestReverify = () => Dispatcher.UIThread.Post(() =>
-        {
-            AppState = AppState.VerifyingGame;
-            EnterVerifyingGame(VerificationMode.Foreground);
-        });
-        vm.RequestInstallGameUpdate = () => Dispatcher.UIThread.Post(() =>
-        {
-            AppState = AppState.VerifyingGame;
-            EnterVerifyingGame(VerificationMode.Foreground);
-        });
+        vm.OnDlcChanged = StartForegroundVerification;
+        vm.RequestReverify = StartForegroundVerification;
+        vm.RequestInstallGameUpdate = StartForegroundVerification;
         vm.SetGameUpdatePending(false);
         CurrentContentViewModel = vm;
         if (_startupContext.IsBackgroundStart && !_verificationSatisfied)
             StartBackgroundVerificationIfNeeded();
         StartRemoteUpdatePollingIfReady();
-        _queueSocketService.ReconnectAsync().FireAndForget("ReconnectAsync on launcher mount");
 
         if (_pendingSpectateMatchId.HasValue)
         {
@@ -654,13 +645,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         _ = RunBackgroundVerificationAsync();
     }
 
-    private void OnRemoteUpdatePollTick(object? sender, EventArgs e)
-    {
-        if (_remoteUpdateCheckInFlight)
-            return;
-
-        _ = CheckForRemoteGameUpdateAsync();
-    }
+    private void OnRemoteUpdatePollTick(object? sender, EventArgs e) =>
+        CheckForRemoteGameUpdateAsync().FireAndForget("[RemoteUpdatePoll] tick");
 
     private void StartRemoteUpdatePollingIfReady()
     {
@@ -675,24 +661,24 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     private async Task CheckForRemoteGameUpdateAsync()
     {
-        if (_remoteUpdateCheckInFlight ||
-            _verifiedLocalManifestSnapshot == null ||
+        var localSnapshot = _verifiedLocalManifestSnapshot;
+        if (localSnapshot == null ||
             CurrentContentViewModel is not MainLauncherViewModel launcherVm ||
             !HasValidGameDir())
         {
             return;
         }
 
-        _remoteUpdateCheckInFlight = true;
+        if (System.Threading.Interlocked.CompareExchange(ref _remoteUpdateCheckInFlight, 1, 0) != 0)
+            return;
+
         try
         {
             var selectedDlcIds = _settingsStorage.Get().SelectedDlcIds ?? [];
-            var remoteManifestSet = await _remoteManifestService.GetInstalledPackageManifestsAsync(
-                selectedDlcIds,
-                forceRefreshRegistry: true);
+            var remoteManifestSet = await _remoteManifestService.GetInstalledPackageManifestsAsync(selectedDlcIds);
             var hasUpdate = _manifestDiffService.ComputeFilesToDownload(
                 remoteManifestSet.CombinedManifest,
-                _verifiedLocalManifestSnapshot).Count > 0;
+                localSnapshot).Count > 0;
 
             Dispatcher.UIThread.Post(() => ApplyRemoteGameUpdateState(launcherVm, hasUpdate));
         }
@@ -702,7 +688,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         }
         finally
         {
-            _remoteUpdateCheckInFlight = false;
+            System.Threading.Interlocked.Exchange(ref _remoteUpdateCheckInFlight, 0);
         }
     }
 
@@ -714,15 +700,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         var wasPending = launcherVm.IsGameUpdatePending;
         launcherVm.SetGameUpdatePending(hasUpdate);
 
-        if (!hasUpdate)
-        {
-            _gameUpdateToastShownForCurrentPendingState = false;
-            return;
-        }
-
-        _gameUpdateToastShownForCurrentPendingState = true;
-
-        if (wasPending)
+        if (!hasUpdate || wasPending)
             return;
 
         if (_windowService.IsWindowVisible && _windowService.IsWindowActive)

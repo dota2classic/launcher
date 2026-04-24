@@ -279,7 +279,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
     public async Task ToggleSearchAsync()
     {
-        if (ShouldConnectToGame(Launch.HasServerUrl))
+        if (Launch.HasServerUrl)
         {
             Launch.ConnectToGame();
             return;
@@ -287,8 +287,6 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
         await Queue.ToggleSearchAsync();
     }
-
-    internal static bool ShouldConnectToGame(bool hasServerUrl) => hasServerUrl;
 
     [RelayCommand]
     private void RequestAbandonGame() => IsAbandonConfirmOpen = true;

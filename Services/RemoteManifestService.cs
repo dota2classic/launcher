@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using d2c_launcher.Models;
@@ -12,9 +14,10 @@ namespace d2c_launcher.Services;
 public sealed class RemoteManifestService : IRemoteManifestService, IDisposable
 {
     private const string BaseManifestUrl = "https://launcher.dotaclassic.ru/files/";
+    private static readonly Regex SafeFolderName = new(@"^[a-zA-Z0-9_\-]+$", RegexOptions.Compiled);
 
     private readonly IContentRegistryService _registryService;
-    private readonly HttpClient _httpClient = new();
+    private readonly HttpClient _httpClient = new() { Timeout = TimeSpan.FromSeconds(15) };
 
     public RemoteManifestService(IContentRegistryService registryService)
     {
@@ -39,29 +42,8 @@ public sealed class RemoteManifestService : IRemoteManifestService, IDisposable
             .Where(p => !p.Optional || includeOptionalPackages || selectedIds.Contains(p.Id))
             .ToList();
 
-        var packageManifests = new List<RemotePackageManifest>(packagesToInstall.Count);
-
-        foreach (var pkg in packagesToInstall)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var manifestUrl = $"{BaseManifestUrl}{pkg.Folder}/manifest.json";
-            var json = await _httpClient.GetStringAsync(manifestUrl, cancellationToken);
-            var manifest = JsonSerializer.Deserialize<GameManifest>(json)
-                ?? throw new Exception(I18n.T("game.emptyPackageManifest", ("name", pkg.Name)));
-
-            foreach (var file in manifest.Files)
-            {
-                file.PackageFolder = pkg.Folder;
-                file.PackageName = pkg.Name;
-            }
-
-            packageManifests.Add(new RemotePackageManifest
-            {
-                Package = pkg,
-                Manifest = manifest,
-            });
-        }
+        var tasks = packagesToInstall.Select(pkg => FetchPackageManifestAsync(pkg, cancellationToken));
+        var packageManifests = (await Task.WhenAll(tasks)).ToList();
 
         return new RemoteManifestSet
         {
@@ -71,24 +53,34 @@ public sealed class RemoteManifestService : IRemoteManifestService, IDisposable
         };
     }
 
+    private async Task<RemotePackageManifest> FetchPackageManifestAsync(ContentPackage pkg, CancellationToken cancellationToken)
+    {
+        if (!SafeFolderName.IsMatch(pkg.Folder))
+            throw new Exception($"Invalid package folder name: {pkg.Folder}");
+
+        var manifestUrl = $"{BaseManifestUrl}{pkg.Folder}/manifest.json";
+        var json = await _httpClient.GetStringAsync(manifestUrl, cancellationToken);
+        var manifest = JsonSerializer.Deserialize<GameManifest>(json)
+            ?? throw new Exception(I18n.T("game.emptyPackageManifest", ("name", pkg.Name)));
+
+        foreach (var file in manifest.Files)
+        {
+            if (Path.IsPathRooted(file.Path) || file.Path.Contains(".."))
+                throw new Exception($"Unsafe path in manifest for package {pkg.Name}: {file.Path}");
+
+            file.PackageFolder = pkg.Folder;
+            file.PackageName = pkg.Name;
+        }
+
+        return new RemotePackageManifest { Package = pkg, Manifest = manifest };
+    }
+
     private static GameManifest Combine(IEnumerable<GameManifestFile> files)
     {
         // Later packages win when two manifests address the same path.
         var byPath = new Dictionary<string, GameManifestFile>(StringComparer.OrdinalIgnoreCase);
-
         foreach (var file in files)
-        {
-            byPath[file.Path] = new GameManifestFile
-            {
-                Path = file.Path,
-                Hash = file.Hash,
-                Size = file.Size,
-                Mode = file.Mode,
-                PackageFolder = file.PackageFolder,
-                PackageName = file.PackageName,
-            };
-        }
-
+            byPath[file.Path] = file;
         return new GameManifest { Files = byPath.Values.ToList() };
     }
 

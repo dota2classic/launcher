@@ -119,7 +119,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         Dispatcher.UIThread.Post(() => UpdateQueueCounts(msg));
 
     private void OnPlayerQueueStateUpdated(PlayerQueueStateMessage msg) =>
-        Dispatcher.UIThread.Post(async () => await UpdatePlayerQueueState(msg));
+        Dispatcher.UIThread.Post(() => UpdatePlayerQueueState(msg).FireAndForget("UpdatePlayerQueueState"));
 
     private void OnPlayerGameStateUpdated(PlayerGameStateMessage? msg) =>
         Dispatcher.UIThread.Post(() =>
