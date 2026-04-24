@@ -45,6 +45,9 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
     private bool _isSearching;
 
     [ObservableProperty]
+    private bool _isGameUpdatePending;
+
+    [ObservableProperty]
     private string _searchingModesText = Strings.NotInQueue;
 
     [ObservableProperty]
@@ -67,14 +70,17 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
 
     /// <summary>Blue when game ready, green when searching, dark gray when idle.</summary>
     public IBrush QueueButtonBackground => _hasServerUrl ? BrushReady
+        : IsGameUpdatePending ? BrushReady
         : IsSearching ? BrushSearching : BrushIdle;
 
     /// <summary>Lighter version for hover state.</summary>
     public IBrush QueueButtonHoverBackground => _hasServerUrl ? BrushReadyHover
+        : IsGameUpdatePending ? BrushReadyHover
         : IsSearching ? BrushSearchingHover : BrushIdleHover;
 
     /// <summary>Subtle lighter border to give the button a framed look.</summary>
     public IBrush QueueButtonBorderBrush => _hasServerUrl ? BrushBorderReady
+        : IsGameUpdatePending ? BrushBorderReady
         : IsSearching ? BrushBorderSearching : BrushBorderIdle;
 
     /// <summary>Called when the user presses queue with no modes selected. Set by the parent VM.</summary>
@@ -82,6 +88,9 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
 
     /// <summary>Called when restricted modes are automatically unselected on queue. Set by the parent VM.</summary>
     public Action? ShowRestrictedModesRemovedToast { get; set; }
+
+    /// <summary>Called when the queue button should install a pending game update instead of searching.</summary>
+    public Action? InstallPendingGameUpdate { get; set; }
 
     public QueueViewModel(IQueueSocketService queueSocketService, IBackendApiService backendApiService, ISettingsStorage settingsStorage, ITriviaRepository triviaRepository, ITimerFactory timerFactory)
     {
@@ -110,7 +119,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         Dispatcher.UIThread.Post(() => UpdateQueueCounts(msg));
 
     private void OnPlayerQueueStateUpdated(PlayerQueueStateMessage msg) =>
-        Dispatcher.UIThread.Post(async () => await UpdatePlayerQueueState(msg));
+        Dispatcher.UIThread.Post(() => UpdatePlayerQueueState(msg).FireAndForget("UpdatePlayerQueueState"));
 
     private void OnPlayerGameStateUpdated(PlayerGameStateMessage? msg) =>
         Dispatcher.UIThread.Post(() =>
@@ -119,8 +128,16 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
             UpdateQueueButtonState();
         });
 
+    partial void OnIsGameUpdatePendingChanged(bool value) => UpdateQueueButtonState();
+
     public async Task ToggleSearchAsync()
     {
+        if (IsGameUpdatePending)
+        {
+            InstallPendingGameUpdate?.Invoke();
+            return;
+        }
+
         if (IsSearching)
         {
             var cancelModesStr = _queuedModes != null
@@ -301,6 +318,12 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         if (_hasServerUrl)
         {
             QueueButtonMainText = Strings.Connect;
+            QueueButtonModeCountText = "";
+            QueueButtonTimeText = "";
+        }
+        else if (IsGameUpdatePending)
+        {
+            QueueButtonMainText = I18n.T("game.updateGame");
             QueueButtonModeCountText = "";
             QueueButtonTimeText = "";
         }

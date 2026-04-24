@@ -29,10 +29,16 @@ public partial class MainWindow : Window
     protected override void OnKeyDown(KeyEventArgs e)
     {
         base.OnKeyDown(e);
-        if (e.Key == Key.F4 &&
-            DataContext is MainWindowViewModel { CurrentContentViewModel: MainLauncherViewModel launcher })
+        if (DataContext is not MainWindowViewModel { CurrentContentViewModel: MainLauncherViewModel launcher })
+            return;
+
+        if (e.Key == Key.F4)
         {
             launcher.TriggerDevAchievementNotification();
+        }
+        else if (e.Key == Key.F5)
+        {
+            launcher.ToggleDevGameUpdatePending();
         }
     }
 

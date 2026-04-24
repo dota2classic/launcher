@@ -133,6 +133,7 @@ public partial class App : Application
             services.AddSingleton<ILocalManifestService, LocalManifestService>();
             services.AddSingleton<IManifestDiffService, ManifestDiffService>();
             services.AddSingleton<IGameDownloadService, GameDownloadService>();
+            services.AddSingleton<IRemoteManifestService, RemoteManifestService>();
             services.AddSingleton<RedistInstallService>();
             services.AddSingleton<IContentRegistryService, ContentRegistryService>();
             services.AddSingleton<ITriviaRepository, LocalJsonTriviaRepository>();

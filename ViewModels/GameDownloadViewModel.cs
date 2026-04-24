@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.Http;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -17,13 +15,11 @@ namespace d2c_launcher.ViewModels;
 
 public partial class GameDownloadViewModel : ViewModelBase
 {
-    private const string BaseManifestUrl = "https://launcher.dotaclassic.ru/files/";
-
-    private readonly IContentRegistryService _registryService;
     private readonly ILocalManifestService _localManifestService;
     private readonly IManifestDiffService _manifestDiffService;
     private readonly IGameDownloadService _gameDownloadService;
     private readonly RedistInstallService _redistInstallService;
+    private readonly IRemoteManifestService _remoteManifestService;
 
     public string GameDirectory { get; set; } = "";
     public VerificationMode VerificationMode { get; set; } = VerificationMode.Foreground;
@@ -35,6 +31,7 @@ public partial class GameDownloadViewModel : ViewModelBase
     public List<string>? SelectedDlcIds { get; set; }
 
     public Action? OnCompleted { get; set; }
+    public Action<GameManifest>? OnCompletedWithManifest { get; set; }
 
     /// <summary>
     /// Called when the selected game directory is not a valid Dota 2 Classic installation.
@@ -77,17 +74,17 @@ public partial class GameDownloadViewModel : ViewModelBase
     [ObservableProperty] private string _errorText = "";
 
     public GameDownloadViewModel(
-        IContentRegistryService registryService,
         ILocalManifestService localManifestService,
         IManifestDiffService manifestDiffService,
         IGameDownloadService gameDownloadService,
-        RedistInstallService redistInstallService)
+        RedistInstallService redistInstallService,
+        IRemoteManifestService remoteManifestService)
     {
-        _registryService = registryService;
         _localManifestService = localManifestService;
         _manifestDiffService = manifestDiffService;
         _gameDownloadService = gameDownloadService;
         _redistInstallService = redistInstallService;
+        _remoteManifestService = remoteManifestService;
     }
 
     public void StartAsync() => _ = RunAsync();
@@ -143,13 +140,14 @@ public partial class GameDownloadViewModel : ViewModelBase
         {
             await RunDefenderPhaseAsync();
             await DeleteRemovedPackagesAsync();
-            var packages = await FetchAllPackageManifestsAsync();
+            var remoteManifestSet = await FetchInstalledPackageManifestsAsync();
+            var packages = remoteManifestSet.Packages;
             var local = await ScanLocalFilesAsync();
 
             bool anyDownloaded = false;
-            foreach (var (_, pkgManifest) in packages)
+            foreach (var packageManifest in packages)
             {
-                var toDownload = ComputeDiff(pkgManifest, local,
+                var toDownload = ComputeDiff(packageManifest.Manifest, local,
                     out int totalRemoteFiles, out long totalRemoteBytes, out long alreadyOkBytes);
 
                 if (toDownload.Count == 0)
@@ -165,6 +163,7 @@ public partial class GameDownloadViewModel : ViewModelBase
             Dispatcher.UIThread.Post(() =>
             {
                 OnPackagesInstalled?.Invoke(_pendingInstalledPackageIds);
+                OnCompletedWithManifest?.Invoke(remoteManifestSet.CombinedManifest);
                 OnCompleted?.Invoke();
             });
         }
@@ -219,14 +218,19 @@ public partial class GameDownloadViewModel : ViewModelBase
 
     private async Task DeleteRemovedPackagesAsync()
     {
-        var registry = await _registryService.GetAsync();
-        if (registry == null) return;
+        var registry = await _remoteManifestService.GetInstalledPackageManifestsAsync(
+            SelectedDlcIds,
+            includeOptionalPackages: true);
+        var packageMap = registry.Packages
+            .Where(p => p.Package.Optional)
+            .ToDictionary(p => p.Package.Id, p => p, StringComparer.OrdinalIgnoreCase);
+        if (packageMap.Count == 0) return;
 
         // Delete files for every optional package the user has NOT selected.
         // File.Exists guards handle packages that were never on disk.
         var selectedIds = (SelectedDlcIds ?? []).ToHashSet(StringComparer.OrdinalIgnoreCase);
-        var packagesToRemove = registry.Packages
-            .Where(p => p.Optional && !selectedIds.Contains(p.Id))
+        var packagesToRemove = packageMap.Values
+            .Where(p => !selectedIds.Contains(p.Package.Id))
             .ToList();
 
         if (packagesToRemove.Count == 0)
@@ -234,24 +238,13 @@ public partial class GameDownloadViewModel : ViewModelBase
 
         SetPhase(VerificationPhase.FetchingManifest, Strings.DeletingDlcFiles, indeterminate: true);
 
-        using var http = new HttpClient();
-
         foreach (var pkg in packagesToRemove)
         {
-
-            Dispatcher.UIThread.Post(() => CurrentFileText = pkg.Name);
-
-            var manifestUrl = $"{BaseManifestUrl}{pkg.Folder}/manifest.json";
-            string json;
-            try { json = await http.GetStringAsync(manifestUrl); }
-            catch { continue; }
-
-            var pkgManifest = JsonSerializer.Deserialize<GameManifest>(json);
-            if (pkgManifest == null) continue;
+            Dispatcher.UIThread.Post(() => CurrentFileText = pkg.Package.Name);
 
             await Task.Run(() =>
             {
-                foreach (var file in pkgManifest.Files)
+                foreach (var file in pkg.Manifest.Files)
                 {
                     var localPath = System.IO.Path.Combine(GameDirectory, file.Path);
                     try
@@ -267,50 +260,22 @@ public partial class GameDownloadViewModel : ViewModelBase
         Dispatcher.UIThread.Post(() => CurrentFileText = "");
     }
 
-    private async Task<List<(ContentPackage Package, GameManifest Manifest)>> FetchAllPackageManifestsAsync()
+    private async Task<RemoteManifestSet> FetchInstalledPackageManifestsAsync()
     {
         SetPhase(VerificationPhase.FetchingManifest, Strings.ConnectingToServer, indeterminate: true);
-
-        var registry = await _registryService.GetAsync();
-
-        if (registry == null || registry.Packages.Count == 0)
-            throw new Exception(Strings.FailedToLoadPackages);
-
-        // Determine which packages to download: all required + user-selected optional
-        var packagesToInstall = registry.Packages
-            .Where(p => !p.Optional || (SelectedDlcIds != null && SelectedDlcIds.Contains(p.Id)))
-            .ToList();
-
-        _pendingInstalledPackageIds = packagesToInstall.Select(p => p.Id).ToList();
+        var remoteManifestSet = await _remoteManifestService.GetInstalledPackageManifestsAsync(SelectedDlcIds);
+        _pendingInstalledPackageIds = remoteManifestSet.InstalledPackageIds.ToList();
 
         SetPhase(VerificationPhase.FetchingPackageManifests,
-            $"Загрузка манифестов ({packagesToInstall.Count} пакетов)...", indeterminate: true);
+            $"Загрузка манифестов ({remoteManifestSet.Packages.Count} пакетов)...", indeterminate: true);
 
-        var result = new List<(ContentPackage, GameManifest)>();
-        using var http = new HttpClient();
-
-        foreach (var pkg in packagesToInstall)
+        foreach (var pkg in remoteManifestSet.Packages)
         {
-            Dispatcher.UIThread.Post(() => CurrentFileText = pkg.Name);
-
-            var manifestUrl = $"{BaseManifestUrl}{pkg.Folder}/manifest.json";
-            var json = await http.GetStringAsync(manifestUrl);
-            var pkgManifest = JsonSerializer.Deserialize<GameManifest>(json)
-                ?? throw new Exception($"Манифест пакета {pkg.Name} пустой.");
-
-            // Annotate each file with its package folder for download URL construction
-            foreach (var file in pkgManifest.Files)
-            {
-                file.PackageFolder = pkg.Folder;
-                file.PackageName = pkg.Name;
-            }
-
-            result.Add((pkg, pkgManifest));
+            Dispatcher.UIThread.Post(() => CurrentFileText = pkg.Package.Name);
         }
 
         Dispatcher.UIThread.Post(() => CurrentFileText = "");
-
-        return result;
+        return remoteManifestSet;
     }
 
     private async Task<GameManifest> ScanLocalFilesAsync()

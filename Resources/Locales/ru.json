@@ -307,6 +307,7 @@
     "noFolderAccess": "Нет доступа к выбранной папке. Выберите другую папку для установки.",
     "noFolderAccessTitle": "Нет доступа к папке",
     "noModeAccess": "Нет доступа к режиму",
+    "emptyPackageManifest": "Манифест пакета {name} пустой.",
     "connectingToServer": "Подключение к серверу...",
     "connectingToSteam": "Подключение к Steam...",
     "vsBots": "Против ботов",
@@ -321,7 +322,13 @@
     "deletingDlcFiles": "Удаление файлов DLC...",
     "installingComponents": "Установка компонентов...",
     "gameFilesCorrupted": "Файлы игры повреждены или удалены антивирусом.",
-    "failedToLoadPackages": "Не удалось загрузить список пакетов с сервера."
+    "failedToLoadPackages": "Не удалось загрузить список пакетов с сервера.",
+    "update": "Обновить",
+    "updateGame": "ОБНОВИТЬ ИГРУ",
+    "updatePromptTitle": "Доступно обновление игры",
+    "updatePromptIdle": "Новая версия Dotaclassic готова к установке. Перед запуском нужно обновить файлы игры.",
+    "updatePromptRunning": "Новая версия Dotaclassic готова к установке. Установка закроет запущенную Dota.",
+    "installUpdate": "УСТАНОВИТЬ ОБНОВЛЕНИЕ"
   },
   "common": {
     "skip": "Пропустить",
@@ -398,6 +405,15 @@
     },
     "goQueue": {
       "enterQueueButton": "Искать игру"
+    },
+    "gameUpdate": {
+      "title": "Доступно обновление игры",
+      "body": "Новая версия Dotaclassic готова к установке. Откройте лаунчер, чтобы обновить игру.",
+      "installButton": "Обновить"
+    },
+    "dev": {
+      "gameUpdateEnabled": "DEV: симулировано входящее обновление игры",
+      "gameUpdateDisabled": "DEV: симулированное обновление игры сброшено"
     }
   }
 }

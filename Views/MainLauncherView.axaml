@@ -139,6 +139,32 @@
                </Border>
            </Panel>
 
+           <!-- Game update prompt -->
+           <Panel IsVisible="{Binding IsGameUpdatePromptOpen}" ZIndex="220"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#90000000">
+               <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Width="420"
+                       Padding="28,24" CornerRadius="0"
+                       Background="#121315" BorderBrush="#2d3842" BorderThickness="1"
+                       BoxShadow="0 12 28 0 #80000000">
+                   <StackPanel Spacing="20">
+                       <TextBlock Text="{l:T 'game.updatePromptTitle'}" FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold"
+                                  HorizontalAlignment="Center" Foreground="#D9D9D9"/>
+                       <TextBlock Text="{Binding GameUpdatePromptText}"
+                                  HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"
+                                  Foreground="#AAAAAA" FontSize="{DynamicResource FontSizeMD}"/>
+                       <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12">
+                           <Button Classes="PrimaryButton"
+                                   Content="{l:T 'game.installUpdate'}" Command="{Binding InstallGameUpdateCommand}"
+                                   Padding="28,10" CornerRadius="0"/>
+                           <Button Classes="DangerButton"
+                                   Content="{x:Static res:Strings.Cancel}" Command="{Binding DismissGameUpdatePromptCommand}"
+                                   Padding="28,10" CornerRadius="0"/>
+                       </StackPanel>
+                   </StackPanel>
+               </Border>
+           </Panel>
+
            <!-- Floating party invite notifications (top-right) -->
            <components:NotificationArea DataContext="{Binding NotificationArea}"
                                         ZIndex="150"

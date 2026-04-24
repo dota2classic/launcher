@@ -61,6 +61,27 @@ public sealed class ToastNotificationService : IToastNotificationService
         }
     }
 
+    public void ShowGameUpdateAvailable()
+    {
+        try
+        {
+            var content = new ToastContentBuilder()
+                .AddText(I18n.T("toast.gameUpdate.title"))
+                .AddText(I18n.T("toast.gameUpdate.body"))
+                .AddButton(new ToastButton(I18n.T("toast.gameUpdate.installButton"), LaunchGameArg))
+                .GetToastContent();
+            content.Launch = LaunchGameArg;
+
+            ToastNotificationManagerCompat.History.Remove("game-update");
+            var toast = new ToastNotification(content.GetXml()) { Tag = "game-update" };
+            _notifier.Show(toast);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("Failed to show game update toast notification.", ex);
+        }
+    }
+
     public void Show(string title, string body, string? tag = null, string? launchArg = null)
     {
         try

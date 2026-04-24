@@ -418,11 +418,11 @@ public static class PreviewRegistry
             ["GameDownload"] = () =>
             {
                 var vm = new GameDownloadViewModel(
-                    new StubContentRegistryService(),
                     new StubLocalManifestService(),
                     new StubManifestDiffService(),
                     new StubGameDownloadService(),
-                    new d2c_launcher.Services.RedistInstallService())
+                    new d2c_launcher.Services.RedistInstallService(),
+                    new StubRemoteManifestService())
                 {
                     GameDirectory = @"C:\fake\dotaclassic",
                     StatusText = "Загрузка (142/2381 файлов)",
@@ -435,11 +435,11 @@ public static class PreviewRegistry
             ["GameDownloadError"] = () =>
             {
                 var vm = new GameDownloadViewModel(
-                    new StubContentRegistryService(),
                     new StubLocalManifestService(),
                     new StubManifestDiffService(),
                     new StubGameDownloadService(),
-                    new d2c_launcher.Services.RedistInstallService())
+                    new d2c_launcher.Services.RedistInstallService(),
+                    new StubRemoteManifestService())
                 {
                     GameDirectory = @"C:\fake\dotaclassic",
                     StatusText = "Ошибка загрузки",

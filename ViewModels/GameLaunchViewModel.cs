@@ -46,11 +46,15 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
     [ObservableProperty]
     private bool? _canAbandonFromServer;
 
+    [ObservableProperty]
+    private bool _isGameUpdatePending;
+
     public bool HasServerUrl => !string.IsNullOrEmpty(ServerUrl);
 
     partial void OnServerUrlChanged(string? value) => OnPropertyChanged(nameof(HasServerUrl));
 
     partial void OnRunStateChanged(GameRunState value) => NotifyLaunchProps();
+    partial void OnIsGameUpdatePendingChanged(bool value) => NotifyLaunchProps();
 
     partial void OnGameDirectoryChanged(string? value)
     {
@@ -78,6 +82,9 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         : Strings.Launch;
 
     public bool PlayButtonIsStop => RunState is GameRunState.OurGameRunning or GameRunState.OtherDotaRunning;
+
+    public bool IsPlayButtonEnabled => PlayButtonIsStop || IsGameDirectorySet;
+    public bool ShowPlayButtonIcon => !PlayButtonIsStop;
 
     public GameLaunchViewModel(
         ISettingsStorage settingsStorage,
@@ -589,6 +596,8 @@ public partial class GameLaunchViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(IsLaunchEnabled));
         OnPropertyChanged(nameof(PlayButtonText));
         OnPropertyChanged(nameof(PlayButtonIsStop));
+        OnPropertyChanged(nameof(IsPlayButtonEnabled));
+        OnPropertyChanged(nameof(ShowPlayButtonIcon));
     }
 
     public void Dispose()
