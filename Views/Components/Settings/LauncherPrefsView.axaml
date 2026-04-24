@@ -69,18 +69,17 @@
                         <TextBlock Text="{l:T 'settings.notificationVolumeDescription'}" Classes="setting-desc"/>
                     </StackPanel>
                     <TextBlock Grid.Column="1"
-                               Text="{Binding NotificationSoundVolume}"
+                               Text="{Binding NotificationSoundVolume, StringFormat='{}{0}%'}"
                                Classes="setting-label"
                                VerticalAlignment="Center"
                                HorizontalAlignment="Right"
-                               Width="24"
+                               Width="32"
                                Margin="0,0,6,0"
                                TextAlignment="Center"/>
                 </Grid>
                 <Slider Minimum="0" Maximum="100"
                         Value="{Binding NotificationSoundVolume}"
-                        TickFrequency="10"
-                        IsSnapToTickEnabled="True"/>
+                        TickFrequency="10"/>
             </StackPanel>
 
             <!-- Close to tray -->

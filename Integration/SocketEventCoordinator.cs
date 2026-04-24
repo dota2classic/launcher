@@ -75,7 +75,7 @@ public sealed class SocketEventCoordinator : IDisposable
 
     private void OnPlayerRoomFound(PlayerRoomStateMessage? msg)
     {
-        SoundPlayer.Play("match_found.mp3", volume: 0.5f);
+        SoundPlayer.Play("match_found.mp3");
         if (_windowService.IsWindowVisible)
             Dispatcher.UIThread.Post(_windowService.ShowAndActivate);
         else if (!string.IsNullOrWhiteSpace(msg?.RoomId))
