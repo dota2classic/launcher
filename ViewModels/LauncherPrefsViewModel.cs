@@ -124,6 +124,21 @@ public partial class LauncherPrefsViewModel : ViewModelBase
         }
     }
 
+    public int NotificationSoundVolume
+    {
+        get => (int)Math.Round(_settingsStorage.Get().NotificationSoundVolume * 100);
+        set
+        {
+            var clamped = Math.Clamp(value, 0, 100);
+            var s = _settingsStorage.Get();
+            var asFloat = clamped / 100f;
+            if (Math.Abs(s.NotificationSoundVolume - asFloat) < 0.005f) return;
+            s.NotificationSoundVolume = asFloat;
+            _settingsStorage.Save(s);
+            OnPropertyChanged();
+        }
+    }
+
     public bool DefenderExclusionEnabled
     {
         get
