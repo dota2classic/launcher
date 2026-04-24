@@ -190,7 +190,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
         _soundCoordinator = new SocketEventCoordinator(queueSocketService, NotificationArea, windowService, backendApiService,
             toastNotificationService,
-            mode => Queue.MatchmakingModes.FirstOrDefault(m => m.ModeId == (int)mode)?.Name ?? mode.ToString());
+            mode => Queue.MatchmakingModes.FirstOrDefault(m => m.ModeId == (int)mode)?.Name ?? mode.ToString(),
+            settingsStorage);
 
         Launch.PropertyChanged += (_, e) =>
         {

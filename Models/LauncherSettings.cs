@@ -76,6 +76,12 @@ public class LauncherSettings
     public List<int>? SelectedModeIds { get; set; }
 
     /// <summary>
+    /// Volume for notification sounds (party invite, go-queue). Range 0.0–1.0.
+    /// Does not affect the match-found sound, which always plays at full volume.
+    /// </summary>
+    public float NotificationSoundVolume { get; set; } = 0.5f;
+
+    /// <summary>
     /// UI font scale step. 0 = default (no change), each step adds 1pt to every font size tier.
     /// Range: 0–4. Null means the field was absent in JSON — treated as default (3).
     /// </summary>

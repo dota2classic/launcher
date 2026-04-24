@@ -61,6 +61,27 @@
                         IsSnapToTickEnabled="True"/>
             </StackPanel>
 
+            <!-- Notification volume -->
+            <StackPanel Margin="0,0,0,12" Spacing="6">
+                <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Spacing="3">
+                        <TextBlock Text="{l:T 'settings.notificationVolume'}" Classes="setting-label"/>
+                        <TextBlock Text="{l:T 'settings.notificationVolumeDescription'}" Classes="setting-desc"/>
+                    </StackPanel>
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding NotificationSoundVolume, StringFormat='{}{0}%'}"
+                               Classes="setting-label"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Right"
+                               Width="32"
+                               Margin="0,0,6,0"
+                               TextAlignment="Center"/>
+                </Grid>
+                <Slider Minimum="0" Maximum="100"
+                        Value="{Binding NotificationSoundVolume}"
+                        TickFrequency="10"/>
+            </StackPanel>
+
             <!-- Close to tray -->
             <CheckBox IsChecked="{Binding CloseToTray}" Margin="0,0,0,10">
                 <StackPanel Spacing="2">

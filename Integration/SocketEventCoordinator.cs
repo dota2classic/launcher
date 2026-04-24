@@ -31,6 +31,7 @@ public sealed class SocketEventCoordinator : IDisposable
     private readonly IBackendApiService _backendApiService;
     private readonly IToastNotificationService _toastService;
     private readonly Func<MatchmakingMode, string> _getModeName;
+    private readonly ISettingsStorage _settingsStorage;
 
     private string? _lastServerUrl;
 
@@ -40,7 +41,8 @@ public sealed class SocketEventCoordinator : IDisposable
         IWindowService windowService,
         IBackendApiService backendApiService,
         IToastNotificationService toastService,
-        Func<MatchmakingMode, string> getModeName)
+        Func<MatchmakingMode, string> getModeName,
+        ISettingsStorage settingsStorage)
     {
         _queueSocketService = queueSocketService;
         _notificationArea = notificationArea;
@@ -48,6 +50,7 @@ public sealed class SocketEventCoordinator : IDisposable
         _backendApiService = backendApiService;
         _toastService = toastService;
         _getModeName = getModeName;
+        _settingsStorage = settingsStorage;
 
         queueSocketService.PartyInviteReceived += OnPartyInviteReceived;
         queueSocketService.PartyInviteExpired += OnPartyInviteExpired;
@@ -57,9 +60,11 @@ public sealed class SocketEventCoordinator : IDisposable
         queueSocketService.NotificationCreated += OnNotificationCreated;
     }
 
+    private float NotificationVolume => _settingsStorage.Get().NotificationSoundVolume;
+
     private void OnPartyInviteReceived(PartyInviteReceivedMessage msg)
     {
-        SoundPlayer.Play("party_invite.mp3", volume: 0.5f);
+        SoundPlayer.Play("party_invite.mp3", volume: NotificationVolume);
         Dispatcher.UIThread.Post(() => _notificationArea.AddInvite(msg));
         if (!_windowService.IsWindowActive)
             Dispatcher.UIThread.Post(() => _toastService.ShowPartyInvite(msg.InviteId, msg.Inviter?.Name ?? "Unknown"));
@@ -70,7 +75,7 @@ public sealed class SocketEventCoordinator : IDisposable
 
     private void OnPlayerRoomFound(PlayerRoomStateMessage? msg)
     {
-        SoundPlayer.Play("match_found.mp3", volume: 0.5f);
+        SoundPlayer.Play("match_found.mp3");
         if (_windowService.IsWindowVisible)
             Dispatcher.UIThread.Post(_windowService.ShowAndActivate);
         else if (!string.IsNullOrWhiteSpace(msg?.RoomId))
@@ -89,7 +94,7 @@ public sealed class SocketEventCoordinator : IDisposable
 
     private void OnPleaseEnterQueue(PleaseEnterQueueMessage msg)
     {
-        SoundPlayer.Play("party_invite.mp3", volume: 0.5f);
+        SoundPlayer.Play("party_invite.mp3", volume: NotificationVolume);
         var title = string.Format(Strings.GoQueueTitle, _getModeName(msg.Mode));
         var content = string.Format(Strings.GoQueueContent, msg.InQueue);
         Dispatcher.UIThread.Post(() => _notificationArea.AddGoQueueToast(title, content));
