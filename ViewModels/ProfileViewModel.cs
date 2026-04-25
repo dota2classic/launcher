@@ -345,9 +345,9 @@ public partial class ProfileViewModel : ViewModelBase
         {
             var meTask = _api.GetMeAsync();
             var dodgeTask = _api.GetDodgeListAsync();
-            await Task.WhenAll(meTask, dodgeTask);
+            var me = await meTask;
+            var dodgeEntries = await dodgeTask;
 
-            var me = meTask.Result;
             var oldRole = me?.User?.Roles?.FirstOrDefault(r => r.Role == Api.Role.OLD);
             HasPlusSubscription = oldRole != null;
             _paidActions.SetSubscriptionStatus(oldRole != null);
@@ -356,7 +356,7 @@ public partial class ProfileViewModel : ViewModelBase
             else
                 PlusSubscriptionEndText = "—";
 
-            foreach (var entry in dodgeTask.Result)
+            foreach (var entry in dodgeEntries)
                 DodgeList.Add(new DodgeEntryViewModel(entry, _api, e => DodgeList.Remove(e)));
 
             _subscriptionDataLoaded = true;

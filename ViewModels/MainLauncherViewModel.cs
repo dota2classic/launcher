@@ -143,7 +143,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         _windowService = windowService;
         _netConService = netConService;
         _paidActions = paidActions;
-        paidActions.SubscriptionRequired += () => IsSubscriptionRequiredModalOpen = true;
+        paidActions.SubscriptionRequired += OnSubscriptionRequired;
 
         var settings = settingsStorage.Get();
         Intro = new IntroViewModel(settingsStorage, isOpen: !settings.IntroShown);
@@ -440,14 +440,16 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         try
         {
             var me = await _backendApiService.GetMeAsync();
-            var hasPlu = me?.User?.Roles?.Any(r => r.Role == Api.Role.OLD) == true;
-            _paidActions.SetSubscriptionStatus(hasPlu);
+            var hasPlus = me?.User?.Roles?.Any(r => r.Role == Api.Role.OLD) == true;
+            _paidActions.SetSubscriptionStatus(hasPlus);
         }
         catch (Exception ex)
         {
             AppLog.Error($"LoadSubscriptionStatus failed: {ex.Message}", ex);
         }
     }
+
+    private void OnSubscriptionRequired() => IsSubscriptionRequiredModalOpen = true;
 
     [RelayCommand]
     private void CloseSubscriptionRequiredModal() => IsSubscriptionRequiredModalOpen = false;
@@ -537,6 +539,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         _queueSocketService.OnlineUpdated -= _onlineUpdatedHandler;
         _steamManager.OnUserUpdated -= _onUserUpdatedHandler;
         _authCoordinator.TokenApplied -= _tokenAppliedHandler;
+        _paidActions.SubscriptionRequired -= OnSubscriptionRequired;
         _cvarProvider.CvarChanged -= OnCvarChanged;
         Streams.PropertyChanged -= OnStreamsPropertyChanged;
         _soundCoordinator.Dispose();
