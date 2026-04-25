@@ -137,6 +137,12 @@ public partial class ProfileViewModel : ViewModelBase
 
     public ObservableCollection<DodgeEntryViewModel> DodgeList { get; } = new();
 
+    // ── Recalibration ────────────────────────────────────────────────────────
+    [ObservableProperty] private bool _hasRecalibration;
+    [ObservableProperty] private string _recalibrationStartedText = "—";
+    [ObservableProperty] private bool _isRecalibrationConfirmOpen;
+    [ObservableProperty] private bool _isStartingRecalibration;
+
     // ── Dodge search modal ───────────────────────────────────────────────────
     [ObservableProperty] private bool _isDodgeSearchOpen;
     [ObservableProperty] private string _dodgeSearchText = "";
@@ -172,6 +178,33 @@ public partial class ProfileViewModel : ViewModelBase
     [RelayCommand]
     private void OpenStore() =>
         Process.Start(new ProcessStartInfo("https://dotaclassic.ru/store") { UseShellExecute = true });
+
+    [RelayCommand]
+    private void RequestRecalibration() => IsRecalibrationConfirmOpen = true;
+
+    [RelayCommand]
+    private void CancelRecalibration() => IsRecalibrationConfirmOpen = false;
+
+    [RelayCommand]
+    private async Task ConfirmRecalibrationAsync()
+    {
+        IsRecalibrationConfirmOpen = false;
+        IsStartingRecalibration = true;
+        try
+        {
+            await _api.StartRecalibrationAsync();
+            HasRecalibration = true;
+            RecalibrationStartedText = DateTime.Now.ToString("d MMMM yyyy", new CultureInfo("ru-RU"));
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error($"StartRecalibration failed: {ex.Message}", ex);
+        }
+        finally
+        {
+            IsStartingRecalibration = false;
+        }
+    }
 
     [RelayCommand]
     private void OpenDodgeSearch()
@@ -249,6 +282,8 @@ public partial class ProfileViewModel : ViewModelBase
         DodgeList.Clear();
         HasPlusSubscription = false;
         PlusSubscriptionEndText = "—";
+        HasRecalibration = false;
+        RecalibrationStartedText = "—";
         try
         {
             var steamIdStr = steamId;
@@ -277,6 +312,10 @@ public partial class ProfileViewModel : ViewModelBase
                 AbandonRateText = $"{summary.SeasonAbandonRate * 100:0.0}%";
                 PlaytimeText = FormatPlaytime(summary.SeasonPlaytimeSeconds);
                 Aspects = summary.Aspects;
+                HasRecalibration = summary.RecalibrationStartedAt != null;
+                if (summary.RecalibrationStartedAt != null &&
+                    DateTime.TryParse(summary.RecalibrationStartedAt, CultureInfo.InvariantCulture, DateTimeStyles.None, out var recalDate))
+                    RecalibrationStartedText = recalDate.ToString("d MMMM yyyy", new CultureInfo("ru-RU"));
             }
 
             var heroes = heroesTask.Result;

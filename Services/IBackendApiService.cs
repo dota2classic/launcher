@@ -45,4 +45,6 @@ public interface IBackendApiService
     Task RemoveDodgeAsync(string steamId, CancellationToken cancellationToken = default);
     /// <summary>Adds a player to the authenticated user's dodge list.</summary>
     Task DodgePlayerAsync(string steamId, CancellationToken cancellationToken = default);
+    /// <summary>Starts MMR recalibration for the authenticated user. Only allowed once per season.</summary>
+    Task StartRecalibrationAsync(CancellationToken cancellationToken = default);
 }

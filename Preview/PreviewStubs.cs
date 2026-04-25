@@ -124,7 +124,8 @@ internal sealed class StubBackendApiService : IBackendApiService
                 new("TALKATIVE", 20),
                 new("CLOWN", 10),
                 new("TOXIC", 5),
-            }));
+            },
+            RecalibrationStartedAt: null));
 
     public Task<IReadOnlyList<Models.HeroProfileData>> GetHeroStatsAsync(string steamId, CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<Models.HeroProfileData>>([
@@ -199,6 +200,9 @@ internal sealed class StubBackendApiService : IBackendApiService
         => Task.CompletedTask;
 
     public Task DodgePlayerAsync(string steamId, CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+
+    public Task StartRecalibrationAsync(CancellationToken cancellationToken = default)
         => Task.CompletedTask;
 }
 

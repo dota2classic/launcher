@@ -244,7 +244,16 @@
     "dodgeListEmpty": "Список уклонений пуст",
     "removeFromDodge": "Удалить",
     "dodgeAdd": "Добавить в уклонение",
-    "dodgeSearchTitle": "Добавить игрока в список уклонений"
+    "dodgeSearchTitle": "Добавить игрока в список уклонений",
+    "recalibration": "ПЕРЕКАЛИБРОВКА",
+    "recalibrationDesc": "Сбрасывает рейтинг до начального значения и запускает калибровочные игры. Доступно один раз за сезон.",
+    "recalibrationStart": "Начать перекалибровку",
+    "recalibrationActive": "Перекалибровка запущена",
+    "recalibrationStarted": "Начата",
+    "recalibrationConfirmTitle": "Начать перекалибровку?",
+    "recalibrationConfirmText": "Рейтинг будет сброшен до начального значения. Это действие нельзя отменить и доступно только один раз за сезон.",
+    "recalibrationConfirm": "Начать",
+    "recalibrationCancel": "Отмена"
   },
   "streams": {
     "tabLabel": "СТРИМЫ",

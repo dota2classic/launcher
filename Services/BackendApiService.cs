@@ -491,7 +491,8 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
                 season.Kills, season.Deaths, season.Assists,
                 abandonRate,
                 season.Playtime,
-                aspects);
+                aspects,
+                summary.Recalibration?.CreatedAt);
         }
         catch (Exception ex)
         {
@@ -626,6 +627,13 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         if (string.IsNullOrWhiteSpace(_currentToken)) return;
         var api = new DotaclassicApiClient(_authHttpClient);
         await api.PlayerController_dodgePlayerAsync(new Api.DodgePlayerDto { DodgeSteamId = steamId }, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task StartRecalibrationAsync(CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(_currentToken)) return;
+        var api = new DotaclassicApiClient(_authHttpClient);
+        await api.PlayerController_startRecalibrationAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public void Dispose()
