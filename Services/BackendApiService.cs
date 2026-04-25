@@ -616,6 +616,7 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
 
     public async Task RemoveDodgeAsync(string steamId, CancellationToken cancellationToken = default)
     {
+        if (string.IsNullOrWhiteSpace(_currentToken)) return;
         var api = new DotaclassicApiClient(_authHttpClient);
         await api.PlayerController_unDodgePlayerAsync(new Api.DodgePlayerDto { DodgeSteamId = steamId }, cancellationToken).ConfigureAwait(false);
     }
