@@ -29,10 +29,12 @@
                FontSize="{DynamicResource FontSizeBase}"
                HorizontalAlignment="Center" VerticalAlignment="Center"/>
     <!-- Content -->
-    <Grid RowDefinitions="Auto,Auto,*" IsVisible="{Binding !IsLoading}">
+    <ScrollViewer IsVisible="{Binding !IsLoading}"
+                  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+      <StackPanel>
 
       <!-- ── PROFILE HERO HEADER ── -->
-      <Border Grid.Row="0" Background="#0A0C0F"
+      <Border Background="#0A0C0F"
               BorderBrush="#252E3A" BorderThickness="0,0,0,2">
         <Grid ColumnDefinitions="3,*">
           <!-- Blue left accent strip (gradient) -->
@@ -166,7 +168,7 @@
       </Border>
 
       <!-- ── PROFILE SUB-TABS ── -->
-      <Border Grid.Row="1" Background="#0A0C0F"
+      <Border Background="#0A0C0F"
               BorderBrush="#252E3A" BorderThickness="0,0,0,1">
         <StackPanel Orientation="Horizontal" Margin="24,0,0,0">
           <Border Classes="SubTab" Classes.SubTabActive="{Binding IsGeneralTabActive}"
@@ -184,9 +186,7 @@
       </Border>
 
       <!-- ── CONTENT: General tab ── -->
-      <ScrollViewer Grid.Row="2" IsVisible="{Binding IsGeneralTabActive}"
-                    VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <Grid Margin="20" HorizontalAlignment="Stretch">
+      <Grid IsVisible="{Binding IsGeneralTabActive}" Margin="20" HorizontalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="20"/>
@@ -374,12 +374,9 @@
           </Border>
 
         </Grid>
-      </ScrollViewer>
 
       <!-- ── CONTENT: Subscription tab ── -->
-      <ScrollViewer Grid.Row="2" IsVisible="{Binding IsSubscriptionTabActive}"
-                    VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <StackPanel Margin="20" Spacing="16">
+      <StackPanel IsVisible="{Binding IsSubscriptionTabActive}" Margin="20" Spacing="16">
 
           <!-- Loading spinner -->
           <TextBlock IsVisible="{Binding IsSubscriptionDataLoading}"
@@ -554,9 +551,9 @@
           </Border>
 
         </StackPanel>
-      </ScrollViewer>
 
-    </Grid>
+      </StackPanel>
+    </ScrollViewer>
   </Panel>
 
 </UserControl>
