@@ -89,6 +89,9 @@ internal sealed class StubBackendApiService : IBackendApiService
     public Task<IReadOnlyList<InviteCandidateView>> SearchPlayersAsync(string name, int count = 25, CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<InviteCandidateView>>([]);
 
+    public Task<IReadOnlyList<InviteCandidateView>> GetFriendsAsync(CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<InviteCandidateView>>([]);
+
     public Task<(string? Name, string? AvatarUrl)?> GetUserInfoAsync(string steamId, CancellationToken cancellationToken = default)
         => Task.FromResult<(string?, string?)?>(null);
 

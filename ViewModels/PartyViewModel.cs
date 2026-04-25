@@ -214,8 +214,8 @@ public partial class PartyViewModel : ViewModelBase, IDisposable
             return;
         try
         {
-            AppLog.Info("Loading initial invite candidates.");
-            var results = await _backendApiService.SearchPlayersAsync("a", 10);
+            AppLog.Info("Loading initial invite candidates (friends).");
+            var results = await _backendApiService.GetFriendsAsync();
             Dispatcher.UIThread.Post(() =>
             {
                 InviteCandidates = new ObservableCollection<InviteCandidateView>(results);
