@@ -124,7 +124,8 @@ internal sealed class StubBackendApiService : IBackendApiService
                 new("TALKATIVE", 20),
                 new("CLOWN", 10),
                 new("TOXIC", 5),
-            }));
+            },
+            RecalibrationStartedAt: null));
 
     public Task<IReadOnlyList<Models.HeroProfileData>> GetHeroStatsAsync(string steamId, CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<Models.HeroProfileData>>([
@@ -188,6 +189,32 @@ internal sealed class StubBackendApiService : IBackendApiService
         await Task.Delay(Timeout.Infinite, cancellationToken).ConfigureAwait(false);
         yield break;
     }
+
+    public Task<d2c_launcher.Api.MeDto?> GetMeAsync(CancellationToken cancellationToken = default)
+        => Task.FromResult<d2c_launcher.Api.MeDto?>(null);
+
+    public Task<IReadOnlyList<d2c_launcher.Api.DodgeListEntryDto>> GetDodgeListAsync(CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<d2c_launcher.Api.DodgeListEntryDto>>(Array.Empty<d2c_launcher.Api.DodgeListEntryDto>());
+
+    public Task RemoveDodgeAsync(string steamId, CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+
+    public Task DodgePlayerAsync(string steamId, CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+
+    public Task StartRecalibrationAsync(CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
+}
+
+internal sealed class StubPaidActionService : IPaidActionService
+{
+#pragma warning disable CS0067
+    public event Action? SubscriptionRequired;
+#pragma warning restore CS0067
+    public void SetSubscriptionStatus(bool hasPlus) { }
+    // In preview, always allow paid actions so content is visible
+    public void PaidAction(Action action) => action();
+    public Task PaidAction(Func<Task> action) => action();
 }
 
 internal sealed class StubEmoticonService : IEmoticonService

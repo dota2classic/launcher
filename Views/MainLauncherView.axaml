@@ -200,6 +200,93 @@
                </components:ModalOverlay.ModalContent>
            </components:ModalOverlay>
 
+           <!-- Subscription required modal -->
+           <Panel IsVisible="{Binding IsSubscriptionRequiredModalOpen}" ZIndex="300"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#90000000">
+               <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Width="400" Padding="28,24" CornerRadius="0"
+                       Background="#121315" BorderBrush="#2d3842" BorderThickness="1"
+                       BoxShadow="0 12 28 0 #80000000">
+                   <StackPanel Spacing="20">
+                       <TextBlock Text="{l:T 'profile.plusRequiredTitle'}"
+                                  FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold"
+                                  HorizontalAlignment="Center" Foreground="#C8A84B"/>
+                       <TextBlock Text="{l:T 'profile.plusRequiredText'}"
+                                  HorizontalAlignment="Center" TextAlignment="Center"
+                                  TextWrapping="Wrap"
+                                  Foreground="#AAAAAA" FontSize="{DynamicResource FontSizeMD}"/>
+                       <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12">
+                           <Button Classes="PrimaryButton"
+                                   Content="{l:T 'profile.plusRequiredGoTo'}"
+                                   Command="{Binding OpenSubscriptionTabCommand}"
+                                   Padding="28,10" CornerRadius="0"/>
+                           <Button Classes="DangerButton"
+                                   Content="{l:T 'profile.plusRequiredClose'}"
+                                   Command="{Binding CloseSubscriptionRequiredModalCommand}"
+                                   Padding="28,10" CornerRadius="0"/>
+                       </StackPanel>
+                   </StackPanel>
+               </Border>
+           </Panel>
+
+           <!-- Recalibration confirmation -->
+           <Panel IsVisible="{Binding Profile.IsRecalibrationConfirmOpen}" ZIndex="210"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#90000000">
+               <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Width="400" Padding="28,24" CornerRadius="0"
+                       Background="#121315" BorderBrush="#2d3842" BorderThickness="1"
+                       BoxShadow="0 12 28 0 #80000000">
+                   <StackPanel Spacing="20">
+                       <TextBlock Text="{l:T 'profile.recalibrationConfirmTitle'}"
+                                  FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold"
+                                  HorizontalAlignment="Center" Foreground="#D9D9D9"/>
+                       <TextBlock Text="{l:T 'profile.recalibrationConfirmText'}"
+                                  HorizontalAlignment="Center" TextAlignment="Center"
+                                  TextWrapping="Wrap"
+                                  Foreground="#AAAAAA" FontSize="{DynamicResource FontSizeMD}"/>
+                       <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12">
+                           <Button Classes="DangerButton"
+                                   Content="{l:T 'profile.recalibrationConfirm'}"
+                                   Command="{Binding Profile.ConfirmRecalibrationCommand}"
+                                   Padding="28,10" CornerRadius="0"/>
+                           <Button Classes="PrimaryButton"
+                                   Content="{l:T 'profile.recalibrationCancel'}"
+                                   Command="{Binding Profile.CancelRecalibrationCommand}"
+                                   Padding="28,10" CornerRadius="0"/>
+                       </StackPanel>
+                   </StackPanel>
+               </Border>
+           </Panel>
+
+           <!-- Dodge player overlay -->
+           <components:ModalOverlay IsOpen="{Binding Profile.IsDodgeSearchOpen}" ZIndex="101"
+                                    Title="{l:T 'profile.dodgeSearchTitle'}"
+                                    CloseCommand="{Binding Profile.CloseDodgeSearchCommand}"
+                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+               <components:ModalOverlay.ModalContent>
+                   <StackPanel Spacing="12" Margin="18,12,18,18">
+                       <TextBox Text="{Binding Profile.DodgeSearchText}" Watermark="{x:Static res:Strings.PlayerNickname}"/>
+                       <Border Background="#0c0c0c" BorderBrush="#2d3842" BorderThickness="1" Height="300">
+                           <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                               <ItemsControl ItemsSource="{Binding Profile.DodgeCandidates}">
+                                   <ItemsControl.ItemTemplate>
+                                       <DataTemplate x:DataType="m:InviteCandidateView">
+                                           <Button Click="OnDodgeCandidateClicked"
+                                                   Background="Transparent" BorderThickness="0" Padding="0"
+                                                   HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                                               <Border Padding="8" BorderBrush="#242c34" BorderThickness="0,0,0,1">
+                                                   <components:PlayerPreviewControl/>
+                                               </Border>
+                                           </Button>
+                                       </DataTemplate>
+                                   </ItemsControl.ItemTemplate>
+                               </ItemsControl>
+                           </ScrollViewer>
+                       </Border>
+                   </StackPanel>
+               </components:ModalOverlay.ModalContent>
+           </components:ModalOverlay>
+
            <!-- Intro overlay -->
            <Panel IsVisible="{Binding Intro.IsOpen}" ZIndex="200"
                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">

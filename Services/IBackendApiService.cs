@@ -37,4 +37,14 @@ public interface IBackendApiService
     Task<IReadOnlyList<ChatReactionData>> ReactToMessageAsync(string messageId, int emoticonId, CancellationToken cancellationToken = default);
     /// <summary>Returns all currently live Twitch streams for the community.</summary>
     Task<IReadOnlyList<d2c_launcher.Api.TwitchStreamDto>> GetTwitchStreamsAsync(CancellationToken cancellationToken = default);
+    /// <summary>Returns the current authenticated user's profile, including role/subscription data.</summary>
+    Task<d2c_launcher.Api.MeDto?> GetMeAsync(CancellationToken cancellationToken = default);
+    /// <summary>Returns the authenticated user's dodge list.</summary>
+    Task<IReadOnlyList<d2c_launcher.Api.DodgeListEntryDto>> GetDodgeListAsync(CancellationToken cancellationToken = default);
+    /// <summary>Removes a player from the authenticated user's dodge list.</summary>
+    Task RemoveDodgeAsync(string steamId, CancellationToken cancellationToken = default);
+    /// <summary>Adds a player to the authenticated user's dodge list.</summary>
+    Task DodgePlayerAsync(string steamId, CancellationToken cancellationToken = default);
+    /// <summary>Starts MMR recalibration for the authenticated user. Only allowed once per season.</summary>
+    Task StartRecalibrationAsync(CancellationToken cancellationToken = default);
 }

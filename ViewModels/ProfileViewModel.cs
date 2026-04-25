@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -45,9 +48,54 @@ public partial class HeroRowViewModel : ViewModelBase
     }
 }
 
+public partial class DodgeEntryViewModel : ViewModelBase
+{
+    private readonly IBackendApiService _api;
+    private readonly Action<DodgeEntryViewModel> _removeFromList;
+
+    public string SteamId { get; }
+    public string Name { get; }
+    public string? AvatarUrl { get; }
+    public string AddedDateText { get; }
+
+    [ObservableProperty] private bool _isRemoving;
+
+    public DodgeEntryViewModel(Api.DodgeListEntryDto dto, IBackendApiService api, Action<DodgeEntryViewModel> removeFromList)
+    {
+        _api = api;
+        _removeFromList = removeFromList;
+        SteamId = dto.User.SteamId ?? "";
+        Name = dto.User.Name ?? SteamId;
+        AvatarUrl = dto.User.AvatarSmall ?? dto.User.Avatar;
+        AddedDateText = DateTime.TryParse(dto.CreatedAt, CultureInfo.InvariantCulture, DateTimeStyles.None, out var d)
+            ? d.ToString("d MMM yyyy", new CultureInfo("ru-RU"))
+            : dto.CreatedAt;
+    }
+
+    [RelayCommand]
+    private async Task RemoveDodgeAsync()
+    {
+        IsRemoving = true;
+        try
+        {
+            await _api.RemoveDodgeAsync(SteamId);
+            _removeFromList(this);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error($"RemoveDodge failed for {SteamId}: {ex.Message}", ex);
+        }
+        finally
+        {
+            IsRemoving = false;
+        }
+    }
+}
+
 public partial class ProfileViewModel : ViewModelBase
 {
     private readonly IBackendApiService _api;
+    private readonly IPaidActionService _paidActions;
 
     [ObservableProperty] private bool _isLoading = true;
     [ObservableProperty] private string _playerName = "—";
@@ -73,15 +121,148 @@ public partial class ProfileViewModel : ViewModelBase
 
     [ObservableProperty] private bool _canGoBack;
 
+    // ── Owner / subscription tab ─────────────────────────────────────────────
+    [ObservableProperty] private bool _isOwner;
+    [ObservableProperty] private bool _isGeneralTabActive = true;
+    [ObservableProperty] private bool _isSubscriptionTabActive;
+    [ObservableProperty] private bool _isSubscriptionDataLoading;
+    [ObservableProperty] private bool _hasPlusSubscription;
+    [ObservableProperty] private string _plusSubscriptionEndText = "—";
+    private bool _subscriptionDataLoaded;
+
+    public string StoreButtonText => HasPlusSubscription
+        ? I18n.T("profile.subscriptionRenew")
+        : I18n.T("profile.subscriptionBuy");
+
+    partial void OnHasPlusSubscriptionChanged(bool value) => OnPropertyChanged(nameof(StoreButtonText));
+
+    public ObservableCollection<DodgeEntryViewModel> DodgeList { get; } = new();
+
+    // ── Recalibration ────────────────────────────────────────────────────────
+    [ObservableProperty] private bool _hasRecalibration;
+    [ObservableProperty] private string _recalibrationStartedText = "—";
+    [ObservableProperty] private bool _isRecalibrationConfirmOpen;
+    [ObservableProperty] private bool _isStartingRecalibration;
+
+    // ── Dodge search modal ───────────────────────────────────────────────────
+    [ObservableProperty] private bool _isDodgeSearchOpen;
+    [ObservableProperty] private string _dodgeSearchText = "";
+    public ObservableCollection<InviteCandidateView> DodgeCandidates { get; } = new();
+    private CancellationTokenSource? _dodgeSearchCts;
+
     public Action? GoBackAction { get; set; }
 
-    public ProfileViewModel(IBackendApiService api)
+    public ProfileViewModel(IBackendApiService api, IPaidActionService paidActions)
     {
         _api = api;
+        _paidActions = paidActions;
     }
 
     [RelayCommand]
     private void GoBack() => GoBackAction?.Invoke();
+
+    [RelayCommand]
+    private void SelectGeneralTab()
+    {
+        IsGeneralTabActive = true;
+        IsSubscriptionTabActive = false;
+    }
+
+    [RelayCommand]
+    private void SelectSubscriptionTab()
+    {
+        IsGeneralTabActive = false;
+        IsSubscriptionTabActive = true;
+        if (IsOwner && !_subscriptionDataLoaded && !IsSubscriptionDataLoading)
+            LoadSubscriptionDataAsync().FireAndForget("LoadSubscriptionDataAsync");
+    }
+
+    [RelayCommand]
+    private void OpenStore() =>
+        Process.Start(new ProcessStartInfo("https://dotaclassic.ru/store") { UseShellExecute = true });
+
+    [RelayCommand]
+    private void RequestRecalibration() => _paidActions.PaidAction(() => IsRecalibrationConfirmOpen = true);
+
+    [RelayCommand]
+    private void CancelRecalibration() => IsRecalibrationConfirmOpen = false;
+
+    [RelayCommand]
+    private async Task ConfirmRecalibrationAsync()
+    {
+        IsRecalibrationConfirmOpen = false;
+        IsStartingRecalibration = true;
+        try
+        {
+            await _api.StartRecalibrationAsync();
+            HasRecalibration = true;
+            RecalibrationStartedText = DateTime.Now.ToString("d MMMM yyyy", new CultureInfo("ru-RU"));
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error($"StartRecalibration failed: {ex.Message}", ex);
+        }
+        finally
+        {
+            IsStartingRecalibration = false;
+        }
+    }
+
+    [RelayCommand]
+    private void OpenDodgeSearch() => _paidActions.PaidAction(() =>
+    {
+        DodgeCandidates.Clear();
+        DodgeSearchText = "";
+        IsDodgeSearchOpen = true;
+        SearchDodgeCandidatesAsync("").FireAndForget("SearchDodgeCandidatesInitial");
+    });
+
+    [RelayCommand]
+    private void CloseDodgeSearch()
+    {
+        IsDodgeSearchOpen = false;
+        _dodgeSearchCts?.Cancel();
+    }
+
+    partial void OnDodgeSearchTextChanged(string value) =>
+        SearchDodgeCandidatesAsync(value).FireAndForget("SearchDodgeCandidates");
+
+    private async Task SearchDodgeCandidatesAsync(string query)
+    {
+        _dodgeSearchCts?.Cancel();
+        _dodgeSearchCts = new CancellationTokenSource();
+        var ct = _dodgeSearchCts.Token;
+        try
+        {
+            await Task.Delay(200, ct);
+            var results = await _api.SearchPlayersAsync(string.IsNullOrWhiteSpace(query) ? "a" : query, 25, ct);
+            if (ct.IsCancellationRequested) return;
+            DodgeCandidates.Clear();
+            foreach (var r in results)
+                DodgeCandidates.Add(r);
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex)
+        {
+            AppLog.Error($"DodgeSearch failed: {ex.Message}", ex);
+        }
+    }
+
+    public async Task DodgePlayerAsync(InviteCandidateView candidate)
+    {
+        try
+        {
+            await _api.DodgePlayerAsync(candidate.SteamId);
+            _subscriptionDataLoaded = false;
+            IsDodgeSearchOpen = false;
+            if (IsSubscriptionTabActive)
+                LoadSubscriptionDataAsync().FireAndForget("LoadSubscriptionDataAsync");
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error($"DodgePlayer failed for {candidate.SteamId}: {ex.Message}", ex);
+        }
+    }
 
     private static string FormatPlaytime(double seconds)
     {
@@ -96,7 +277,15 @@ public partial class ProfileViewModel : ViewModelBase
     public async Task LoadAsync(string steamId)
     {
         IsLoading = true;
+        IsGeneralTabActive = true;
+        IsSubscriptionTabActive = false;
+        _subscriptionDataLoaded = false;
         TopHeroes.Clear();
+        DodgeList.Clear();
+        HasPlusSubscription = false;
+        PlusSubscriptionEndText = "—";
+        HasRecalibration = false;
+        RecalibrationStartedText = "—";
         try
         {
             var steamIdStr = steamId;
@@ -125,6 +314,10 @@ public partial class ProfileViewModel : ViewModelBase
                 AbandonRateText = $"{summary.SeasonAbandonRate * 100:0.0}%";
                 PlaytimeText = FormatPlaytime(summary.SeasonPlaytimeSeconds);
                 Aspects = summary.Aspects;
+                HasRecalibration = summary.RecalibrationStartedAt != null;
+                if (summary.RecalibrationStartedAt != null &&
+                    DateTime.TryParse(summary.RecalibrationStartedAt, CultureInfo.InvariantCulture, DateTimeStyles.None, out var recalDate))
+                    RecalibrationStartedText = recalDate.ToString("d MMMM yyyy", new CultureInfo("ru-RU"));
             }
 
             var heroes = heroesTask.Result;
@@ -141,6 +334,40 @@ public partial class ProfileViewModel : ViewModelBase
         finally
         {
             IsLoading = false;
+        }
+    }
+
+    private async Task LoadSubscriptionDataAsync()
+    {
+        IsSubscriptionDataLoading = true;
+        DodgeList.Clear();
+        try
+        {
+            var meTask = _api.GetMeAsync();
+            var dodgeTask = _api.GetDodgeListAsync();
+            var me = await meTask;
+            var dodgeEntries = await dodgeTask;
+
+            var oldRole = me?.User?.Roles?.FirstOrDefault(r => r.Role == Api.Role.OLD);
+            HasPlusSubscription = oldRole != null;
+            _paidActions.SetSubscriptionStatus(oldRole != null);
+            if (oldRole != null && DateTime.TryParse(oldRole.EndTime, CultureInfo.InvariantCulture, DateTimeStyles.None, out var end))
+                PlusSubscriptionEndText = end.ToString("d MMMM yyyy", new CultureInfo("ru-RU"));
+            else
+                PlusSubscriptionEndText = "—";
+
+            foreach (var entry in dodgeEntries)
+                DodgeList.Add(new DodgeEntryViewModel(entry, _api, e => DodgeList.Remove(e)));
+
+            _subscriptionDataLoaded = true;
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error($"LoadSubscriptionDataAsync failed: {ex.Message}", ex);
+        }
+        finally
+        {
+            IsSubscriptionDataLoading = false;
         }
     }
 }

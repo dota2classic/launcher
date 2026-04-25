@@ -28,6 +28,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     private readonly AuthCoordinator _authCoordinator;
     private readonly IWindowService _windowService;
     private readonly INetConService _netConService;
+    private readonly IPaidActionService _paidActions;
 
     /// <summary>
     /// Called when the user applies DLC changes in Settings.
@@ -82,6 +83,9 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     private bool _isAbandonConfirmOpen;
 
     [ObservableProperty]
+    private bool _isSubscriptionRequiredModalOpen;
+
+    [ObservableProperty]
     private bool _isGameUpdatePending;
 
     [ObservableProperty]
@@ -126,7 +130,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         IGameWindowService gameWindowService,
         IDotakeysProfileService dotakeysProfileService,
         IToastNotificationService toastNotificationService,
-        IStartupRegistrationService startupRegistrationService)
+        IStartupRegistrationService startupRegistrationService,
+        IPaidActionService paidActions)
     {
         _steamManager = steamManager;
         _settingsStorage = settingsStorage;
@@ -137,6 +142,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         _registryService = registryService;
         _windowService = windowService;
         _netConService = netConService;
+        _paidActions = paidActions;
+        paidActions.SubscriptionRequired += OnSubscriptionRequired;
 
         var settings = settingsStorage.Get();
         Intro = new IntroViewModel(settingsStorage, isOpen: !settings.IntroShown);
@@ -179,7 +186,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Settings.OnDlcChanged = () => OnDlcChanged?.Invoke();
         Chat = chatViewModelFactory.Create("17aa3530-d152-462e-a032-909ae69019ed");
         Chat.OpenPlayerProfile = OpenPlayerProfile;
-        Profile = new ProfileViewModel(backendApiService);
+        Profile = new ProfileViewModel(backendApiService, paidActions);
         Live = new LiveViewModel(backendApiService);
         Live.OnSpectate = matchId => Launch.SpectateMatch((int)matchId);
         Live.OnOpenProfile = steam32Id => OpenPlayerProfile(steam32Id);
@@ -245,10 +252,12 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
             {
                 Party.RefreshPartyAsync().FireAndForget("RefreshPartyAsync (TokenApplied)");
                 Chat.RestartSse();
+                LoadSubscriptionStatusAsync().FireAndForget("LoadSubscriptionStatus (TokenApplied)");
             }
             else
             {
                 Party.ClearParty();
+                _paidActions.SetSubscriptionStatus(false);
             }
         };
         _authCoordinator.TokenApplied += _tokenAppliedHandler;
@@ -389,6 +398,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public void OpenPlayerProfile(string steam32Id)
     {
         _previousTab = ActiveTab != LauncherTab.Profile ? ActiveTab : _previousTab;
+        Profile.IsOwner = CurrentUser != null && steam32Id == CurrentUser.SteamId32.ToString();
         Profile.LoadAsync(steam32Id).FireAndForget("Profile.LoadAsync");
         Profile.CanGoBack = _previousTab.HasValue;
         Profile.GoBackAction = _previousTab.HasValue
@@ -425,12 +435,45 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Queue.OnlineStatsText = OnlineStatsText;
     }
 
+    private async Task LoadSubscriptionStatusAsync()
+    {
+        try
+        {
+            var me = await _backendApiService.GetMeAsync();
+            var hasPlus = me?.User?.Roles?.Any(r => r.Role == Api.Role.OLD) == true;
+            _paidActions.SetSubscriptionStatus(hasPlus);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error($"LoadSubscriptionStatus failed: {ex.Message}", ex);
+        }
+    }
+
+    private void OnSubscriptionRequired() => IsSubscriptionRequiredModalOpen = true;
+
+    [RelayCommand]
+    private void CloseSubscriptionRequiredModal() => IsSubscriptionRequiredModalOpen = false;
+
+    [RelayCommand]
+    private void OpenSubscriptionTab()
+    {
+        IsSubscriptionRequiredModalOpen = false;
+        OpenOwnProfileAtSubscriptionTab();
+    }
+
     // Forwarded for code-behind convenience
     public void LaunchGame() => Launch.LaunchGame();
     public bool IsGameDirectorySet => Launch.IsGameDirectorySet;
     public void OpenInviteModal() => Party.OpenInviteModal();
     public void CloseInviteModal() => Party.CloseInviteModal();
     public async Task InvitePlayerAsync(d2c_launcher.Models.InviteCandidateView candidate) => await Party.InvitePlayerAsync(candidate);
+    public async Task DodgePlayerAsync(d2c_launcher.Models.InviteCandidateView candidate) => await Profile.DodgePlayerAsync(candidate);
+
+    public void OpenOwnProfileAtSubscriptionTab()
+    {
+        OpenProfile();
+        Profile.SelectSubscriptionTabCommand.Execute(null);
+    }
 
     public void SetGameUpdatePending(bool pending)
     {
@@ -496,6 +539,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         _queueSocketService.OnlineUpdated -= _onlineUpdatedHandler;
         _steamManager.OnUserUpdated -= _onUserUpdatedHandler;
         _authCoordinator.TokenApplied -= _tokenAppliedHandler;
+        _paidActions.SubscriptionRequired -= OnSubscriptionRequired;
         _cvarProvider.CvarChanged -= OnCvarChanged;
         Streams.PropertyChanged -= OnStreamsPropertyChanged;
         _soundCoordinator.Dispose();

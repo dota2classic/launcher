@@ -71,7 +71,7 @@ public static class PreviewRegistry
                     new StubSteamAuthApi(),
                     new StubUiDispatcher(),
                     new StubTriviaRepository(), new AvaloniaTimerFactory(), new StubNetConService(), new StubGameWindowService(),
-                    new StubDotakeysProfileService(), new StubToastNotificationService(), new StubStartupRegistrationService());
+                    new StubDotakeysProfileService(), new StubToastNotificationService(), new StubStartupRegistrationService(), new StubPaidActionService());
                 var view = new LauncherHeader { Width = 900, Height = 48, DataContext = vm };
                 return (view, null);
             },
@@ -84,7 +84,7 @@ public static class PreviewRegistry
                     new StubQueueSocketService(), new StubContentRegistryService(),
                     new StubChatViewModelFactory(), new StubWindowService(), new StubSteamAuthApi(),
                     new StubUiDispatcher(), new StubTriviaRepository(), new AvaloniaTimerFactory(), new StubNetConService(), new StubGameWindowService(),
-                    new StubDotakeysProfileService(), new StubToastNotificationService(), new StubStartupRegistrationService());
+                    new StubDotakeysProfileService(), new StubToastNotificationService(), new StubStartupRegistrationService(), new StubPaidActionService());
                 // Play state: game not running
                 vm.Launch.RunState = GameRunState.None;
                 var stack = new StackPanel { Spacing = 2, Background = new SolidColorBrush(Color.Parse("#1a1f26")) };
@@ -101,7 +101,7 @@ public static class PreviewRegistry
                     new StubQueueSocketService(), new StubContentRegistryService(),
                     new StubChatViewModelFactory(), new StubWindowService(), new StubSteamAuthApi(),
                     new StubUiDispatcher(), new StubTriviaRepository(), new AvaloniaTimerFactory(), new StubNetConService(), new StubGameWindowService(),
-                    new StubDotakeysProfileService(), new StubToastNotificationService(), new StubStartupRegistrationService());
+                    new StubDotakeysProfileService(), new StubToastNotificationService(), new StubStartupRegistrationService(), new StubPaidActionService());
                 // Stop state: our game is running
                 vm.Launch.RunState = GameRunState.OurGameRunning;
                 var stack = new StackPanel { Spacing = 2, Background = new SolidColorBrush(Color.Parse("#1a1f26")) };
@@ -112,8 +112,19 @@ public static class PreviewRegistry
             ["ProfilePanel"] = () =>
             {
                 var api = new StubBackendApiService();
-                var vm = new ProfileViewModel(api);
+                var vm = new ProfileViewModel(api, new StubPaidActionService());
+                vm.IsOwner = true;
                 _ = vm.LoadAsync("76561198000000001");
+                return (new ProfilePanel { Width = 900, Height = 600 }, vm);
+            },
+            ["ProfilePanelSubscription"] = () =>
+            {
+                var api = new StubBackendApiService();
+                var vm = new ProfileViewModel(api, new StubPaidActionService());
+                vm.IsOwner = true;
+                _ = vm.LoadAsync("76561198000000001");
+                // Must run after LoadAsync syncs (which resets tabs at the top of the method)
+                vm.SelectSubscriptionTabCommand.Execute(null);
                 return (new ProfilePanel { Width = 900, Height = 600 }, vm);
             },
             ["PartyPanel"] = () =>
@@ -742,7 +753,7 @@ public static class PreviewRegistry
                     new StubQueueSocketService(), new StubContentRegistryService(),
                     new StubChatViewModelFactory(), new StubWindowService(), new StubSteamAuthApi(),
                     new StubUiDispatcher(), new StubTriviaRepository(), new AvaloniaTimerFactory(), new StubNetConService(), new StubGameWindowService(),
-                    new StubDotakeysProfileService(), new StubToastNotificationService(), new StubStartupRegistrationService());
+                    new StubDotakeysProfileService(), new StubToastNotificationService(), new StubStartupRegistrationService(), new StubPaidActionService());
                 var launchVmStop = new MainLauncherViewModel(
                     new StubSteamManager(), new StubSettingsStorage(),
                     new StubGameLaunchSettingsStorage(), new StubCvarSettingsProvider(),
@@ -750,7 +761,7 @@ public static class PreviewRegistry
                     new StubQueueSocketService(), new StubContentRegistryService(),
                     new StubChatViewModelFactory(), new StubWindowService(), new StubSteamAuthApi(),
                     new StubUiDispatcher(), new StubTriviaRepository(), new AvaloniaTimerFactory(), new StubNetConService(), new StubGameWindowService(),
-                    new StubDotakeysProfileService(), new StubToastNotificationService(), new StubStartupRegistrationService());
+                    new StubDotakeysProfileService(), new StubToastNotificationService(), new StubStartupRegistrationService(), new StubPaidActionService());
                 launchVmStop.Launch.RunState = GameRunState.OurGameRunning;
                 col.Children.Add(new LauncherHeader { Width = 400, Height = 48, DataContext = launchVm });
                 col.Children.Add(new LauncherHeader { Width = 400, Height = 48, DataContext = launchVmStop });

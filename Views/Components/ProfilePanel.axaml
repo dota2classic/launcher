@@ -4,6 +4,7 @@
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              xmlns:components="using:d2c_launcher.Views.Components"
              xmlns:res="clr-namespace:d2c_launcher.Resources"
+             xmlns:l="clr-namespace:d2c_launcher.Util"
              x:Class="d2c_launcher.Views.Components.ProfilePanel"
              x:DataType="vm:ProfileViewModel">
 
@@ -20,18 +21,20 @@
     </Style>
   </UserControl.Styles>
 
-  <Grid RowDefinitions="Auto,*">
+  <Panel>
 
     <!-- Loading indicator -->
-    <TextBlock Grid.Row="0" IsVisible="{Binding IsLoading}"
+    <TextBlock IsVisible="{Binding IsLoading}"
                Text="{x:Static res:Strings.LoadingProfile}" Foreground="#556070"
                FontSize="{DynamicResource FontSizeBase}"
-               HorizontalAlignment="Center" Margin="0,40"/>
+               HorizontalAlignment="Center" VerticalAlignment="Center"/>
     <!-- Content -->
-    <Grid Grid.Row="0" RowDefinitions="Auto,Auto,*" IsVisible="{Binding !IsLoading}">
+    <ScrollViewer IsVisible="{Binding !IsLoading}"
+                  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+      <StackPanel>
 
       <!-- ── PROFILE HERO HEADER ── -->
-      <Border Grid.Row="0" Background="#0A0C0F"
+      <Border Background="#0A0C0F"
               BorderBrush="#252E3A" BorderThickness="0,0,0,2">
         <Grid ColumnDefinitions="3,*">
           <!-- Blue left accent strip (gradient) -->
@@ -165,18 +168,25 @@
       </Border>
 
       <!-- ── PROFILE SUB-TABS ── -->
-      <Border Grid.Row="1" Background="#0A0C0F"
+      <Border Background="#0A0C0F"
               BorderBrush="#252E3A" BorderThickness="0,0,0,1">
         <StackPanel Orientation="Horizontal" Margin="24,0,0,0">
-          <Border Classes="SubTab SubTabActive" Margin="0,0,0,-1">
-            <TextBlock Classes="SubTabText SubTabTextActive" Text="{x:Static res:Strings.TabGeneral}"/>
+          <Border Classes="SubTab" Classes.SubTabActive="{Binding IsGeneralTabActive}"
+                  Margin="0,0,0,-1" Tapped="OnGeneralTabTapped">
+            <TextBlock Classes="SubTabText" Classes.SubTabTextActive="{Binding IsGeneralTabActive}"
+                       Text="{l:T 'profile.tabGeneral'}"/>
+          </Border>
+          <Border Classes="SubTab" Classes.SubTabActive="{Binding IsSubscriptionTabActive}"
+                  IsVisible="{Binding IsOwner}"
+                  Margin="0,0,0,-1" Tapped="OnSubscriptionTabTapped">
+            <TextBlock Classes="SubTabText" Classes.SubTabTextActive="{Binding IsSubscriptionTabActive}"
+                       Text="{l:T 'profile.tabSubscription'}"/>
           </Border>
         </StackPanel>
       </Border>
 
-      <!-- ── CONTENT: 3 equal columns ── -->
-      <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <Grid Margin="20" HorizontalAlignment="Stretch">
+      <!-- ── CONTENT: General tab ── -->
+      <Grid IsVisible="{Binding IsGeneralTabActive}" Margin="20" HorizontalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="20"/>
@@ -364,9 +374,186 @@
           </Border>
 
         </Grid>
-      </ScrollViewer>
 
-    </Grid>
-  </Grid>
+      <!-- ── CONTENT: Subscription tab ── -->
+      <StackPanel IsVisible="{Binding IsSubscriptionTabActive}" Margin="20" Spacing="16">
+
+          <!-- Loading spinner -->
+          <TextBlock IsVisible="{Binding IsSubscriptionDataLoading}"
+                     Text="{l:T 'profile.loading'}" Foreground="#556070"
+                     FontSize="{DynamicResource FontSizeBase}"
+                     HorizontalAlignment="Center" Margin="0,20"/>
+
+          <!-- Subscription status block -->
+          <Border IsVisible="{Binding !IsSubscriptionDataLoading}" Classes="Block">
+            <Grid RowDefinitions="36,*">
+              <Border Grid.Row="0" Classes="BlockHead">
+                <TextBlock Classes="BlockTitle" Text="{l:T 'profile.subscriptionStatus'}"/>
+              </Border>
+              <Border Grid.Row="1" Padding="18,14">
+                <StackPanel Spacing="10">
+
+                  <!-- Active subscription -->
+                  <StackPanel IsVisible="{Binding HasPlusSubscription}" Spacing="6">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                      <TextBlock Text="✦" Foreground="#C8A84B"
+                                 FontSize="{DynamicResource FontSizeLG}" VerticalAlignment="Center"/>
+                      <TextBlock Text="{l:T 'profile.subscriptionActive'}"
+                                 Foreground="#C8A84B" FontWeight="SemiBold"
+                                 FontSize="{DynamicResource FontSizeLG}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <TextBlock Text="{l:T 'profile.subscriptionExpires'}"
+                                 Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"/>
+                      <TextBlock Text="{Binding PlusSubscriptionEndText}"
+                                 Foreground="#99A8B4" FontSize="{DynamicResource FontSizeMD}"
+                                 FontWeight="SemiBold"/>
+                    </StackPanel>
+                  </StackPanel>
+
+                  <!-- No active subscription -->
+                  <TextBlock IsVisible="{Binding !HasPlusSubscription}"
+                             Text="{l:T 'profile.subscriptionNone'}"
+                             Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"/>
+
+                  <!-- Buy / renew button -->
+                  <Button Classes="PrimaryButton" Command="{Binding OpenStoreCommand}"
+                          Padding="14,6" CornerRadius="2" Cursor="Hand"
+                          HorizontalAlignment="Left">
+                    <TextBlock Text="{Binding StoreButtonText}"
+                               FontSize="{DynamicResource FontSizeMD}"/>
+                  </Button>
+
+                </StackPanel>
+              </Border>
+            </Grid>
+          </Border>
+
+          <!-- Dodge list block -->
+          <Border IsVisible="{Binding !IsSubscriptionDataLoading}" Classes="Block">
+            <Grid RowDefinitions="36,*">
+              <Border Grid.Row="0" Classes="BlockHead">
+                <TextBlock Classes="BlockTitle" Text="{l:T 'profile.dodgeList'}"/>
+              </Border>
+              <StackPanel Grid.Row="1">
+
+                <!-- Description -->
+                <Border Padding="18,12,18,4">
+                  <TextBlock Text="{l:T 'profile.dodgeListDesc'}"
+                             Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"
+                             TextWrapping="Wrap"/>
+                </Border>
+
+                <!-- Empty state -->
+                <TextBlock IsVisible="{Binding !DodgeList.Count}"
+                           Text="{l:T 'profile.dodgeListEmpty'}"
+                           Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"
+                           Padding="18,6,18,14"/>
+
+                <!-- Dodge entries -->
+                <ItemsControl ItemsSource="{Binding DodgeList}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:DodgeEntryViewModel">
+                      <Border BorderBrush="#181F28" BorderThickness="0,0,0,1"
+                              Padding="18,10" Background="Transparent">
+                        <Grid ColumnDefinitions="Auto,*,Auto">
+
+                          <!-- Avatar -->
+                          <Border Grid.Column="0" Width="32" Height="32" Margin="0,0,12,0"
+                                  ClipToBounds="True" BorderBrush="#252E3A" BorderThickness="1"
+                                  Background="#1A2030">
+                            <Image asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}"
+                                   Stretch="UniformToFill"
+                                   IsVisible="{Binding AvatarUrl, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                          </Border>
+
+                          <!-- Name + date -->
+                          <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="{Binding Name}"
+                                       Foreground="#E2E6EA" FontSize="{DynamicResource FontSizeBase}"
+                                       FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding AddedDateText}"
+                                       Foreground="#556070" FontSize="{DynamicResource FontSizeSM}"/>
+                          </StackPanel>
+
+                          <!-- Remove button -->
+                          <Button Grid.Column="2" Classes="DangerButton"
+                                  Command="{Binding RemoveDodgeCommand}"
+                                  IsEnabled="{Binding !IsRemoving}"
+                                  Padding="10,4" CornerRadius="2" Cursor="Hand"
+                                  VerticalAlignment="Center">
+                            <TextBlock Text="{l:T 'profile.removeFromDodge'}"
+                                       FontSize="{DynamicResource FontSizeSM}"/>
+                          </Button>
+
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Add to dodge button -->
+                <Border Padding="18,4,18,14">
+                  <Button Classes="PrimaryButton" Command="{Binding OpenDodgeSearchCommand}"
+                          Padding="14,6" CornerRadius="2" Cursor="Hand"
+                          HorizontalAlignment="Left">
+                    <TextBlock Text="{l:T 'profile.dodgeAdd'}"
+                               FontSize="{DynamicResource FontSizeMD}"/>
+                  </Button>
+                </Border>
+
+              </StackPanel>
+            </Grid>
+          </Border>
+
+          <!-- Recalibration block (owner only, shown only when subscription tab active) -->
+          <Border IsVisible="{Binding !IsSubscriptionDataLoading}" Classes="Block">
+            <Grid RowDefinitions="36,*">
+              <Border Grid.Row="0" Classes="BlockHead">
+                <TextBlock Classes="BlockTitle" Text="{l:T 'profile.recalibration'}"/>
+              </Border>
+              <Border Grid.Row="1" Padding="18,14">
+                <StackPanel Spacing="10">
+
+                  <TextBlock Text="{l:T 'profile.recalibrationDesc'}"
+                             Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"
+                             TextWrapping="Wrap"/>
+
+                  <!-- Already active -->
+                  <StackPanel IsVisible="{Binding HasRecalibration}" Spacing="4">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <TextBlock Text="{l:T 'profile.recalibrationActive'}"
+                                 Foreground="#52B847" FontSize="{DynamicResource FontSizeMD}"
+                                 FontWeight="SemiBold"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <TextBlock Text="{l:T 'profile.recalibrationStarted'}"
+                                 Foreground="#556070" FontSize="{DynamicResource FontSizeSM}"/>
+                      <TextBlock Text="{Binding RecalibrationStartedText}"
+                                 Foreground="#99A8B4" FontSize="{DynamicResource FontSizeSM}"
+                                 FontWeight="SemiBold"/>
+                    </StackPanel>
+                  </StackPanel>
+
+                  <!-- Start button -->
+                  <Button Classes="DangerButton" IsVisible="{Binding !HasRecalibration}"
+                          Command="{Binding RequestRecalibrationCommand}"
+                          IsEnabled="{Binding !IsStartingRecalibration}"
+                          Padding="14,6" CornerRadius="2" Cursor="Hand"
+                          HorizontalAlignment="Left">
+                    <TextBlock Text="{l:T 'profile.recalibrationStart'}"
+                               FontSize="{DynamicResource FontSizeMD}"/>
+                  </Button>
+
+                </StackPanel>
+              </Border>
+            </Grid>
+          </Border>
+
+        </StackPanel>
+
+      </StackPanel>
+    </ScrollViewer>
+  </Panel>
 
 </UserControl>

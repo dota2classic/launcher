@@ -16,4 +16,5 @@ public record PlayerProfileData(
     double AvgAssists,
     double SeasonAbandonRate,
     double SeasonPlaytimeSeconds,
-    IReadOnlyList<AspectData> Aspects);
+    IReadOnlyList<AspectData> Aspects,
+    string? RecalibrationStartedAt);

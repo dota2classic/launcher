@@ -491,7 +491,8 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
                 season.Kills, season.Deaths, season.Assists,
                 abandonRate,
                 season.Playtime,
-                aspects);
+                aspects,
+                summary.Recalibration?.CreatedAt);
         }
         catch (Exception ex)
         {
@@ -581,6 +582,58 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         var api = new DotaclassicApiClient(_authHttpClient);
         var result = await api.NotificationController_getNotificationsAsync(cancellationToken).ConfigureAwait(false);
         return (IReadOnlyList<Api.NotificationDto>)result;
+    }
+
+    public async Task<Api.MeDto?> GetMeAsync(CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(_currentToken)) return null;
+        var api = new DotaclassicApiClient(_authHttpClient);
+        try
+        {
+            return await api.PlayerController_meAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error($"GetMeAsync failed: {ex.Message}", ex);
+            return null;
+        }
+    }
+
+    public async Task<IReadOnlyList<Api.DodgeListEntryDto>> GetDodgeListAsync(CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(_currentToken)) return Array.Empty<Api.DodgeListEntryDto>();
+        var api = new DotaclassicApiClient(_authHttpClient);
+        try
+        {
+            var result = await api.PlayerController_getDodgeListAsync(cancellationToken).ConfigureAwait(false);
+            return result?.ToArray() ?? Array.Empty<Api.DodgeListEntryDto>();
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error($"GetDodgeListAsync failed: {ex.Message}", ex);
+            return Array.Empty<Api.DodgeListEntryDto>();
+        }
+    }
+
+    public async Task RemoveDodgeAsync(string steamId, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(_currentToken)) return;
+        var api = new DotaclassicApiClient(_authHttpClient);
+        await api.PlayerController_unDodgePlayerAsync(new Api.DodgePlayerDto { DodgeSteamId = steamId }, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task DodgePlayerAsync(string steamId, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(_currentToken)) return;
+        var api = new DotaclassicApiClient(_authHttpClient);
+        await api.PlayerController_dodgePlayerAsync(new Api.DodgePlayerDto { DodgeSteamId = steamId }, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task StartRecalibrationAsync(CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(_currentToken)) return;
+        var api = new DotaclassicApiClient(_authHttpClient);
+        await api.PlayerController_startRecalibrationAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public void Dispose()

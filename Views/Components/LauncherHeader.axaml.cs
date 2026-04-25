@@ -56,4 +56,10 @@ public partial class LauncherHeader : UserControl
                 vm.Launch.LaunchGame();
         }
     }
+
+    private void OnD2CPlusClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is MainLauncherViewModel vm)
+            vm.OpenOwnProfileAtSubscriptionTab();
+    }
 }

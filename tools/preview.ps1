@@ -22,7 +22,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path $PSScriptRoot -Parent
-$exePath  = Join-Path $repoRoot "bin\Debug\net10.0-windows\d2c-launcher.exe"
+$exePath  = Join-Path $repoRoot "bin\Debug\net10.0-windows10.0.17763.0\d2c-launcher.exe"
 $outDir   = Join-Path $PSScriptRoot "screenshots"
 
 # --- Clean up old screenshots ---
