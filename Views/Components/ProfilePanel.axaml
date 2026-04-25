@@ -21,15 +21,15 @@
     </Style>
   </UserControl.Styles>
 
-  <Grid RowDefinitions="Auto,*">
+  <Panel>
 
     <!-- Loading indicator -->
-    <TextBlock Grid.Row="0" IsVisible="{Binding IsLoading}"
+    <TextBlock IsVisible="{Binding IsLoading}"
                Text="{x:Static res:Strings.LoadingProfile}" Foreground="#556070"
                FontSize="{DynamicResource FontSizeBase}"
-               HorizontalAlignment="Center" Margin="0,40"/>
+               HorizontalAlignment="Center" VerticalAlignment="Center"/>
     <!-- Content -->
-    <Grid Grid.Row="0" RowDefinitions="Auto,Auto,*" IsVisible="{Binding !IsLoading}">
+    <Grid RowDefinitions="Auto,Auto,*" IsVisible="{Binding !IsLoading}">
 
       <!-- ── PROFILE HERO HEADER ── -->
       <Border Grid.Row="0" Background="#0A0C0F"
@@ -557,6 +557,6 @@
       </ScrollViewer>
 
     </Grid>
-  </Grid>
+  </Panel>
 
 </UserControl>
