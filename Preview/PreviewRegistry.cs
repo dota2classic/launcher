@@ -113,6 +113,7 @@ public static class PreviewRegistry
             {
                 var api = new StubBackendApiService();
                 var vm = new ProfileViewModel(api);
+                vm.IsOwner = true;
                 _ = vm.LoadAsync("76561198000000001");
                 return (new ProfilePanel { Width = 900, Height = 600 }, vm);
             },

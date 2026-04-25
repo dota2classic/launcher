@@ -394,32 +394,33 @@
                 <TextBlock Classes="BlockTitle" Text="{l:T 'profile.subscriptionStatus'}"/>
               </Border>
               <Border Grid.Row="1" Padding="18,14">
-              <StackPanel Spacing="10">
+                <StackPanel Spacing="10">
 
-                <!-- Active subscription -->
-                <StackPanel IsVisible="{Binding HasPlusSubscription}" Spacing="6">
-                  <StackPanel Orientation="Horizontal" Spacing="8">
-                    <TextBlock Text="✦" Foreground="#C8A84B"
-                               FontSize="{DynamicResource FontSizeLG}" VerticalAlignment="Center"/>
-                    <TextBlock Text="{l:T 'profile.subscriptionActive'}"
-                               Foreground="#C8A84B" FontWeight="SemiBold"
-                               FontSize="{DynamicResource FontSizeLG}" VerticalAlignment="Center"/>
+                  <!-- Active subscription -->
+                  <StackPanel IsVisible="{Binding HasPlusSubscription}" Spacing="6">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                      <TextBlock Text="✦" Foreground="#C8A84B"
+                                 FontSize="{DynamicResource FontSizeLG}" VerticalAlignment="Center"/>
+                      <TextBlock Text="{l:T 'profile.subscriptionActive'}"
+                                 Foreground="#C8A84B" FontWeight="SemiBold"
+                                 FontSize="{DynamicResource FontSizeLG}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <TextBlock Text="{l:T 'profile.subscriptionExpires'}"
+                                 Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"/>
+                      <TextBlock Text="{Binding PlusSubscriptionEndText}"
+                                 Foreground="#99A8B4" FontSize="{DynamicResource FontSizeMD}"
+                                 FontWeight="SemiBold"/>
+                    </StackPanel>
                   </StackPanel>
-                  <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock Text="{l:T 'profile.subscriptionExpires'}"
-                               Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"/>
-                    <TextBlock Text="{Binding PlusSubscriptionEndText}"
-                               Foreground="#99A8B4" FontSize="{DynamicResource FontSizeMD}"
-                               FontWeight="SemiBold"/>
-                  </StackPanel>
+
+                  <!-- No active subscription -->
+                  <TextBlock IsVisible="{Binding !HasPlusSubscription}"
+                             Text="{l:T 'profile.subscriptionNone'}"
+                             Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"/>
+
                 </StackPanel>
-
-                <!-- No active subscription -->
-                <TextBlock IsVisible="{Binding !HasPlusSubscription}"
-                           Text="{l:T 'profile.subscriptionNone'}"
-                           Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"/>
-
-              </StackPanel>
+              </Border>
             </Grid>
           </Border>
 
@@ -432,16 +433,10 @@
               <StackPanel Grid.Row="1">
 
                 <!-- Empty state -->
-                <TextBlock IsVisible="{Binding DodgeList.Count, Converter={x:Static ObjectConverters.IsNull}}"
+                <TextBlock IsVisible="{Binding !DodgeList.Count}"
                            Text="{l:T 'profile.dodgeListEmpty'}"
                            Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"
                            Padding="18,14"/>
-                <Border IsVisible="{Binding DodgeList.Count, Converter={x:Static ObjectConverters.IsNotNull}}"
-                        Padding="18,10">
-                  <TextBlock IsVisible="{Binding !DodgeList.Count}"
-                             Text="{l:T 'profile.dodgeListEmpty'}"
-                             Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"/>
-                </Border>
 
                 <!-- Dodge entries -->
                 <ItemsControl ItemsSource="{Binding DodgeList}">
