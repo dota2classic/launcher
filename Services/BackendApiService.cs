@@ -159,7 +159,7 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
             return Array.Empty<InviteCandidateView>();
 
         AppLog.Info($"Searching players: name='{name}', count={count}");
-        var api = new DotaclassicApiClient(_httpClient);
+        var api = new DotaclassicApiClient(_authHttpClient);
         var users = await api.PlayerController_searchAsync(name, count, cancellationToken);
         if (users == null)
             return Array.Empty<InviteCandidateView>();
@@ -184,6 +184,44 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
 
         AppLog.Info($"Search returned {result.Count} players.");
         return result;
+    }
+
+    public async Task<IReadOnlyList<InviteCandidateView>> GetFriendsAsync(CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(_currentToken))
+            return Array.Empty<InviteCandidateView>();
+
+        try
+        {
+            AppLog.Info("Loading friends for invite candidates.");
+            var api = new DotaclassicApiClient(_authHttpClient);
+            var users = await api.PlayerController_getFriendsAsync(cancellationToken).ConfigureAwait(false);
+            if (users == null)
+                return Array.Empty<InviteCandidateView>();
+
+            var result = new List<InviteCandidateView>(users.Count);
+            foreach (var user in users)
+            {
+                if (user == null || string.IsNullOrWhiteSpace(user.SteamId))
+                    continue;
+
+                var displayName = !string.IsNullOrWhiteSpace(user.Name) ? user.Name : user.SteamId;
+                if (string.IsNullOrWhiteSpace(displayName))
+                    continue;
+
+                var initials = GetInitials(displayName);
+                var avatarUrl = user.AvatarSmall ?? user.Avatar;
+                result.Add(new InviteCandidateView(user.SteamId, displayName, initials, false, avatarUrl));
+            }
+
+            AppLog.Info($"Loaded {result.Count} friends.");
+            return result;
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error($"GetFriendsAsync failed: {ex.Message}", ex);
+            return Array.Empty<InviteCandidateView>();
+        }
     }
 
     public async Task<(string? Name, string? AvatarUrl)?> GetUserInfoAsync(string steamId, CancellationToken cancellationToken = default)

@@ -16,6 +16,8 @@ public interface IBackendApiService
     /// <summary>Returns labels for all matchmaking modes, including disabled ones. Used by the Live panel.</summary>
     Task<IReadOnlyList<MatchmakingModeInfo>> GetAllMatchmakingModesAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<InviteCandidateView>> SearchPlayersAsync(string name, int count = 25, CancellationToken cancellationToken = default);
+    /// <summary>Returns the authenticated user's friends list for use as initial invite candidates.</summary>
+    Task<IReadOnlyList<InviteCandidateView>> GetFriendsAsync(CancellationToken cancellationToken = default);
     Task<(string? Name, string? AvatarUrl)?> GetUserInfoAsync(string steamId, CancellationToken cancellationToken = default);
     Task<(int InGame, int OnSite)> GetOnlineStatsAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ChatMessageData>> GetChatMessagesAsync(string threadId, int limit, CancellationToken cancellationToken = default);
