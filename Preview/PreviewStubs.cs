@@ -188,6 +188,15 @@ internal sealed class StubBackendApiService : IBackendApiService
         await Task.Delay(Timeout.Infinite, cancellationToken).ConfigureAwait(false);
         yield break;
     }
+
+    public Task<d2c_launcher.Api.MeDto?> GetMeAsync(CancellationToken cancellationToken = default)
+        => Task.FromResult<d2c_launcher.Api.MeDto?>(null);
+
+    public Task<IReadOnlyList<d2c_launcher.Api.DodgeListEntryDto>> GetDodgeListAsync(CancellationToken cancellationToken = default)
+        => Task.FromResult<IReadOnlyList<d2c_launcher.Api.DodgeListEntryDto>>(Array.Empty<d2c_launcher.Api.DodgeListEntryDto>());
+
+    public Task RemoveDodgeAsync(string steamId, CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
 }
 
 internal sealed class StubEmoticonService : IEmoticonService

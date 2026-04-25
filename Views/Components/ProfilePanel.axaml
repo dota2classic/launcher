@@ -4,6 +4,7 @@
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              xmlns:components="using:d2c_launcher.Views.Components"
              xmlns:res="clr-namespace:d2c_launcher.Resources"
+             xmlns:l="clr-namespace:d2c_launcher.Util"
              x:Class="d2c_launcher.Views.Components.ProfilePanel"
              x:DataType="vm:ProfileViewModel">
 
@@ -168,14 +169,23 @@
       <Border Grid.Row="1" Background="#0A0C0F"
               BorderBrush="#252E3A" BorderThickness="0,0,0,1">
         <StackPanel Orientation="Horizontal" Margin="24,0,0,0">
-          <Border Classes="SubTab SubTabActive" Margin="0,0,0,-1">
-            <TextBlock Classes="SubTabText SubTabTextActive" Text="{x:Static res:Strings.TabGeneral}"/>
+          <Border Classes="SubTab" Classes.SubTabActive="{Binding IsGeneralTabActive}"
+                  Margin="0,0,0,-1" Tapped="OnGeneralTabTapped">
+            <TextBlock Classes="SubTabText" Classes.SubTabTextActive="{Binding IsGeneralTabActive}"
+                       Text="{l:T 'profile.tabGeneral'}"/>
+          </Border>
+          <Border Classes="SubTab" Classes.SubTabActive="{Binding IsSubscriptionTabActive}"
+                  IsVisible="{Binding IsOwner}"
+                  Margin="0,0,0,-1" Tapped="OnSubscriptionTabTapped">
+            <TextBlock Classes="SubTabText" Classes.SubTabTextActive="{Binding IsSubscriptionTabActive}"
+                       Text="{l:T 'profile.tabSubscription'}"/>
           </Border>
         </StackPanel>
       </Border>
 
-      <!-- ── CONTENT: 3 equal columns ── -->
-      <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+      <!-- ── CONTENT: General tab ── -->
+      <ScrollViewer Grid.Row="2" IsVisible="{Binding IsGeneralTabActive}"
+                    VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <Grid Margin="20" HorizontalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -364,6 +374,122 @@
           </Border>
 
         </Grid>
+      </ScrollViewer>
+
+      <!-- ── CONTENT: Subscription tab ── -->
+      <ScrollViewer Grid.Row="2" IsVisible="{Binding IsSubscriptionTabActive}"
+                    VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="20" Spacing="16">
+
+          <!-- Loading spinner -->
+          <TextBlock IsVisible="{Binding IsSubscriptionDataLoading}"
+                     Text="{l:T 'profile.loading'}" Foreground="#556070"
+                     FontSize="{DynamicResource FontSizeBase}"
+                     HorizontalAlignment="Center" Margin="0,20"/>
+
+          <!-- Subscription status block -->
+          <Border IsVisible="{Binding !IsSubscriptionDataLoading}" Classes="Block">
+            <Grid RowDefinitions="36,*">
+              <Border Grid.Row="0" Classes="BlockHead">
+                <TextBlock Classes="BlockTitle" Text="{l:T 'profile.subscriptionStatus'}"/>
+              </Border>
+              <Border Grid.Row="1" Padding="18,14">
+              <StackPanel Spacing="10">
+
+                <!-- Active subscription -->
+                <StackPanel IsVisible="{Binding HasPlusSubscription}" Spacing="6">
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="✦" Foreground="#C8A84B"
+                               FontSize="{DynamicResource FontSizeLG}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{l:T 'profile.subscriptionActive'}"
+                               Foreground="#C8A84B" FontWeight="SemiBold"
+                               FontSize="{DynamicResource FontSizeLG}" VerticalAlignment="Center"/>
+                  </StackPanel>
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="{l:T 'profile.subscriptionExpires'}"
+                               Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"/>
+                    <TextBlock Text="{Binding PlusSubscriptionEndText}"
+                               Foreground="#99A8B4" FontSize="{DynamicResource FontSizeMD}"
+                               FontWeight="SemiBold"/>
+                  </StackPanel>
+                </StackPanel>
+
+                <!-- No active subscription -->
+                <TextBlock IsVisible="{Binding !HasPlusSubscription}"
+                           Text="{l:T 'profile.subscriptionNone'}"
+                           Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"/>
+
+              </StackPanel>
+            </Grid>
+          </Border>
+
+          <!-- Dodge list block -->
+          <Border IsVisible="{Binding !IsSubscriptionDataLoading}" Classes="Block">
+            <Grid RowDefinitions="36,*">
+              <Border Grid.Row="0" Classes="BlockHead">
+                <TextBlock Classes="BlockTitle" Text="{l:T 'profile.dodgeList'}"/>
+              </Border>
+              <StackPanel Grid.Row="1">
+
+                <!-- Empty state -->
+                <TextBlock IsVisible="{Binding DodgeList.Count, Converter={x:Static ObjectConverters.IsNull}}"
+                           Text="{l:T 'profile.dodgeListEmpty'}"
+                           Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"
+                           Padding="18,14"/>
+                <Border IsVisible="{Binding DodgeList.Count, Converter={x:Static ObjectConverters.IsNotNull}}"
+                        Padding="18,10">
+                  <TextBlock IsVisible="{Binding !DodgeList.Count}"
+                             Text="{l:T 'profile.dodgeListEmpty'}"
+                             Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"/>
+                </Border>
+
+                <!-- Dodge entries -->
+                <ItemsControl ItemsSource="{Binding DodgeList}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:DodgeEntryViewModel">
+                      <Border BorderBrush="#181F28" BorderThickness="0,0,0,1"
+                              Padding="18,10" Background="Transparent">
+                        <Grid ColumnDefinitions="Auto,*,Auto">
+
+                          <!-- Avatar -->
+                          <Border Grid.Column="0" Width="32" Height="32" Margin="0,0,12,0"
+                                  ClipToBounds="True" BorderBrush="#252E3A" BorderThickness="1"
+                                  Background="#1A2030">
+                            <Image asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}"
+                                   Stretch="UniformToFill"
+                                   IsVisible="{Binding AvatarUrl, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                          </Border>
+
+                          <!-- Name + date -->
+                          <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                            <TextBlock Text="{Binding Name}"
+                                       Foreground="#E2E6EA" FontSize="{DynamicResource FontSizeBase}"
+                                       FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding AddedDateText}"
+                                       Foreground="#556070" FontSize="{DynamicResource FontSizeSM}"/>
+                          </StackPanel>
+
+                          <!-- Remove button -->
+                          <Button Grid.Column="2" Classes="DangerButton"
+                                  Command="{Binding RemoveDodgeCommand}"
+                                  IsEnabled="{Binding !IsRemoving}"
+                                  Padding="10,4" CornerRadius="2" Cursor="Hand"
+                                  VerticalAlignment="Center">
+                            <TextBlock Text="{l:T 'profile.removeFromDodge'}"
+                                       FontSize="{DynamicResource FontSizeSM}"/>
+                          </Button>
+
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+              </StackPanel>
+            </Grid>
+          </Border>
+
+        </StackPanel>
       </ScrollViewer>
 
     </Grid>

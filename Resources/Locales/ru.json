@@ -231,7 +231,16 @@
     "assists": "Помощи",
     "gamesPlayed": "Игр сыграно",
     "abandonedGames": "Покинутых игр",
-    "timeInGame": "Времени в игре"
+    "timeInGame": "Времени в игре",
+    "tabGeneral": "ОБЩЕЕ",
+    "tabSubscription": "ПОДПИСКА",
+    "subscriptionStatus": "СТАТУС ПОДПИСКИ",
+    "subscriptionActive": "Dotaclassic Plus активна",
+    "subscriptionExpires": "Действует до",
+    "subscriptionNone": "Нет активной подписки",
+    "dodgeList": "СПИСОК УКЛОНЕНИЙ",
+    "dodgeListEmpty": "Список уклонений пуст",
+    "removeFromDodge": "Удалить"
   },
   "streams": {
     "tabLabel": "СТРИМЫ",

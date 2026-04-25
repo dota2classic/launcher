@@ -33,7 +33,7 @@ MainLauncherView
 
 - **Minimal friction:** If Steam is running and the game is installed, the user should reach the main screen in under 2 seconds
 - **Real-time feedback:** Queue position, party status, and game search updates arrive via Socket.IO without user action
-- **Russian language:** All UI text is in Cyrillic. No localization framework — strings are hardcoded
+- **Russian language:** All UI text is in Cyrillic. Uses `I18n` system (`Resources/Locales/ru.json`, `I18n.T()`, `{l:T}` XAML extension)
 - **Reliable auth:** SteamBridge subprocess approach is used specifically because trimmed .NET publish breaks Steamworks.NET when loaded in-process. Reliability over simplicity
 - **Settings parity:** Users expect the launcher to reflect and respect their in-game settings. The bi-directional config sync ensures the launcher stays in sync even when the user changes settings inside the game
 

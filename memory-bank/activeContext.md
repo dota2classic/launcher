@@ -2,53 +2,29 @@
 
 ## Current State
 
-All major features are shipped. The launcher is in maintenance/polish mode. Working on #167 (detect remote game updates while launcher stays open, gate launch until update installs, and prompt the user to install immediately).
+All major features are shipped. The launcher is in maintenance/polish mode.
 
-Repository AI workflow files now use a shared `.agents/` layout. `.agents/commands/` and `.agents/agents/` are the canonical copies, Codex picks up wrappers from `.agents/skills/`, and `.claude/commands` plus `.claude/agents` are directory junctions that preserve Claude compatibility without duplicating prompt files.
-
----
-
-## Recently Completed (last few sessions)
-
-| Issue | What was done |
-|-------|--------------|
-| #133 | Extracted `IUserNameResolver`, `IEmoticonSnapshotBuilder`, `IChatMessageStream`/`IChatMessageStreamFactory` from `ChatViewModel` (550→~230 lines); all three registered as singletons; `ChatViewModelFactory` updated; preview stubs updated |
-| #135 | Extracted `ICvarRegistry`, `ICvarFileService`, `IGameWindowService` — injectable wrappers around static `CvarMapping`, `DotaCfgReader`/`DotaCfgWriter`, `DotaConsoleConnector`; `CvarSettingsProvider` and `GameLaunchViewModel` now use interfaces |
-| #106 | Skip connect if already on target server — `IsAlreadyConnectedToAsync` in `GameLaunchViewModel`: sends `status` via NetCon, parses port from `type(dedicated)` line, returns early if port matches `ServerUrl`; PR #129 |
-| #120 | Migrated game console interaction from WM_COPYDATA to NetCon: `INetConService`/`NetConService` singleton; lifecycle managed in `GameLaunchViewModel` via `RefreshRunState` transitions; `PushCvarIfGameRunning` and `ConnectToGameAsync` now use `SendCommandAsync`; `DotaConsoleConnector` kept only for window operations |
-| #117 | Bot game progress on human mode lock — new `botGameProgress` field (0–1) from backend shown as X% in restriction text on locked human game mode cards; also refreshed OpenAPI spec + regenerated client; PR #119 |
-| #112 | Emoticon picker flyout on chat input emoji button — inserts `:code:` at caret position; `InputEmoticonPicker` in `ChatViewModel`; `OnInputEmoticonClicked` in code-behind handles caret-aware insertion |
-| #109 | Trivia (Shopkeeper's Quiz style) while searching — TriviaViewModel, ITriviaRepository/LocalJsonTriviaRepository, TriviaPanel; shows in GameSearchPanel replacing mode list when IsSearching; item recipe + multiple choice types; 20s timer, 3 guesses, cumulative score |
-| #104 | Design standardisation: added `PrimaryButton`, `DangerButton`, `ToastDismissButton` global styles; `FontSize2XS=9`, `FontSize2XL5=20` tokens; replaced all hardcoded font sizes in LivePanel, ProfilePanel, LauncherHeader with tokens; unified button colors (red → `#c23c2a`, blue → `#1a5aaa`→`#3a90d6` gradient) across AcceptGameModal, MainLauncherView, NotificationArea, LauncherHeader |
-| #102 | Dotaclassic Plus badge in chat is now a clickable Button; opens `https://dotaclassic.ru/store` via `OnDotaclassicPlusClicked` in `ChatPanel.axaml.cs` |
-| #98 | Player role icons in chat message headers — shield for moderator (bronze) / admin (grey), custom image or star for OLD subscriber; data flows from `UserDTO.Roles`/`Icon`/`Title` → `ChatMessageData` → `ChatMessageView` → `ChatPanel.axaml` |
-| #97 | Chat react hover toolbar + picker — `ChatQuickReactViewModel`; `EmoticonData` now has `Id`; `IEmoticonService.LoadEmoticonsAsync()` returns images + ordered list; hover toolbar shows top-3 + flyout picker |
-| #96 | Chat reactions — `ChatReactionViewModel`, `ChatReactionData`, reaction pills in `ChatPanel.axaml`; SSE uses `ThreadMessageDTO` deserialization |
-| #95 | i18n achievement notifications — `ru.json` strings for all achievement keys; `AchievementToastViewModel` looks up title via `I18n.T()` |
-| #94 | JSON-based i18n system — `Resources/Locales/ru.json`, `I18n.cs`, `{l:T}` XAML extension; `Strings.cs` now delegates to `I18n.T()` |
-| #92 | Achievement toast notifications — `AchievementToastViewModel`, `NotificationCreated` socket event routing, local asset images |
-| #93 | +connect on launch — `LaunchGame($"+connect {url}")` when game not running |
-| #88 | SettingsViewModel split — `GameSettingsViewModel`, `LauncherPrefsViewModel`, `DlcViewModel`; `SettingsPanel` is now a tab shell |
-| #90 | FakeSteamManager + integration tests — 12 state-transition and AuthCoordinator tests |
-| #80 | Live matches tab — `LiveViewModel`, `LivePanel`, minimap with animated hero positions |
-| #23 | Abandon game — red X button + confirm overlay; excludes unranked/highroom modes |
+Repository AI workflow files use a shared `.agents/` layout. `.agents/commands/` and `.agents/agents/` are the canonical copies; `.claude/commands` and `.claude/agents` are Windows directory junctions to them.
 
 ---
 
-## Recently Completed (last few sessions)
+## Recently Completed
 
 | Issue | What was done |
 |-------|--------------|
-| #69 | Added default-on Windows auto-launch via HKCU Run with `--background-start`; background starts hidden in tray, enters launcher for auth/socket notifications, then runs throttled manifest scan/diff after a delay; foreground/manual launches keep full verification; opening the hidden launcher before verification completes escalates to the normal verification UI |
-| #69 follow-up | Review fixes: `HandleProtocolUrl()` now marshals the pre-verification branch back to the UI thread before changing `AppState`, and background verification failures now log `[GameDownload]` errors plus Faro `verification_failed` telemetry so hidden-start problems are observable |
-| #164 | Cleared build/test warnings: pinned patched `System.Drawing.Common` 4.7.2 and `Tmds.DBus.Protocol` 0.21.3, targeted tests to `net10.0-windows`, and removed invalid xUnit value-tuple null asserts; `dotnet build` and `dotnet test d2c-launcher.Tests` now report 0 warnings |
-| #159 | Fixed local scan drive detection always falling back to `HDD/unknown` — `LocalManifestService` now uses a hybrid lookup: first `MSFT_PhysicalDisk.DeviceId == Win32_DiskDrive.Index` (works on common desktop providers), then `MSFT_StorageNodeToPhysicalDisk.DiskNumber` as a fallback before reading `MSFT_PhysicalDisk.MediaType`; SSD installs can use parallel hashing again on the machines we tested |
-| #148 | Streams tab — `StreamsViewModel` polls `/v1/stats/twitch` every 60s; `StreamsPanel` shows Twitch-like preview cards (thumbnail, title, viewer count, streamer name, clickable link); tab only visible in header when `HasStreams` is true; auto-navigates to Play if streams disappear while tab is active |
-| #154 | Chat stuck in loading state — `ChatViewModel.RefreshAsync` now clears `IsLoading` in `finally` (only when the call is still the latest), fixing leaks on cancel paths; added `RefreshIfEmpty()` called from `MainLauncherViewModel.OnActiveTabChanged` so tab switches retry a failed initial load |
-| #155 | Matchmaking Windows toasts — hidden launcher now shows actionable native toasts for party invites and ready checks; toast buttons route through `d2c://party-invite/...` and `d2c://ready-check/...`; `WindowService` preserves `WindowShown` after eager visibility updates |
-| #155 follow-up | Activation-path cleanup refined — `App.axaml.cs` now keeps normal protocol launches foregrounding the launcher, preserves forwarded `-ToastActivated` restore behavior, restores the launcher for positive toast actions (`accept`, `enter queue`, `d2c://game`), and leaves negative actions like `decline` in the background |
-| #169 | Ready-check decline false positive — backend now sends explicit `PLAYER_DECLINE_GAME` socket events with `reason=DECLINED|TIMEOUT`; `QueueSocketService` forwards that payload and `RoomViewModel` now shows the local timeout modal only for `TIMEOUT`, while `DECLINED` just closes the ready-check UI and returns to matchmaking without any heuristic queue-state delay |
-| #167 | Remote game updates while launcher stays open — `GameDownloadViewModel` now reports a combined verified manifest snapshot back to `MainWindowViewModel`; the root VM polls remote manifests every 3 minutes without rescanning disk, compares them against that in-memory snapshot, and marks `update pending` when remote files diverge. Launch is gated in `GameLaunchViewModel`, the Play-tab queue/search button now switches to `ОБНОВИТЬ ИГРУ` and starts install instead of queueing, `MainLauncherView` shows an install-now modal, hidden/inactive launcher windows receive a one-shot native Windows toast when an update first becomes pending, and all install-update entry points now converge on one path that stops Dota, leaves all queues, and then re-enters verification |
+| #176 | Notification sound volume setting |
+| #172 | Detect pending remote game updates (#167 follow-up) |
+| #170 | Suppress stale ready-check timeout modal |
+| #166 | Background startup |
+| #165 | Clear vulnerable package warnings |
+| #169 | Ready-check decline false positive — explicit `PLAYER_DECLINE_GAME` socket event with `DECLINED`/`TIMEOUT`; modal shown only for `TIMEOUT` |
+| #167 | Remote game updates while launcher stays open — in-memory verified manifest snapshot; 3-minute remote poll; launch gated; native toast on update pending |
+| #155 | Native Windows matchmaking toasts — actionable toast buttons for party invite and ready check |
+| #148 | Streams tab — polls `/v1/stats/twitch`; auto-hides when empty |
+| #164 | Build/test warning cleanup |
+| #69  | Auto-launch on Windows startup with `--background-start`; background launch stays hidden in tray |
+
+---
 
 ## Next Steps / Open Issues
 
@@ -58,8 +34,8 @@ Repository AI workflow files now use a shared `.agents/` layout. `.agents/comman
 | #21 | Setting autorepeat doesn't work — may not be a cvar bug |
 | #18 | Parallelize local file scan + remote manifest load |
 | #13 | Support chat scrolling |
-| #8 | Research crash dump analysis |
-| #7 | Handling game crashes |
+| #8  | Research crash dump analysis |
+| #7  | Handling game crashes |
 
 ---
 
@@ -71,13 +47,4 @@ Repository AI workflow files now use a shared `.agents/` layout. `.agents/comman
 | `QueueSocketService.Dispose()` blocks UI | `Task.Run+.Wait` up to 2s |
 | Chat thread ID hardcoded | `"17aa3530-d152-462e-a032-909ae69019ed"` in `ChatViewModel` |
 | Keybind settings UI | `config.cfg` bind lines parsed but not exposed in UI |
-
----
-
-## Active Decisions / Patterns to Remember
-
-- **Localization:** Never hardcode Russian strings. Use `I18n.T("section.key")` / `{l:T 'key'}`. `Strings.cs` is legacy — do not add entries.
-- **Settings sub-VMs:** Gameplay/video cvars → `GameSettingsViewModel`; launcher prefs → `LauncherPrefsViewModel`. `SettingsViewModel` is a thin container.
-- **Game mode default:** Mode ID 7 (Bots). Mode 12 no longer exists.
-- **Preview tool:** Run `powershell -ExecutionPolicy Bypass -File tools/preview.ps1 <Name>` — always use `Read` on the screenshot to verify before declaring done.
-- **Remote game updates:** Keep the verified local manifest snapshot only in memory for the current session. Periodic update detection compares fresh remote manifests against that snapshot; it must not rescan local files on every poll.
+| Extra launch args UI | `ExtraArgs` field in model; no UI |

@@ -117,9 +117,7 @@ var args = CfgGenerator.BuildCliArgs(launchSettings); // "-novid -language russi
 Process.Start(new ProcessStartInfo { FileName = dotaExePath, Arguments = args });
 ```
 
-Runtime console commands (after launch) are sent via P/Invoke:
-- `FindWindowA("Valve001", null)` — find the game window
-- `SendMessageA(hwnd, WM_COPYDATA, ...)` — send a console command string
+Runtime console commands (after launch) are sent via NetCon (`INetConService` / `NetConService`) — a TCP connection to the game's console port. `DotaConsoleConnector` is kept only for window operations (e.g. finding the game window handle).
 
 → See `memory-bank/docs/source-engine-launch.md` for `-flag` vs `+command` semantics.
 

@@ -68,6 +68,19 @@
     <Style Selector="Button#SettingsButton.active materialIcons|MaterialIcon">
       <Setter Property="Foreground" Value="White"/>
     </Style>
+    <!-- D2C Plus button -->
+    <Style Selector="Button#D2CPlusButton /template/ ContentPresenter">
+      <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style Selector="Button#D2CPlusButton:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style Selector="Button#D2CPlusButton Image">
+      <Setter Property="Opacity" Value="0.5"/>
+    </Style>
+    <Style Selector="Button#D2CPlusButton:pointerover Image">
+      <Setter Property="Opacity" Value="1"/>
+    </Style>
   </UserControl.Styles>
 
   <Border BorderBrush="#1e2530" BorderThickness="0">
@@ -209,6 +222,12 @@
                 Cursor="Hand" Click="OnSettingsTabClicked"
                 Classes.active="{Binding IsSettingsOpen}">
           <materialIcons:MaterialIcon Kind="Cog" Width="20" Height="20"/>
+        </Button>
+        <Button x:Name="D2CPlusButton" VerticalAlignment="Stretch" Padding="10,8"
+                Background="Transparent" BorderThickness="0" CornerRadius="0"
+                Cursor="Hand" Click="OnD2CPlusClicked"
+                ToolTip.Tip="Dotaclassic Plus">
+          <Image Source="avares://d2c-launcher/Assets/icon.ico" Width="20" Height="20"/>
         </Button>
         <Button x:Name="ProfileButton" VerticalAlignment="Stretch" Padding="10,8"
                 Background="Transparent" BorderThickness="0" CornerRadius="0"

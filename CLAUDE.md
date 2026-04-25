@@ -8,213 +8,77 @@ At the start of **every session**, read all files in `memory-bank/`:
 |------|---------------|
 | [`memory-bank/projectbrief.md`](memory-bank/projectbrief.md) | Project identity and scope |
 | [`memory-bank/productContext.md`](memory-bank/productContext.md) | Why it exists, user journey, UX goals |
-| [`memory-bank/systemPatterns.md`](memory-bank/systemPatterns.md) | Architecture and coding patterns |
-| [`memory-bank/techContext.md`](memory-bank/techContext.md) | Tech stack, tools, build commands |
+| [`memory-bank/systemPatterns.md`](memory-bank/systemPatterns.md) | Architecture, coding patterns, key files |
+| [`memory-bank/techContext.md`](memory-bank/techContext.md) | Tech stack, build commands, dev tools |
 | [`memory-bank/activeContext.md`](memory-bank/activeContext.md) | Current focus and recent changes |
 | [`memory-bank/progress.md`](memory-bank/progress.md) | Feature status and known gaps |
 
 As you work:
 - Update `memory-bank/activeContext.md` when focus shifts or significant progress is made
 - Update `memory-bank/progress.md` when features complete or new issues are found
-- Add new files to `memory-bank/docs/` when you discover domain knowledge, and add an entry to the table below
-
----
-
-## Project Overview
-
-**D2C Launcher** is a Windows desktop application for **Dotaclassic** — a community-maintained server running the old Dota 2 on the Source 1 engine. The launcher handles:
-
-- Steam authentication (via SteamBridge subprocess)
-- Matchmaking queue and real-time updates (Socket.IO)
-- Party management (invite, accept, leave)
-- Game install validation and launching
-- Application auto-updates (Velopack + GitHub Releases)
-
-**Backend API:** `https://api.dotaclassic.ru`
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Language | C# (.NET 10.0) |
-| UI Framework | Avalonia UI 11.x (Fluent theme, dark) |
-| UI Pattern | MVVM via `CommunityToolkit.Mvvm` |
-| DI Container | `Microsoft.Extensions.DependencyInjection` |
-| Real-time | `SocketIOClient` (Socket.IO / WebSocket) |
-| Steam | `Steamworks.NET` + custom `SteamBridge` subprocess |
-| API Client | NSwag-generated from `api-openapi.json` |
-| Audio | `NAudio` |
-| Updates | `Velopack` |
-| Dialogs | `DialogHost.Avalonia` |
-| Icons | `Material.Icons.Avalonia` |
-
----
-
-## Key Directories
-
-- `Views/` — Avalonia XAML UI; `Components/` for reusable sub-views
-- `ViewModels/` — MVVM ViewModels (CommunityToolkit)
-- `Services/` — Business logic: REST API, WebSocket, Steam auth, settings, updates
-- `Models/` — DTOs and domain models
-- `Integration/` — Steam process monitoring (`SteamManager`), Dota console commands
-- `Util/` — Logging, audio, P/Invoke, XAML converters
-- `Generated/` — NSwag-generated API client (**do not edit**)
-- `SteamBridge/` — Separate console app that queries Steam SDK and outputs JSON to stdout
-- `tools/mockups/` — HTML reference mockups for Avalonia UI design (rendered via `screenshot-html.ps1`)
-
----
-
-## Architecture
-
-See [`memory-bank/systemPatterns.md`](memory-bank/systemPatterns.md) for all architecture patterns (state routing, MVVM, SteamBridge, real-time, settings sync, game launch, API client).
-
----
-
-## Build & Run
-
-### Prerequisites
-- .NET 10.0 SDK
-- Steam must be running for testing Steam auth features
-- The launcher uses Steam App ID **480** (Spacewar/demo). Dota 2 itself ships its own `steam_appid.txt` — do not add or override it for the game directory
-
-### Build
-```bash
-dotnet build
-```
-
-### Run (debug)
-```bash
-dotnet run --project d2c-launcher
-```
-
-### Publish (production, win-x64)
-```bash
-dotnet publish d2c-launcher -c Release -r win-x64 --self-contained
-dotnet publish SteamBridge -c Release -r win-x64 --self-contained -p:PublishTrimmed=true
-```
-
-### Release
-Push a tag matching `v*.*.*` to trigger GitHub Actions. The workflow:
-1. Builds and publishes both projects
-2. Packs with Velopack
-3. Creates a GitHub Release with the artifacts
-
----
-
-## Localization
-- UI text is in **Russian** (Cyrillic)
-- Uses `I18n` system: strings in `Resources/Locales/ru.json`, accessed via `I18n.T("section.key")` in C# and `{l:T 'section.key'}` in XAML
-- `Resources/Strings.cs` is legacy — do **not** add new entries there; use `I18n.T()` directly
-- See `memory-bank/docs/localization.md` for full details
-
----
-
-## Important Files
-
-| File | Purpose |
-|------|---------|
-| [App.axaml.cs](App.axaml.cs) | DI registration, app startup |
-| [Integration/SteamManager.cs](Integration/SteamManager.cs) | Steam process monitoring, auth tickets |
-| [Services/QueueSocketService.cs](Services/QueueSocketService.cs) | Socket.IO real-time events |
-| [Services/BackendApiService.cs](Services/BackendApiService.cs) | REST API calls |
-| [ViewModels/MainWindowViewModel.cs](ViewModels/MainWindowViewModel.cs) | App state routing |
-| [ViewModels/MainLauncherViewModel.cs](ViewModels/MainLauncherViewModel.cs) | Main screen logic |
-| [Generated/DotaclassicApiClient.g.cs](Generated/DotaclassicApiClient.g.cs) | **Auto-generated — do not edit** |
-| [SteamBridge/Program.cs](SteamBridge/Program.cs) | Steam SDK subprocess |
-| [api-openapi.json](api-openapi.json) | Backend OpenAPI spec |
+- Add new files to `memory-bank/docs/` when you discover domain knowledge; link them from `CLAUDE.md` Documentation table and from the table in `memory-bank/techContext.md`
 
 ---
 
 ## Developer Tools
 
-### Component Preview (Storybook-like)
-
-Render a single UI component in isolation — without running the full launcher.
-
 ```powershell
-# From repo root (use powershell, not pwsh — pwsh is not installed):
-powershell -ExecutionPolicy Bypass -File tools/preview.ps1 PartyPanel
+# Component preview (no Steam needed) — use powershell, not pwsh
+powershell -ExecutionPolicy Bypass -File tools/preview.ps1 <ComponentName>
+
+# HTML screenshot (headless Chrome)
+powershell -ExecutionPolicy Bypass -File tools/screenshot-html.ps1 path/to/file.html
 ```
 
-The script builds incrementally and launches the app in `--preview` mode. Use the `Read` tool on the screenshot path to verify visually.
+After UI changes, run preview and use the `Read` tool on the screenshot path to verify visually before declaring done.
 
-**Available components:**
+Registry: `Preview/PreviewRegistry.cs` — stubs: `Preview/PreviewStubs.cs`
 
-| Name | View | ViewModel |
-|------|------|-----------|
-| `PartyPanel` | Party member list with invite button | `PartyViewModel` (stub) |
-| `QueueButton` | Matchmaking search button | `QueueViewModel` (stub) |
-| `GameSearchPanel` | Mode checkboxes (shows 3 mock modes) | `QueueViewModel` (stub) |
-| `AcceptGameModal` | Ready check accept/decline dialog | `RoomViewModel` (stub) |
-| `NotificationArea` | Floating invite notifications | `NotificationAreaViewModel` (stub) |
-| `LaunchSteamFirst` | "Launch Steam first" screen | `LaunchSteamFirstViewModel` |
-| `SelectGame` | Game directory picker screen | `SelectGameViewModel` |
+---
 
-**To add a new component to the registry:** edit [Preview/PreviewRegistry.cs](Preview/PreviewRegistry.cs) and add an entry.
-Stub services are in [Preview/PreviewStubs.cs](Preview/PreviewStubs.cs).
+## Localization
 
-**Note:** Steam does not need to be running for the preview tool to work.
-
-### HTML Screenshot
-
-To render an arbitrary HTML file and screenshot it (useful for mockups and design iteration):
-
-```powershell
-# From repo root (use powershell, not pwsh):
-powershell -ExecutionPolicy Bypass -File tools/screenshot-html.ps1 tools/mockups/d2c-launcher-views.html
-powershell -ExecutionPolicy Bypass -File tools/screenshot-html.ps1 tools/mockups/some-mockup.html -Width 1200 -Height 900
-# → C:\...\tools\screenshots\20260302_143201.png
-```
-
-Uses headless Chrome (`--headless`) — no window management, no Steam required. Width/Height default to 1000×800.
-
-HTML mockups live in `tools/mockups/` — reference designs for building Avalonia UI, rendered with this tool.
+- Never hardcode Russian strings — use `I18n.T("section.key")` in C# or `{l:T 'section.key'}` in XAML
+- Add strings to `Resources/Locales/ru.json`; `Resources/Strings.cs` is legacy — do not add new entries there
+- See `memory-bank/docs/localization.md` for full details
 
 ---
 
 ## Documentation
 
-Project documentation lives in `memory-bank/docs/`. Current files:
+Technical deep-dives live in `memory-bank/docs/`. When you discover non-trivial domain knowledge, write a new `.md` there and add a row to this table:
 
 | File | Topic |
 |------|-------|
-| [memory-bank/docs/source-engine-launch.md](memory-bank/docs/source-engine-launch.md) | Source 1 engine launch mechanics (`-flag` vs `+command`), usage in D2C Launcher |
-| [memory-bank/docs/source-engine-config-persistence.md](memory-bank/docs/source-engine-config-persistence.md) | `config.cfg` format, `FCVAR_ARCHIVE`, `host_writeconfig`, reading config from launcher |
-| [memory-bank/docs/settings-architecture.md](memory-bank/docs/settings-architecture.md) | Settings system: CvarMapping, CompositeCvarMapping, BindMapping, SettingsViewModel, adding new settings |
-| [memory-bank/docs/game-update-manifest.md](memory-bank/docs/game-update-manifest.md) | Game update manifest format, `exact`/`existing` modes, `LocalManifestService`, `ManifestDiffService`, update flow |
-| [memory-bank/docs/client-dll-patching.md](memory-bank/docs/client-dll-patching.md) | Binary patching of `client.dll`: FCVAR_CHEAT removal, default value patch, PE layout, sync strategy |
-| [memory-bank/docs/preview-workflow.md](memory-bank/docs/preview-workflow.md) | Visual verification workflow: component preview tool and HTML screenshot tool |
-| [memory-bank/docs/release-cycle.md](memory-bank/docs/release-cycle.md) | Release channels (nightly/stable), CI workflow, Velopack channel mechanics, opting into nightly updates |
-| [memory-bank/docs/ui-style-system.md](memory-bank/docs/ui-style-system.md) | Global style classes (`Block`, `BlockHead`, `BlockTitle`), font size tokens, font families, sub-tab styles |
-| [memory-bank/docs/integration-testing-plan.md](memory-bank/docs/integration-testing-plan.md) | Integration testing strategy: what's mockable, blockers (`ISteamManager`), layered plan (NSubstitute → Avalonia.Headless.XUnit → WireMock), concrete next steps |
-| [memory-bank/docs/taskbar-icon-investigation.md](memory-bank/docs/taskbar-icon-investigation.md) | Issue #79: taskbar icon blank when game launched via launcher — what was tried, what worked (AUMID), what didn't (WM_SETICON, SetClassLongPtr), hypotheses, verdict |
-| [memory-bank/docs/dota2com-url-suppression.md](memory-bank/docs/dota2com-url-suppression.md) | Issue #81: suppressing dota2.com store panel — client.dll URL patching, VPK CRC gotcha, loose file override for store_promo_pages |
-| [memory-bank/docs/codestyle.md](memory-bank/docs/codestyle.md) | C# code style conventions: event handler subscriptions (named methods vs lambdas) |
-| [memory-bank/docs/localization.md](memory-bank/docs/localization.md) | i18n system: `I18n.T()`, `ru.json` structure, `{l:T}` XAML extension, `Strings.cs` migration, webapp sync |
-
-When you discover new domain knowledge, architectural decisions, or non-trivial technical details during implementation, **write them up as a new `.md` file in `memory-bank/docs/`** and add an entry to this table. Keep docs focused — one topic per file.
+| [source-engine-launch.md](memory-bank/docs/source-engine-launch.md) | Source 1 launch mechanics (`-flag` vs `+command`) |
+| [source-engine-config-persistence.md](memory-bank/docs/source-engine-config-persistence.md) | `config.cfg`, `FCVAR_ARCHIVE`, `host_writeconfig` |
+| [settings-architecture.md](memory-bank/docs/settings-architecture.md) | CvarMapping, BindMapping, SettingsViewModel, adding settings |
+| [game-update-manifest.md](memory-bank/docs/game-update-manifest.md) | Manifest format, `exact`/`existing` modes, update flow |
+| [client-dll-patching.md](memory-bank/docs/client-dll-patching.md) | Binary patching of `client.dll`, PE layout, sync strategy |
+| [preview-workflow.md](memory-bank/docs/preview-workflow.md) | Component preview tool and HTML screenshot tool |
+| [release-cycle.md](memory-bank/docs/release-cycle.md) | Release channels, CI workflow, Velopack channel mechanics |
+| [ui-style-system.md](memory-bank/docs/ui-style-system.md) | Global style classes, font size tokens, font families |
+| [integration-testing-plan.md](memory-bank/docs/integration-testing-plan.md) | Testing strategy, NSubstitute, Avalonia.Headless.XUnit, WireMock |
+| [taskbar-icon-investigation.md](memory-bank/docs/taskbar-icon-investigation.md) | Issue #79: taskbar icon blank — what worked (AUMID), what didn't |
+| [dota2com-url-suppression.md](memory-bank/docs/dota2com-url-suppression.md) | Issue #81: suppressing dota2.com store panel |
+| [codestyle.md](memory-bank/docs/codestyle.md) | C# code style: event handler subscriptions |
+| [localization.md](memory-bank/docs/localization.md) | I18n system, `ru.json` structure, webapp sync |
 
 ---
 
 ## Skill Retrospective
 
-After completing any skill (e.g. `/fix-issue`, `/code-review`), reflect on how the session went. If there were human interventions, course corrections, or non-obvious oversights that a better prompt or process could have caught upfront, **post a PR comment** describing them. Skip this if the task was straightforward with no surprises.
-
-Use this format:
+After completing any skill (e.g. `/fix-issue`, `/code-review`), if there were human interventions or course corrections, **post a PR comment** in this format. Skip if the task was straightforward.
 
 ```
 ## Skill retrospective
 
-**What required human input:** <brief description of the back-and-forth or correction>
-**Root cause:** <why it wasn't caught — missing investigation step, wrong assumption, unclear scope, etc.>
+**What required human input:** <brief description>
+**Root cause:** <why it wasn't caught upfront>
 **Suggested improvement:**
-> <exact instruction to add or change in the skill/CLAUDE.md>
-**Reasoning:** <why this prevents the same issue next time>
+> <exact instruction to add or change>
+**Reasoning:** <why this prevents recurrence>
 ```
-
-The goal is to make skills self-improving over time. One comment per distinct issue; skip if nothing went wrong.
 
 ---
 

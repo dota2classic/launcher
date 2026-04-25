@@ -119,22 +119,6 @@
 | +connect on game launch (issue #93) | ✅ Done | `LaunchGame($"+connect {url}")` when game not running |
 
 
-### Game Settings (cvars → config.cfg)
-
-| Setting | Cvar | Status |
-| ------- | ---- | ------ |
-| FPS cap | `fps_max` | ✅ Done |
-| Console enabled | `con_enable` | ✅ Done |
-| Disable camera zoom | `dota_camera_disable_zoom` | ✅ Done |
-| Force right click attack | `dota_force_right_click_attack` | ✅ Done |
-| Auto-repeat right mouse | `dota_player_auto_repeat_right_mouse` | ✅ Done (issue #21 under investigation) |
-| Camera reset on spawn | `dota_reset_camera_on_spawn` | ✅ Done |
-| Auto-attack mode | `dota_player_units_auto_attack` + `_after_spell` | ✅ Done |
-| Colorblind mode | (composite) | ✅ Done |
-| Camera distance (issue #19) | `dota_camera_distance` | ✅ Done; nullable, clamped [1000,1600] |
-| Quick cast | `dota_quick_select_setting` | ✅ Done |
-| Chat filter | `chat_filter_enabled` | ✅ Done |
-
 ### Testing
 
 | Area | Status |
@@ -189,31 +173,3 @@ Other known technical debt:
 | `QueueSocketService.Dispose()` blocks UI | `Task.Run+.Wait` up to 2s |
 | Chat thread ID hardcoded | `"17aa3530-d152-462e-a032-909ae69019ed"` in `ChatViewModel` |
 
----
-
-## Architecture / Docs Status
-
-| Doc | Status |
-| --- | ------ |
-| `memory-bank/docs/source-engine-launch.md` | ✅ Written |
-| `memory-bank/docs/source-engine-config-persistence.md` | ✅ Written |
-| `memory-bank/docs/settings-architecture.md` | ✅ Written |
-| `memory-bank/docs/game-update-manifest.md` | ✅ Written |
-| `memory-bank/docs/game-update-polling.md` | ✅ Written |
-| `memory-bank/docs/client-dll-patching.md` | ✅ Written — patching done server-side (CDN); enables `dota_camera_distance` cvar; released |
-| Memory bank (`memory-bank/`) | ✅ Written |
-
-### AI Workflow Tooling
-
-| Item | Status | Notes |
-| ---- | ------ | ----- |
-| Shared `.agents` prompt layout | ✅ Done | Canonical command / agent prompts moved under `.agents`; Codex skills wrap shared workflows from `.agents/skills/` |
-| Claude compatibility bridge | ✅ Done | `.claude/commands` and `.claude/agents` are Windows junctions to `.agents/commands` and `.agents/agents`, so shared prompts stay single-source |
-
-
-
-### Recent Notes
-
-- Background-start verification failures are now observable: `GameDownloadViewModel` logs `[GameDownload]` errors and emits Faro `verification_failed` telemetry.
-- Protocol-triggered pre-verification routing now marshals back onto the UI thread before changing `MainWindowViewModel` state.
-- Issue #167 follow-up: all "install update" entry points now share one path in `MainLauncherViewModel` that always stops Dota, leaves all queues, and then starts verification; `GameLaunchViewModel.PlayButtonIsStop` again reflects actual run state so the header stop/update behavior stays consistent while an update is pending.

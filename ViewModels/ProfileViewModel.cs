@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Media;
@@ -45,6 +46,50 @@ public partial class HeroRowViewModel : ViewModelBase
     }
 }
 
+public partial class DodgeEntryViewModel : ViewModelBase
+{
+    private readonly IBackendApiService _api;
+    private readonly Action<DodgeEntryViewModel> _removeFromList;
+
+    public string SteamId { get; }
+    public string Name { get; }
+    public string? AvatarUrl { get; }
+    public string AddedDateText { get; }
+
+    [ObservableProperty] private bool _isRemoving;
+
+    public DodgeEntryViewModel(Api.DodgeListEntryDto dto, IBackendApiService api, Action<DodgeEntryViewModel> removeFromList)
+    {
+        _api = api;
+        _removeFromList = removeFromList;
+        SteamId = dto.User.SteamId ?? "";
+        Name = dto.User.Name ?? SteamId;
+        AvatarUrl = dto.User.AvatarSmall ?? dto.User.Avatar;
+        AddedDateText = DateTime.TryParse(dto.CreatedAt, CultureInfo.InvariantCulture, DateTimeStyles.None, out var d)
+            ? d.ToString("d MMM yyyy", new CultureInfo("ru-RU"))
+            : dto.CreatedAt;
+    }
+
+    [RelayCommand]
+    private async Task RemoveDodgeAsync()
+    {
+        IsRemoving = true;
+        try
+        {
+            await _api.RemoveDodgeAsync(SteamId);
+            _removeFromList(this);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error($"RemoveDodge failed for {SteamId}: {ex.Message}", ex);
+        }
+        finally
+        {
+            IsRemoving = false;
+        }
+    }
+}
+
 public partial class ProfileViewModel : ViewModelBase
 {
     private readonly IBackendApiService _api;
@@ -73,6 +118,16 @@ public partial class ProfileViewModel : ViewModelBase
 
     [ObservableProperty] private bool _canGoBack;
 
+    // ── Owner / subscription tab ─────────────────────────────────────────────
+    [ObservableProperty] private bool _isOwner;
+    [ObservableProperty] private bool _isGeneralTabActive = true;
+    [ObservableProperty] private bool _isSubscriptionTabActive;
+    [ObservableProperty] private bool _isSubscriptionDataLoading;
+    [ObservableProperty] private bool _hasPlusSubscription;
+    [ObservableProperty] private string _plusSubscriptionEndText = "—";
+
+    public ObservableCollection<DodgeEntryViewModel> DodgeList { get; } = new();
+
     public Action? GoBackAction { get; set; }
 
     public ProfileViewModel(IBackendApiService api)
@@ -82,6 +137,22 @@ public partial class ProfileViewModel : ViewModelBase
 
     [RelayCommand]
     private void GoBack() => GoBackAction?.Invoke();
+
+    [RelayCommand]
+    private void SelectGeneralTab()
+    {
+        IsGeneralTabActive = true;
+        IsSubscriptionTabActive = false;
+    }
+
+    [RelayCommand]
+    private void SelectSubscriptionTab()
+    {
+        IsGeneralTabActive = false;
+        IsSubscriptionTabActive = true;
+        if (IsOwner && DodgeList.Count == 0 && !IsSubscriptionDataLoading && !HasPlusSubscription)
+            LoadSubscriptionDataAsync().FireAndForget("LoadSubscriptionDataAsync");
+    }
 
     private static string FormatPlaytime(double seconds)
     {
@@ -96,7 +167,12 @@ public partial class ProfileViewModel : ViewModelBase
     public async Task LoadAsync(string steamId)
     {
         IsLoading = true;
+        IsGeneralTabActive = true;
+        IsSubscriptionTabActive = false;
         TopHeroes.Clear();
+        DodgeList.Clear();
+        HasPlusSubscription = false;
+        PlusSubscriptionEndText = "—";
         try
         {
             var steamIdStr = steamId;
@@ -141,6 +217,37 @@ public partial class ProfileViewModel : ViewModelBase
         finally
         {
             IsLoading = false;
+        }
+    }
+
+    private async Task LoadSubscriptionDataAsync()
+    {
+        IsSubscriptionDataLoading = true;
+        DodgeList.Clear();
+        try
+        {
+            var meTask = _api.GetMeAsync();
+            var dodgeTask = _api.GetDodgeListAsync();
+            await Task.WhenAll(meTask, dodgeTask);
+
+            var me = meTask.Result;
+            var oldRole = me?.User?.Roles?.FirstOrDefault(r => r.Role == Api.Role.OLD);
+            HasPlusSubscription = oldRole != null;
+            if (oldRole != null && DateTime.TryParse(oldRole.EndTime, CultureInfo.InvariantCulture, DateTimeStyles.None, out var end))
+                PlusSubscriptionEndText = end.ToString("d MMMM yyyy", new CultureInfo("ru-RU"));
+            else
+                PlusSubscriptionEndText = "—";
+
+            foreach (var entry in dodgeTask.Result)
+                DodgeList.Add(new DodgeEntryViewModel(entry, _api, e => DodgeList.Remove(e)));
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error($"LoadSubscriptionDataAsync failed: {ex.Message}", ex);
+        }
+        finally
+        {
+            IsSubscriptionDataLoading = false;
         }
     }
 }

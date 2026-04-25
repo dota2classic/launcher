@@ -389,6 +389,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public void OpenPlayerProfile(string steam32Id)
     {
         _previousTab = ActiveTab != LauncherTab.Profile ? ActiveTab : _previousTab;
+        Profile.IsOwner = CurrentUser != null && steam32Id == CurrentUser.SteamId32.ToString();
         Profile.LoadAsync(steam32Id).FireAndForget("Profile.LoadAsync");
         Profile.CanGoBack = _previousTab.HasValue;
         Profile.GoBackAction = _previousTab.HasValue
