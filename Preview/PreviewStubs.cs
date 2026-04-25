@@ -206,6 +206,17 @@ internal sealed class StubBackendApiService : IBackendApiService
         => Task.CompletedTask;
 }
 
+internal sealed class StubPaidActionService : IPaidActionService
+{
+#pragma warning disable CS0067
+    public event Action? SubscriptionRequired;
+#pragma warning restore CS0067
+    public void SetSubscriptionStatus(bool hasPlus) { }
+    // In preview, always allow paid actions so content is visible
+    public void PaidAction(Action action) => action();
+    public Task PaidAction(Func<Task> action) => action();
+}
+
 internal sealed class StubEmoticonService : IEmoticonService
 {
     public Task<EmoticonLoadResult> LoadEmoticonsAsync()

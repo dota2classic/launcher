@@ -147,6 +147,7 @@ public partial class App : Application
                 _ => new ToastNotificationService());
             services.AddSingleton<INetConService, NetConService>();
             services.AddSingleton<IDotakeysProfileService, DotakeysProfileService>();
+            services.AddSingleton<IPaidActionService, PaidActionService>();
             services.AddSingleton<MainWindowViewModel>();
 
             _services = services.BuildServiceProvider();

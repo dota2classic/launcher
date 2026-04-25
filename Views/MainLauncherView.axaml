@@ -200,6 +200,34 @@
                </components:ModalOverlay.ModalContent>
            </components:ModalOverlay>
 
+           <!-- Subscription required modal -->
+           <Panel IsVisible="{Binding IsSubscriptionRequiredModalOpen}" ZIndex="300"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#90000000">
+               <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Width="400" Padding="28,24" CornerRadius="0"
+                       Background="#121315" BorderBrush="#2d3842" BorderThickness="1"
+                       BoxShadow="0 12 28 0 #80000000">
+                   <StackPanel Spacing="20">
+                       <TextBlock Text="{l:T 'profile.plusRequiredTitle'}"
+                                  FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold"
+                                  HorizontalAlignment="Center" Foreground="#C8A84B"/>
+                       <TextBlock Text="{l:T 'profile.plusRequiredText'}"
+                                  HorizontalAlignment="Center" TextAlignment="Center"
+                                  Foreground="#AAAAAA" FontSize="{DynamicResource FontSizeMD}"/>
+                       <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12">
+                           <Button Classes="PrimaryButton"
+                                   Content="{l:T 'profile.plusRequiredGoTo'}"
+                                   Command="{Binding OpenSubscriptionTabCommand}"
+                                   Padding="28,10" CornerRadius="0"/>
+                           <Button Classes="DangerButton"
+                                   Content="{l:T 'profile.plusRequiredClose'}"
+                                   Command="{Binding CloseSubscriptionRequiredModalCommand}"
+                                   Padding="28,10" CornerRadius="0"/>
+                       </StackPanel>
+                   </StackPanel>
+               </Border>
+           </Panel>
+
            <!-- Recalibration confirmation -->
            <Panel IsVisible="{Binding Profile.IsRecalibrationConfirmOpen}" ZIndex="210"
                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#90000000">

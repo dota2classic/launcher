@@ -95,6 +95,7 @@ public partial class DodgeEntryViewModel : ViewModelBase
 public partial class ProfileViewModel : ViewModelBase
 {
     private readonly IBackendApiService _api;
+    private readonly IPaidActionService _paidActions;
 
     [ObservableProperty] private bool _isLoading = true;
     [ObservableProperty] private string _playerName = "—";
@@ -151,9 +152,10 @@ public partial class ProfileViewModel : ViewModelBase
 
     public Action? GoBackAction { get; set; }
 
-    public ProfileViewModel(IBackendApiService api)
+    public ProfileViewModel(IBackendApiService api, IPaidActionService paidActions)
     {
         _api = api;
+        _paidActions = paidActions;
     }
 
     [RelayCommand]
@@ -180,7 +182,7 @@ public partial class ProfileViewModel : ViewModelBase
         Process.Start(new ProcessStartInfo("https://dotaclassic.ru/store") { UseShellExecute = true });
 
     [RelayCommand]
-    private void RequestRecalibration() => IsRecalibrationConfirmOpen = true;
+    private void RequestRecalibration() => _paidActions.PaidAction(() => IsRecalibrationConfirmOpen = true);
 
     [RelayCommand]
     private void CancelRecalibration() => IsRecalibrationConfirmOpen = false;
@@ -207,13 +209,13 @@ public partial class ProfileViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void OpenDodgeSearch()
+    private void OpenDodgeSearch() => _paidActions.PaidAction(() =>
     {
         DodgeCandidates.Clear();
         DodgeSearchText = "";
         IsDodgeSearchOpen = true;
         SearchDodgeCandidatesAsync("").FireAndForget("SearchDodgeCandidatesInitial");
-    }
+    });
 
     [RelayCommand]
     private void CloseDodgeSearch()
@@ -348,6 +350,7 @@ public partial class ProfileViewModel : ViewModelBase
             var me = meTask.Result;
             var oldRole = me?.User?.Roles?.FirstOrDefault(r => r.Role == Api.Role.OLD);
             HasPlusSubscription = oldRole != null;
+            _paidActions.SetSubscriptionStatus(oldRole != null);
             if (oldRole != null && DateTime.TryParse(oldRole.EndTime, CultureInfo.InvariantCulture, DateTimeStyles.None, out var end))
                 PlusSubscriptionEndText = end.ToString("d MMMM yyyy", new CultureInfo("ru-RU"));
             else

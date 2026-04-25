@@ -46,6 +46,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private readonly IDotakeysProfileService _dotakeysProfileService;
     private readonly IToastNotificationService _toastNotificationService;
     private readonly IStartupRegistrationService _startupRegistrationService;
+    private readonly IPaidActionService _paidActions;
     private readonly AppStartupContext _startupContext;
     private readonly IUiTimer _remoteUpdatePollTimer;
 
@@ -117,6 +118,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         IDotakeysProfileService dotakeysProfileService,
         IToastNotificationService toastNotificationService,
         IStartupRegistrationService startupRegistrationService,
+        IPaidActionService paidActions,
         AppStartupContext startupContext)
     {
         _steamManager = steamManager;
@@ -144,6 +146,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         _dotakeysProfileService = dotakeysProfileService;
         _toastNotificationService = toastNotificationService;
         _startupRegistrationService = startupRegistrationService;
+        _paidActions = paidActions;
         _startupContext = startupContext;
         _backgroundWindowMode = startupContext.IsBackgroundStart;
         _remoteUpdatePollTimer = timerFactory.Create();
@@ -395,7 +398,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
             _steamManager, _settingsStorage, _launchSettingsStorage, _cvarProvider, _videoProvider,
             _backendApiService, _queueSocketService, _registryService, _chatViewModelFactory, _windowService,
             _steamAuthApi, _uiDispatcher, _triviaRepository, _timerFactory, _netConService, _gameWindowService,
-            _dotakeysProfileService, _toastNotificationService, _startupRegistrationService);
+            _dotakeysProfileService, _toastNotificationService, _startupRegistrationService, _paidActions);
         vm.OnGameDirectoryChanged = _ => Dispatcher.UIThread.Post(() => EnterState(AppStateMachine.OnGameDirChanged(AppState)));
         vm.RequestGameDirectoryChange = () => Dispatcher.UIThread.Post(() => EnterState(AppState.SelectGameDirectory));
         void StartForegroundVerification() => Dispatcher.UIThread.Post(() =>
