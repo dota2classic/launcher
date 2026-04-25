@@ -213,6 +213,7 @@
                                   HorizontalAlignment="Center" Foreground="#C8A84B"/>
                        <TextBlock Text="{l:T 'profile.plusRequiredText'}"
                                   HorizontalAlignment="Center" TextAlignment="Center"
+                                  TextWrapping="Wrap"
                                   Foreground="#AAAAAA" FontSize="{DynamicResource FontSizeMD}"/>
                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="12">
                            <Button Classes="PrimaryButton"
