@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Avalonia.Controls;
 using d2c_launcher.ViewModels;
 
@@ -58,6 +57,9 @@ public partial class LauncherHeader : UserControl
         }
     }
 
-    private void OnD2CPlusClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e) =>
-        Process.Start(new ProcessStartInfo("https://dotaclassic.ru/store") { UseShellExecute = true });
+    private void OnD2CPlusClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is MainLauncherViewModel vm)
+            vm.OpenOwnProfileAtSubscriptionTab();
+    }
 }

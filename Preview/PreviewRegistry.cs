@@ -117,6 +117,16 @@ public static class PreviewRegistry
                 _ = vm.LoadAsync("76561198000000001");
                 return (new ProfilePanel { Width = 900, Height = 600 }, vm);
             },
+            ["ProfilePanelSubscription"] = () =>
+            {
+                var api = new StubBackendApiService();
+                var vm = new ProfileViewModel(api);
+                vm.IsOwner = true;
+                _ = vm.LoadAsync("76561198000000001");
+                // Must run after LoadAsync syncs (which resets tabs at the top of the method)
+                vm.SelectSubscriptionTabCommand.Execute(null);
+                return (new ProfilePanel { Width = 900, Height = 600 }, vm);
+            },
             ["PartyPanel"] = () =>
             {
                 var stub = new StubQueueSocketService();

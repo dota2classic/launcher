@@ -238,9 +238,13 @@
     "subscriptionActive": "Dotaclassic Plus активна",
     "subscriptionExpires": "Действует до",
     "subscriptionNone": "Нет активной подписки",
+    "subscriptionBuy": "Оформить подписку",
+    "subscriptionRenew": "Продлить подписку",
     "dodgeList": "СПИСОК УКЛОНЕНИЙ",
     "dodgeListEmpty": "Список уклонений пуст",
-    "removeFromDodge": "Удалить"
+    "removeFromDodge": "Удалить",
+    "dodgeAdd": "Добавить в уклонение",
+    "dodgeSearchTitle": "Добавить игрока в список уклонений"
   },
   "streams": {
     "tabLabel": "СТРИМЫ",

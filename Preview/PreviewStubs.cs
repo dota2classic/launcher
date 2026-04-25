@@ -197,6 +197,9 @@ internal sealed class StubBackendApiService : IBackendApiService
 
     public Task RemoveDodgeAsync(string steamId, CancellationToken cancellationToken = default)
         => Task.CompletedTask;
+
+    public Task DodgePlayerAsync(string steamId, CancellationToken cancellationToken = default)
+        => Task.CompletedTask;
 }
 
 internal sealed class StubEmoticonService : IEmoticonService

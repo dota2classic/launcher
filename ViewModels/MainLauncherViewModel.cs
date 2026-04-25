@@ -432,6 +432,13 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public void OpenInviteModal() => Party.OpenInviteModal();
     public void CloseInviteModal() => Party.CloseInviteModal();
     public async Task InvitePlayerAsync(d2c_launcher.Models.InviteCandidateView candidate) => await Party.InvitePlayerAsync(candidate);
+    public async Task DodgePlayerAsync(d2c_launcher.Models.InviteCandidateView candidate) => await Profile.DodgePlayerAsync(candidate);
+
+    public void OpenOwnProfileAtSubscriptionTab()
+    {
+        OpenProfile();
+        Profile.SelectSubscriptionTabCommand.Execute(null);
+    }
 
     public void SetGameUpdatePending(bool pending)
     {

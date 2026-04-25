@@ -419,6 +419,15 @@
                              Text="{l:T 'profile.subscriptionNone'}"
                              Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"/>
 
+                  <!-- Buy / renew button -->
+                  <Button Command="{Binding OpenStoreCommand}"
+                          Background="#C8A84B" Foreground="#0A0C0F"
+                          BorderThickness="0" Padding="14,6" CornerRadius="2"
+                          Cursor="Hand" HorizontalAlignment="Left">
+                    <TextBlock Text="{Binding StoreButtonText}"
+                               FontSize="{DynamicResource FontSizeMD}" FontWeight="SemiBold"/>
+                  </Button>
+
                 </StackPanel>
               </Border>
             </Grid>
@@ -479,6 +488,17 @@
                     </DataTemplate>
                   </ItemsControl.ItemTemplate>
                 </ItemsControl>
+
+                <!-- Add to dodge button -->
+                <Border Padding="18,12">
+                  <Button Command="{Binding OpenDodgeSearchCommand}"
+                          Background="#252E3A" Foreground="#E2E6EA"
+                          BorderThickness="0" Padding="14,6" CornerRadius="2"
+                          Cursor="Hand" HorizontalAlignment="Left">
+                    <TextBlock Text="{l:T 'profile.dodgeAdd'}"
+                               FontSize="{DynamicResource FontSizeMD}" FontWeight="SemiBold"/>
+                  </Button>
+                </Border>
 
               </StackPanel>
             </Grid>

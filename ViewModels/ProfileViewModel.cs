@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -125,8 +127,21 @@ public partial class ProfileViewModel : ViewModelBase
     [ObservableProperty] private bool _isSubscriptionDataLoading;
     [ObservableProperty] private bool _hasPlusSubscription;
     [ObservableProperty] private string _plusSubscriptionEndText = "—";
+    private bool _subscriptionDataLoaded;
+
+    public string StoreButtonText => HasPlusSubscription
+        ? I18n.T("profile.subscriptionRenew")
+        : I18n.T("profile.subscriptionBuy");
+
+    partial void OnHasPlusSubscriptionChanged(bool value) => OnPropertyChanged(nameof(StoreButtonText));
 
     public ObservableCollection<DodgeEntryViewModel> DodgeList { get; } = new();
+
+    // ── Dodge search modal ───────────────────────────────────────────────────
+    [ObservableProperty] private bool _isDodgeSearchOpen;
+    [ObservableProperty] private string _dodgeSearchText = "";
+    public ObservableCollection<InviteCandidateView> DodgeCandidates { get; } = new();
+    private CancellationTokenSource? _dodgeSearchCts;
 
     public Action? GoBackAction { get; set; }
 
@@ -150,8 +165,68 @@ public partial class ProfileViewModel : ViewModelBase
     {
         IsGeneralTabActive = false;
         IsSubscriptionTabActive = true;
-        if (IsOwner && DodgeList.Count == 0 && !IsSubscriptionDataLoading && !HasPlusSubscription)
+        if (IsOwner && !_subscriptionDataLoaded && !IsSubscriptionDataLoading)
             LoadSubscriptionDataAsync().FireAndForget("LoadSubscriptionDataAsync");
+    }
+
+    [RelayCommand]
+    private void OpenStore() =>
+        Process.Start(new ProcessStartInfo("https://dotaclassic.ru/store") { UseShellExecute = true });
+
+    [RelayCommand]
+    private void OpenDodgeSearch()
+    {
+        DodgeCandidates.Clear();
+        DodgeSearchText = "";
+        IsDodgeSearchOpen = true;
+        SearchDodgeCandidatesAsync("").FireAndForget("SearchDodgeCandidatesInitial");
+    }
+
+    [RelayCommand]
+    private void CloseDodgeSearch()
+    {
+        IsDodgeSearchOpen = false;
+        _dodgeSearchCts?.Cancel();
+    }
+
+    partial void OnDodgeSearchTextChanged(string value) =>
+        SearchDodgeCandidatesAsync(value).FireAndForget("SearchDodgeCandidates");
+
+    private async Task SearchDodgeCandidatesAsync(string query)
+    {
+        _dodgeSearchCts?.Cancel();
+        _dodgeSearchCts = new CancellationTokenSource();
+        var ct = _dodgeSearchCts.Token;
+        try
+        {
+            await Task.Delay(200, ct);
+            var results = await _api.SearchPlayersAsync(string.IsNullOrWhiteSpace(query) ? "a" : query, 25, ct);
+            if (ct.IsCancellationRequested) return;
+            DodgeCandidates.Clear();
+            foreach (var r in results)
+                DodgeCandidates.Add(r);
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex)
+        {
+            AppLog.Error($"DodgeSearch failed: {ex.Message}", ex);
+        }
+    }
+
+    public async Task DodgePlayerAsync(InviteCandidateView candidate)
+    {
+        try
+        {
+            await _api.DodgePlayerAsync(candidate.SteamId);
+            _subscriptionDataLoaded = false;
+            IsDodgeSearchOpen = false;
+            if (IsSubscriptionTabActive)
+                LoadSubscriptionDataAsync().FireAndForget("LoadSubscriptionDataAsync");
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error($"DodgePlayer failed for {candidate.SteamId}: {ex.Message}", ex);
+        }
     }
 
     private static string FormatPlaytime(double seconds)
@@ -169,6 +244,7 @@ public partial class ProfileViewModel : ViewModelBase
         IsLoading = true;
         IsGeneralTabActive = true;
         IsSubscriptionTabActive = false;
+        _subscriptionDataLoaded = false;
         TopHeroes.Clear();
         DodgeList.Clear();
         HasPlusSubscription = false;
@@ -240,6 +316,8 @@ public partial class ProfileViewModel : ViewModelBase
 
             foreach (var entry in dodgeTask.Result)
                 DodgeList.Add(new DodgeEntryViewModel(entry, _api, e => DodgeList.Remove(e)));
+
+            _subscriptionDataLoaded = true;
         }
         catch (Exception ex)
         {

@@ -139,4 +139,25 @@ public partial class MainLauncherView : UserControl
             AppLog.Error("Ошибка приглашения игрока", ex);
         }
     }
+
+    private async void OnDodgeCandidateClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is not MainLauncherViewModel vm)
+            return;
+
+        if (sender is not Avalonia.Controls.Button button)
+            return;
+
+        if (button.DataContext is not d2c_launcher.Models.InviteCandidateView candidate)
+            return;
+
+        try
+        {
+            await vm.DodgePlayerAsync(candidate);
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("Ошибка добавления в уклонение", ex);
+        }
+    }
 }
