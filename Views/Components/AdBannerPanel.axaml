@@ -36,7 +36,7 @@
 
           <!-- Site label -->
           <StackPanel Grid.Row="1" Margin="12,8,12,10" Spacing="2">
-            <TextBlock Text="collectorshop.ru"
+            <TextBlock Text="collectorsshop.ru"
                        Foreground="#4DA9F3"
                        FontSize="12"
                        FontWeight="SemiBold"/>
