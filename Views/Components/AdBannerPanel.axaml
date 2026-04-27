@@ -46,7 +46,8 @@
                        FontWeight="SemiBold"/>
             <TextBlock Text="{l:T 'ad.subtitle'}"
                        Foreground="#556070"
-                       FontSize="11"/>
+                       FontSize="11"
+                       TextWrapping="Wrap"/>
           </StackPanel>
 
         </Grid>
