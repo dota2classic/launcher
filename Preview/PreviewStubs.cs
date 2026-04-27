@@ -214,6 +214,21 @@ internal sealed class StubBackendApiService : IBackendApiService
 
     public Task StartRecalibrationAsync(CancellationToken cancellationToken = default)
         => Task.CompletedTask;
+
+    public Task<d2c_launcher.Api.BlogpostDto?> GetLatestBlogPostAsync(CancellationToken cancellationToken = default)
+        => Task.FromResult<d2c_launcher.Api.BlogpostDto?>(new d2c_launcher.Api.BlogpostDto
+        {
+            Id = 1,
+            Title = "Dotaclassic 6.82: обновление баланса и новые герои",
+            ShortDescription = "В этом обновлении мы скорректировали баланс нескольких героев и добавили новые предметы.",
+            Image = new d2c_launcher.Api.UploadedImageDto { Url = "https://placehold.co/400x200/0d1520/4a90d6?text=News", Key = "preview" },
+            PublishDate = "28 апреля 2026",
+            CreatedAt = "2026-04-28",
+            Content = "",
+            RenderedContentHtml = "",
+            Published = true,
+            Author = new d2c_launcher.Api.UserDTO { SteamId = "0", Name = "Admin", Avatar = "", AvatarSmall = "" },
+        });
 }
 
 internal sealed class StubPaidActionService : IPaidActionService

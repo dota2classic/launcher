@@ -489,6 +489,21 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         }
     }
 
+    public async Task<Api.BlogpostDto?> GetLatestBlogPostAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var api = new DotaclassicApiClient(_httpClient);
+            var page = await api.BlogpostController_blogPageAsync(1, per_page: 1, cancellationToken).ConfigureAwait(false);
+            return page?.Data?.FirstOrDefault();
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error("GetLatestBlogPostAsync failed", ex);
+            return null;
+        }
+    }
+
     public async IAsyncEnumerable<Api.LiveMatchDto> SubscribeLiveMatchAsync(
         int matchId,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)

@@ -1,0 +1,70 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:d2c_launcher.ViewModels"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:l="clr-namespace:d2c_launcher.Util"
+             x:Class="d2c_launcher.Views.Components.LatestNewsPanel"
+             x:DataType="vm:LatestNewsViewModel">
+
+  <Border Classes="Block" ClipToBounds="True"
+          IsVisible="{Binding HasPost}">
+    <Grid RowDefinitions="Auto,Auto">
+
+      <!-- Header -->
+      <Border Grid.Row="0" Classes="BlockHead">
+        <TextBlock Classes="BlockTitle" Text="{l:T 'news.title'}"/>
+      </Border>
+
+      <!-- Card -->
+      <Button Grid.Row="1"
+              Command="{Binding OpenPostCommand}"
+              Background="Transparent" BorderThickness="0"
+              Padding="0" HorizontalContentAlignment="Stretch"
+              Cursor="Hand" CornerRadius="0">
+        <Button.Styles>
+          <Style Selector="Button /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent"/>
+          </Style>
+          <Style Selector="Button:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#0d1118"/>
+          </Style>
+        </Button.Styles>
+
+        <ToolTip.Tip>
+          <TextBlock Text="{Binding Post.ShortDescription}"
+                     MaxWidth="200"
+                     TextWrapping="Wrap"
+                     IsVisible="{Binding Post.ShortDescription,
+                       Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+        </ToolTip.Tip>
+
+        <Grid RowDefinitions="Auto,Auto">
+
+          <!-- Thumbnail -->
+          <Border Grid.Row="0" Height="110" ClipToBounds="True" Background="#0a0f18">
+            <Image asyncImageLoader:ImageLoader.Source="{Binding Post.Image.Url}"
+                   Stretch="UniformToFill"/>
+          </Border>
+
+          <!-- Info -->
+          <StackPanel Grid.Row="1" Margin="12,10,12,12" Spacing="4">
+            <TextBlock Text="{Binding Post.Title}"
+                       Foreground="#d0d8e0"
+                       FontSize="{DynamicResource FontSizeSM}"
+                       FontWeight="SemiBold"
+                       TextTrimming="CharacterEllipsis"
+                       MaxLines="2"
+                       TextWrapping="Wrap"
+                       LineHeight="18"/>
+            <TextBlock Text="{Binding Post.PublishDate}"
+                       Foreground="#556070"
+                       FontSize="{DynamicResource FontSizeXS}"/>
+          </StackPanel>
+
+        </Grid>
+      </Button>
+
+    </Grid>
+  </Border>
+
+</UserControl>

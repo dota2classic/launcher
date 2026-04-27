@@ -778,6 +778,11 @@ public static class PreviewRegistry
                 var vm = new StreamsViewModel(api);
                 return (new StreamsPanel { Width = 900, Height = 700, DataContext = vm }, null);
             },
+            ["LatestNewsPanel"] = () =>
+            {
+                var vm = new LatestNewsViewModel(new StubBackendApiService());
+                return (new LatestNewsPanel { Width = 220, DataContext = vm }, null);
+            },
             ["InviteModal"] = () =>
             {
                 var stub = new StubQueueSocketService();

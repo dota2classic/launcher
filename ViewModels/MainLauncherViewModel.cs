@@ -56,6 +56,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public ProfileViewModel Profile { get; }
     public LiveViewModel Live { get; }
     public StreamsViewModel Streams { get; }
+    public LatestNewsViewModel News { get; }
 
     // ── Auth / user state ─────────────────────────────────────────────────────
     [ObservableProperty]
@@ -194,6 +195,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Streams = new StreamsViewModel(backendApiService);
         Streams.PlayerSettingsUrl = BuildStreamsSettingsUrl(_currentUser);
         Streams.PropertyChanged += OnStreamsPropertyChanged;
+        News = new LatestNewsViewModel(backendApiService);
 
         _soundCoordinator = new SocketEventCoordinator(queueSocketService, NotificationArea, windowService, backendApiService,
             toastNotificationService,
