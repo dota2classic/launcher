@@ -155,7 +155,7 @@
                                                                                 Foreground="#9E9E9E"
                                                                                 IsVisible="{Binding IsAdmin}"
                                                                                 ToolTip.Tip="{util:T 'chat.roleAdminTooltip'}"/>
-                                                    <!-- OLD subscriber: custom chat icon (GIF-capable) or star fallback; click opens store -->
+                                                    <!-- OLD subscriber: custom chat icon (GIF-capable) or d2c logo fallback; click opens store -->
                                                     <Button IsVisible="{Binding IsOld}"
                                                             Width="16" Height="16"
                                                             Padding="0"
@@ -174,12 +174,11 @@
                                                             <components:EmoticonImage
                                                                 Bytes="{Binding ChatIconBytes}"
                                                                 Width="16" Height="16"/>
-                                                            <materialIcons:MaterialIcon Kind="Star"
-                                                                                        Width="14" Height="14"
-                                                                                        Foreground="#FFD700"
-                                                                                        HorizontalAlignment="Center"
-                                                                                        VerticalAlignment="Center"
-                                                                                        IsVisible="{Binding ChatIconBytes, Converter={x:Static ObjectConverters.IsNull}}"/>
+                                                            <Image Source="avares://d2c-launcher/Assets/icon.ico"
+                                                                   Width="14" Height="14"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"
+                                                                   IsVisible="{Binding ChatIconBytes, Converter={x:Static ObjectConverters.IsNull}}"/>
                                                         </Panel>
                                                     </Button>
                                                 </StackPanel>

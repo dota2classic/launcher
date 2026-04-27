@@ -12,6 +12,7 @@ Repository AI workflow files use a shared `.agents/` layout. `.agents/commands/`
 
 | Issue | What was done |
 |-------|--------------|
+| #168 | Chat subscriber icon: replaced star fallback with d2c logo (`icon.ico`) |
 | #177 | Subscription tab in profile — dodge list + Plus subscription status, owner-only |
 | #176 | Notification sound volume setting |
 | #172 | Detect pending remote game updates (#167 follow-up) |

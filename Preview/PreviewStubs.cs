@@ -106,6 +106,7 @@ internal sealed class StubBackendApiService : IBackendApiService
             new ChatMessageData("4", threadId, "если он есть", "2025-03-05T20:05:20Z", "222", "лоутаб секьюрити", null, false),
             new ChatMessageData("5", threadId, "геге, мормышка победил", "2025-03-05T20:10:00Z", "111", "MaxiKo", null, false),
             new ChatMessageData("6", threadId, "играю сносно https://dotaclassic.ru/players/198768255 але", "2025-03-05T20:11:00Z", "222", "лоутаб секьюрити", null, false),
+            new ChatMessageData("7", threadId, "я подписчик!", "2025-03-05T20:12:00Z", "333", "subscriber_user", null, false, IsOld: true),
         ]);
 
     public Task PostChatMessageAsync(string threadId, string content, string? replyMessageId = null, CancellationToken cancellationToken = default)
