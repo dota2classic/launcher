@@ -40,6 +40,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     [ObservableProperty] private string _inputText = "";
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private bool _isSending;
+    [ObservableProperty] private ChatMessageView? _pinnedMessage;
 
     [ObservableProperty] private bool _isReplying;
     [ObservableProperty] private string? _replyTargetId;
@@ -87,6 +88,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     private void OnWindowShown()
     {
         _ = RefreshAsync();
+        _ = RefreshPinnedMessageAsync();
         _messageStream.Restart();
     }
 
@@ -94,7 +96,8 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     {
         // Emoticons finished loading — re-parse, wire quick-reacts, and patch reaction icons in one pass.
         // Already on the UI thread (EmoticonSnapshotBuilder fires via IUiDispatcher).
-        foreach (var msg in Messages)
+        var allMessages = PinnedMessage == null ? (IEnumerable<ChatMessageView>)Messages : Messages.Prepend(PinnedMessage);
+        foreach (var msg in allMessages)
         {
             msg.RichContent = RichMessageParser.Parse(msg.Content, _emoticonSnapshot.Images, _userNameResolver.GetOrCreate);
             SetupQuickReacts(msg);
@@ -123,7 +126,46 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
         // Load emoticons in the background — don't block message loading.
         _ = _emoticonSnapshot.EnsureLoadedAsync();
         await RefreshAsync().ConfigureAwait(false);
+        _ = RefreshPinnedMessageAsync();
         _messageStream.Start();
+    }
+
+    private async Task RefreshPinnedMessageAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var data = await _backendApiService.GetPinnedMessageAsync(_threadId, cancellationToken).ConfigureAwait(false);
+            _dispatcher.Post(() =>
+            {
+                if (data == null)
+                {
+                    PinnedMessage = null;
+                    return;
+                }
+                var richContent = RichMessageParser.Parse(data.Content, _emoticonSnapshot.Images, _userNameResolver.GetOrCreate);
+                var view = new ChatMessageView(
+                    data.MessageId, data.Content, richContent,
+                    data.AuthorName, data.AuthorSteamId,
+                    showHeader: true,
+                    FormatTime(ParseDate(data.CreatedAt)),
+                    data.CreatedAt,
+                    data.AuthorAvatarUrl,
+                    data.ReplyToAuthorName, data.ReplyToContent,
+                    data.IsOld, data.IsModerator, data.IsAdmin,
+                    data.ChatIconTitle);
+                if (data.Reactions != null)
+                    view.UpdateReactions(data.Reactions, r => BuildReactionVm(data.MessageId, r));
+                SetupQuickReacts(view);
+                if (data.IsOld && data.ChatIconUrl != null)
+                    _ = LoadChatIconAsync(view, data.ChatIconUrl);
+                PinnedMessage = view;
+            });
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception ex)
+        {
+            AppLog.Error($"Chat: failed to load pinned message: {ex.Message}", ex);
+        }
     }
 
     /// <summary>Cancels the current SSE connection and reconnects. Call when the auth token changes.</summary>

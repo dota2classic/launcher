@@ -43,8 +43,327 @@
             <ScrollViewer Grid.Row="1" x:Name="MessagesScroll"
                           HorizontalScrollBarVisibility="Disabled"
                           VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+
+                <!-- Pinned message -->
+                <StackPanel IsVisible="{Binding PinnedMessage, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <Border DataContext="{Binding PinnedMessage}"
+                        Padding="14,2" Margin="0,6,0,0">
+                    <Border.Styles>
+                        <Style Selector="Border.MessageRow">
+                            <Setter Property="Background" Value="Transparent"/>
+                        </Style>
+                        <Style Selector="Border.MessageRow:pointerover">
+                            <Setter Property="Background" Value="#0c1520"/>
+                        </Style>
+                        <Style Selector="Border.HoverToolbar">
+                            <Setter Property="Opacity" Value="0"/>
+                            <Setter Property="IsHitTestVisible" Value="False"/>
+                        </Style>
+                        <Style Selector="Border.MessageRow:pointerover Border.HoverToolbar">
+                            <Setter Property="Opacity" Value="1"/>
+                            <Setter Property="IsHitTestVisible" Value="True"/>
+                        </Style>
+                    </Border.Styles>
+                    <Panel>
+                    <Grid ColumnDefinitions="30,10,*">
+
+                        <!-- Avatar -->
+                        <Button Grid.Column="0"
+                                Width="30" Height="30"
+                                Padding="0"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                VerticalAlignment="Top"
+                                Click="OnAuthorClicked">
+                            <Button.Styles>
+                                <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Opacity" Value="0.8"/>
+                                </Style>
+                            </Button.Styles>
+                            <Grid Width="30" Height="30">
+                                <Border Width="30" Height="30" CornerRadius="15"
+                                        Background="#1e2a3a"
+                                        BorderBrush="#2d3842" BorderThickness="1">
+                                    <TextBlock Text="{Binding Initials}"
+                                               FontSize="{DynamicResource FontSizeXS}" Foreground="#3a90d6"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <Border Width="30" Height="30" CornerRadius="15"
+                                        ClipToBounds="True">
+                                    <Image Stretch="UniformToFill"
+                                           asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}"/>
+                                </Border>
+                                <Grid Width="10" Height="10"
+                                      IsVisible="{Binding IsOnline}"
+                                      HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                      Margin="0,0,-1,-1">
+                                    <Ellipse Width="10" Height="10" Fill="#1c2024"/>
+                                    <Ellipse Width="6" Height="6" Fill="#22ce22"
+                                             HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Grid>
+                        </Button>
+
+                        <!-- Body -->
+                        <StackPanel Grid.Column="2" Spacing="2">
+                            <!-- Name + role icons + time + pinned label -->
+                            <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+                                <Button Grid.Column="0" Padding="0" Background="Transparent" BorderThickness="0"
+                                        HorizontalAlignment="Left"
+                                        Click="OnAuthorClicked">
+                                    <Button.Styles>
+                                        <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                        </Style>
+                                    </Button.Styles>
+                                    <TextBlock Text="{Binding AuthorName}"
+                                               FontSize="{DynamicResource FontSizeBase}" FontWeight="SemiBold"
+                                               Foreground="#d9dde0"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </Button>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="2"
+                                            VerticalAlignment="Center" Margin="4,0,0,0">
+                                    <materialIcons:MaterialIcon Kind="Shield"
+                                                                Width="14" Height="14"
+                                                                Foreground="#CD7F32"
+                                                                IsVisible="{Binding IsModerator}"
+                                                                ToolTip.Tip="{util:T 'chat.roleModeratorTooltip'}"/>
+                                    <materialIcons:MaterialIcon Kind="Shield"
+                                                                Width="14" Height="14"
+                                                                Foreground="#9E9E9E"
+                                                                IsVisible="{Binding IsAdmin}"
+                                                                ToolTip.Tip="{util:T 'chat.roleAdminTooltip'}"/>
+                                    <Button IsVisible="{Binding IsOld}"
+                                            Width="16" Height="16"
+                                            Padding="0"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Cursor="Hand"
+                                            ToolTip.Tip="{Binding ChatIconTooltip}"
+                                            Click="OnDotaclassicPlusClicked">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Setter Property="Opacity" Value="0.8"/>
+                                            </Style>
+                                        </Button.Styles>
+                                        <Panel Width="16" Height="16">
+                                            <components:EmoticonImage
+                                                Bytes="{Binding ChatIconBytes}"
+                                                Width="16" Height="16"/>
+                                            <Image Source="avares://d2c-launcher/Assets/icon.ico"
+                                                   Width="14" Height="14"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   IsVisible="{Binding ChatIconBytes, Converter={x:Static ObjectConverters.IsNull}}"/>
+                                        </Panel>
+                                    </Button>
+                                </StackPanel>
+                                <TextBlock Grid.Column="2"
+                                           Text="{Binding TimeText}"
+                                           FontSize="{DynamicResource FontSizeXS}" Foreground="#48525a"
+                                           VerticalAlignment="Bottom"
+                                           HorizontalAlignment="Left"
+                                           Margin="8,0,0,0"/>
+                                <TextBlock Grid.Column="3"
+                                           Text="{util:T 'chat.pinned'}"
+                                           FontSize="{DynamicResource FontSizeXS}" Foreground="#48525a"
+                                           VerticalAlignment="Bottom"
+                                           HorizontalAlignment="Right"
+                                           Margin="8,0,0,0"/>
+                            </Grid>
+                            <!-- Reply preview -->
+                            <Border IsVisible="{Binding HasReply}"
+                                    BorderBrush="#3a90d6" BorderThickness="2,0,0,0"
+                                    Background="#131820"
+                                    CornerRadius="0,3,3,0"
+                                    Padding="6,3"
+                                    Margin="0,0,0,2">
+                                <StackPanel Spacing="1">
+                                    <TextBlock Text="{Binding ReplyToAuthorName}"
+                                               FontSize="{DynamicResource FontSizeSM}" FontWeight="SemiBold"
+                                               Foreground="#3a90d6"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Text="{Binding ReplyToContent}"
+                                               FontSize="{DynamicResource FontSizeSM}" Foreground="#6b7a8d"
+                                               TextTrimming="CharacterEllipsis"
+                                               MaxLines="1"/>
+                                </StackPanel>
+                            </Border>
+                            <!-- Message text -->
+                            <components:RichMessageBlock
+                                Segments="{Binding RichContent}"/>
+                            <!-- Reactions -->
+                            <ItemsControl IsVisible="{Binding HasReactions}"
+                                          ItemsSource="{Binding Reactions}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ChatReactionViewModel">
+                                        <Button Command="{Binding ReactCommand}"
+                                                Classes.mine="{Binding IsMine}"
+                                                Margin="0,4,4,0" Padding="5,2"
+                                                CornerRadius="10"
+                                                BorderThickness="1"
+                                                Cursor="Hand">
+                                            <Button.Styles>
+                                                <Style Selector="Button">
+                                                    <Setter Property="Background" Value="#1a1f28"/>
+                                                    <Setter Property="BorderBrush" Value="#2d3842"/>
+                                                </Style>
+                                                <Style Selector="Button.mine">
+                                                    <Setter Property="Background" Value="#12233a"/>
+                                                    <Setter Property="BorderBrush" Value="#3a90d6"/>
+                                                </Style>
+                                                <Style Selector="Button:pointerover /template/ Border#PART_BorderElement">
+                                                    <Setter Property="Background" Value="#252c38"/>
+                                                    <Setter Property="BorderBrush" Value="#4a5a6e"/>
+                                                </Style>
+                                                <Style Selector="Button.mine:pointerover /template/ Border#PART_BorderElement">
+                                                    <Setter Property="Background" Value="#1a3050"/>
+                                                    <Setter Property="BorderBrush" Value="#5aaae8"/>
+                                                </Style>
+                                            </Button.Styles>
+                                            <StackPanel Orientation="Horizontal" Spacing="4"
+                                                        VerticalAlignment="Center">
+                                                <components:EmoticonImage
+                                                    Bytes="{Binding EmoticonBytes}"
+                                                    Width="20" Height="20"/>
+                                                <TextBlock Text="{Binding Count}"
+                                                           FontSize="{DynamicResource FontSizeXS}"
+                                                           Foreground="#a0b0c0"
+                                                           VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                    </Grid>
+
+                    <!-- Hover toolbar -->
+                    <Canvas HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="0">
+                    <Border Classes="HoverToolbar"
+                            Canvas.Right="4"
+                            Canvas.Top="-8"
+                            Background="#1a1f28"
+                            CornerRadius="8"
+                            BorderBrush="#2d3842"
+                            BorderThickness="1"
+                            Padding="4,2">
+                        <StackPanel Orientation="Horizontal" Spacing="2">
+
+                            <!-- Top-3 quick-react buttons -->
+                            <ItemsControl ItemsSource="{Binding QuickReacts}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" Spacing="2"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ChatQuickReactViewModel">
+                                        <Button Classes="IconButton"
+                                                Command="{Binding ReactCommand}"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Padding="4"
+                                                Width="28" Height="28"
+                                                Cursor="Hand"
+                                                CornerRadius="4"
+                                                ToolTip.Tip="{Binding Tooltip}">
+                                            <components:EmoticonImage Bytes="{Binding Bytes}"
+                                                          Width="20" Height="20"/>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Reply button -->
+                            <Button Classes="IconButton"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Padding="4"
+                                    Width="28" Height="28"
+                                    Cursor="Hand"
+                                    CornerRadius="4"
+                                    ToolTip.Tip="{util:T 'chat.reply'}"
+                                    Click="OnReplyClicked">
+                                <materialIcons:MaterialIcon Kind="ReplyOutline"
+                                                            Width="16" Height="16"
+                                                            Foreground="#48525a"/>
+                            </Button>
+
+                            <!-- "More emoticons" button with picker flyout -->
+                            <Button Classes="IconButton"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Padding="4"
+                                    Width="28" Height="28"
+                                    Cursor="Hand"
+                                    CornerRadius="4"
+                                    ToolTip.Tip="{util:T 'chat.pickEmoticon'}">
+                                <Button.Flyout>
+                                    <Flyout Placement="TopEdgeAlignedRight">
+                                        <Border Background="#1a1f28"
+                                                CornerRadius="8"
+                                                BorderBrush="#2d3842"
+                                                BorderThickness="1"
+                                                Padding="6">
+                                            <ScrollViewer MaxHeight="300"
+                                                          VerticalScrollBarVisibility="Auto">
+                                            <ItemsControl ItemsSource="{Binding AllEmoticonReacts}"
+                                                          MaxWidth="256">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel Orientation="Horizontal"/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate x:DataType="vm:ChatQuickReactViewModel">
+                                                        <Button Classes="IconButton"
+                                                                Command="{Binding ReactCommand}"
+                                                                Click="OnPickerReactClicked"
+                                                                Background="Transparent"
+                                                                BorderThickness="0"
+                                                                Padding="4"
+                                                                Width="34" Height="34"
+                                                                Cursor="Hand"
+                                                                CornerRadius="4">
+                                                            <components:EmoticonImage Bytes="{Binding Bytes}"
+                                                                          Width="20" Height="20"/>
+                                                        </Button>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                            </ScrollViewer>
+                                        </Border>
+                                    </Flyout>
+                                </Button.Flyout>
+                                <materialIcons:MaterialIcon Kind="EmoticonOutline"
+                                                            Width="16" Height="16"
+                                                            Foreground="#48525a"/>
+                            </Button>
+
+                        </StackPanel>
+                    </Border>
+                    </Canvas>
+
+                    </Panel>
+                </Border>
+
+                <!-- Separator below pinned message -->
+                <Border Background="#1e2530" Height="1" Margin="0,2,0,0"/>
+                </StackPanel>
+
+                <!-- Loading placeholder -->
                 <Panel>
-                    <!-- Loading placeholder -->
                     <TextBlock Text="{x:Static res:Strings.Loading}"
                                IsVisible="{Binding IsLoading}"
                                Foreground="#48525a" FontSize="{DynamicResource FontSizeBase}"
@@ -376,6 +695,7 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </Panel>
+                </StackPanel>
             </ScrollViewer>
 
             <!-- Input -->

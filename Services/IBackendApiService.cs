@@ -37,6 +37,8 @@ public interface IBackendApiService
     Task<IReadOnlyList<d2c_launcher.Api.NotificationDto>> GetNotificationsAsync(CancellationToken cancellationToken = default);
     /// <summary>Toggles the reaction with <paramref name="emoticonId"/> on a message. Returns the updated reactions.</summary>
     Task<IReadOnlyList<ChatReactionData>> ReactToMessageAsync(string messageId, int emoticonId, CancellationToken cancellationToken = default);
+    /// <summary>Returns the pinned message for <paramref name="threadId"/>, or null if none is pinned.</summary>
+    Task<ChatMessageData?> GetPinnedMessageAsync(string threadId, CancellationToken cancellationToken = default);
     /// <summary>Returns all currently live Twitch streams for the community.</summary>
     Task<IReadOnlyList<d2c_launcher.Api.TwitchStreamDto>> GetTwitchStreamsAsync(CancellationToken cancellationToken = default);
     /// <summary>Returns the current authenticated user's profile, including role/subscription data.</summary>
