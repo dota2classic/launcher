@@ -142,6 +142,12 @@ internal sealed class StubBackendApiService : IBackendApiService
     public Task AcknowledgeNotificationAsync(string notificationId, CancellationToken cancellationToken = default) => Task.CompletedTask;
     public Task<IReadOnlyList<Models.ChatReactionData>> ReactToMessageAsync(string messageId, int emoticonId, CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<Models.ChatReactionData>>(Array.Empty<Models.ChatReactionData>());
+
+    public Task<ChatMessageData?> GetPinnedMessageAsync(string threadId, CancellationToken cancellationToken = default)
+        => Task.FromResult<ChatMessageData?>(new ChatMessageData(
+            "pinned-1", threadId,
+            "🚀 30 апреля в 17:00 (МСК) — глобальное обновление DOTACLASSIC: новый патч, переработка Techies 🔨, обновлённый сайт и лаунчер. 🏴",
+            "2026-04-23T14:34:00Z", "111", "egor_lib", null, false));
     public Task<IReadOnlyList<d2c_launcher.Api.NotificationDto>> GetNotificationsAsync(CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<d2c_launcher.Api.NotificationDto>>(Array.Empty<d2c_launcher.Api.NotificationDto>());
 

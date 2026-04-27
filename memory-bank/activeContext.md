@@ -12,6 +12,7 @@ Repository AI workflow files use a shared `.agents/` layout. `.agents/commands/`
 
 | Issue | What was done |
 |-------|--------------|
+| #181 | Pinned message in chat — fetched from thread info API, displayed as first chat item with "Закреплено" badge |
 | #168 | Chat subscriber icon: replaced star fallback with d2c logo (`icon.ico`) |
 | #177 | Subscription tab in profile — dodge list + Plus subscription status, owner-only |
 | #176 | Notification sound volume setting |

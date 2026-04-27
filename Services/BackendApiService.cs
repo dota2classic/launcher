@@ -295,26 +295,39 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
         {
             if (msg == null || msg.Deleted)
                 continue;
-            result.Add(new ChatMessageData(
-                msg.MessageId,
-                msg.ThreadId,
-                msg.Content,
-                msg.CreatedAt,
-                msg.Author?.SteamId ?? "",
-                msg.Author?.Name ?? "",
-                msg.Author?.AvatarSmall ?? msg.Author?.Avatar,
-                msg.Deleted,
-                msg.Reply?.Author?.Name,
-                msg.Reply?.Content,
-                MapReactions(msg.Reactions),
-                IsOld: HasRole(msg.Author, Api.Role.OLD),
-                IsModerator: HasRole(msg.Author, Api.Role.MODERATOR),
-                IsAdmin: HasRole(msg.Author, Api.Role.ADMIN),
-                ChatIconUrl: msg.Author?.Icon?.Image?.Url,
-                ChatIconTitle: msg.Author?.Title?.Title));
+            result.Add(MapThreadMessage(msg));
         }
         return result;
     }
+
+    public async Task<ChatMessageData?> GetPinnedMessageAsync(
+        string threadId, CancellationToken cancellationToken = default)
+    {
+        var api = new DotaclassicApiClient(_authHttpClient);
+        var thread = await api.ForumController_getThreadAsync(
+            threadId, Api.ThreadType.Forum, cancellationToken).ConfigureAwait(false);
+        var msg = thread?.PinnedMessage;
+        if (msg == null || msg.Deleted) return null;
+        return MapThreadMessage(msg);
+    }
+
+    private static ChatMessageData MapThreadMessage(Api.ThreadMessageDTO msg) => new(
+        msg.MessageId,
+        msg.ThreadId,
+        msg.Content,
+        msg.CreatedAt,
+        msg.Author?.SteamId ?? "",
+        msg.Author?.Name ?? "",
+        msg.Author?.AvatarSmall ?? msg.Author?.Avatar,
+        msg.Deleted,
+        msg.Reply?.Author?.Name,
+        msg.Reply?.Content,
+        MapReactions(msg.Reactions),
+        IsOld: HasRole(msg.Author, Api.Role.OLD),
+        IsModerator: HasRole(msg.Author, Api.Role.MODERATOR),
+        IsAdmin: HasRole(msg.Author, Api.Role.ADMIN),
+        ChatIconUrl: msg.Author?.Icon?.Image?.Url,
+        ChatIconTitle: msg.Author?.Title?.Title);
 
     public async Task PostChatMessageAsync(
         string threadId, string content, string? replyMessageId = null, CancellationToken cancellationToken = default)

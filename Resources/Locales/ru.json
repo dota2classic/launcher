@@ -284,7 +284,8 @@
     "reply": "Ответить",
     "replyingTo": "В ответ",
     "cancelReply": "Отмена",
-    "todayAt": "Сегодня в {time}"
+    "todayAt": "Сегодня в {time}",
+    "pinned": "Закреплено"
   },
   "download": {
     "downloadGame": "Скачать игру",
