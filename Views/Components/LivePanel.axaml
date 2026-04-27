@@ -6,118 +6,115 @@
              x:Class="d2c_launcher.Views.Components.LivePanel"
              x:DataType="vm:LiveViewModel">
 
-    <Border Classes="Block" ClipToBounds="True">
-        <Grid ColumnDefinitions="350,*">
+    <Grid ColumnDefinitions="350,*">
 
-            <!-- ── Sidebar: match list ─────────────────────────────── -->
-            <Border Grid.Column="0"
-                    Background="#0A0C0F"
-                    BorderBrush="#252E3A" BorderThickness="0,0,1,0">
-                <Grid RowDefinitions="Auto,*">
+        <!-- ── Sidebar: match list ─────────────────────────────── -->
+        <Border Grid.Column="0" Classes="Block" ClipToBounds="True" Margin="0,0,12,0">
+            <Grid RowDefinitions="Auto,*">
 
-                    <!-- Header -->
-                    <Border Grid.Row="0" Classes="BlockHead">
-                        <TextBlock Classes="BlockTitle" Text="{x:Static res:Strings.Broadcasts}"/>
-                    </Border>
+                <!-- Header -->
+                <Border Grid.Row="0" Classes="BlockHead">
+                    <TextBlock Classes="BlockTitle" Text="{x:Static res:Strings.Broadcasts}"/>
+                </Border>
 
-                    <!-- States -->
-                    <TextBlock Grid.Row="1" Text="{x:Static res:Strings.LoadingEllipsis}"
-                               Foreground="#888888" FontSize="{DynamicResource FontSizeSM}"
-                               IsVisible="{Binding IsLoading}"
-                               VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                <!-- States -->
+                <TextBlock Grid.Row="1" Text="{x:Static res:Strings.LoadingEllipsis}"
+                           Foreground="#888888" FontSize="{DynamicResource FontSizeSM}"
+                           IsVisible="{Binding IsLoading}"
+                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
-                    <TextBlock Grid.Row="1" Text="{x:Static res:Strings.NoActiveGames}"
-                               Foreground="#888888" FontSize="{DynamicResource FontSizeSM}"
-                               TextWrapping="Wrap"
-                               IsVisible="{Binding HasNoMatches}"
-                               VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="1" Text="{x:Static res:Strings.NoActiveGames}"
+                           Foreground="#888888" FontSize="{DynamicResource FontSizeSM}"
+                           TextWrapping="Wrap"
+                           IsVisible="{Binding HasNoMatches}"
+                           VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
-                    <!-- Match list -->
-                    <ListBox Grid.Row="1"
-                             ItemsSource="{Binding Matches}"
-                             SelectedItem="{Binding SelectedMatch}"
-                             Background="Transparent" BorderThickness="0" Padding="0"
-                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                             IsVisible="{Binding !HasNoMatches}">
-                        <ListBox.Styles>
-                            <Style Selector="ListBoxItem">
-                                <Setter Property="Padding" Value="0"/>
-                                <Setter Property="Margin" Value="0"/>
-                                <Setter Property="Background" Value="Transparent"/>
-                                <Setter Property="BorderThickness" Value="0"/>
-                                <Setter Property="Cursor" Value="Hand"/>
-                            </Style>
-                            <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
-                                <Setter Property="Background" Value="#0d1520"/>
-                            </Style>
-                            <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
-                                <Setter Property="Background" Value="#0a1018"/>
-                            </Style>
-                        </ListBox.Styles>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate x:DataType="vm:LiveMatchCardViewModel">
-                                <Grid ColumnDefinitions="3,*">
-                                    <!-- Selected accent bar -->
-                                    <Border Grid.Column="0" Width="3" Background="#3a7abd"
-                                            IsVisible="{Binding $parent[ListBoxItem].IsSelected}"/>
+                <!-- Match list -->
+                <ListBox Grid.Row="1"
+                         ItemsSource="{Binding Matches}"
+                         SelectedItem="{Binding SelectedMatch}"
+                         Background="Transparent" BorderThickness="0" Padding="0"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         IsVisible="{Binding !HasNoMatches}">
+                    <ListBox.Styles>
+                        <Style Selector="ListBoxItem">
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Margin" Value="0"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Cursor" Value="Hand"/>
+                        </Style>
+                        <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+                            <Setter Property="Background" Value="#0d1520"/>
+                        </Style>
+                        <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+                            <Setter Property="Background" Value="#0a1018"/>
+                        </Style>
+                    </ListBox.Styles>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:LiveMatchCardViewModel">
+                            <Grid ColumnDefinitions="3,*">
+                                <!-- Selected accent bar -->
+                                <Border Grid.Column="0" Width="3" Background="#3a7abd"
+                                        IsVisible="{Binding $parent[ListBoxItem].IsSelected}"/>
 
-                                    <!-- Card content -->
-                                    <Grid Grid.Column="1" ColumnDefinitions="140,*"
-                                          Height="140"
-                                          Margin="0,0,0,1">
+                                <!-- Card content -->
+                                <Grid Grid.Column="1" ColumnDefinitions="140,*"
+                                      Height="140"
+                                      Margin="0,0,0,1">
 
-                                        <!-- Small minimap -->
-                                        <Viewbox Grid.Column="0" Width="140" Height="140" Stretch="Uniform">
-                                            <components:MinimapPanel ItemsSource="{Binding Heroes}"
-                                                                      BuildingsSource="{Binding Buildings}"
-                                                                      UseSmallIcons="True"/>
-                                        </Viewbox>
+                                    <!-- Small minimap -->
+                                    <Viewbox Grid.Column="0" Width="140" Height="140" Stretch="Uniform">
+                                        <components:MinimapPanel ItemsSource="{Binding Heroes}"
+                                                                  BuildingsSource="{Binding Buildings}"
+                                                                  UseSmallIcons="True"/>
+                                    </Viewbox>
 
-                                        <!-- Info -->
-                                        <StackPanel Grid.Column="1" Spacing="6" Margin="10,10,8,10"
-                                                    VerticalAlignment="Center">
-                                            <!-- Score -->
-                                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                                <TextBlock Text="{Binding RadiantScore}"
-                                                           FontSize="{DynamicResource FontSize2XL5}" FontWeight="Bold"
-                                                           Foreground="#6db442"/>
-                                                <TextBlock Text="—"
-                                                           FontSize="{DynamicResource FontSizeXL}" Foreground="#2e3e4e"
-                                                           VerticalAlignment="Center"/>
-                                                <TextBlock Text="{Binding DireScore}"
-                                                           FontSize="{DynamicResource FontSize2XL5}" FontWeight="Bold"
-                                                           Foreground="#c83c2c"/>
-                                            </StackPanel>
-                                            <!-- Mode -->
-                                            <TextBlock Text="{Binding ModeLabel}"
-                                                       FontSize="{DynamicResource FontSizeSM}" Foreground="#7a9ab0"
-                                                       TextTrimming="CharacterEllipsis"/>
-                                            <!-- Duration -->
-                                            <TextBlock Text="{Binding Duration}"
-                                                       FontSize="{DynamicResource FontSizeSM}" FontWeight="SemiBold"
-                                                       Foreground="#8899aa"/>
-                                            <!-- State dot + label -->
-                                            <StackPanel Orientation="Horizontal" Spacing="5"
-                                                        VerticalAlignment="Center">
-                                                <Ellipse Width="6" Height="6"
-                                                         Fill="#3a9a3a" VerticalAlignment="Center"/>
-                                                <TextBlock Text="{Binding GameStateLabel}"
-                                                           FontSize="{DynamicResource FontSizeXS}" Foreground="#4a7060"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           VerticalAlignment="Center"/>
-                                            </StackPanel>
+                                    <!-- Info -->
+                                    <StackPanel Grid.Column="1" Spacing="6" Margin="10,10,8,10"
+                                                VerticalAlignment="Center">
+                                        <!-- Score -->
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <TextBlock Text="{Binding RadiantScore}"
+                                                       FontSize="{DynamicResource FontSize2XL5}" FontWeight="Bold"
+                                                       Foreground="#6db442"/>
+                                            <TextBlock Text="—"
+                                                       FontSize="{DynamicResource FontSizeXL}" Foreground="#2e3e4e"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding DireScore}"
+                                                       FontSize="{DynamicResource FontSize2XL5}" FontWeight="Bold"
+                                                       Foreground="#c83c2c"/>
                                         </StackPanel>
-                                    </Grid>
+                                        <!-- Mode -->
+                                        <TextBlock Text="{Binding ModeLabel}"
+                                                   FontSize="{DynamicResource FontSizeSM}" Foreground="#7a9ab0"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        <!-- Duration -->
+                                        <TextBlock Text="{Binding Duration}"
+                                                   FontSize="{DynamicResource FontSizeSM}" FontWeight="SemiBold"
+                                                   Foreground="#8899aa"/>
+                                        <!-- State dot + label -->
+                                        <StackPanel Orientation="Horizontal" Spacing="5"
+                                                    VerticalAlignment="Center">
+                                            <Ellipse Width="6" Height="6"
+                                                     Fill="#3a9a3a" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding GameStateLabel}"
+                                                       FontSize="{DynamicResource FontSizeXS}" Foreground="#4a7060"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </StackPanel>
                                 </Grid>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </Grid>
-            </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </Border>
 
-            <!-- ── Match detail ───────────────────────────────────── -->
-            <Grid Grid.Column="1" Margin="12,0,0,0">
-
+        <!-- ── Match detail ───────────────────────────────────── -->
+        <Border Grid.Column="1" Classes="Block" ClipToBounds="True">
+            <Grid>
                 <!-- No match selected -->
                 <TextBlock Text="{x:Static res:Strings.NoActiveGames}"
                            Foreground="#888888"
@@ -250,6 +247,8 @@
                     </ScrollViewer>
                 </Grid>
             </Grid>
-        </Grid>
-    </Border>
+        </Border>
+
+    </Grid>
+
 </UserControl>
