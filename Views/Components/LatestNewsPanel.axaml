@@ -33,9 +33,7 @@
         <ToolTip.Tip>
           <TextBlock Text="{Binding Post.ShortDescription}"
                      MaxWidth="200"
-                     TextWrapping="Wrap"
-                     IsVisible="{Binding Post.ShortDescription,
-                       Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                     TextWrapping="Wrap"/>
         </ToolTip.Tip>
 
         <Grid RowDefinitions="Auto,Auto">
