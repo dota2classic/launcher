@@ -13,7 +13,7 @@
 
 
     <Border Classes="Block">
-        <Grid RowDefinitions="36,*,Auto">
+        <Grid RowDefinitions="36,Auto,*,Auto">
 
             <!-- Header -->
             <Border Grid.Row="0" Classes="BlockHead">
@@ -39,15 +39,11 @@
                 </Grid>
             </Border>
 
-            <!-- Messages -->
-            <ScrollViewer Grid.Row="1" x:Name="MessagesScroll"
-                          HorizontalScrollBarVisibility="Disabled"
-                          VerticalScrollBarVisibility="Auto">
-                <StackPanel>
-
-                <!-- Pinned message -->
-                <StackPanel IsVisible="{Binding PinnedMessage, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <!-- Pinned message (sticky, outside scroll) -->
+            <StackPanel Grid.Row="1"
+                        IsVisible="{Binding PinnedMessage, Converter={x:Static ObjectConverters.IsNotNull}}">
                 <Border DataContext="{Binding PinnedMessage}"
+                        Classes="MessageRow"
                         Padding="14,2" Margin="0,6,0,0">
                     <Border.Styles>
                         <Style Selector="Border.MessageRow">
@@ -196,54 +192,6 @@
                             <!-- Message text -->
                             <components:RichMessageBlock
                                 Segments="{Binding RichContent}"/>
-                            <!-- Reactions -->
-                            <ItemsControl IsVisible="{Binding HasReactions}"
-                                          ItemsSource="{Binding Reactions}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel Orientation="Horizontal"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="vm:ChatReactionViewModel">
-                                        <Button Command="{Binding ReactCommand}"
-                                                Classes.mine="{Binding IsMine}"
-                                                Margin="0,4,4,0" Padding="5,2"
-                                                CornerRadius="10"
-                                                BorderThickness="1"
-                                                Cursor="Hand">
-                                            <Button.Styles>
-                                                <Style Selector="Button">
-                                                    <Setter Property="Background" Value="#1a1f28"/>
-                                                    <Setter Property="BorderBrush" Value="#2d3842"/>
-                                                </Style>
-                                                <Style Selector="Button.mine">
-                                                    <Setter Property="Background" Value="#12233a"/>
-                                                    <Setter Property="BorderBrush" Value="#3a90d6"/>
-                                                </Style>
-                                                <Style Selector="Button:pointerover /template/ Border#PART_BorderElement">
-                                                    <Setter Property="Background" Value="#252c38"/>
-                                                    <Setter Property="BorderBrush" Value="#4a5a6e"/>
-                                                </Style>
-                                                <Style Selector="Button.mine:pointerover /template/ Border#PART_BorderElement">
-                                                    <Setter Property="Background" Value="#1a3050"/>
-                                                    <Setter Property="BorderBrush" Value="#5aaae8"/>
-                                                </Style>
-                                            </Button.Styles>
-                                            <StackPanel Orientation="Horizontal" Spacing="4"
-                                                        VerticalAlignment="Center">
-                                                <components:EmoticonImage
-                                                    Bytes="{Binding EmoticonBytes}"
-                                                    Width="20" Height="20"/>
-                                                <TextBlock Text="{Binding Count}"
-                                                           FontSize="{DynamicResource FontSizeXS}"
-                                                           Foreground="#a0b0c0"
-                                                           VerticalAlignment="Center"/>
-                                            </StackPanel>
-                                        </Button>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
                         </StackPanel>
 
                     </Grid>
@@ -360,7 +308,13 @@
 
                 <!-- Separator below pinned message -->
                 <Border Background="#1e2530" Height="1" Margin="0,2,0,0"/>
-                </StackPanel>
+            </StackPanel>
+
+            <!-- Messages -->
+            <ScrollViewer Grid.Row="2" x:Name="MessagesScroll"
+                          HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
+                <StackPanel>
 
                 <!-- Loading placeholder -->
                 <Panel>
@@ -699,7 +653,7 @@
             </ScrollViewer>
 
             <!-- Input -->
-            <Border Grid.Row="2"
+            <Border Grid.Row="3"
                     BorderBrush="#1e2530" BorderThickness="0,1,0,0">
                 <StackPanel>
                 <!-- Reply preview banner -->

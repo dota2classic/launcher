@@ -216,6 +216,16 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
                 return;
             }
 
+            // Update pinned message in-place; do not append it to the message list.
+            if (PinnedMessage?.MessageId == msg.MessageId)
+            {
+                PinnedMessage.Content = msg.Content;
+                PinnedMessage.RichContent = RichMessageParser.Parse(msg.Content, _emoticonSnapshot.Images, _userNameResolver.GetOrCreate);
+                if (msg.Reactions != null)
+                    PinnedMessage.UpdateReactions(msg.Reactions, data => BuildReactionVm(msg.MessageId, data));
+                return;
+            }
+
             var prevEntry = _lastMessageRaw == null ? null
                 : new ChatEntry(_lastMessageRaw.Value.AuthorSteamId, _lastMessageRaw.Value.CreatedAt);
             var showHeader = ChatGrouper.ShouldShowHeader(prevEntry, new ChatEntry(msg.AuthorSteamId, msg.CreatedAt));
@@ -448,7 +458,8 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
             _dispatcher.Post(() =>
             {
-                var view = Messages.FirstOrDefault(m => m.MessageId == messageId);
+                var view = Messages.FirstOrDefault(m => m.MessageId == messageId)
+                           ?? (PinnedMessage?.MessageId == messageId ? PinnedMessage : null);
                 view?.UpdateReactions(updatedReactions, data => BuildReactionVm(messageId, data));
             });
         }
