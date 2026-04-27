@@ -51,4 +51,6 @@ public interface IBackendApiService
     Task DodgePlayerAsync(string steamId, CancellationToken cancellationToken = default);
     /// <summary>Starts MMR recalibration for the authenticated user. Only allowed once per season.</summary>
     Task StartRecalibrationAsync(CancellationToken cancellationToken = default);
+    /// <summary>Returns the latest published blog post, or null if none exist or the request fails.</summary>
+    Task<d2c_launcher.Api.BlogpostDto?> GetLatestBlogPostAsync(CancellationToken cancellationToken = default);
 }

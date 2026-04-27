@@ -83,7 +83,7 @@
     </Style>
   </UserControl.Styles>
 
-  <Border BorderBrush="#1e2530" BorderThickness="0">
+  <Border Background="#080a0d" BorderBrush="#252E3A" BorderThickness="0,0,0,1">
     <Grid ColumnDefinitions="Auto,*,Auto" Margin="12,0,12,0">
 
       <!-- Left: navigation tabs -->

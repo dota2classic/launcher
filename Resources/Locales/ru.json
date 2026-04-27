@@ -260,6 +260,9 @@
     "recalibrationConfirm": "Начать",
     "recalibrationCancel": "Отмена"
   },
+  "news": {
+    "title": "НОВОСТИ"
+  },
   "streams": {
     "tabLabel": "СТРИМЫ",
     "viewers": "зрителей",
