@@ -13,6 +13,6 @@ public partial class AdBannerPanel : UserControl
 
     private void OnBannerClicked(object? sender, RoutedEventArgs e)
     {
-        Process.Start(new ProcessStartInfo("https://collectorshop.ru") { UseShellExecute = true });
+        Process.Start(new ProcessStartInfo("https://collectorsshop.ru/promo/old") { UseShellExecute = true });
     }
 }
