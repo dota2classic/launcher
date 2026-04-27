@@ -54,7 +54,7 @@
                        MaxLines="2"
                        TextWrapping="Wrap"
                        LineHeight="18"/>
-            <TextBlock Text="{Binding Post.PublishDate}"
+            <TextBlock Text="{Binding FormattedPublishDate}"
                        Foreground="#556070"
                        FontSize="{DynamicResource FontSizeXS}"/>
           </StackPanel>
