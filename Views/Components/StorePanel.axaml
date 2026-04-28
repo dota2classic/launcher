@@ -9,39 +9,20 @@
     <StackPanel Spacing="2" MaxWidth="850" HorizontalAlignment="Center">
 
       <!-- ═══ HERO BANNER ═══ -->
-      <Panel MinHeight="220">
-        <!-- Background gradient -->
+      <Panel MinHeight="220" ClipToBounds="True">
+        <!-- Full-bleed hero image -->
+        <Image Source="avares://d2c-launcher/Assets/Images/splash/subscription.webp"
+               Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <!-- Dark overlay: solid on left (text area) → transparent on right (image shows through) -->
         <Border>
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-              <GradientStop Color="#09090b" Offset="0"/>
-              <GradientStop Color="#161208" Offset="0.6"/>
-              <GradientStop Color="#1a1508" Offset="1"/>
-            </LinearGradientBrush>
-          </Border.Background>
-        </Border>
-
-        <!-- Hero image (right side, clipped) -->
-        <Border HorizontalAlignment="Right" Width="380" ClipToBounds="True" Opacity="0.55">
-          <Image Source="avares://d2c-launcher/Assets/Images/splash/subscription.webp"
-                 Stretch="UniformToFill" HorizontalAlignment="Center"/>
-        </Border>
-
-        <!-- Right-side fade overlay so image blends into background -->
-        <Border HorizontalAlignment="Right" Width="200">
-          <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-              <GradientStop Color="#00161208" Offset="0"/>
-              <GradientStop Color="#FF161208" Offset="1"/>
-            </LinearGradientBrush>
-          </Border.Background>
-        </Border>
-        <!-- Left-side fade overlay -->
-        <Border HorizontalAlignment="Right" Width="380">
-          <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-              <GradientStop Color="#FF09090b" Offset="0"/>
-              <GradientStop Color="#00090000" Offset="0.45"/>
+              <GradientStop Color="#F009090b" Offset="0"/>
+              <GradientStop Color="#E009090b" Offset="0.38"/>
+              <GradientStop Color="#9009090b" Offset="0.60"/>
+              <GradientStop Color="#3009090b" Offset="0.80"/>
+              <GradientStop Color="#0009090b" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
