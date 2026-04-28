@@ -6,7 +6,7 @@
              x:DataType="vm:StoreViewModel">
 
   <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-    <StackPanel Spacing="2">
+    <StackPanel Spacing="2" MaxWidth="850" HorizontalAlignment="Center">
 
       <!-- ═══ HERO BANNER ═══ -->
       <Panel MinHeight="220">
@@ -121,6 +121,15 @@
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <!-- light uniform overlay -->
         <Border Background="#60000000"/>
+        <!-- top vignette — shadow behind title -->
+        <Border VerticalAlignment="Top" Height="110">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+              <GradientStop Color="#A0000000" Offset="0"/>
+              <GradientStop Color="#00000000" Offset="1"/>
+            </LinearGradientBrush>
+          </Border.Background>
+        </Border>
         <!-- bottom fade for description readability -->
         <Border VerticalAlignment="Bottom" Height="130">
           <Border.Background>
