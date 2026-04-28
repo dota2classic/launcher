@@ -115,168 +115,156 @@
                    FontWeight="SemiBold" LetterSpacing="3"/>
       </Border>
 
-      <!-- ═══ FEATURE 1 — text RIGHT, image full-bleed (decorations) ═══ -->
-      <Panel MinHeight="260" ClipToBounds="True">
+      <!-- ═══ FEATURE 1 — decorations ═══ -->
+      <Panel MinHeight="300" ClipToBounds="True">
         <Image Source="avares://d2c-launcher/Assets/Images/splash/decoration.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <!-- gradient: transparent left → dark right -->
-        <Border>
+        <!-- light uniform overlay -->
+        <Border Background="#60000000"/>
+        <!-- bottom fade for description readability -->
+        <Border VerticalAlignment="Bottom" Height="130">
           <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-              <GradientStop Color="#000e1016" Offset="0.20"/>
-              <GradientStop Color="#880e1016" Offset="0.48"/>
-              <GradientStop Color="#D80e1016" Offset="0.66"/>
-              <GradientStop Color="#F20e1016" Offset="1"/>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+              <GradientStop Color="#00000000" Offset="0"/>
+              <GradientStop Color="#88000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
-        <Grid ColumnDefinitions="0.42*,0.58*">
-          <Grid Grid.Column="1" ColumnDefinitions="Auto,*" VerticalAlignment="Center" Margin="40,32,44,32">
-            <TextBlock Grid.Column="0" Text="{l:T 'store.benefit1Title'}"
-                       Foreground="#E8ECF0" FontSize="{DynamicResource FontSize2XL}"
-                       FontWeight="Bold" TextWrapping="Wrap"
-                       VerticalAlignment="Center" Margin="0,0,28,0"/>
-            <TextBlock Grid.Column="1" Text="{l:T 'store.benefit1Desc'}"
-                       Foreground="#8898B8" FontSize="{DynamicResource FontSizeMD}"
-                       TextWrapping="Wrap" VerticalAlignment="Center"/>
-          </Grid>
-        </Grid>
+        <TextBlock Text="{l:T 'store.benefit1Title'}"
+                   VerticalAlignment="Top" HorizontalAlignment="Center"
+                   Margin="60,32,60,0"
+                   Foreground="#C8A84B" FontSize="{DynamicResource FontSize4XL}"
+                   FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
+        <TextBlock Text="{l:T 'store.benefit1Desc'}"
+                   VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                   Margin="100,0,100,28"
+                   Foreground="#C0C8D8" FontSize="{DynamicResource FontSizeLG}"
+                   TextWrapping="Wrap" TextAlignment="Center"/>
       </Panel>
 
-      <!-- ═══ FEATURE 2 — text LEFT, image full-bleed (dodge) ═══ -->
-      <Panel MinHeight="260" ClipToBounds="True">
+      <!-- ═══ FEATURE 2 — dodge ═══ -->
+      <Panel MinHeight="300" ClipToBounds="True">
         <Image Source="avares://d2c-launcher/Assets/Images/splash/dodge.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <!-- gradient: dark left → transparent right -->
-        <Border>
+        <Border Background="#60000000"/>
+        <Border VerticalAlignment="Bottom" Height="130">
           <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-              <GradientStop Color="#F20b0d11" Offset="0"/>
-              <GradientStop Color="#D80b0d11" Offset="0.34"/>
-              <GradientStop Color="#880b0d11" Offset="0.52"/>
-              <GradientStop Color="#000b0d11" Offset="0.80"/>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+              <GradientStop Color="#00000000" Offset="0"/>
+              <GradientStop Color="#88000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
-        <Grid ColumnDefinitions="0.58*,0.42*">
-          <Grid Grid.Column="0" ColumnDefinitions="Auto,*" VerticalAlignment="Center" Margin="44,32,40,32">
-            <TextBlock Grid.Column="0" Text="{l:T 'store.benefit2Title'}"
-                       Foreground="#E8ECF0" FontSize="{DynamicResource FontSize2XL}"
-                       FontWeight="Bold" TextWrapping="Wrap"
-                       VerticalAlignment="Center" Margin="0,0,28,0"/>
-            <TextBlock Grid.Column="1" Text="{l:T 'store.benefit2Desc'}"
-                       Foreground="#8898B8" FontSize="{DynamicResource FontSizeMD}"
-                       TextWrapping="Wrap" VerticalAlignment="Center"/>
-          </Grid>
-        </Grid>
+        <TextBlock Text="{l:T 'store.benefit2Title'}"
+                   VerticalAlignment="Top" HorizontalAlignment="Center"
+                   Margin="60,32,60,0"
+                   Foreground="#C8A84B" FontSize="{DynamicResource FontSize4XL}"
+                   FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
+        <TextBlock Text="{l:T 'store.benefit2Desc'}"
+                   VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                   Margin="100,0,100,28"
+                   Foreground="#C0C8D8" FontSize="{DynamicResource FontSizeLG}"
+                   TextWrapping="Wrap" TextAlignment="Center"/>
       </Panel>
 
-      <!-- ═══ FEATURE 3 — text RIGHT, image full-bleed (unban) ═══ -->
-      <Panel MinHeight="260" ClipToBounds="True">
+      <!-- ═══ FEATURE 3 — unban ═══ -->
+      <Panel MinHeight="300" ClipToBounds="True">
         <Image Source="avares://d2c-launcher/Assets/Images/splash/unban.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Border>
+        <Border Background="#60000000"/>
+        <Border VerticalAlignment="Bottom" Height="130">
           <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-              <GradientStop Color="#000e1016" Offset="0.20"/>
-              <GradientStop Color="#880e1016" Offset="0.48"/>
-              <GradientStop Color="#D80e1016" Offset="0.66"/>
-              <GradientStop Color="#F20e1016" Offset="1"/>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+              <GradientStop Color="#00000000" Offset="0"/>
+              <GradientStop Color="#88000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
-        <Grid ColumnDefinitions="0.42*,0.58*">
-          <Grid Grid.Column="1" ColumnDefinitions="Auto,*" VerticalAlignment="Center" Margin="40,32,44,32">
-            <TextBlock Grid.Column="0" Text="{l:T 'store.benefit3Title'}"
-                       Foreground="#E8ECF0" FontSize="{DynamicResource FontSize2XL}"
-                       FontWeight="Bold" TextWrapping="Wrap"
-                       VerticalAlignment="Center" Margin="0,0,28,0"/>
-            <TextBlock Grid.Column="1" Text="{l:T 'store.benefit3Desc'}"
-                       Foreground="#8898B8" FontSize="{DynamicResource FontSizeMD}"
-                       TextWrapping="Wrap" VerticalAlignment="Center"/>
-          </Grid>
-        </Grid>
+        <TextBlock Text="{l:T 'store.benefit3Title'}"
+                   VerticalAlignment="Top" HorizontalAlignment="Center"
+                   Margin="60,32,60,0"
+                   Foreground="#C8A84B" FontSize="{DynamicResource FontSize4XL}"
+                   FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
+        <TextBlock Text="{l:T 'store.benefit3Desc'}"
+                   VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                   Margin="100,0,100,28"
+                   Foreground="#C0C8D8" FontSize="{DynamicResource FontSizeLG}"
+                   TextWrapping="Wrap" TextAlignment="Center"/>
       </Panel>
 
-      <!-- ═══ FEATURE 4 — text LEFT, image full-bleed (in-game praise) ═══ -->
-      <Panel MinHeight="260" ClipToBounds="True">
+      <!-- ═══ FEATURE 4 — in-game praise ═══ -->
+      <Panel MinHeight="300" ClipToBounds="True">
         <Image Source="avares://d2c-launcher/Assets/Images/splash/cm_lina.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Border>
+        <Border Background="#60000000"/>
+        <Border VerticalAlignment="Bottom" Height="130">
           <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-              <GradientStop Color="#F20b0d11" Offset="0"/>
-              <GradientStop Color="#D80b0d11" Offset="0.34"/>
-              <GradientStop Color="#880b0d11" Offset="0.52"/>
-              <GradientStop Color="#000b0d11" Offset="0.80"/>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+              <GradientStop Color="#00000000" Offset="0"/>
+              <GradientStop Color="#88000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
-        <Grid ColumnDefinitions="0.58*,0.42*">
-          <Grid Grid.Column="0" ColumnDefinitions="Auto,*" VerticalAlignment="Center" Margin="44,32,40,32">
-            <TextBlock Grid.Column="0" Text="{l:T 'store.benefit4Title'}"
-                       Foreground="#E8ECF0" FontSize="{DynamicResource FontSize2XL}"
-                       FontWeight="Bold" TextWrapping="Wrap"
-                       VerticalAlignment="Center" Margin="0,0,28,0"/>
-            <TextBlock Grid.Column="1" Text="{l:T 'store.benefit4Desc'}"
-                       Foreground="#8898B8" FontSize="{DynamicResource FontSizeMD}"
-                       TextWrapping="Wrap" VerticalAlignment="Center"/>
-          </Grid>
-        </Grid>
+        <TextBlock Text="{l:T 'store.benefit4Title'}"
+                   VerticalAlignment="Top" HorizontalAlignment="Center"
+                   Margin="60,32,60,0"
+                   Foreground="#C8A84B" FontSize="{DynamicResource FontSize4XL}"
+                   FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
+        <TextBlock Text="{l:T 'store.benefit4Desc'}"
+                   VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                   Margin="100,0,100,28"
+                   Foreground="#C0C8D8" FontSize="{DynamicResource FontSizeLG}"
+                   TextWrapping="Wrap" TextAlignment="Center"/>
       </Panel>
 
-      <!-- ═══ FEATURE 5 — text RIGHT, image full-bleed (mute) ═══ -->
-      <Panel MinHeight="260" ClipToBounds="True">
+      <!-- ═══ FEATURE 5 — mute ═══ -->
+      <Panel MinHeight="300" ClipToBounds="True">
         <Image Source="avares://d2c-launcher/Assets/Images/splash/mute.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Border>
+        <Border Background="#60000000"/>
+        <Border VerticalAlignment="Bottom" Height="130">
           <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-              <GradientStop Color="#000e1016" Offset="0.20"/>
-              <GradientStop Color="#880e1016" Offset="0.48"/>
-              <GradientStop Color="#D80e1016" Offset="0.66"/>
-              <GradientStop Color="#F20e1016" Offset="1"/>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+              <GradientStop Color="#00000000" Offset="0"/>
+              <GradientStop Color="#88000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
-        <Grid ColumnDefinitions="0.42*,0.58*">
-          <Grid Grid.Column="1" ColumnDefinitions="Auto,*" VerticalAlignment="Center" Margin="40,32,44,32">
-            <TextBlock Grid.Column="0" Text="{l:T 'store.benefit5Title'}"
-                       Foreground="#E8ECF0" FontSize="{DynamicResource FontSize2XL}"
-                       FontWeight="Bold" TextWrapping="Wrap"
-                       VerticalAlignment="Center" Margin="0,0,28,0"/>
-            <TextBlock Grid.Column="1" Text="{l:T 'store.benefit5Desc'}"
-                       Foreground="#8898B8" FontSize="{DynamicResource FontSizeMD}"
-                       TextWrapping="Wrap" VerticalAlignment="Center"/>
-          </Grid>
-        </Grid>
+        <TextBlock Text="{l:T 'store.benefit5Title'}"
+                   VerticalAlignment="Top" HorizontalAlignment="Center"
+                   Margin="60,32,60,0"
+                   Foreground="#C8A84B" FontSize="{DynamicResource FontSize4XL}"
+                   FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
+        <TextBlock Text="{l:T 'store.benefit5Desc'}"
+                   VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                   Margin="100,0,100,28"
+                   Foreground="#C0C8D8" FontSize="{DynamicResource FontSizeLG}"
+                   TextWrapping="Wrap" TextAlignment="Center"/>
       </Panel>
 
-      <!-- ═══ FEATURE 6 — text LEFT, image full-bleed (lobby) ═══ -->
-      <Panel MinHeight="260" ClipToBounds="True">
+      <!-- ═══ FEATURE 6 — lobby ═══ -->
+      <Panel MinHeight="300" ClipToBounds="True">
         <Image Source="avares://d2c-launcher/Assets/Images/splash/lobby.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Border>
+        <Border Background="#60000000"/>
+        <Border VerticalAlignment="Bottom" Height="130">
           <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-              <GradientStop Color="#F20b0d11" Offset="0"/>
-              <GradientStop Color="#D80b0d11" Offset="0.34"/>
-              <GradientStop Color="#880b0d11" Offset="0.52"/>
-              <GradientStop Color="#000b0d11" Offset="0.80"/>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+              <GradientStop Color="#00000000" Offset="0"/>
+              <GradientStop Color="#88000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
-        <Grid ColumnDefinitions="0.58*,0.42*">
-          <Grid Grid.Column="0" ColumnDefinitions="Auto,*" VerticalAlignment="Center" Margin="44,32,40,32">
-            <TextBlock Grid.Column="0" Text="{l:T 'store.benefit6Title'}"
-                       Foreground="#E8ECF0" FontSize="{DynamicResource FontSize2XL}"
-                       FontWeight="Bold" TextWrapping="Wrap"
-                       VerticalAlignment="Center" Margin="0,0,28,0"/>
-            <TextBlock Grid.Column="1" Text="{l:T 'store.benefit6Desc'}"
-                       Foreground="#8898B8" FontSize="{DynamicResource FontSizeMD}"
-                       TextWrapping="Wrap" VerticalAlignment="Center"/>
-          </Grid>
-        </Grid>
+        <TextBlock Text="{l:T 'store.benefit6Title'}"
+                   VerticalAlignment="Top" HorizontalAlignment="Center"
+                   Margin="60,32,60,0"
+                   Foreground="#C8A84B" FontSize="{DynamicResource FontSize4XL}"
+                   FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
+        <TextBlock Text="{l:T 'store.benefit6Desc'}"
+                   VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                   Margin="100,0,100,28"
+                   Foreground="#C0C8D8" FontSize="{DynamicResource FontSizeLG}"
+                   TextWrapping="Wrap" TextAlignment="Center"/>
       </Panel>
 
       <!-- ═══ BOTTOM CTA ═══ -->
