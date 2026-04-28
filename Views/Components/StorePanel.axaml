@@ -9,46 +9,50 @@
     <StackPanel Spacing="1" MaxWidth="850" HorizontalAlignment="Center">
 
       <!-- ═══ HERO ═══ -->
-      <Panel MinHeight="240" ClipToBounds="True">
+      <Panel MinHeight="300" ClipToBounds="True">
         <Image Source="avares://d2c-launcher/Assets/Images/splash/subscription.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
         <!-- Uniform dim -->
-        <Border Background="#90000000"/>
+        <Border Background="#48000000"/>
 
-        <!-- Gradient: solid dark left (text zone) → transparent right (art zone) -->
-        <Border>
+        <!-- Top vignette — dark at top fading out for title legibility -->
+        <Border VerticalAlignment="Top" Height="100">
           <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-              <GradientStop Color="#FF090a0d" Offset="0"/>
-              <GradientStop Color="#FF090a0d" Offset="0.48"/>
-              <GradientStop Color="#C8090a0d" Offset="0.62"/>
-              <GradientStop Color="#48090a0d" Offset="0.80"/>
-              <GradientStop Color="#00090a0d" Offset="0.95"/>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+              <GradientStop Color="#CC000000" Offset="0"/>
+              <GradientStop Color="#00000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
 
-        <StackPanel VerticalAlignment="Center" Margin="44,40">
+        <!-- Bottom caption gradient -->
+        <Border VerticalAlignment="Bottom" Height="160">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+              <GradientStop Color="#00000000" Offset="0"/>
+              <GradientStop Color="#50000000" Offset="0.5"/>
+              <GradientStop Color="#AA000000" Offset="1"/>
+            </LinearGradientBrush>
+          </Border.Background>
+        </Border>
 
-          <!-- Title -->
-          <StackPanel Orientation="Horizontal" Spacing="14" Margin="0,0,0,10">
-            <TextBlock Text="✦" Foreground="#C8A84B"
-                       FontSize="{DynamicResource FontSize4XL}" VerticalAlignment="Center"/>
-            <TextBlock Text="DOTACLASSIC PLUS" Foreground="#C8A84B"
-                       FontSize="{DynamicResource FontSize4XL}" FontWeight="Bold"
-                       LetterSpacing="3" VerticalAlignment="Center"/>
-          </StackPanel>
+        <!-- Title — top center -->
+        <StackPanel VerticalAlignment="Top" HorizontalAlignment="Center"
+                    Orientation="Horizontal" Spacing="12" Margin="0,22,0,0">
+          <TextBlock Text="✦" Foreground="#C8A84B"
+                     FontSize="{DynamicResource FontSize3XL}" VerticalAlignment="Center"/>
+          <TextBlock Text="DOTACLASSIC PLUS" Foreground="#C8A84B"
+                     FontSize="{DynamicResource FontSize3XL}" FontWeight="Bold"
+                     LetterSpacing="3" VerticalAlignment="Center"/>
+        </StackPanel>
 
-          <!-- Tagline -->
-          <TextBlock Text="{l:T 'store.heroDesc'}"
-                     Foreground="#B8C4D0" FontSize="{DynamicResource FontSizeLG}"
-                     TextWrapping="Wrap" MaxWidth="400" Margin="0,0,0,24"/>
-
-          <!-- CTA -->
+        <!-- Bottom: CTA + tagline -->
+        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                    Spacing="10" Margin="60,0,60,28">
           <Button Classes="PrimaryButton" Command="{Binding OpenTelegramCommand}"
                   Padding="22,10" CornerRadius="2" Cursor="Hand"
-                  HorizontalAlignment="Left">
+                  HorizontalAlignment="Center">
             <StackPanel Orientation="Horizontal" Spacing="10">
               <Image Source="avares://d2c-launcher/Assets/Images/telegram.png"
                      Width="15" Height="15" VerticalAlignment="Center"/>
@@ -56,7 +60,10 @@
                          FontSize="{DynamicResource FontSizeMD}" FontWeight="Bold"/>
             </StackPanel>
           </Button>
-
+          <TextBlock Text="{l:T 'store.heroDesc'}"
+                     HorizontalAlignment="Center" TextAlignment="Center"
+                     Foreground="#C8D4E0" FontSize="{DynamicResource FontSizeMD}"
+                     TextWrapping="Wrap"/>
         </StackPanel>
       </Panel>
 
@@ -82,7 +89,7 @@
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Border Background="#48000000"/>
         <!-- Bottom caption gradient -->
-        <Border VerticalAlignment="Bottom" Height="100">
+        <Border VerticalAlignment="Bottom" Height="120">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
@@ -110,7 +117,7 @@
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Border Background="#48000000"/>
         <!-- Bottom caption gradient -->
-        <Border VerticalAlignment="Bottom" Height="100">
+        <Border VerticalAlignment="Bottom" Height="110">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
@@ -138,7 +145,7 @@
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Border Background="#48000000"/>
         <!-- Bottom caption gradient -->
-        <Border VerticalAlignment="Bottom" Height="100">
+        <Border VerticalAlignment="Bottom" Height="120">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
@@ -194,7 +201,7 @@
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Border Background="#48000000"/>
         <!-- Bottom caption gradient -->
-        <Border VerticalAlignment="Bottom" Height="100">
+        <Border VerticalAlignment="Bottom" Height="120">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
@@ -222,7 +229,7 @@
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Border Background="#48000000"/>
         <!-- Bottom caption gradient -->
-        <Border VerticalAlignment="Bottom" Height="100">
+        <Border VerticalAlignment="Bottom" Height="120">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
