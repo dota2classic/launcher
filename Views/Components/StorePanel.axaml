@@ -14,7 +14,7 @@
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
         <!-- Uniform dim -->
-        <Border Background="#68000000"/>
+        <Border Background="#90000000"/>
 
         <!-- Gradient: solid dark left (text zone) → transparent right (art zone) -->
         <Border>
