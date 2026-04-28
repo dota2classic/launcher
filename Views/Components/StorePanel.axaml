@@ -2,7 +2,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:d2c_launcher.ViewModels"
              xmlns:l="clr-namespace:d2c_launcher.Util"
-             xmlns:materialIcons="using:Material.Icons.Avalonia"
              x:Class="d2c_launcher.Views.Components.StorePanel"
              x:DataType="vm:StoreViewModel">
 
@@ -10,272 +9,222 @@
     <StackPanel Spacing="2">
 
       <!-- ═══ HERO BANNER ═══ -->
-      <Border Padding="44,44,44,44">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#09090b" Offset="0"/>
-            <GradientStop Color="#16120a" Offset="0.55"/>
-            <GradientStop Color="#09090b" Offset="1"/>
-          </LinearGradientBrush>
-        </Border.Background>
+      <Panel MinHeight="220">
+        <!-- Background gradient -->
+        <Border>
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+              <GradientStop Color="#09090b" Offset="0"/>
+              <GradientStop Color="#161208" Offset="0.6"/>
+              <GradientStop Color="#1a1508" Offset="1"/>
+            </LinearGradientBrush>
+          </Border.Background>
+        </Border>
 
-        <Grid ColumnDefinitions="*,Auto">
+        <!-- Hero image (right side, clipped) -->
+        <Border HorizontalAlignment="Right" Width="380" ClipToBounds="True" Opacity="0.55">
+          <Image Source="avares://d2c-launcher/Assets/Images/splash/subscription.webp"
+                 Stretch="UniformToFill" HorizontalAlignment="Center"/>
+        </Border>
 
-          <!-- Left: text + status + button -->
-          <StackPanel Grid.Column="0" VerticalAlignment="Center">
+        <!-- Right-side fade overlay so image blends into background -->
+        <Border HorizontalAlignment="Right" Width="200">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+              <GradientStop Color="#00161208" Offset="0"/>
+              <GradientStop Color="#FF161208" Offset="1"/>
+            </LinearGradientBrush>
+          </Border.Background>
+        </Border>
+        <!-- Left-side fade overlay -->
+        <Border HorizontalAlignment="Right" Width="380">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+              <GradientStop Color="#FF09090b" Offset="0"/>
+              <GradientStop Color="#00090000" Offset="0.45"/>
+            </LinearGradientBrush>
+          </Border.Background>
+        </Border>
 
-            <!-- Title -->
-            <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,0,0,14">
+        <!-- Text content -->
+        <StackPanel VerticalAlignment="Center" Margin="44,36">
+
+          <!-- Title -->
+          <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,0,0,12">
+            <TextBlock Text="✦" Foreground="#C8A84B"
+                       FontSize="{DynamicResource FontSize4XL}" VerticalAlignment="Center"/>
+            <TextBlock Text="DOTACLASSIC PLUS" Foreground="#C8A84B"
+                       FontSize="{DynamicResource FontSize4XL}" FontWeight="Bold"
+                       LetterSpacing="4" VerticalAlignment="Center"/>
+          </StackPanel>
+
+          <!-- Tagline -->
+          <TextBlock Text="{l:T 'store.heroDesc'}"
+                     Foreground="#8090A4" FontSize="{DynamicResource FontSizeLG}"
+                     TextWrapping="Wrap" MaxWidth="480" Margin="0,0,0,24"/>
+
+          <!-- Loading -->
+          <TextBlock IsVisible="{Binding IsLoading}"
+                     Text="{l:T 'profile.loading'}"
+                     Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"
+                     Margin="0,0,0,12"/>
+
+          <!-- Active subscription -->
+          <StackPanel IsVisible="{Binding HasPlusSubscription}" Spacing="6" Margin="0,0,0,20">
+            <StackPanel Orientation="Horizontal" Spacing="10">
               <TextBlock Text="✦" Foreground="#C8A84B"
-                         FontSize="{DynamicResource FontSize4XL}" VerticalAlignment="Center"/>
-              <TextBlock Text="DOTACLASSIC PLUS" Foreground="#C8A84B"
-                         FontSize="{DynamicResource FontSize4XL}" FontWeight="Bold"
-                         LetterSpacing="4" VerticalAlignment="Center"/>
+                         FontSize="{DynamicResource FontSizeMD}" VerticalAlignment="Center"/>
+              <TextBlock Text="{l:T 'store.subscriptionActive'}" Foreground="#C8A84B"
+                         FontSize="{DynamicResource FontSizeMD}" FontWeight="SemiBold"
+                         VerticalAlignment="Center"/>
             </StackPanel>
-
-            <!-- Tagline -->
-            <TextBlock Text="{l:T 'store.heroDesc'}"
-                       Foreground="#7a8a9a" FontSize="{DynamicResource FontSizeLG}"
-                       TextWrapping="Wrap" MaxWidth="520" Margin="0,0,0,28"/>
-
-            <!-- Loading -->
-            <TextBlock IsVisible="{Binding IsLoading}"
-                       Text="{l:T 'profile.loading'}"
-                       Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"
-                       Margin="0,0,0,16"/>
-
-            <!-- Active subscription -->
-            <StackPanel IsVisible="{Binding HasPlusSubscription}" Spacing="6" Margin="0,0,0,24">
-              <StackPanel Orientation="Horizontal" Spacing="10">
-                <TextBlock Text="✦" Foreground="#C8A84B"
-                           FontSize="{DynamicResource FontSizeMD}" VerticalAlignment="Center"/>
-                <TextBlock Text="{l:T 'store.subscriptionActive'}" Foreground="#C8A84B"
-                           FontSize="{DynamicResource FontSizeMD}" FontWeight="SemiBold"
-                           VerticalAlignment="Center"/>
-              </StackPanel>
-              <StackPanel Orientation="Horizontal" Spacing="8">
-                <TextBlock Text="{l:T 'store.subscriptionExpires'}"
-                           Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"/>
-                <TextBlock Text="{Binding PlusSubscriptionEndText}"
-                           Foreground="#99A8B4" FontSize="{DynamicResource FontSizeMD}"
-                           FontWeight="SemiBold"/>
-              </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Text="{l:T 'store.subscriptionExpires'}"
+                         Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"/>
+              <TextBlock Text="{Binding PlusSubscriptionEndText}"
+                         Foreground="#99A8B4" FontSize="{DynamicResource FontSizeMD}"
+                         FontWeight="SemiBold"/>
             </StackPanel>
-
-            <!-- No subscription -->
-            <TextBlock IsVisible="{Binding !HasPlusSubscription}"
-                       Text="{l:T 'store.subscriptionNone'}"
-                       Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"
-                       Margin="0,0,0,24"/>
-
-            <!-- CTA button -->
-            <Button Classes="PrimaryButton" Command="{Binding OpenTelegramCommand}"
-                    IsVisible="{Binding !IsLoading}"
-                    Padding="22,10" CornerRadius="2" Cursor="Hand"
-                    HorizontalAlignment="Left">
-              <StackPanel Orientation="Horizontal" Spacing="10">
-                <Image Source="avares://d2c-launcher/Assets/Images/telegram.png" Width="16" Height="16" VerticalAlignment="Center"/>
-                <TextBlock Text="{Binding StoreButtonText}"
-                           FontSize="{DynamicResource FontSizeMD}" FontWeight="Bold"/>
-              </StackPanel>
-            </Button>
           </StackPanel>
 
-          <!-- Right: decorative gold diamond cluster -->
-          <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="32,0,0,0"
-                      IsVisible="{Binding !IsLoading}">
-            <TextBlock Text="✦" Foreground="#C8A84B" FontSize="64" Opacity="0.18"
-                       HorizontalAlignment="Center"/>
-            <TextBlock Text="✦  ✦" Foreground="#C8A84B" FontSize="32" Opacity="0.12"
-                       HorizontalAlignment="Center" Margin="0,-16,0,0"/>
-            <TextBlock Text="✦" Foreground="#C8A84B" FontSize="48" Opacity="0.08"
-                       HorizontalAlignment="Center" Margin="0,-20,0,0"/>
-          </StackPanel>
+          <!-- No subscription -->
+          <TextBlock IsVisible="{Binding !HasPlusSubscription}"
+                     Text="{l:T 'store.subscriptionNone'}"
+                     Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"
+                     Margin="0,0,0,20"/>
 
-        </Grid>
-      </Border>
+          <!-- CTA button -->
+          <Button Classes="PrimaryButton" Command="{Binding OpenTelegramCommand}"
+                  IsVisible="{Binding !IsLoading}"
+                  Padding="22,10" CornerRadius="2" Cursor="Hand"
+                  HorizontalAlignment="Left">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <Image Source="avares://d2c-launcher/Assets/Images/telegram.png"
+                     Width="16" Height="16" VerticalAlignment="Center"/>
+              <TextBlock Text="{Binding StoreButtonText}"
+                         FontSize="{DynamicResource FontSizeMD}" FontWeight="Bold"/>
+            </StackPanel>
+          </Button>
+        </StackPanel>
+      </Panel>
 
-      <!-- ─── Divider with section label ─── -->
-      <Border Background="#0d0f13" Padding="44,16">
+      <!-- ─── Section divider ─── -->
+      <Border Background="#0d0f13" Padding="44,14">
         <TextBlock Text="{l:T 'store.benefitsTitle'}"
                    Foreground="#3a4860" FontSize="{DynamicResource FontSizeXS}"
                    FontWeight="SemiBold" LetterSpacing="3"/>
       </Border>
 
-      <!-- ═══ FEATURE 1 — icon LEFT (decorations) ═══ -->
-      <Border MinHeight="164" Background="#0e1016">
-        <Grid ColumnDefinitions="210,*">
-
-          <!-- Icon panel -->
-          <Border Grid.Column="0">
-            <Border.Background>
-              <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#14110a" Offset="0"/>
-                <GradientStop Color="#1c1810" Offset="1"/>
-              </LinearGradientBrush>
-            </Border.Background>
-            <materialIcons:MaterialIcon Kind="PaletteOutline" Width="64" Height="64"
-                                        Foreground="#C8A84B" Opacity="0.85"
-                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <!-- ═══ FEATURE 1 — image LEFT (decorations) ═══ -->
+      <Border MinHeight="180" Background="#0e1016" ClipToBounds="True">
+        <Grid ColumnDefinitions="300,*">
+          <Border Grid.Column="0" ClipToBounds="True">
+            <Image Source="avares://d2c-launcher/Assets/Images/splash/decoration.webp"
+                   Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
           </Border>
-
-          <!-- Text panel -->
           <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="36,32">
             <TextBlock Text="{l:T 'store.benefit1Title'}"
                        Foreground="#E2E6EA" FontSize="{DynamicResource FontSize2XL}"
                        FontWeight="Bold" Margin="0,0,0,10"/>
             <TextBlock Text="{l:T 'store.benefit1Desc'}"
                        Foreground="#6878A0" FontSize="{DynamicResource FontSizeMD}"
-                       TextWrapping="Wrap" MaxWidth="520"/>
+                       TextWrapping="Wrap" MaxWidth="460"/>
           </StackPanel>
-
         </Grid>
       </Border>
 
-      <!-- ═══ FEATURE 2 — icon RIGHT (dodge) ═══ -->
-      <Border MinHeight="164" Background="#0b0d11">
-        <Grid ColumnDefinitions="*,210">
-
-          <!-- Text panel -->
+      <!-- ═══ FEATURE 2 — image RIGHT (dodge) ═══ -->
+      <Border MinHeight="180" Background="#0b0d11" ClipToBounds="True">
+        <Grid ColumnDefinitions="*,300">
           <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="44,32,36,32">
             <TextBlock Text="{l:T 'store.benefit2Title'}"
                        Foreground="#E2E6EA" FontSize="{DynamicResource FontSize2XL}"
                        FontWeight="Bold" Margin="0,0,0,10"/>
             <TextBlock Text="{l:T 'store.benefit2Desc'}"
                        Foreground="#6878A0" FontSize="{DynamicResource FontSizeMD}"
-                       TextWrapping="Wrap" MaxWidth="520"/>
+                       TextWrapping="Wrap" MaxWidth="460"/>
           </StackPanel>
-
-          <!-- Icon panel -->
-          <Border Grid.Column="1">
-            <Border.Background>
-              <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#0c100e" Offset="0"/>
-                <GradientStop Color="#131c14" Offset="1"/>
-              </LinearGradientBrush>
-            </Border.Background>
-            <materialIcons:MaterialIcon Kind="AccountCancel" Width="64" Height="64"
-                                        Foreground="#C8A84B" Opacity="0.85"
-                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          <Border Grid.Column="1" ClipToBounds="True">
+            <Image Source="avares://d2c-launcher/Assets/Images/splash/dodge.webp"
+                   Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
           </Border>
-
         </Grid>
       </Border>
 
-      <!-- ═══ FEATURE 3 — icon LEFT (unban) ═══ -->
-      <Border MinHeight="164" Background="#0e1016">
-        <Grid ColumnDefinitions="210,*">
-
-          <Border Grid.Column="0">
-            <Border.Background>
-              <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#0c0e14" Offset="0"/>
-                <GradientStop Color="#141622" Offset="1"/>
-              </LinearGradientBrush>
-            </Border.Background>
-            <materialIcons:MaterialIcon Kind="LockOpenVariant" Width="64" Height="64"
-                                        Foreground="#C8A84B" Opacity="0.85"
-                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <!-- ═══ FEATURE 3 — image LEFT (unban) ═══ -->
+      <Border MinHeight="180" Background="#0e1016" ClipToBounds="True">
+        <Grid ColumnDefinitions="300,*">
+          <Border Grid.Column="0" ClipToBounds="True">
+            <Image Source="avares://d2c-launcher/Assets/Images/splash/unban.webp"
+                   Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
           </Border>
-
           <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="36,32">
             <TextBlock Text="{l:T 'store.benefit3Title'}"
                        Foreground="#E2E6EA" FontSize="{DynamicResource FontSize2XL}"
                        FontWeight="Bold" Margin="0,0,0,10"/>
             <TextBlock Text="{l:T 'store.benefit3Desc'}"
                        Foreground="#6878A0" FontSize="{DynamicResource FontSizeMD}"
-                       TextWrapping="Wrap" MaxWidth="520"/>
+                       TextWrapping="Wrap" MaxWidth="460"/>
           </StackPanel>
-
         </Grid>
       </Border>
 
-      <!-- ═══ FEATURE 4 — icon RIGHT (praise) ═══ -->
-      <Border MinHeight="164" Background="#0b0d11">
-        <Grid ColumnDefinitions="*,210">
-
+      <!-- ═══ FEATURE 4 — image RIGHT (in-game praise) ═══ -->
+      <Border MinHeight="180" Background="#0b0d11" ClipToBounds="True">
+        <Grid ColumnDefinitions="*,300">
           <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="44,32,36,32">
             <TextBlock Text="{l:T 'store.benefit4Title'}"
                        Foreground="#E2E6EA" FontSize="{DynamicResource FontSize2XL}"
                        FontWeight="Bold" Margin="0,0,0,10"/>
             <TextBlock Text="{l:T 'store.benefit4Desc'}"
                        Foreground="#6878A0" FontSize="{DynamicResource FontSizeMD}"
-                       TextWrapping="Wrap" MaxWidth="520"/>
+                       TextWrapping="Wrap" MaxWidth="460"/>
           </StackPanel>
-
-          <Border Grid.Column="1">
-            <Border.Background>
-              <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#14110a" Offset="0"/>
-                <GradientStop Color="#1c1810" Offset="1"/>
-              </LinearGradientBrush>
-            </Border.Background>
-            <materialIcons:MaterialIcon Kind="ThumbUpOutline" Width="64" Height="64"
-                                        Foreground="#C8A84B" Opacity="0.85"
-                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          <Border Grid.Column="1" ClipToBounds="True">
+            <Image Source="avares://d2c-launcher/Assets/Images/splash/cm_lina.webp"
+                   Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
           </Border>
-
         </Grid>
       </Border>
 
-      <!-- ═══ FEATURE 5 — icon LEFT (mute) ═══ -->
-      <Border MinHeight="164" Background="#0e1016">
-        <Grid ColumnDefinitions="210,*">
-
-          <Border Grid.Column="0">
-            <Border.Background>
-              <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#12100c" Offset="0"/>
-                <GradientStop Color="#1a1210" Offset="1"/>
-              </LinearGradientBrush>
-            </Border.Background>
-            <materialIcons:MaterialIcon Kind="VolumeOff" Width="64" Height="64"
-                                        Foreground="#C8A84B" Opacity="0.85"
-                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <!-- ═══ FEATURE 5 — image LEFT (mute) ═══ -->
+      <Border MinHeight="180" Background="#0e1016" ClipToBounds="True">
+        <Grid ColumnDefinitions="300,*">
+          <Border Grid.Column="0" ClipToBounds="True">
+            <Image Source="avares://d2c-launcher/Assets/Images/splash/mute.webp"
+                   Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
           </Border>
-
           <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="36,32">
             <TextBlock Text="{l:T 'store.benefit5Title'}"
                        Foreground="#E2E6EA" FontSize="{DynamicResource FontSize2XL}"
                        FontWeight="Bold" Margin="0,0,0,10"/>
             <TextBlock Text="{l:T 'store.benefit5Desc'}"
                        Foreground="#6878A0" FontSize="{DynamicResource FontSizeMD}"
-                       TextWrapping="Wrap" MaxWidth="520"/>
+                       TextWrapping="Wrap" MaxWidth="460"/>
           </StackPanel>
-
         </Grid>
       </Border>
 
-      <!-- ═══ FEATURE 6 — icon RIGHT (lobby) ═══ -->
-      <Border MinHeight="164" Background="#0b0d11">
-        <Grid ColumnDefinitions="*,210">
-
+      <!-- ═══ FEATURE 6 — image RIGHT (lobby) ═══ -->
+      <Border MinHeight="180" Background="#0b0d11" ClipToBounds="True">
+        <Grid ColumnDefinitions="*,300">
           <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="44,32,36,32">
             <TextBlock Text="{l:T 'store.benefit6Title'}"
                        Foreground="#E2E6EA" FontSize="{DynamicResource FontSize2XL}"
                        FontWeight="Bold" Margin="0,0,0,10"/>
             <TextBlock Text="{l:T 'store.benefit6Desc'}"
                        Foreground="#6878A0" FontSize="{DynamicResource FontSizeMD}"
-                       TextWrapping="Wrap" MaxWidth="520"/>
+                       TextWrapping="Wrap" MaxWidth="460"/>
           </StackPanel>
-
-          <Border Grid.Column="1">
-            <Border.Background>
-              <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#0c0d14" Offset="0"/>
-                <GradientStop Color="#12101c" Offset="1"/>
-              </LinearGradientBrush>
-            </Border.Background>
-            <materialIcons:MaterialIcon Kind="GamepadVariant" Width="64" Height="64"
-                                        Foreground="#C8A84B" Opacity="0.85"
-                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          <Border Grid.Column="1" ClipToBounds="True">
+            <Image Source="avares://d2c-launcher/Assets/Images/splash/lobby.webp"
+                   Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
           </Border>
-
         </Grid>
       </Border>
 
       <!-- ═══ BOTTOM CTA ═══ -->
-      <Border Padding="44,36">
+      <Border Padding="44,32">
         <Border.Background>
           <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="#09090b" Offset="0"/>
@@ -283,7 +232,7 @@
             <GradientStop Color="#09090b" Offset="1"/>
           </LinearGradientBrush>
         </Border.Background>
-        <StackPanel Spacing="16" HorizontalAlignment="Left">
+        <StackPanel Spacing="14" HorizontalAlignment="Left">
           <TextBlock Text="{l:T 'store.ctaTitle'}"
                      Foreground="#E2E6EA" FontSize="{DynamicResource FontSize2XL}"
                      FontWeight="Bold"/>
@@ -292,7 +241,8 @@
                   Padding="22,10" CornerRadius="2" Cursor="Hand"
                   HorizontalAlignment="Left">
             <StackPanel Orientation="Horizontal" Spacing="10">
-              <Image Source="avares://d2c-launcher/Assets/Images/telegram.png" Width="16" Height="16" VerticalAlignment="Center"/>
+              <Image Source="avares://d2c-launcher/Assets/Images/telegram.png"
+                     Width="16" Height="16" VerticalAlignment="Center"/>
               <TextBlock Text="{Binding StoreButtonText}"
                          FontSize="{DynamicResource FontSizeMD}" FontWeight="Bold"/>
             </StackPanel>
