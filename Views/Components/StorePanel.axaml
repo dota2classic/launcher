@@ -42,39 +42,8 @@
                      Foreground="#7888A0" FontSize="{DynamicResource FontSizeLG}"
                      TextWrapping="Wrap" MaxWidth="400" Margin="0,0,0,24"/>
 
-          <!-- Loading -->
-          <TextBlock IsVisible="{Binding IsLoading}"
-                     Text="{l:T 'profile.loading'}"
-                     Foreground="#3d4f60" FontSize="{DynamicResource FontSizeMD}"
-                     Margin="0,0,0,12"/>
-
-          <!-- Active subscription — minimal, no box -->
-          <StackPanel IsVisible="{Binding HasPlusSubscription}" Spacing="4" Margin="0,0,0,20">
-            <StackPanel Orientation="Horizontal" Spacing="8">
-              <TextBlock Text="✦" Foreground="#C8A84B"
-                         FontSize="{DynamicResource FontSizeSM}" VerticalAlignment="Center"/>
-              <TextBlock Text="{l:T 'store.subscriptionActive'}" Foreground="#C8A84B"
-                         FontSize="{DynamicResource FontSizeMD}" FontWeight="SemiBold"
-                         VerticalAlignment="Center"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Spacing="6" Margin="16,0,0,0">
-              <TextBlock Text="{l:T 'store.subscriptionExpires'}"
-                         Foreground="#445060" FontSize="{DynamicResource FontSizeSM}"/>
-              <TextBlock Text="{Binding PlusSubscriptionEndText}"
-                         Foreground="#7888A0" FontSize="{DynamicResource FontSizeSM}"
-                         FontWeight="SemiBold"/>
-            </StackPanel>
-          </StackPanel>
-
-          <!-- No subscription -->
-          <TextBlock IsVisible="{Binding !HasPlusSubscription}"
-                     Text="{l:T 'store.subscriptionNone'}"
-                     Foreground="#445060" FontSize="{DynamicResource FontSizeMD}"
-                     Margin="0,0,0,20"/>
-
           <!-- CTA -->
           <Button Classes="PrimaryButton" Command="{Binding OpenTelegramCommand}"
-                  IsVisible="{Binding !IsLoading}"
                   Padding="22,10" CornerRadius="2" Cursor="Hand"
                   HorizontalAlignment="Left">
             <StackPanel Orientation="Horizontal" Spacing="10">
