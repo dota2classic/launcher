@@ -31,13 +31,16 @@
         <StackPanel VerticalAlignment="Center" Margin="44,36">
 
           <!-- Title -->
-          <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,0,0,12">
-            <TextBlock Text="✦" Foreground="#C8A84B"
-                       FontSize="{DynamicResource FontSize4XL}" VerticalAlignment="Center"/>
-            <TextBlock Text="DOTACLASSIC PLUS" Foreground="#C8A84B"
-                       FontSize="{DynamicResource FontSize4XL}" FontWeight="Bold"
-                       LetterSpacing="4" VerticalAlignment="Center"/>
-          </StackPanel>
+          <Border Background="#65000000" CornerRadius="3" Padding="14,8"
+                  HorizontalAlignment="Left" Margin="0,0,0,12">
+            <StackPanel Orientation="Horizontal" Spacing="16">
+              <TextBlock Text="✦" Foreground="#C8A84B"
+                         FontSize="{DynamicResource FontSize4XL}" VerticalAlignment="Center"/>
+              <TextBlock Text="DOTACLASSIC PLUS" Foreground="#C8A84B"
+                         FontSize="{DynamicResource FontSize4XL}" FontWeight="Bold"
+                         LetterSpacing="4" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Border>
 
           <!-- Tagline -->
           <TextBlock Text="{l:T 'store.heroDesc'}"
@@ -125,11 +128,13 @@
             </LinearGradientBrush>
           </Border.Background>
         </Border>
-        <TextBlock Text="{l:T 'store.benefit1Title'}"
-                   VerticalAlignment="Top" HorizontalAlignment="Center"
-                   Margin="60,32,60,0"
+        <Border VerticalAlignment="Top" HorizontalAlignment="Center"
+                Background="#65000000" CornerRadius="3"
+                Margin="60,32,60,0" Padding="20,8">
+          <TextBlock Text="{l:T 'store.benefit1Title'}"
                    Foreground="#C8A84B" FontSize="{DynamicResource FontSize4XL}"
                    FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
+        </Border>
         <TextBlock Text="{l:T 'store.benefit1Desc'}"
                    VerticalAlignment="Bottom" HorizontalAlignment="Center"
                    Margin="100,0,100,28"
@@ -150,11 +155,13 @@
             </LinearGradientBrush>
           </Border.Background>
         </Border>
-        <TextBlock Text="{l:T 'store.benefit2Title'}"
-                   VerticalAlignment="Top" HorizontalAlignment="Center"
-                   Margin="60,32,60,0"
+        <Border VerticalAlignment="Top" HorizontalAlignment="Center"
+                Background="#65000000" CornerRadius="3"
+                Margin="60,32,60,0" Padding="20,8">
+          <TextBlock Text="{l:T 'store.benefit2Title'}"
                    Foreground="#C8A84B" FontSize="{DynamicResource FontSize4XL}"
                    FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
+        </Border>
         <TextBlock Text="{l:T 'store.benefit2Desc'}"
                    VerticalAlignment="Bottom" HorizontalAlignment="Center"
                    Margin="100,0,100,28"
@@ -175,11 +182,13 @@
             </LinearGradientBrush>
           </Border.Background>
         </Border>
-        <TextBlock Text="{l:T 'store.benefit3Title'}"
-                   VerticalAlignment="Top" HorizontalAlignment="Center"
-                   Margin="60,32,60,0"
+        <Border VerticalAlignment="Top" HorizontalAlignment="Center"
+                Background="#65000000" CornerRadius="3"
+                Margin="60,32,60,0" Padding="20,8">
+          <TextBlock Text="{l:T 'store.benefit3Title'}"
                    Foreground="#C8A84B" FontSize="{DynamicResource FontSize4XL}"
                    FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
+        </Border>
         <TextBlock Text="{l:T 'store.benefit3Desc'}"
                    VerticalAlignment="Bottom" HorizontalAlignment="Center"
                    Margin="100,0,100,28"
@@ -200,11 +209,13 @@
             </LinearGradientBrush>
           </Border.Background>
         </Border>
-        <TextBlock Text="{l:T 'store.benefit4Title'}"
-                   VerticalAlignment="Top" HorizontalAlignment="Center"
-                   Margin="60,32,60,0"
+        <Border VerticalAlignment="Top" HorizontalAlignment="Center"
+                Background="#65000000" CornerRadius="3"
+                Margin="60,32,60,0" Padding="20,8">
+          <TextBlock Text="{l:T 'store.benefit4Title'}"
                    Foreground="#C8A84B" FontSize="{DynamicResource FontSize4XL}"
                    FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
+        </Border>
         <TextBlock Text="{l:T 'store.benefit4Desc'}"
                    VerticalAlignment="Bottom" HorizontalAlignment="Center"
                    Margin="100,0,100,28"
@@ -225,11 +236,13 @@
             </LinearGradientBrush>
           </Border.Background>
         </Border>
-        <TextBlock Text="{l:T 'store.benefit5Title'}"
-                   VerticalAlignment="Top" HorizontalAlignment="Center"
-                   Margin="60,32,60,0"
+        <Border VerticalAlignment="Top" HorizontalAlignment="Center"
+                Background="#65000000" CornerRadius="3"
+                Margin="60,32,60,0" Padding="20,8">
+          <TextBlock Text="{l:T 'store.benefit5Title'}"
                    Foreground="#C8A84B" FontSize="{DynamicResource FontSize4XL}"
                    FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
+        </Border>
         <TextBlock Text="{l:T 'store.benefit5Desc'}"
                    VerticalAlignment="Bottom" HorizontalAlignment="Center"
                    Margin="100,0,100,28"
@@ -250,11 +263,13 @@
             </LinearGradientBrush>
           </Border.Background>
         </Border>
-        <TextBlock Text="{l:T 'store.benefit6Title'}"
-                   VerticalAlignment="Top" HorizontalAlignment="Center"
-                   Margin="60,32,60,0"
+        <Border VerticalAlignment="Top" HorizontalAlignment="Center"
+                Background="#65000000" CornerRadius="3"
+                Margin="60,32,60,0" Padding="20,8">
+          <TextBlock Text="{l:T 'store.benefit6Title'}"
                    Foreground="#C8A84B" FontSize="{DynamicResource FontSize4XL}"
                    FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
+        </Border>
         <TextBlock Text="{l:T 'store.benefit6Desc'}"
                    VerticalAlignment="Bottom" HorizontalAlignment="Center"
                    Margin="100,0,100,28"
