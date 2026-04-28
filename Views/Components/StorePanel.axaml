@@ -80,11 +80,11 @@
       <Panel MinHeight="330" ClipToBounds="True">
         <Image Source="avares://d2c-launcher/Assets/Images/splash/decoration.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Border Background="#70000000"/>
+        <Border Background="#58000000"/>
         <Border VerticalAlignment="Top" Height="155">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-              <GradientStop Color="#D0000000" Offset="0"/>
+              <GradientStop Color="#A0000000" Offset="0"/>
               <GradientStop Color="#00000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
@@ -93,7 +93,7 @@
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
-              <GradientStop Color="#D0000000" Offset="1"/>
+              <GradientStop Color="#90000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
@@ -113,11 +113,11 @@
       <Panel MinHeight="330" ClipToBounds="True">
         <Image Source="avares://d2c-launcher/Assets/Images/splash/dodge.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Border Background="#70000000"/>
+        <Border Background="#58000000"/>
         <Border VerticalAlignment="Top" Height="155">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-              <GradientStop Color="#D0000000" Offset="0"/>
+              <GradientStop Color="#A0000000" Offset="0"/>
               <GradientStop Color="#00000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
@@ -126,7 +126,7 @@
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
-              <GradientStop Color="#D0000000" Offset="1"/>
+              <GradientStop Color="#90000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
@@ -146,11 +146,11 @@
       <Panel MinHeight="330" ClipToBounds="True">
         <Image Source="avares://d2c-launcher/Assets/Images/splash/unban.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Border Background="#70000000"/>
+        <Border Background="#58000000"/>
         <Border VerticalAlignment="Top" Height="155">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-              <GradientStop Color="#D0000000" Offset="0"/>
+              <GradientStop Color="#A0000000" Offset="0"/>
               <GradientStop Color="#00000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
@@ -159,7 +159,7 @@
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
-              <GradientStop Color="#D0000000" Offset="1"/>
+              <GradientStop Color="#90000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
@@ -179,11 +179,11 @@
       <Panel MinHeight="330" ClipToBounds="True">
         <Image Source="avares://d2c-launcher/Assets/Images/splash/cm_lina.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Border Background="#70000000"/>
+        <Border Background="#58000000"/>
         <Border VerticalAlignment="Top" Height="155">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-              <GradientStop Color="#D0000000" Offset="0"/>
+              <GradientStop Color="#A0000000" Offset="0"/>
               <GradientStop Color="#00000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
@@ -192,7 +192,7 @@
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
-              <GradientStop Color="#D0000000" Offset="1"/>
+              <GradientStop Color="#90000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
@@ -212,11 +212,11 @@
       <Panel MinHeight="330" ClipToBounds="True">
         <Image Source="avares://d2c-launcher/Assets/Images/splash/mute.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Border Background="#70000000"/>
+        <Border Background="#58000000"/>
         <Border VerticalAlignment="Top" Height="155">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-              <GradientStop Color="#D0000000" Offset="0"/>
+              <GradientStop Color="#A0000000" Offset="0"/>
               <GradientStop Color="#00000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
@@ -225,7 +225,7 @@
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
-              <GradientStop Color="#D0000000" Offset="1"/>
+              <GradientStop Color="#90000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
@@ -245,11 +245,11 @@
       <Panel MinHeight="330" ClipToBounds="True">
         <Image Source="avares://d2c-launcher/Assets/Images/splash/lobby.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Border Background="#70000000"/>
+        <Border Background="#58000000"/>
         <Border VerticalAlignment="Top" Height="155">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-              <GradientStop Color="#D0000000" Offset="0"/>
+              <GradientStop Color="#A0000000" Offset="0"/>
               <GradientStop Color="#00000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
@@ -258,7 +258,7 @@
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
-              <GradientStop Color="#D0000000" Offset="1"/>
+              <GradientStop Color="#90000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
