@@ -42,7 +42,7 @@
 
           <!-- Tagline -->
           <TextBlock Text="{l:T 'store.heroDesc'}"
-                     Foreground="#7888A0" FontSize="{DynamicResource FontSizeLG}"
+                     Foreground="#B8C4D0" FontSize="{DynamicResource FontSizeLG}"
                      TextWrapping="Wrap" MaxWidth="400" Margin="0,0,0,24"/>
 
           <!-- CTA -->
