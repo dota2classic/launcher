@@ -81,8 +81,8 @@
         <Image Source="avares://d2c-launcher/Assets/Images/splash/decoration.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Border Background="#48000000"/>
-        <!-- Extended bottom zone: gradient fade into dark caption area -->
-        <Border VerticalAlignment="Bottom" Height="230">
+        <!-- Bottom caption gradient -->
+        <Border VerticalAlignment="Bottom" Height="80">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
@@ -109,8 +109,8 @@
         <Image Source="avares://d2c-launcher/Assets/Images/splash/dodge.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Border Background="#48000000"/>
-        <!-- Extended bottom zone: gradient fade into dark caption area -->
-        <Border VerticalAlignment="Bottom" Height="230">
+        <!-- Bottom caption gradient -->
+        <Border VerticalAlignment="Bottom" Height="80">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
@@ -137,8 +137,8 @@
         <Image Source="avares://d2c-launcher/Assets/Images/splash/unban.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Border Background="#48000000"/>
-        <!-- Extended bottom zone: gradient fade into dark caption area -->
-        <Border VerticalAlignment="Bottom" Height="230">
+        <!-- Bottom caption gradient -->
+        <Border VerticalAlignment="Bottom" Height="80">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
@@ -165,8 +165,8 @@
         <Image Source="avares://d2c-launcher/Assets/Images/splash/cm_lina.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Border Background="#48000000"/>
-        <!-- Extended bottom zone: gradient fade into dark caption area -->
-        <Border VerticalAlignment="Bottom" Height="230">
+        <!-- Bottom caption gradient -->
+        <Border VerticalAlignment="Bottom" Height="80">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
@@ -193,8 +193,8 @@
         <Image Source="avares://d2c-launcher/Assets/Images/splash/mute.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Border Background="#48000000"/>
-        <!-- Extended bottom zone: gradient fade into dark caption area -->
-        <Border VerticalAlignment="Bottom" Height="230">
+        <!-- Bottom caption gradient -->
+        <Border VerticalAlignment="Bottom" Height="80">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
@@ -221,8 +221,8 @@
         <Image Source="avares://d2c-launcher/Assets/Images/splash/lobby.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Border Background="#48000000"/>
-        <!-- Extended bottom zone: gradient fade into dark caption area -->
-        <Border VerticalAlignment="Bottom" Height="230">
+        <!-- Bottom caption gradient -->
+        <Border VerticalAlignment="Bottom" Height="80">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
