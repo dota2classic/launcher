@@ -1,0 +1,50 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:d2c_launcher.ViewModels"
+             xmlns:l="clr-namespace:d2c_launcher.Util"
+             x:Class="d2c_launcher.Views.Components.RewardModal"
+             x:DataType="vm:RewardModalViewModel">
+
+    <Panel IsVisible="{Binding IsOpen}" ZIndex="350"
+           HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+           Background="#C0000000">
+        <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+                Width="440" Padding="0" CornerRadius="0"
+                Background="#0D1117"
+                BorderBrush="#C8A84B" BorderThickness="1"
+                BoxShadow="0 0 48 0 #50C8A84B, 0 16 32 0 #A0000000">
+            <StackPanel>
+                <!-- Gold accent top bar -->
+                <Border Background="#C8A84B" Height="4"/>
+
+                <StackPanel Spacing="20" Margin="36,32,36,36">
+                    <!-- Trophy / star icon -->
+                    <PathIcon HorizontalAlignment="Center"
+                              Width="56" Height="56"
+                              Foreground="#C8A84B"
+                              Data="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.63L12,2L9.19,8.63L2,9.24L7.46,13.97L5.82,21L12,17.27Z"/>
+
+                    <!-- Title from backend -->
+                    <TextBlock Text="{Binding Title}"
+                               FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold"
+                               HorizontalAlignment="Center" TextAlignment="Center"
+                               Foreground="#C8A84B"/>
+
+                    <!-- Description from backend -->
+                    <TextBlock Text="{Binding Content}"
+                               HorizontalAlignment="Center" TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               Foreground="#C0C0C0" FontSize="{DynamicResource FontSizeMD}"/>
+
+                    <!-- Claim / close button -->
+                    <Button Classes="PrimaryButton" HorizontalAlignment="Center"
+                            Content="{l:T 'reward.claim'}"
+                            Command="{Binding ClaimCommand}"
+                            Padding="36,12" CornerRadius="0"
+                            FontSize="{DynamicResource FontSizeLG}"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Panel>
+
+</UserControl>

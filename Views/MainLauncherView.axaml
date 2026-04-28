@@ -298,6 +298,9 @@
                </components:ModalOverlay.ModalContent>
            </components:ModalOverlay>
 
+           <!-- Reward / subscription received modal -->
+           <components:RewardModal DataContext="{Binding Reward}"/>
+
            <!-- Intro overlay -->
            <Panel IsVisible="{Binding Intro.IsOpen}" ZIndex="200"
                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">

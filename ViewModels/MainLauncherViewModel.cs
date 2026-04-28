@@ -58,6 +58,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public StreamsViewModel Streams { get; }
     public LatestNewsViewModel News { get; }
     public StoreViewModel Store { get; }
+    public RewardModalViewModel Reward { get; }
 
     // ── Auth / user state ─────────────────────────────────────────────────────
     [ObservableProperty]
@@ -200,11 +201,13 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         News = new LatestNewsViewModel(backendApiService);
         Store = new StoreViewModel(backendApiService);
         Store.GetCurrentSteamId = () => _steamManager.CurrentUser?.SteamId;
+        Reward = new RewardModalViewModel(backendApiService);
 
         _soundCoordinator = new SocketEventCoordinator(queueSocketService, NotificationArea, windowService, backendApiService,
             toastNotificationService,
             mode => Queue.MatchmakingModes.FirstOrDefault(m => m.ModeId == (int)mode)?.Name ?? mode.ToString(),
             settingsStorage);
+        _soundCoordinator.RewardNotificationReceived += notification => Reward.Show(notification);
 
         Launch.PropertyChanged += (_, e) =>
         {
