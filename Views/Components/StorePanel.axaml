@@ -13,6 +13,9 @@
         <Image Source="avares://d2c-launcher/Assets/Images/splash/subscription.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
+        <!-- Uniform dim -->
+        <Border Background="#68000000"/>
+
         <!-- Gradient: solid dark left (text zone) → transparent right (art zone) -->
         <Border>
           <Border.Background>
