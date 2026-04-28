@@ -42,7 +42,7 @@
                     Orientation="Horizontal" Spacing="12" Margin="0,22,0,0">
           <TextBlock Text="✦" Foreground="#C8A84B"
                      FontSize="{DynamicResource FontSize3XL}" VerticalAlignment="Center"/>
-          <TextBlock Text="DOTACLASSIC PLUS" Foreground="#C8A84B"
+          <TextBlock Text="{l:T 'store.title'}" Foreground="#C8A84B"
                      FontSize="{DynamicResource FontSize3XL}" FontWeight="Bold"
                      LetterSpacing="3" VerticalAlignment="Center"/>
         </StackPanel>
