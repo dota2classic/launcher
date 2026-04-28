@@ -80,198 +80,168 @@
       <Panel MinHeight="330" ClipToBounds="True">
         <Image Source="avares://d2c-launcher/Assets/Images/splash/decoration.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Border Background="#58000000"/>
-        <Border VerticalAlignment="Top" Height="155">
-          <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-              <GradientStop Color="#A0000000" Offset="0"/>
-              <GradientStop Color="#00000000" Offset="1"/>
-            </LinearGradientBrush>
-          </Border.Background>
-        </Border>
-        <Border VerticalAlignment="Bottom" Height="160">
+        <Border Background="#48000000"/>
+        <!-- Extended bottom zone: gradient fade into dark caption area -->
+        <Border VerticalAlignment="Bottom" Height="230">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
-              <GradientStop Color="#90000000" Offset="1"/>
+              <GradientStop Color="#B0000000" Offset="0.5"/>
+              <GradientStop Color="#F0000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
-        <TextBlock Text="{l:T 'store.benefit1Title'}"
-                   VerticalAlignment="Top" HorizontalAlignment="Center"
-                   Margin="60,36,60,0"
-                   Foreground="#C8A84B" FontSize="{DynamicResource FontSize4XL}"
-                   FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
-        <TextBlock Text="{l:T 'store.benefit1Desc'}"
-                   VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                   Margin="90,0,90,30"
-                   Foreground="#C8D4E0" FontSize="{DynamicResource FontSizeLG}"
-                   TextWrapping="Wrap" TextAlignment="Center"/>
+        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                    Spacing="8" Margin="60,0,60,28">
+          <TextBlock Text="{l:T 'store.benefit1Title'}"
+                     HorizontalAlignment="Center" TextAlignment="Center"
+                     Foreground="#C8A84B" FontSize="{DynamicResource FontSize3XL}"
+                     FontWeight="Bold" TextWrapping="Wrap"/>
+          <TextBlock Text="{l:T 'store.benefit1Desc'}"
+                     HorizontalAlignment="Center" TextAlignment="Center"
+                     Foreground="#C8D4E0" FontSize="{DynamicResource FontSizeMD}"
+                     TextWrapping="Wrap"/>
+        </StackPanel>
       </Panel>
 
       <!-- FEATURE 2 — dodge -->
       <Panel MinHeight="330" ClipToBounds="True">
         <Image Source="avares://d2c-launcher/Assets/Images/splash/dodge.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Border Background="#58000000"/>
-        <Border VerticalAlignment="Top" Height="155">
-          <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-              <GradientStop Color="#A0000000" Offset="0"/>
-              <GradientStop Color="#00000000" Offset="1"/>
-            </LinearGradientBrush>
-          </Border.Background>
-        </Border>
-        <Border VerticalAlignment="Bottom" Height="160">
+        <Border Background="#48000000"/>
+        <!-- Extended bottom zone: gradient fade into dark caption area -->
+        <Border VerticalAlignment="Bottom" Height="230">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
-              <GradientStop Color="#90000000" Offset="1"/>
+              <GradientStop Color="#B0000000" Offset="0.5"/>
+              <GradientStop Color="#F0000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
-        <TextBlock Text="{l:T 'store.benefit2Title'}"
-                   VerticalAlignment="Top" HorizontalAlignment="Center"
-                   Margin="60,36,60,0"
-                   Foreground="#C8A84B" FontSize="{DynamicResource FontSize4XL}"
-                   FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
-        <TextBlock Text="{l:T 'store.benefit2Desc'}"
-                   VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                   Margin="90,0,90,30"
-                   Foreground="#C8D4E0" FontSize="{DynamicResource FontSizeLG}"
-                   TextWrapping="Wrap" TextAlignment="Center"/>
+        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                    Spacing="8" Margin="60,0,60,28">
+          <TextBlock Text="{l:T 'store.benefit2Title'}"
+                     HorizontalAlignment="Center" TextAlignment="Center"
+                     Foreground="#C8A84B" FontSize="{DynamicResource FontSize3XL}"
+                     FontWeight="Bold" TextWrapping="Wrap"/>
+          <TextBlock Text="{l:T 'store.benefit2Desc'}"
+                     HorizontalAlignment="Center" TextAlignment="Center"
+                     Foreground="#C8D4E0" FontSize="{DynamicResource FontSizeMD}"
+                     TextWrapping="Wrap"/>
+        </StackPanel>
       </Panel>
 
       <!-- FEATURE 3 — unban -->
       <Panel MinHeight="330" ClipToBounds="True">
         <Image Source="avares://d2c-launcher/Assets/Images/splash/unban.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Border Background="#58000000"/>
-        <Border VerticalAlignment="Top" Height="155">
-          <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-              <GradientStop Color="#A0000000" Offset="0"/>
-              <GradientStop Color="#00000000" Offset="1"/>
-            </LinearGradientBrush>
-          </Border.Background>
-        </Border>
-        <Border VerticalAlignment="Bottom" Height="160">
+        <Border Background="#48000000"/>
+        <!-- Extended bottom zone: gradient fade into dark caption area -->
+        <Border VerticalAlignment="Bottom" Height="230">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
-              <GradientStop Color="#90000000" Offset="1"/>
+              <GradientStop Color="#B0000000" Offset="0.5"/>
+              <GradientStop Color="#F0000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
-        <TextBlock Text="{l:T 'store.benefit3Title'}"
-                   VerticalAlignment="Top" HorizontalAlignment="Center"
-                   Margin="60,36,60,0"
-                   Foreground="#C8A84B" FontSize="{DynamicResource FontSize4XL}"
-                   FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
-        <TextBlock Text="{l:T 'store.benefit3Desc'}"
-                   VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                   Margin="90,0,90,30"
-                   Foreground="#C8D4E0" FontSize="{DynamicResource FontSizeLG}"
-                   TextWrapping="Wrap" TextAlignment="Center"/>
+        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                    Spacing="8" Margin="60,0,60,28">
+          <TextBlock Text="{l:T 'store.benefit3Title'}"
+                     HorizontalAlignment="Center" TextAlignment="Center"
+                     Foreground="#C8A84B" FontSize="{DynamicResource FontSize3XL}"
+                     FontWeight="Bold" TextWrapping="Wrap"/>
+          <TextBlock Text="{l:T 'store.benefit3Desc'}"
+                     HorizontalAlignment="Center" TextAlignment="Center"
+                     Foreground="#C8D4E0" FontSize="{DynamicResource FontSizeMD}"
+                     TextWrapping="Wrap"/>
+        </StackPanel>
       </Panel>
 
       <!-- FEATURE 4 — praise -->
       <Panel MinHeight="330" ClipToBounds="True">
         <Image Source="avares://d2c-launcher/Assets/Images/splash/cm_lina.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Border Background="#58000000"/>
-        <Border VerticalAlignment="Top" Height="155">
-          <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-              <GradientStop Color="#A0000000" Offset="0"/>
-              <GradientStop Color="#00000000" Offset="1"/>
-            </LinearGradientBrush>
-          </Border.Background>
-        </Border>
-        <Border VerticalAlignment="Bottom" Height="160">
+        <Border Background="#48000000"/>
+        <!-- Extended bottom zone: gradient fade into dark caption area -->
+        <Border VerticalAlignment="Bottom" Height="230">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
-              <GradientStop Color="#90000000" Offset="1"/>
+              <GradientStop Color="#B0000000" Offset="0.5"/>
+              <GradientStop Color="#F0000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
-        <TextBlock Text="{l:T 'store.benefit4Title'}"
-                   VerticalAlignment="Top" HorizontalAlignment="Center"
-                   Margin="60,36,60,0"
-                   Foreground="#C8A84B" FontSize="{DynamicResource FontSize4XL}"
-                   FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
-        <TextBlock Text="{l:T 'store.benefit4Desc'}"
-                   VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                   Margin="90,0,90,30"
-                   Foreground="#C8D4E0" FontSize="{DynamicResource FontSizeLG}"
-                   TextWrapping="Wrap" TextAlignment="Center"/>
+        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                    Spacing="8" Margin="60,0,60,28">
+          <TextBlock Text="{l:T 'store.benefit4Title'}"
+                     HorizontalAlignment="Center" TextAlignment="Center"
+                     Foreground="#C8A84B" FontSize="{DynamicResource FontSize3XL}"
+                     FontWeight="Bold" TextWrapping="Wrap"/>
+          <TextBlock Text="{l:T 'store.benefit4Desc'}"
+                     HorizontalAlignment="Center" TextAlignment="Center"
+                     Foreground="#C8D4E0" FontSize="{DynamicResource FontSizeMD}"
+                     TextWrapping="Wrap"/>
+        </StackPanel>
       </Panel>
 
       <!-- FEATURE 5 — mute -->
       <Panel MinHeight="330" ClipToBounds="True">
         <Image Source="avares://d2c-launcher/Assets/Images/splash/mute.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Border Background="#58000000"/>
-        <Border VerticalAlignment="Top" Height="155">
-          <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-              <GradientStop Color="#A0000000" Offset="0"/>
-              <GradientStop Color="#00000000" Offset="1"/>
-            </LinearGradientBrush>
-          </Border.Background>
-        </Border>
-        <Border VerticalAlignment="Bottom" Height="160">
+        <Border Background="#48000000"/>
+        <!-- Extended bottom zone: gradient fade into dark caption area -->
+        <Border VerticalAlignment="Bottom" Height="230">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
-              <GradientStop Color="#90000000" Offset="1"/>
+              <GradientStop Color="#B0000000" Offset="0.5"/>
+              <GradientStop Color="#F0000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
-        <TextBlock Text="{l:T 'store.benefit5Title'}"
-                   VerticalAlignment="Top" HorizontalAlignment="Center"
-                   Margin="60,36,60,0"
-                   Foreground="#C8A84B" FontSize="{DynamicResource FontSize4XL}"
-                   FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
-        <TextBlock Text="{l:T 'store.benefit5Desc'}"
-                   VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                   Margin="90,0,90,30"
-                   Foreground="#C8D4E0" FontSize="{DynamicResource FontSizeLG}"
-                   TextWrapping="Wrap" TextAlignment="Center"/>
+        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                    Spacing="8" Margin="60,0,60,28">
+          <TextBlock Text="{l:T 'store.benefit5Title'}"
+                     HorizontalAlignment="Center" TextAlignment="Center"
+                     Foreground="#C8A84B" FontSize="{DynamicResource FontSize3XL}"
+                     FontWeight="Bold" TextWrapping="Wrap"/>
+          <TextBlock Text="{l:T 'store.benefit5Desc'}"
+                     HorizontalAlignment="Center" TextAlignment="Center"
+                     Foreground="#C8D4E0" FontSize="{DynamicResource FontSizeMD}"
+                     TextWrapping="Wrap"/>
+        </StackPanel>
       </Panel>
 
       <!-- FEATURE 6 — lobby -->
       <Panel MinHeight="330" ClipToBounds="True">
         <Image Source="avares://d2c-launcher/Assets/Images/splash/lobby.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Border Background="#58000000"/>
-        <Border VerticalAlignment="Top" Height="155">
-          <Border.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-              <GradientStop Color="#A0000000" Offset="0"/>
-              <GradientStop Color="#00000000" Offset="1"/>
-            </LinearGradientBrush>
-          </Border.Background>
-        </Border>
-        <Border VerticalAlignment="Bottom" Height="160">
+        <Border Background="#48000000"/>
+        <!-- Extended bottom zone: gradient fade into dark caption area -->
+        <Border VerticalAlignment="Bottom" Height="230">
           <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
               <GradientStop Color="#00000000" Offset="0"/>
-              <GradientStop Color="#90000000" Offset="1"/>
+              <GradientStop Color="#B0000000" Offset="0.5"/>
+              <GradientStop Color="#F0000000" Offset="1"/>
             </LinearGradientBrush>
           </Border.Background>
         </Border>
-        <TextBlock Text="{l:T 'store.benefit6Title'}"
-                   VerticalAlignment="Top" HorizontalAlignment="Center"
-                   Margin="60,36,60,0"
-                   Foreground="#C8A84B" FontSize="{DynamicResource FontSize4XL}"
-                   FontWeight="Bold" TextWrapping="Wrap" TextAlignment="Center"/>
-        <TextBlock Text="{l:T 'store.benefit6Desc'}"
-                   VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                   Margin="90,0,90,30"
-                   Foreground="#C8D4E0" FontSize="{DynamicResource FontSizeLG}"
-                   TextWrapping="Wrap" TextAlignment="Center"/>
+        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                    Spacing="8" Margin="60,0,60,28">
+          <TextBlock Text="{l:T 'store.benefit6Title'}"
+                     HorizontalAlignment="Center" TextAlignment="Center"
+                     Foreground="#C8A84B" FontSize="{DynamicResource FontSize3XL}"
+                     FontWeight="Bold" TextWrapping="Wrap"/>
+          <TextBlock Text="{l:T 'store.benefit6Desc'}"
+                     HorizontalAlignment="Center" TextAlignment="Center"
+                     Foreground="#C8D4E0" FontSize="{DynamicResource FontSizeMD}"
+                     TextWrapping="Wrap"/>
+        </StackPanel>
       </Panel>
 
       <!-- ═══ BOTTOM CTA ═══ -->
