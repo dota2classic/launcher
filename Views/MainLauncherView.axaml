@@ -26,6 +26,7 @@
                    <!-- Side panels column (news + future panels) -->
                    <StackPanel Grid.Column="0" Margin="0,0,16,0" Spacing="12">
                        <components:LatestNewsPanel DataContext="{Binding News}"/>
+                       <components:AdBannerPanel/>
                    </StackPanel>
                    <components:ChatPanel Grid.Column="1" Margin="0,0,16,0"
                                          DataContext="{Binding Chat}"/>

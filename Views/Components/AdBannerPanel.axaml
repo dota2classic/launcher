@@ -1,0 +1,55 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="clr-namespace:d2c_launcher.Util"
+             x:Class="d2c_launcher.Views.Components.AdBannerPanel">
+
+  <Border Classes="Block" ClipToBounds="True">
+    <Grid RowDefinitions="Auto,Auto">
+
+      <!-- Header -->
+      <Border Grid.Row="0" Classes="BlockHead">
+        <TextBlock Classes="BlockTitle" Text="{l:T 'ad.title'}"/>
+      </Border>
+
+      <!-- Clickable card -->
+      <Button Grid.Row="1"
+              Click="OnBannerClicked"
+              Background="Transparent" BorderThickness="0"
+              Padding="0" HorizontalContentAlignment="Stretch"
+              Cursor="Hand" CornerRadius="0">
+        <Button.Styles>
+          <Style Selector="Button /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent"/>
+          </Style>
+          <Style Selector="Button:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#0d1118"/>
+          </Style>
+        </Button.Styles>
+
+        <Grid RowDefinitions="Auto,Auto">
+
+          <!-- Image -->
+          <Border Grid.Row="0" Height="90" ClipToBounds="True" Background="#0a0f18">
+            <Image Source="avares://d2c-launcher/Assets/Images/collectors.jpg"
+                   Stretch="UniformToFill"/>
+          </Border>
+
+          <!-- Site label -->
+          <StackPanel Grid.Row="1" Margin="12,8,12,10" Spacing="2">
+            <TextBlock Text="collectorsshop.ru"
+                       Foreground="#4DA9F3"
+                       FontSize="12"
+                       FontWeight="SemiBold"/>
+            <TextBlock Text="{l:T 'ad.subtitle'}"
+                       Foreground="#556070"
+                       FontSize="11"
+                       TextWrapping="Wrap"/>
+          </StackPanel>
+
+        </Grid>
+      </Button>
+
+    </Grid>
+  </Border>
+
+</UserControl>

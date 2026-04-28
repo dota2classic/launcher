@@ -783,6 +783,8 @@ public static class PreviewRegistry
                 var vm = new LatestNewsViewModel(new StubBackendApiService());
                 return (new LatestNewsPanel { Width = 220, DataContext = vm }, null);
             },
+            ["AdBannerPanel"] = () =>
+                (new AdBannerPanel { Width = 220 }, null),
             ["InviteModal"] = () =>
             {
                 var stub = new StubQueueSocketService();
