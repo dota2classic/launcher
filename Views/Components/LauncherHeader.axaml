@@ -121,6 +121,15 @@
                        HorizontalAlignment="Stretch"/>
           </Grid>
         </Button>
+        <Button x:Name="StoreTabButton" Classes="nav-tab" Classes.active="{Binding IsStoreTabActive}" Click="OnStoreTabClicked">
+          <Grid RowDefinitions="*,2">
+            <TextBlock Grid.Row="0" Classes="nav-label" Text="{l:T 'store.tabLabel'}"
+                       VerticalAlignment="Center" HorizontalAlignment="Center"
+                       LetterSpacing="2"/>
+            <Rectangle Grid.Row="1" Classes="nav-indicator"
+                       HorizontalAlignment="Stretch"/>
+          </Grid>
+        </Button>
       </StackPanel>
 
       <!-- Center: game found → connect button; or searching indicator (hidden on Play tab which has its own) -->

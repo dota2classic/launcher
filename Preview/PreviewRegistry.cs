@@ -785,6 +785,19 @@ public static class PreviewRegistry
             },
             ["AdBannerPanel"] = () =>
                 (new AdBannerPanel { Width = 220 }, null),
+            ["StorePanel"] = () =>
+            {
+                var vm = new StoreViewModel(new StubBackendApiService());
+                vm.HasPlusSubscription = true;
+                vm.PlusSubscriptionEndText = "14 апреля 2027";
+                return (new StorePanel { Width = 960, Height = 700 }, vm);
+            },
+            ["StorePanelNoSub"] = () =>
+            {
+                var vm = new StoreViewModel(new StubBackendApiService());
+                vm.HasPlusSubscription = false;
+                return (new StorePanel { Width = 960, Height = 700 }, vm);
+            },
             ["InviteModal"] = () =>
             {
                 var stub = new StubQueueSocketService();

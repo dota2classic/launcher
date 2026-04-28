@@ -83,6 +83,12 @@
                    <components:ProfilePanel DataContext="{Binding Profile}"/>
                </Grid>
 
+              <!-- STORE tab content -->
+               <Grid Grid.Row="1" Margin="20,8,20,10"
+                     IsVisible="{Binding IsStoreTabActive}">
+                   <components:StorePanel DataContext="{Binding Store}"/>
+               </Grid>
+
                <Grid Grid.Row="2" Margin="20,0,20,20"/>
            </Grid>
 

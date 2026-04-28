@@ -14,7 +14,7 @@ using d2c_launcher.Util;
 
 namespace d2c_launcher.ViewModels;
 
-public enum LauncherTab { Play, Live, Streams, Profile }
+public enum LauncherTab { Play, Live, Streams, Profile, Store }
 
 public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 {
@@ -57,6 +57,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public LiveViewModel Live { get; }
     public StreamsViewModel Streams { get; }
     public LatestNewsViewModel News { get; }
+    public StoreViewModel Store { get; }
 
     // ── Auth / user state ─────────────────────────────────────────────────────
     [ObservableProperty]
@@ -74,6 +75,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public bool IsLiveTabActive => ActiveTab == LauncherTab.Live;
     public bool IsStreamsTabActive => ActiveTab == LauncherTab.Streams;
     public bool IsProfileTabActive => ActiveTab == LauncherTab.Profile;
+    public bool IsStoreTabActive => ActiveTab == LauncherTab.Store;
 
     [ObservableProperty]
     private bool _isSettingsOpen;
@@ -196,6 +198,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Streams.PlayerSettingsUrl = BuildStreamsSettingsUrl(_currentUser);
         Streams.PropertyChanged += OnStreamsPropertyChanged;
         News = new LatestNewsViewModel(backendApiService);
+        Store = new StoreViewModel(backendApiService);
+        Store.GetCurrentSteamId = () => _steamManager.CurrentUser?.SteamId;
 
         _soundCoordinator = new SocketEventCoordinator(queueSocketService, NotificationArea, windowService, backendApiService,
             toastNotificationService,
@@ -356,10 +360,13 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(IsLiveTabActive));
         OnPropertyChanged(nameof(IsStreamsTabActive));
         OnPropertyChanged(nameof(IsProfileTabActive));
+        OnPropertyChanged(nameof(IsStoreTabActive));
         if (value == LauncherTab.Streams)
             Streams.RequestRefresh();
         if (value == LauncherTab.Play)
             Chat.RefreshIfEmpty();
+        if (value == LauncherTab.Store)
+            Store.LoadAsync().FireAndForget("Store.LoadAsync");
     }
 
     // ── Tab navigation ────────────────────────────────────────────────────────
