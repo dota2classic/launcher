@@ -32,14 +32,15 @@ public partial class StoreViewModel : ViewModelBase
 
     public async Task LoadAsync()
     {
+        if (IsLoading) return;
         IsLoading = true;
         try
         {
             var me = await _api.GetMeAsync();
             var oldRole = me?.User?.Roles?.FirstOrDefault(r => r.Role == Role.OLD);
             HasPlusSubscription = oldRole != null;
-            if (oldRole != null && DateTime.TryParse(oldRole.EndTime, CultureInfo.InvariantCulture, DateTimeStyles.None, out var end))
-                PlusSubscriptionEndText = end.ToString("d MMMM yyyy", new CultureInfo("ru-RU"));
+            if (oldRole != null && DateTime.TryParse(oldRole.EndTime, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var end))
+                PlusSubscriptionEndText = end.ToLocalTime().ToString("d MMMM yyyy", new CultureInfo("ru-RU"));
             else
                 PlusSubscriptionEndText = "—";
         }
@@ -57,10 +58,19 @@ public partial class StoreViewModel : ViewModelBase
     private void OpenTelegram()
     {
         var steamId = GetCurrentSteamId?.Invoke();
+        if (!steamId.HasValue)
+            AppLog.Warn("StoreViewModel.OpenTelegram: SteamId unavailable, opening bot without start param");
         var url = steamId.HasValue
             ? $"https://t.me/dotaclassic_payments_bot?start={steamId.Value}"
             : "https://t.me/dotaclassic_payments_bot";
-        Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+        try
+        {
+            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            AppLog.Error($"StoreViewModel.OpenTelegram: failed to open URL: {ex.Message}", ex);
+        }
     }
 
     partial void OnHasPlusSubscriptionChanged(bool value) =>
