@@ -2,160 +2,302 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:d2c_launcher.ViewModels"
              xmlns:l="clr-namespace:d2c_launcher.Util"
+             xmlns:materialIcons="using:Material.Icons.Avalonia"
              x:Class="d2c_launcher.Views.Components.StorePanel"
              x:DataType="vm:StoreViewModel">
 
   <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-    <StackPanel Spacing="12" MaxWidth="600" HorizontalAlignment="Left">
+    <StackPanel Spacing="2">
 
-      <!-- Page title -->
-      <TextBlock Text="{l:T 'store.title'}"
-                 FontSize="{DynamicResource FontSize2XL}"
-                 FontWeight="Bold"
-                 Foreground="#C8A84B"
-                 LetterSpacing="2"
-                 Margin="0,4,0,4"/>
+      <!-- ═══ HERO BANNER ═══ -->
+      <Border Padding="44,44,44,44">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#09090b" Offset="0"/>
+            <GradientStop Color="#16120a" Offset="0.55"/>
+            <GradientStop Color="#09090b" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
 
-      <!-- Loading -->
-      <TextBlock IsVisible="{Binding IsLoading}"
-                 Text="{l:T 'profile.loading'}"
-                 Foreground="#556070"
-                 FontSize="{DynamicResource FontSizeBase}"
-                 HorizontalAlignment="Left"/>
+        <Grid ColumnDefinitions="*,Auto">
 
-      <!-- Subscription status block -->
-      <Border IsVisible="{Binding !IsLoading}" Classes="Block">
-        <Grid RowDefinitions="36,*">
-          <Border Grid.Row="0" Classes="BlockHead">
-            <TextBlock Classes="BlockTitle" Text="{l:T 'store.subscriptionStatus'}"/>
-          </Border>
-          <Border Grid.Row="1" Padding="18,14">
-            <StackPanel Spacing="10">
+          <!-- Left: text + status + button -->
+          <StackPanel Grid.Column="0" VerticalAlignment="Center">
 
-              <!-- Active -->
-              <StackPanel IsVisible="{Binding HasPlusSubscription}" Spacing="6">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <TextBlock Text="✦" Foreground="#C8A84B"
-                             FontSize="{DynamicResource FontSizeLG}" VerticalAlignment="Center"/>
-                  <TextBlock Text="{l:T 'store.subscriptionActive'}"
-                             Foreground="#C8A84B" FontWeight="SemiBold"
-                             FontSize="{DynamicResource FontSizeLG}" VerticalAlignment="Center"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="6">
-                  <TextBlock Text="{l:T 'store.subscriptionExpires'}"
-                             Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"/>
-                  <TextBlock Text="{Binding PlusSubscriptionEndText}"
-                             Foreground="#99A8B4" FontSize="{DynamicResource FontSizeMD}"
-                             FontWeight="SemiBold"/>
-                </StackPanel>
-              </StackPanel>
-
-              <!-- Inactive -->
-              <TextBlock IsVisible="{Binding !HasPlusSubscription}"
-                         Text="{l:T 'store.subscriptionNone'}"
-                         Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"/>
-
-              <Button Classes="PrimaryButton" Command="{Binding OpenTelegramCommand}"
-                      Padding="14,6" CornerRadius="2" Cursor="Hand"
-                      HorizontalAlignment="Left">
-                <TextBlock Text="{Binding StoreButtonText}" FontSize="{DynamicResource FontSizeMD}"/>
-              </Button>
-
+            <!-- Title -->
+            <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,0,0,14">
+              <TextBlock Text="✦" Foreground="#C8A84B"
+                         FontSize="{DynamicResource FontSize4XL}" VerticalAlignment="Center"/>
+              <TextBlock Text="DOTACLASSIC PLUS" Foreground="#C8A84B"
+                         FontSize="{DynamicResource FontSize4XL}" FontWeight="Bold"
+                         LetterSpacing="4" VerticalAlignment="Center"/>
             </StackPanel>
-          </Border>
+
+            <!-- Tagline -->
+            <TextBlock Text="{l:T 'store.heroDesc'}"
+                       Foreground="#7a8a9a" FontSize="{DynamicResource FontSizeLG}"
+                       TextWrapping="Wrap" MaxWidth="520" Margin="0,0,0,28"/>
+
+            <!-- Loading -->
+            <TextBlock IsVisible="{Binding IsLoading}"
+                       Text="{l:T 'profile.loading'}"
+                       Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"
+                       Margin="0,0,0,16"/>
+
+            <!-- Active subscription -->
+            <StackPanel IsVisible="{Binding HasPlusSubscription}" Spacing="6" Margin="0,0,0,24">
+              <StackPanel Orientation="Horizontal" Spacing="10">
+                <TextBlock Text="✦" Foreground="#C8A84B"
+                           FontSize="{DynamicResource FontSizeMD}" VerticalAlignment="Center"/>
+                <TextBlock Text="{l:T 'store.subscriptionActive'}" Foreground="#C8A84B"
+                           FontSize="{DynamicResource FontSizeMD}" FontWeight="SemiBold"
+                           VerticalAlignment="Center"/>
+              </StackPanel>
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="{l:T 'store.subscriptionExpires'}"
+                           Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"/>
+                <TextBlock Text="{Binding PlusSubscriptionEndText}"
+                           Foreground="#99A8B4" FontSize="{DynamicResource FontSizeMD}"
+                           FontWeight="SemiBold"/>
+              </StackPanel>
+            </StackPanel>
+
+            <!-- No subscription -->
+            <TextBlock IsVisible="{Binding !HasPlusSubscription}"
+                       Text="{l:T 'store.subscriptionNone'}"
+                       Foreground="#556070" FontSize="{DynamicResource FontSizeMD}"
+                       Margin="0,0,0,24"/>
+
+            <!-- CTA button -->
+            <Button Classes="PrimaryButton" Command="{Binding OpenTelegramCommand}"
+                    IsVisible="{Binding !IsLoading}"
+                    Padding="22,10" CornerRadius="2" Cursor="Hand"
+                    HorizontalAlignment="Left">
+              <StackPanel Orientation="Horizontal" Spacing="10">
+                <Image Source="avares://d2c-launcher/Assets/Images/telegram.png" Width="16" Height="16" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding StoreButtonText}"
+                           FontSize="{DynamicResource FontSizeMD}" FontWeight="Bold"/>
+              </StackPanel>
+            </Button>
+          </StackPanel>
+
+          <!-- Right: decorative gold diamond cluster -->
+          <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="32,0,0,0"
+                      IsVisible="{Binding !IsLoading}">
+            <TextBlock Text="✦" Foreground="#C8A84B" FontSize="64" Opacity="0.18"
+                       HorizontalAlignment="Center"/>
+            <TextBlock Text="✦  ✦" Foreground="#C8A84B" FontSize="32" Opacity="0.12"
+                       HorizontalAlignment="Center" Margin="0,-16,0,0"/>
+            <TextBlock Text="✦" Foreground="#C8A84B" FontSize="48" Opacity="0.08"
+                       HorizontalAlignment="Center" Margin="0,-20,0,0"/>
+          </StackPanel>
+
         </Grid>
       </Border>
 
-      <!-- Benefits block -->
-      <Border IsVisible="{Binding !IsLoading}" Classes="Block">
-        <Grid RowDefinitions="36,*">
-          <Border Grid.Row="0" Classes="BlockHead">
-            <TextBlock Classes="BlockTitle" Text="{l:T 'store.benefitsTitle'}"/>
+      <!-- ─── Divider with section label ─── -->
+      <Border Background="#0d0f13" Padding="44,16">
+        <TextBlock Text="{l:T 'store.benefitsTitle'}"
+                   Foreground="#3a4860" FontSize="{DynamicResource FontSizeXS}"
+                   FontWeight="SemiBold" LetterSpacing="3"/>
+      </Border>
+
+      <!-- ═══ FEATURE 1 — icon LEFT (decorations) ═══ -->
+      <Border MinHeight="164" Background="#0e1016">
+        <Grid ColumnDefinitions="210,*">
+
+          <!-- Icon panel -->
+          <Border Grid.Column="0">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#14110a" Offset="0"/>
+                <GradientStop Color="#1c1810" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.Background>
+            <materialIcons:MaterialIcon Kind="PaletteOutline" Width="64" Height="64"
+                                        Foreground="#C8A84B" Opacity="0.85"
+                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
           </Border>
-          <Border Grid.Row="1" Padding="18,14">
-            <StackPanel Spacing="12">
 
-              <Grid ColumnDefinitions="16,*">
-                <TextBlock Grid.Column="0" Text="✦" Foreground="#C8A84B"
-                           FontSize="{DynamicResource FontSizeSM}" VerticalAlignment="Top" Margin="0,2,0,0"/>
-                <StackPanel Grid.Column="1" Spacing="2">
-                  <TextBlock Text="{l:T 'store.benefit1Title'}"
-                             Foreground="#E2E6EA" FontWeight="SemiBold"
-                             FontSize="{DynamicResource FontSizeMD}"/>
-                  <TextBlock Text="{l:T 'store.benefit1Desc'}"
-                             Foreground="#556070" FontSize="{DynamicResource FontSizeSM}"
-                             TextWrapping="Wrap"/>
-                </StackPanel>
-              </Grid>
+          <!-- Text panel -->
+          <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="36,32">
+            <TextBlock Text="{l:T 'store.benefit1Title'}"
+                       Foreground="#E2E6EA" FontSize="{DynamicResource FontSize2XL}"
+                       FontWeight="Bold" Margin="0,0,0,10"/>
+            <TextBlock Text="{l:T 'store.benefit1Desc'}"
+                       Foreground="#6878A0" FontSize="{DynamicResource FontSizeMD}"
+                       TextWrapping="Wrap" MaxWidth="520"/>
+          </StackPanel>
 
-              <Grid ColumnDefinitions="16,*">
-                <TextBlock Grid.Column="0" Text="✦" Foreground="#C8A84B"
-                           FontSize="{DynamicResource FontSizeSM}" VerticalAlignment="Top" Margin="0,2,0,0"/>
-                <StackPanel Grid.Column="1" Spacing="2">
-                  <TextBlock Text="{l:T 'store.benefit2Title'}"
-                             Foreground="#E2E6EA" FontWeight="SemiBold"
-                             FontSize="{DynamicResource FontSizeMD}"/>
-                  <TextBlock Text="{l:T 'store.benefit2Desc'}"
-                             Foreground="#556070" FontSize="{DynamicResource FontSizeSM}"
-                             TextWrapping="Wrap"/>
-                </StackPanel>
-              </Grid>
-
-              <Grid ColumnDefinitions="16,*">
-                <TextBlock Grid.Column="0" Text="✦" Foreground="#C8A84B"
-                           FontSize="{DynamicResource FontSizeSM}" VerticalAlignment="Top" Margin="0,2,0,0"/>
-                <StackPanel Grid.Column="1" Spacing="2">
-                  <TextBlock Text="{l:T 'store.benefit3Title'}"
-                             Foreground="#E2E6EA" FontWeight="SemiBold"
-                             FontSize="{DynamicResource FontSizeMD}"/>
-                  <TextBlock Text="{l:T 'store.benefit3Desc'}"
-                             Foreground="#556070" FontSize="{DynamicResource FontSizeSM}"
-                             TextWrapping="Wrap"/>
-                </StackPanel>
-              </Grid>
-
-              <Grid ColumnDefinitions="16,*">
-                <TextBlock Grid.Column="0" Text="✦" Foreground="#C8A84B"
-                           FontSize="{DynamicResource FontSizeSM}" VerticalAlignment="Top" Margin="0,2,0,0"/>
-                <StackPanel Grid.Column="1" Spacing="2">
-                  <TextBlock Text="{l:T 'store.benefit4Title'}"
-                             Foreground="#E2E6EA" FontWeight="SemiBold"
-                             FontSize="{DynamicResource FontSizeMD}"/>
-                  <TextBlock Text="{l:T 'store.benefit4Desc'}"
-                             Foreground="#556070" FontSize="{DynamicResource FontSizeSM}"
-                             TextWrapping="Wrap"/>
-                </StackPanel>
-              </Grid>
-
-              <Grid ColumnDefinitions="16,*">
-                <TextBlock Grid.Column="0" Text="✦" Foreground="#C8A84B"
-                           FontSize="{DynamicResource FontSizeSM}" VerticalAlignment="Top" Margin="0,2,0,0"/>
-                <StackPanel Grid.Column="1" Spacing="2">
-                  <TextBlock Text="{l:T 'store.benefit5Title'}"
-                             Foreground="#E2E6EA" FontWeight="SemiBold"
-                             FontSize="{DynamicResource FontSizeMD}"/>
-                  <TextBlock Text="{l:T 'store.benefit5Desc'}"
-                             Foreground="#556070" FontSize="{DynamicResource FontSizeSM}"
-                             TextWrapping="Wrap"/>
-                </StackPanel>
-              </Grid>
-
-              <Grid ColumnDefinitions="16,*">
-                <TextBlock Grid.Column="0" Text="✦" Foreground="#C8A84B"
-                           FontSize="{DynamicResource FontSizeSM}" VerticalAlignment="Top" Margin="0,2,0,0"/>
-                <StackPanel Grid.Column="1" Spacing="2">
-                  <TextBlock Text="{l:T 'store.benefit6Title'}"
-                             Foreground="#E2E6EA" FontWeight="SemiBold"
-                             FontSize="{DynamicResource FontSizeMD}"/>
-                  <TextBlock Text="{l:T 'store.benefit6Desc'}"
-                             Foreground="#556070" FontSize="{DynamicResource FontSizeSM}"
-                             TextWrapping="Wrap"/>
-                </StackPanel>
-              </Grid>
-
-            </StackPanel>
-          </Border>
         </Grid>
+      </Border>
+
+      <!-- ═══ FEATURE 2 — icon RIGHT (dodge) ═══ -->
+      <Border MinHeight="164" Background="#0b0d11">
+        <Grid ColumnDefinitions="*,210">
+
+          <!-- Text panel -->
+          <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="44,32,36,32">
+            <TextBlock Text="{l:T 'store.benefit2Title'}"
+                       Foreground="#E2E6EA" FontSize="{DynamicResource FontSize2XL}"
+                       FontWeight="Bold" Margin="0,0,0,10"/>
+            <TextBlock Text="{l:T 'store.benefit2Desc'}"
+                       Foreground="#6878A0" FontSize="{DynamicResource FontSizeMD}"
+                       TextWrapping="Wrap" MaxWidth="520"/>
+          </StackPanel>
+
+          <!-- Icon panel -->
+          <Border Grid.Column="1">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#0c100e" Offset="0"/>
+                <GradientStop Color="#131c14" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.Background>
+            <materialIcons:MaterialIcon Kind="AccountCancel" Width="64" Height="64"
+                                        Foreground="#C8A84B" Opacity="0.85"
+                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Border>
+
+        </Grid>
+      </Border>
+
+      <!-- ═══ FEATURE 3 — icon LEFT (unban) ═══ -->
+      <Border MinHeight="164" Background="#0e1016">
+        <Grid ColumnDefinitions="210,*">
+
+          <Border Grid.Column="0">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#0c0e14" Offset="0"/>
+                <GradientStop Color="#141622" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.Background>
+            <materialIcons:MaterialIcon Kind="LockOpenVariant" Width="64" Height="64"
+                                        Foreground="#C8A84B" Opacity="0.85"
+                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Border>
+
+          <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="36,32">
+            <TextBlock Text="{l:T 'store.benefit3Title'}"
+                       Foreground="#E2E6EA" FontSize="{DynamicResource FontSize2XL}"
+                       FontWeight="Bold" Margin="0,0,0,10"/>
+            <TextBlock Text="{l:T 'store.benefit3Desc'}"
+                       Foreground="#6878A0" FontSize="{DynamicResource FontSizeMD}"
+                       TextWrapping="Wrap" MaxWidth="520"/>
+          </StackPanel>
+
+        </Grid>
+      </Border>
+
+      <!-- ═══ FEATURE 4 — icon RIGHT (praise) ═══ -->
+      <Border MinHeight="164" Background="#0b0d11">
+        <Grid ColumnDefinitions="*,210">
+
+          <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="44,32,36,32">
+            <TextBlock Text="{l:T 'store.benefit4Title'}"
+                       Foreground="#E2E6EA" FontSize="{DynamicResource FontSize2XL}"
+                       FontWeight="Bold" Margin="0,0,0,10"/>
+            <TextBlock Text="{l:T 'store.benefit4Desc'}"
+                       Foreground="#6878A0" FontSize="{DynamicResource FontSizeMD}"
+                       TextWrapping="Wrap" MaxWidth="520"/>
+          </StackPanel>
+
+          <Border Grid.Column="1">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#14110a" Offset="0"/>
+                <GradientStop Color="#1c1810" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.Background>
+            <materialIcons:MaterialIcon Kind="ThumbUpOutline" Width="64" Height="64"
+                                        Foreground="#C8A84B" Opacity="0.85"
+                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Border>
+
+        </Grid>
+      </Border>
+
+      <!-- ═══ FEATURE 5 — icon LEFT (mute) ═══ -->
+      <Border MinHeight="164" Background="#0e1016">
+        <Grid ColumnDefinitions="210,*">
+
+          <Border Grid.Column="0">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#12100c" Offset="0"/>
+                <GradientStop Color="#1a1210" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.Background>
+            <materialIcons:MaterialIcon Kind="VolumeOff" Width="64" Height="64"
+                                        Foreground="#C8A84B" Opacity="0.85"
+                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Border>
+
+          <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="36,32">
+            <TextBlock Text="{l:T 'store.benefit5Title'}"
+                       Foreground="#E2E6EA" FontSize="{DynamicResource FontSize2XL}"
+                       FontWeight="Bold" Margin="0,0,0,10"/>
+            <TextBlock Text="{l:T 'store.benefit5Desc'}"
+                       Foreground="#6878A0" FontSize="{DynamicResource FontSizeMD}"
+                       TextWrapping="Wrap" MaxWidth="520"/>
+          </StackPanel>
+
+        </Grid>
+      </Border>
+
+      <!-- ═══ FEATURE 6 — icon RIGHT (lobby) ═══ -->
+      <Border MinHeight="164" Background="#0b0d11">
+        <Grid ColumnDefinitions="*,210">
+
+          <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="44,32,36,32">
+            <TextBlock Text="{l:T 'store.benefit6Title'}"
+                       Foreground="#E2E6EA" FontSize="{DynamicResource FontSize2XL}"
+                       FontWeight="Bold" Margin="0,0,0,10"/>
+            <TextBlock Text="{l:T 'store.benefit6Desc'}"
+                       Foreground="#6878A0" FontSize="{DynamicResource FontSizeMD}"
+                       TextWrapping="Wrap" MaxWidth="520"/>
+          </StackPanel>
+
+          <Border Grid.Column="1">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#0c0d14" Offset="0"/>
+                <GradientStop Color="#12101c" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.Background>
+            <materialIcons:MaterialIcon Kind="GamepadVariant" Width="64" Height="64"
+                                        Foreground="#C8A84B" Opacity="0.85"
+                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Border>
+
+        </Grid>
+      </Border>
+
+      <!-- ═══ BOTTOM CTA ═══ -->
+      <Border Padding="44,36">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#09090b" Offset="0"/>
+            <GradientStop Color="#16120a" Offset="0.55"/>
+            <GradientStop Color="#09090b" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+        <StackPanel Spacing="16" HorizontalAlignment="Left">
+          <TextBlock Text="{l:T 'store.ctaTitle'}"
+                     Foreground="#E2E6EA" FontSize="{DynamicResource FontSize2XL}"
+                     FontWeight="Bold"/>
+          <Button Classes="PrimaryButton" Command="{Binding OpenTelegramCommand}"
+                  IsVisible="{Binding !IsLoading}"
+                  Padding="22,10" CornerRadius="2" Cursor="Hand"
+                  HorizontalAlignment="Left">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <Image Source="avares://d2c-launcher/Assets/Images/telegram.png" Width="16" Height="16" VerticalAlignment="Center"/>
+              <TextBlock Text="{Binding StoreButtonText}"
+                         FontSize="{DynamicResource FontSizeMD}" FontWeight="Bold"/>
+            </StackPanel>
+          </Button>
+        </StackPanel>
       </Border>
 
     </StackPanel>
