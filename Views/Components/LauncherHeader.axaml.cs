@@ -62,4 +62,10 @@ public partial class LauncherHeader : UserControl
         if (DataContext is MainLauncherViewModel vm)
             vm.OpenOwnProfileAtSubscriptionTab();
     }
+
+    private void OnStoreTabClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    {
+        if (DataContext is MainLauncherViewModel vm)
+            vm.NavigateTo(LauncherTab.Store);
+    }
 }
