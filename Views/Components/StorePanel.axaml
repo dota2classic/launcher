@@ -116,34 +116,36 @@
       </Border>
 
       <!-- ═══ FEATURE 1 — image LEFT (decorations) ═══ -->
-      <Border MinHeight="180" Background="#0e1016" ClipToBounds="True">
-        <Grid ColumnDefinitions="300,*">
+      <Border MinHeight="220" Background="#0e1016" ClipToBounds="True">
+        <Grid ColumnDefinitions="0.45*,0.55*">
           <Border Grid.Column="0" ClipToBounds="True">
             <Image Source="avares://d2c-launcher/Assets/Images/splash/decoration.webp"
                    Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
           </Border>
-          <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="36,32">
-            <TextBlock Text="{l:T 'store.benefit1Title'}"
+          <Grid Grid.Column="1" ColumnDefinitions="Auto,*" VerticalAlignment="Center" Margin="36,32">
+            <TextBlock Grid.Column="0" Text="{l:T 'store.benefit1Title'}"
                        Foreground="#E2E6EA" FontSize="{DynamicResource FontSize2XL}"
-                       FontWeight="Bold" Margin="0,0,0,10"/>
-            <TextBlock Text="{l:T 'store.benefit1Desc'}"
+                       FontWeight="Bold" TextWrapping="Wrap"
+                       VerticalAlignment="Center" Margin="0,0,28,0"/>
+            <TextBlock Grid.Column="1" Text="{l:T 'store.benefit1Desc'}"
                        Foreground="#6878A0" FontSize="{DynamicResource FontSizeMD}"
-                       TextWrapping="Wrap" MaxWidth="460"/>
-          </StackPanel>
+                       TextWrapping="Wrap" VerticalAlignment="Center"/>
+          </Grid>
         </Grid>
       </Border>
 
       <!-- ═══ FEATURE 2 — image RIGHT (dodge) ═══ -->
-      <Border MinHeight="180" Background="#0b0d11" ClipToBounds="True">
-        <Grid ColumnDefinitions="*,300">
-          <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="44,32,36,32">
-            <TextBlock Text="{l:T 'store.benefit2Title'}"
+      <Border MinHeight="220" Background="#0b0d11" ClipToBounds="True">
+        <Grid ColumnDefinitions="0.55*,0.45*">
+          <Grid Grid.Column="0" ColumnDefinitions="Auto,*" VerticalAlignment="Center" Margin="44,32,36,32">
+            <TextBlock Grid.Column="0" Text="{l:T 'store.benefit2Title'}"
                        Foreground="#E2E6EA" FontSize="{DynamicResource FontSize2XL}"
-                       FontWeight="Bold" Margin="0,0,0,10"/>
-            <TextBlock Text="{l:T 'store.benefit2Desc'}"
+                       FontWeight="Bold" TextWrapping="Wrap"
+                       VerticalAlignment="Center" Margin="0,0,28,0"/>
+            <TextBlock Grid.Column="1" Text="{l:T 'store.benefit2Desc'}"
                        Foreground="#6878A0" FontSize="{DynamicResource FontSizeMD}"
-                       TextWrapping="Wrap" MaxWidth="460"/>
-          </StackPanel>
+                       TextWrapping="Wrap" VerticalAlignment="Center"/>
+          </Grid>
           <Border Grid.Column="1" ClipToBounds="True">
             <Image Source="avares://d2c-launcher/Assets/Images/splash/dodge.webp"
                    Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -152,34 +154,36 @@
       </Border>
 
       <!-- ═══ FEATURE 3 — image LEFT (unban) ═══ -->
-      <Border MinHeight="180" Background="#0e1016" ClipToBounds="True">
-        <Grid ColumnDefinitions="300,*">
+      <Border MinHeight="220" Background="#0e1016" ClipToBounds="True">
+        <Grid ColumnDefinitions="0.45*,0.55*">
           <Border Grid.Column="0" ClipToBounds="True">
             <Image Source="avares://d2c-launcher/Assets/Images/splash/unban.webp"
                    Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
           </Border>
-          <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="36,32">
-            <TextBlock Text="{l:T 'store.benefit3Title'}"
+          <Grid Grid.Column="1" ColumnDefinitions="Auto,*" VerticalAlignment="Center" Margin="36,32">
+            <TextBlock Grid.Column="0" Text="{l:T 'store.benefit3Title'}"
                        Foreground="#E2E6EA" FontSize="{DynamicResource FontSize2XL}"
-                       FontWeight="Bold" Margin="0,0,0,10"/>
-            <TextBlock Text="{l:T 'store.benefit3Desc'}"
+                       FontWeight="Bold" TextWrapping="Wrap"
+                       VerticalAlignment="Center" Margin="0,0,28,0"/>
+            <TextBlock Grid.Column="1" Text="{l:T 'store.benefit3Desc'}"
                        Foreground="#6878A0" FontSize="{DynamicResource FontSizeMD}"
-                       TextWrapping="Wrap" MaxWidth="460"/>
-          </StackPanel>
+                       TextWrapping="Wrap" VerticalAlignment="Center"/>
+          </Grid>
         </Grid>
       </Border>
 
       <!-- ═══ FEATURE 4 — image RIGHT (in-game praise) ═══ -->
-      <Border MinHeight="180" Background="#0b0d11" ClipToBounds="True">
-        <Grid ColumnDefinitions="*,300">
-          <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="44,32,36,32">
-            <TextBlock Text="{l:T 'store.benefit4Title'}"
+      <Border MinHeight="220" Background="#0b0d11" ClipToBounds="True">
+        <Grid ColumnDefinitions="0.55*,0.45*">
+          <Grid Grid.Column="0" ColumnDefinitions="Auto,*" VerticalAlignment="Center" Margin="44,32,36,32">
+            <TextBlock Grid.Column="0" Text="{l:T 'store.benefit4Title'}"
                        Foreground="#E2E6EA" FontSize="{DynamicResource FontSize2XL}"
-                       FontWeight="Bold" Margin="0,0,0,10"/>
-            <TextBlock Text="{l:T 'store.benefit4Desc'}"
+                       FontWeight="Bold" TextWrapping="Wrap"
+                       VerticalAlignment="Center" Margin="0,0,28,0"/>
+            <TextBlock Grid.Column="1" Text="{l:T 'store.benefit4Desc'}"
                        Foreground="#6878A0" FontSize="{DynamicResource FontSizeMD}"
-                       TextWrapping="Wrap" MaxWidth="460"/>
-          </StackPanel>
+                       TextWrapping="Wrap" VerticalAlignment="Center"/>
+          </Grid>
           <Border Grid.Column="1" ClipToBounds="True">
             <Image Source="avares://d2c-launcher/Assets/Images/splash/cm_lina.webp"
                    Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -188,34 +192,36 @@
       </Border>
 
       <!-- ═══ FEATURE 5 — image LEFT (mute) ═══ -->
-      <Border MinHeight="180" Background="#0e1016" ClipToBounds="True">
-        <Grid ColumnDefinitions="300,*">
+      <Border MinHeight="220" Background="#0e1016" ClipToBounds="True">
+        <Grid ColumnDefinitions="0.45*,0.55*">
           <Border Grid.Column="0" ClipToBounds="True">
             <Image Source="avares://d2c-launcher/Assets/Images/splash/mute.webp"
                    Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
           </Border>
-          <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="36,32">
-            <TextBlock Text="{l:T 'store.benefit5Title'}"
+          <Grid Grid.Column="1" ColumnDefinitions="Auto,*" VerticalAlignment="Center" Margin="36,32">
+            <TextBlock Grid.Column="0" Text="{l:T 'store.benefit5Title'}"
                        Foreground="#E2E6EA" FontSize="{DynamicResource FontSize2XL}"
-                       FontWeight="Bold" Margin="0,0,0,10"/>
-            <TextBlock Text="{l:T 'store.benefit5Desc'}"
+                       FontWeight="Bold" TextWrapping="Wrap"
+                       VerticalAlignment="Center" Margin="0,0,28,0"/>
+            <TextBlock Grid.Column="1" Text="{l:T 'store.benefit5Desc'}"
                        Foreground="#6878A0" FontSize="{DynamicResource FontSizeMD}"
-                       TextWrapping="Wrap" MaxWidth="460"/>
-          </StackPanel>
+                       TextWrapping="Wrap" VerticalAlignment="Center"/>
+          </Grid>
         </Grid>
       </Border>
 
       <!-- ═══ FEATURE 6 — image RIGHT (lobby) ═══ -->
-      <Border MinHeight="180" Background="#0b0d11" ClipToBounds="True">
-        <Grid ColumnDefinitions="*,300">
-          <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="44,32,36,32">
-            <TextBlock Text="{l:T 'store.benefit6Title'}"
+      <Border MinHeight="220" Background="#0b0d11" ClipToBounds="True">
+        <Grid ColumnDefinitions="0.55*,0.45*">
+          <Grid Grid.Column="0" ColumnDefinitions="Auto,*" VerticalAlignment="Center" Margin="44,32,36,32">
+            <TextBlock Grid.Column="0" Text="{l:T 'store.benefit6Title'}"
                        Foreground="#E2E6EA" FontSize="{DynamicResource FontSize2XL}"
-                       FontWeight="Bold" Margin="0,0,0,10"/>
-            <TextBlock Text="{l:T 'store.benefit6Desc'}"
+                       FontWeight="Bold" TextWrapping="Wrap"
+                       VerticalAlignment="Center" Margin="0,0,28,0"/>
+            <TextBlock Grid.Column="1" Text="{l:T 'store.benefit6Desc'}"
                        Foreground="#6878A0" FontSize="{DynamicResource FontSizeMD}"
-                       TextWrapping="Wrap" MaxWidth="460"/>
-          </StackPanel>
+                       TextWrapping="Wrap" VerticalAlignment="Center"/>
+          </Grid>
           <Border Grid.Column="1" ClipToBounds="True">
             <Image Source="avares://d2c-launcher/Assets/Images/splash/lobby.webp"
                    Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>

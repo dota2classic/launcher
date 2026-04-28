@@ -790,13 +790,13 @@ public static class PreviewRegistry
                 var vm = new StoreViewModel(new StubBackendApiService());
                 vm.HasPlusSubscription = true;
                 vm.PlusSubscriptionEndText = "14 апреля 2027";
-                return (new StorePanel { Width = 700, Height = 700 }, vm);
+                return (new StorePanel { Width = 960, Height = 700 }, vm);
             },
             ["StorePanelNoSub"] = () =>
             {
                 var vm = new StoreViewModel(new StubBackendApiService());
                 vm.HasPlusSubscription = false;
-                return (new StorePanel { Width = 700, Height = 700 }, vm);
+                return (new StorePanel { Width = 960, Height = 700 }, vm);
             },
             ["InviteModal"] = () =>
             {
