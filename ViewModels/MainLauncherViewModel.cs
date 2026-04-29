@@ -6,6 +6,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using d2c_launcher.Api;
 using d2c_launcher.Integration;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
@@ -202,6 +203,11 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Store = new StoreViewModel(backendApiService);
         Store.GetCurrentSteamId = () => _steamManager.CurrentUser?.SteamId;
         Reward = new RewardModalViewModel(backendApiService);
+        Reward.OnSubscriptionClaimed = () =>
+        {
+            OpenProfile();
+            Profile.SelectSubscriptionTabCommand.Execute(null);
+        };
 
         _soundCoordinator = new SocketEventCoordinator(queueSocketService, NotificationArea, windowService, backendApiService,
             toastNotificationService,
@@ -519,6 +525,24 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
             api: _backendApiService,
             cp: 10);
         if (vm != null) NotificationArea.AddNotificationDirect(vm);
+    }
+
+    /// Dev shortcut (F6, nightly only): shows a fake subscription reward modal.
+    public void TriggerDevRewardModal()
+    {
+        if (!_settingsStorage.Get().NightlyUpdates) return;
+
+        Reward.Show(new NotificationDto
+        {
+            Id = "dev-reward-preview",
+            Title = "Dotaclassic Plus активирована!",
+            Content = "Спасибо за поддержку проекта. Вам доступны все привилегии подписчика.",
+            NotificationType = NotificationType.SUBSCRIPTION_PURCHASED,
+            CreatedAt = "",
+            ExpiresAt = "",
+            SteamId = "",
+            EntityId = "",
+        });
     }
 
     /// <summary>
