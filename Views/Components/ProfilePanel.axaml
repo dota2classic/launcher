@@ -56,7 +56,7 @@
               <Border Grid.Column="0" Width="60" Height="60" Margin="0,14,16,14"
                       BorderBrush="#252E3A" BorderThickness="1" VerticalAlignment="Center">
                 <Panel>
-                  <Image asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}" Stretch="UniformToFill"
+                  <Image RenderOptions.BitmapInterpolationMode="HighQuality" asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}" Stretch="UniformToFill"
                          IsVisible="{Binding AvatarUrl, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
                   <Border Background="#1A2535"
                           IsVisible="{Binding AvatarUrl, Converter={x:Static StringConverters.IsNullOrEmpty}}">
@@ -331,7 +331,7 @@
                           <Border Width="34" Height="24" ClipToBounds="True"
                                   BorderBrush="#252E3A" BorderThickness="1"
                                   Background="#1A2030">
-                            <Image asyncImageLoader:ImageLoader.Source="{Binding HeroImageUrl}"
+                            <Image RenderOptions.BitmapInterpolationMode="HighQuality" asyncImageLoader:ImageLoader.Source="{Binding HeroImageUrl}"
                                    Stretch="UniformToFill"/>
                           </Border>
                           <TextBlock Text="{Binding HeroName}"
@@ -462,7 +462,7 @@
                           <Border Grid.Column="0" Width="32" Height="32" Margin="0,0,12,0"
                                   ClipToBounds="True" BorderBrush="#252E3A" BorderThickness="1"
                                   Background="#1A2030">
-                            <Image asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}"
+                            <Image RenderOptions.BitmapInterpolationMode="HighQuality" asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}"
                                    Stretch="UniformToFill"
                                    IsVisible="{Binding AvatarUrl, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
                           </Border>

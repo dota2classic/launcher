@@ -18,14 +18,14 @@
 
                 <!-- Image: local (subscription splash) -->
                 <Panel IsVisible="{Binding HasLocalImage}">
-                    <Image Source="{Binding LocalImage}"
+                    <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="{Binding LocalImage}"
                            Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"
                            MaxHeight="200" Margin="0,16,0,0"/>
                 </Panel>
 
                 <!-- Image: remote (item drops) -->
                 <Panel IsVisible="{Binding HasRemoteImage}" Height="220" ClipToBounds="True">
-                    <Image asyncImageLoader:ImageLoader.Source="{Binding RemoteImageUrl}"
+                    <Image RenderOptions.BitmapInterpolationMode="HighQuality" asyncImageLoader:ImageLoader.Source="{Binding RemoteImageUrl}"
                            Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     <Border VerticalAlignment="Bottom" Height="80">
                         <Border.Background>

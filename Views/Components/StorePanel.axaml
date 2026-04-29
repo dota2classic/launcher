@@ -10,7 +10,7 @@
 
       <!-- ═══ HERO ═══ -->
       <Panel MinHeight="300" ClipToBounds="True">
-        <Image Source="avares://d2c-launcher/Assets/Images/splash/subscription.webp"
+        <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="avares://d2c-launcher/Assets/Images/splash/subscription.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
         <!-- Uniform dim -->
@@ -54,7 +54,7 @@
                   Padding="22,10" CornerRadius="2" Cursor="Hand"
                   HorizontalAlignment="Center">
             <StackPanel Orientation="Horizontal" Spacing="10">
-              <Image Source="avares://d2c-launcher/Assets/Images/telegram.png"
+              <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="avares://d2c-launcher/Assets/Images/telegram.png"
                      Width="15" Height="15" VerticalAlignment="Center"/>
               <TextBlock Text="{Binding StoreButtonText}"
                          FontSize="{DynamicResource FontSizeMD}" FontWeight="Bold"/>
@@ -85,7 +85,7 @@
 
       <!-- FEATURE 1 — decorations -->
       <Panel MinHeight="330" ClipToBounds="True">
-        <Image Source="avares://d2c-launcher/Assets/Images/splash/decoration.webp"
+        <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="avares://d2c-launcher/Assets/Images/splash/decoration.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Border Background="#48000000"/>
         <!-- Bottom caption gradient -->
@@ -113,7 +113,7 @@
 
       <!-- FEATURE 2 — dodge -->
       <Panel MinHeight="330" ClipToBounds="True">
-        <Image Source="avares://d2c-launcher/Assets/Images/splash/dodge.webp"
+        <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="avares://d2c-launcher/Assets/Images/splash/dodge.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Border Background="#48000000"/>
         <!-- Bottom caption gradient -->
@@ -141,7 +141,7 @@
 
       <!-- FEATURE 3 — unban -->
       <Panel MinHeight="330" ClipToBounds="True">
-        <Image Source="avares://d2c-launcher/Assets/Images/splash/unban.webp"
+        <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="avares://d2c-launcher/Assets/Images/splash/unban.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Border Background="#48000000"/>
         <!-- Bottom caption gradient -->
@@ -169,7 +169,7 @@
 
       <!-- FEATURE 4 — praise -->
       <Panel MinHeight="330" ClipToBounds="True">
-        <Image Source="avares://d2c-launcher/Assets/Images/splash/cm_lina.webp"
+        <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="avares://d2c-launcher/Assets/Images/splash/cm_lina.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Border Background="#48000000"/>
         <!-- Bottom caption gradient -->
@@ -197,7 +197,7 @@
 
       <!-- FEATURE 5 — mute -->
       <Panel MinHeight="330" ClipToBounds="True">
-        <Image Source="avares://d2c-launcher/Assets/Images/splash/mute.webp"
+        <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="avares://d2c-launcher/Assets/Images/splash/mute.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Border Background="#48000000"/>
         <!-- Bottom caption gradient -->
@@ -225,7 +225,7 @@
 
       <!-- FEATURE 6 — lobby -->
       <Panel MinHeight="330" ClipToBounds="True">
-        <Image Source="avares://d2c-launcher/Assets/Images/splash/lobby.webp"
+        <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="avares://d2c-launcher/Assets/Images/splash/lobby.webp"
                Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Border Background="#48000000"/>
         <!-- Bottom caption gradient -->
@@ -265,7 +265,7 @@
                   Padding="28,11" CornerRadius="2" Cursor="Hand"
                   HorizontalAlignment="Center">
             <StackPanel Orientation="Horizontal" Spacing="10">
-              <Image Source="avares://d2c-launcher/Assets/Images/telegram.png"
+              <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="avares://d2c-launcher/Assets/Images/telegram.png"
                      Width="15" Height="15" VerticalAlignment="Center"/>
               <TextBlock Text="{Binding StoreButtonText}"
                          FontSize="{DynamicResource FontSizeMD}" FontWeight="Bold"/>

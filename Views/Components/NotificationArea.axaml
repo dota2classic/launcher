@@ -23,7 +23,7 @@
                                        Width="42" Height="42"
                                        ClipToBounds="True"
                                        Background="#242c34">
-                                   <Image Stretch="UniformToFill"
+                                   <Image RenderOptions.BitmapInterpolationMode="HighQuality" Stretch="UniformToFill"
                                           asyncImageLoader:ImageLoader.Source="{Binding InviterAvatarUrl}"/>
                                </Border>
                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
@@ -81,7 +81,7 @@
                                    Width="36" Height="36"
                                    ClipToBounds="True"
                                    Background="#242c34">
-                               <Image Stretch="UniformToFill"
+                               <Image RenderOptions.BitmapInterpolationMode="HighQuality" Stretch="UniformToFill"
                                       asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}"/>
                            </Border>
                            <!-- Name + label -->
@@ -181,7 +181,7 @@
                            <!-- Header: icon + title + dismiss -->
                            <Grid ColumnDefinitions="Auto,*,Auto">
                                <!-- Achievement image -->
-                               <Image Grid.Column="0"
+                               <Image RenderOptions.BitmapInterpolationMode="HighQuality" Grid.Column="0"
                                       Width="48" Height="48"
                                       IsVisible="{Binding ImageUrl, Converter={x:Static ObjectConverters.IsNotNull}}"
                                       asyncImageLoader:ImageLoader.Source="{Binding ImageUrl}"/>

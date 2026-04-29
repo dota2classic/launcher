@@ -23,12 +23,12 @@
                         <Button Background="Transparent" BorderThickness="0" Padding="4"
                                 Cursor="Hand" Click="OnTelegramClicked"
                                 ToolTip.Tip="Telegram">
-                            <Image Source="avares://d2c-launcher/Assets/Images/telegram.png" Width="18" Height="18"/>
+                            <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="avares://d2c-launcher/Assets/Images/telegram.png" Width="18" Height="18"/>
                         </Button>
                         <Button Background="Transparent" BorderThickness="0" Padding="4"
                                 Cursor="Hand" Click="OnDiscordClicked"
                                 ToolTip.Tip="Discord">
-                            <Image Source="avares://d2c-launcher/Assets/Images/discord.png" Width="18" Height="18"/>
+                            <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="avares://d2c-launcher/Assets/Images/discord.png" Width="18" Height="18"/>
                         </Button>
                         <Button Background="Transparent" BorderThickness="0" Padding="4"
                                 Cursor="Hand" Click="OnSiteClicked"
@@ -89,7 +89,7 @@
                                 </Border>
                                 <Border Width="30" Height="30" CornerRadius="15"
                                         ClipToBounds="True">
-                                    <Image Stretch="UniformToFill"
+                                    <Image RenderOptions.BitmapInterpolationMode="HighQuality" Stretch="UniformToFill"
                                            asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}"/>
                                 </Border>
                                 <Grid Width="10" Height="10"
@@ -150,7 +150,7 @@
                                             <components:EmoticonImage
                                                 Bytes="{Binding ChatIconBytes}"
                                                 Width="16" Height="16"/>
-                                            <Image Source="avares://d2c-launcher/Assets/icon.ico"
+                                            <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="avares://d2c-launcher/Assets/icon.ico"
                                                    Width="14" Height="14"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"
@@ -380,7 +380,7 @@
                                                 <!-- Actual avatar (overlays initials while loading) -->
                                                 <Border Width="30" Height="30" CornerRadius="15"
                                                         ClipToBounds="True">
-                                                    <Image Stretch="UniformToFill"
+                                                    <Image RenderOptions.BitmapInterpolationMode="HighQuality" Stretch="UniformToFill"
                                                            asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}"/>
                                                 </Border>
                                                 <!-- Online indicator dot (20% of 30px avatar, 2px outline) -->
@@ -447,7 +447,7 @@
                                                             <components:EmoticonImage
                                                                 Bytes="{Binding ChatIconBytes}"
                                                                 Width="16" Height="16"/>
-                                                            <Image Source="avares://d2c-launcher/Assets/icon.ico"
+                                                            <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="avares://d2c-launcher/Assets/icon.ico"
                                                                    Width="14" Height="14"
                                                                    HorizontalAlignment="Center"
                                                                    VerticalAlignment="Center"
