@@ -17,11 +17,12 @@ Fix GitHub issue #$ARGUMENTS in the d2c-launcher repository.
 
 6. **Present a plan** - write a clear, numbered plan: which files change, how, and why. Then stop and wait for the user to confirm before making any code changes.
 
-7. **Create a branch** - fetch latest master and branch from it:
+7. **Create a branch** - fetch latest master and branch from it. Always branch from `origin/master` — never from the current branch, another feature branch, or a locally-checked-out master:
    ```bash
    git fetch origin
    git checkout -b fix/issue-$ARGUMENTS origin/master
    ```
+   For feature work use `feat/issue-$ARGUMENTS` but the base is always `origin/master` regardless of branch name prefix.
 
 8. **Implement the fix** - once confirmed, make the minimal change necessary. Follow the project's C# + Avalonia MVVM patterns.
    - UI text in Russian - add new strings to `Resources/Locales/ru.json` and access via `I18n.T("section.key")` in C# or `{l:T 'section.key'}` in XAML. Do not use `Strings.cs` for new strings (it is legacy and will be removed).
