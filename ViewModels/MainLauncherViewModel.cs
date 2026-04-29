@@ -213,7 +213,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
             toastNotificationService,
             mode => Queue.MatchmakingModes.FirstOrDefault(m => m.ModeId == (int)mode)?.Name ?? mode.ToString(),
             settingsStorage);
-        _soundCoordinator.RewardNotificationReceived += notification => Reward.Show(notification);
+        _soundCoordinator.RewardNotificationReceived += OnRewardNotificationReceived;
 
         Launch.PropertyChanged += (_, e) =>
         {
@@ -469,6 +469,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
     private void OnSubscriptionRequired() => IsSubscriptionRequiredModalOpen = true;
 
+    private void OnRewardNotificationReceived(NotificationDto notification) => Reward.Show(notification);
+
     [RelayCommand]
     private void CloseSubscriptionRequiredModal() => IsSubscriptionRequiredModalOpen = false;
 
@@ -578,6 +580,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         _paidActions.SubscriptionRequired -= OnSubscriptionRequired;
         _cvarProvider.CvarChanged -= OnCvarChanged;
         Streams.PropertyChanged -= OnStreamsPropertyChanged;
+        _soundCoordinator.RewardNotificationReceived -= OnRewardNotificationReceived;
         _soundCoordinator.Dispose();
         _authCoordinator.Dispose();
         Reward.Dispose();
