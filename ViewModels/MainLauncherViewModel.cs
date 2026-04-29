@@ -580,6 +580,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Streams.PropertyChanged -= OnStreamsPropertyChanged;
         _soundCoordinator.Dispose();
         _authCoordinator.Dispose();
+        Reward.Dispose();
         Launch.Dispose();
         Queue.Dispose();
         Party.Dispose();

@@ -12,7 +12,7 @@ using d2c_launcher.Util;
 
 namespace d2c_launcher.ViewModels;
 
-public partial class RewardModalViewModel : ViewModelBase
+public partial class RewardModalViewModel : ViewModelBase, IDisposable
 {
     private static readonly Uri SubscriptionSplashUri = new("avares://d2c-launcher/Assets/Images/present.png");
 
@@ -39,6 +39,12 @@ public partial class RewardModalViewModel : ViewModelBase
         _backendApiService = backendApiService;
     }
 
+    public void Dispose()
+    {
+        LocalImage?.Dispose();
+        LocalImage = null;
+    }
+
     public void Show(NotificationDto notification)
     {
         _pendingNotificationId = notification.Id;
@@ -46,6 +52,7 @@ public partial class RewardModalViewModel : ViewModelBase
         Title = notification.Title;
         Content = notification.Content;
 
+        var oldBitmap = LocalImage;
         LocalImage = null;
         RemoteImageUrl = null;
 
@@ -60,6 +67,7 @@ public partial class RewardModalViewModel : ViewModelBase
                 break;
         }
 
+        oldBitmap?.Dispose();
         OnPropertyChanged(nameof(HasLocalImage));
         OnPropertyChanged(nameof(HasRemoteImage));
         OnPropertyChanged(nameof(HasNoImage));
