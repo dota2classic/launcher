@@ -6,6 +6,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using d2c_launcher.Api;
 using d2c_launcher.Integration;
 using d2c_launcher.Models;
 using d2c_launcher.Services;
@@ -58,6 +59,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public StreamsViewModel Streams { get; }
     public LatestNewsViewModel News { get; }
     public StoreViewModel Store { get; }
+    public RewardModalViewModel Reward { get; }
 
     // ── Auth / user state ─────────────────────────────────────────────────────
     [ObservableProperty]
@@ -200,11 +202,18 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         News = new LatestNewsViewModel(backendApiService);
         Store = new StoreViewModel(backendApiService);
         Store.GetCurrentSteamId = () => _steamManager.CurrentUser?.SteamId;
+        Reward = new RewardModalViewModel(backendApiService);
+        Reward.OnSubscriptionClaimed = () =>
+        {
+            OpenProfile();
+            Profile.SelectSubscriptionTabCommand.Execute(null);
+        };
 
         _soundCoordinator = new SocketEventCoordinator(queueSocketService, NotificationArea, windowService, backendApiService,
             toastNotificationService,
             mode => Queue.MatchmakingModes.FirstOrDefault(m => m.ModeId == (int)mode)?.Name ?? mode.ToString(),
             settingsStorage);
+        _soundCoordinator.RewardNotificationReceived += OnRewardNotificationReceived;
 
         Launch.PropertyChanged += (_, e) =>
         {
@@ -460,6 +469,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
     private void OnSubscriptionRequired() => IsSubscriptionRequiredModalOpen = true;
 
+    private void OnRewardNotificationReceived(NotificationDto notification) => Reward.Show(notification);
+
     [RelayCommand]
     private void CloseSubscriptionRequiredModal() => IsSubscriptionRequiredModalOpen = false;
 
@@ -518,6 +529,24 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         if (vm != null) NotificationArea.AddNotificationDirect(vm);
     }
 
+    /// Dev shortcut (F6, nightly only): shows a fake subscription reward modal.
+    public void TriggerDevRewardModal()
+    {
+        if (!_settingsStorage.Get().NightlyUpdates) return;
+
+        Reward.Show(new NotificationDto
+        {
+            Id = "dev-reward-preview",
+            Title = "Dotaclassic Plus активирована!",
+            Content = "Спасибо за поддержку проекта. Вам доступны все привилегии подписчика.",
+            NotificationType = NotificationType.SUBSCRIPTION_PURCHASED,
+            CreatedAt = "",
+            ExpiresAt = "",
+            SteamId = "",
+            EntityId = "",
+        });
+    }
+
     /// <summary>
     /// Dev shortcut (nightly only): toggles the pending-game-update UI state locally.
     /// </summary>
@@ -551,8 +580,10 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         _paidActions.SubscriptionRequired -= OnSubscriptionRequired;
         _cvarProvider.CvarChanged -= OnCvarChanged;
         Streams.PropertyChanged -= OnStreamsPropertyChanged;
+        _soundCoordinator.RewardNotificationReceived -= OnRewardNotificationReceived;
         _soundCoordinator.Dispose();
         _authCoordinator.Dispose();
+        Reward.Dispose();
         Launch.Dispose();
         Queue.Dispose();
         Party.Dispose();

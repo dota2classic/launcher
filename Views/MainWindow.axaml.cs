@@ -40,6 +40,10 @@ public partial class MainWindow : Window
         {
             launcher.ToggleDevGameUpdatePending();
         }
+        else if (e.Key == Key.F6)
+        {
+            launcher.TriggerDevRewardModal();
+        }
     }
 
     protected override void OnClosing(WindowClosingEventArgs e)

@@ -7,6 +7,7 @@ using d2c_launcher.Services;
 using d2c_launcher.Util;
 using d2c_launcher.ViewModels;
 using NotificationType = d2c_launcher.Api.NotificationType;
+using NotificationDto = d2c_launcher.Api.NotificationDto;
 
 namespace d2c_launcher.Integration;
 
@@ -34,6 +35,8 @@ public sealed class SocketEventCoordinator : IDisposable
     private readonly ISettingsStorage _settingsStorage;
 
     private string? _lastServerUrl;
+
+    public event Action<NotificationDto>? RewardNotificationReceived;
 
     public SocketEventCoordinator(
         IQueueSocketService queueSocketService,
@@ -105,8 +108,16 @@ public sealed class SocketEventCoordinator : IDisposable
     private void OnNotificationCreated(NotificationCreatedMessage msg)
     {
         var notification = msg.NotificationDto;
-        if (notification.NotificationType == NotificationType.ACHIEVEMENT_COMPLETE)
-            Dispatcher.UIThread.Post(() => _notificationArea.AddAchievementToast(notification, _backendApiService));
+        switch (notification.NotificationType)
+        {
+            case NotificationType.ACHIEVEMENT_COMPLETE:
+                Dispatcher.UIThread.Post(() => _notificationArea.AddAchievementToast(notification, _backendApiService));
+                break;
+            case NotificationType.SUBSCRIPTION_PURCHASED:
+            case NotificationType.ITEM_DROPPED:
+                Dispatcher.UIThread.Post(() => RewardNotificationReceived?.Invoke(notification));
+                break;
+        }
     }
 
     /// <summary>

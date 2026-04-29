@@ -420,6 +420,32 @@ public static class PreviewRegistry
                 host.Children.Add(new NotificationArea { DataContext = vm });
                 return (host, null);
             },
+            ["RewardModal"] = () =>
+            {
+                var api = new StubBackendApiService();
+                var vm = new RewardModalViewModel(api);
+                vm.Show(new d2c_launcher.Api.NotificationDto
+                {
+                    Id = "preview-reward-1",
+                    SteamId = "39734273",
+                    Title = "Dotaclassic Plus активирована!",
+                    Content = "Спасибо за поддержку проекта. Вам доступны все привилегии подписчика.",
+                    NotificationType = d2c_launcher.Api.NotificationType.SUBSCRIPTION_PURCHASED,
+                    EntityType = d2c_launcher.Api.NotificationDtoEntityType.ACHIEVEMENT,
+                    EntityId = "0",
+                    CreatedAt = "2026-01-01T00:00:00Z",
+                    ExpiresAt = "2026-12-31T00:00:00Z",
+                    Params = new object(),
+                });
+                var host = new Panel
+                {
+                    Width = 900,
+                    Height = 500,
+                    Background = new SolidColorBrush(Color.Parse("#1a1f26")),
+                };
+                host.Children.Add(new RewardModal { DataContext = vm });
+                return (host, null);
+            },
             ["Loading"] = () =>
                 (new LoadingView(), new LoadingViewModel()),
             ["LaunchSteamFirst"] = () =>

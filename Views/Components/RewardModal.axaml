@@ -1,0 +1,66 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:d2c_launcher.ViewModels"
+             xmlns:l="clr-namespace:d2c_launcher.Util"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             x:Class="d2c_launcher.Views.Components.RewardModal"
+             x:DataType="vm:RewardModalViewModel">
+
+    <Panel IsVisible="{Binding IsOpen}" ZIndex="350"
+           HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+           Background="#C0000000">
+        <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+                Width="480" Padding="0" CornerRadius="0"
+                Background="#0D1117"
+                BorderBrush="#C8A84B" BorderThickness="1"
+                BoxShadow="0 0 48 0 #50C8A84B, 0 16 32 0 #A0000000">
+            <StackPanel>
+
+                <!-- Image: local (subscription splash) -->
+                <Panel IsVisible="{Binding HasLocalImage}">
+                    <Image Source="{Binding LocalImage}"
+                           Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"
+                           MaxHeight="200" Margin="0,16,0,0"/>
+                </Panel>
+
+                <!-- Image: remote (item drops) -->
+                <Panel IsVisible="{Binding HasRemoteImage}" Height="220" ClipToBounds="True">
+                    <Image asyncImageLoader:ImageLoader.Source="{Binding RemoteImageUrl}"
+                           Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Border VerticalAlignment="Bottom" Height="80">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop Color="#000D1117" Offset="0"/>
+                                <GradientStop Color="#FF0D1117" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+                </Panel>
+
+                <!-- Gold accent bar (only when no image available) -->
+                <Border IsVisible="{Binding HasNoImage}" Background="#C8A84B" Height="4"/>
+
+                <!-- Title + description + button -->
+                <StackPanel Spacing="16" Margin="32,20,32,32">
+                    <TextBlock Text="{Binding Title}"
+                               FontSize="{DynamicResource FontSize2XL}" FontWeight="Bold"
+                               HorizontalAlignment="Center" TextAlignment="Center"
+                               Foreground="#C8A84B"/>
+
+                    <TextBlock Text="{Binding Content}"
+                               HorizontalAlignment="Center" TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               Foreground="#C0C0C0" FontSize="{DynamicResource FontSizeMD}"/>
+
+                    <Button Classes="PrimaryButton" HorizontalAlignment="Center"
+                            Content="{l:T 'reward.claim'}"
+                            Command="{Binding ClaimCommand}"
+                            Padding="36,12" CornerRadius="0"
+                            FontSize="{DynamicResource FontSizeLG}"/>
+                </StackPanel>
+
+            </StackPanel>
+        </Border>
+    </Panel>
+
+</UserControl>
