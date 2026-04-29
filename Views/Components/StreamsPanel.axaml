@@ -78,7 +78,7 @@
 
                         <!-- Thumbnail -->
                         <Border Grid.Row="0" Height="153" ClipToBounds="True" Background="#0a0f18">
-                          <Image asyncImageLoader:ImageLoader.Source="{Binding Preview}"
+                          <Image RenderOptions.BitmapInterpolationMode="HighQuality" asyncImageLoader:ImageLoader.Source="{Binding Preview}"
                                  Stretch="UniformToFill"/>
                         </Border>
 
@@ -104,7 +104,7 @@
                             <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="7">
                               <Border Width="20" Height="20" CornerRadius="10" ClipToBounds="True"
                                       Background="#1a2535">
-                                <Image asyncImageLoader:ImageLoader.Source="{Binding User.AvatarSmall}"
+                                <Image RenderOptions.BitmapInterpolationMode="HighQuality" asyncImageLoader:ImageLoader.Source="{Binding User.AvatarSmall}"
                                        Stretch="UniformToFill"/>
                               </Border>
                               <TextBlock Text="{Binding User.Name}"

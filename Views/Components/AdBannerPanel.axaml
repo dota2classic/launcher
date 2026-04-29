@@ -30,7 +30,7 @@
 
           <!-- Image -->
           <Border Grid.Row="0" Height="90" ClipToBounds="True" Background="#0a0f18">
-            <Image Source="avares://d2c-launcher/Assets/Images/collectors.jpg"
+            <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="avares://d2c-launcher/Assets/Images/collectors.jpg"
                    Stretch="UniformToFill"/>
           </Border>
 

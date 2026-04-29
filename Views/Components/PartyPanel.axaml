@@ -70,7 +70,7 @@
                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
                                                   FontSize="{DynamicResource FontSizeLG}" FontWeight="SemiBold" Foreground="#AAAAAA"/>
                                        <!-- Avatar overlay via AsyncImageLoader -->
-                                       <Image Stretch="UniformToFill"
+                                       <Image RenderOptions.BitmapInterpolationMode="HighQuality" Stretch="UniformToFill"
                                               asyncImageLoader:ImageLoader.Source="{Binding AvatarUrl}"/>
                                    </Panel>
                                </Border>

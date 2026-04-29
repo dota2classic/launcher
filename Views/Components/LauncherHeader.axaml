@@ -236,7 +236,7 @@
                 Background="Transparent" BorderThickness="0" CornerRadius="0"
                 Cursor="Hand" Click="OnD2CPlusClicked"
                 ToolTip.Tip="Dotaclassic Plus">
-          <Image Source="avares://d2c-launcher/Assets/icon.ico" Width="20" Height="20"/>
+          <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="avares://d2c-launcher/Assets/icon.ico" Width="20" Height="20"/>
         </Button>
         <Button x:Name="ProfileButton" VerticalAlignment="Stretch" Padding="10,8"
                 Background="Transparent" BorderThickness="0" CornerRadius="0"
@@ -245,7 +245,7 @@
             <Grid Width="32" Height="32">
               <Border Width="32" Height="32" CornerRadius="0" ClipToBounds="True"
                       Background="#2d3842">
-                <Image Source="{Binding AvatarImage}" Width="32" Height="32" Stretch="UniformToFill"/>
+                <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="{Binding AvatarImage}" Width="32" Height="32" Stretch="UniformToFill"/>
               </Border>
               <Ellipse Width="9" Height="9" Fill="#4CAF50"
                        HorizontalAlignment="Right" VerticalAlignment="Bottom"
