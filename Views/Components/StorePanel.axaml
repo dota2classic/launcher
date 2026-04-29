@@ -42,7 +42,7 @@
                     Orientation="Horizontal" Spacing="12" Margin="0,22,0,0">
           <TextBlock Text="✦" Foreground="#C8A84B"
                      FontSize="{DynamicResource FontSize3XL}" VerticalAlignment="Center"/>
-          <TextBlock Text="{l:T 'store.title'}" Foreground="#C8A84B"
+          <TextBlock Text="{l:T 'store_landing.subscriptionTitle'}" Foreground="#C8A84B"
                      FontSize="{DynamicResource FontSize3XL}" FontWeight="Bold"
                      LetterSpacing="3" VerticalAlignment="Center"/>
         </StackPanel>
@@ -60,7 +60,7 @@
                          FontSize="{DynamicResource FontSizeMD}" FontWeight="Bold"/>
             </StackPanel>
           </Button>
-          <TextBlock Text="{l:T 'store.heroDesc'}"
+          <TextBlock Text="{l:T 'store_landing.subscriptionText'}"
                      HorizontalAlignment="Center" TextAlignment="Center"
                      Foreground="#C8D4E0" FontSize="{DynamicResource FontSizeMD}"
                      TextWrapping="Wrap"/>
@@ -100,11 +100,11 @@
         </Border>
         <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center"
                     Spacing="8" Margin="60,0,60,28">
-          <TextBlock Text="{l:T 'store.benefit1Title'}"
+          <TextBlock Text="{l:T 'store_landing.profileDecorationTitle'}"
                      HorizontalAlignment="Center" TextAlignment="Center"
                      Foreground="#C8A84B" FontSize="{DynamicResource FontSize3XL}"
                      FontWeight="Bold" TextWrapping="Wrap"/>
-          <TextBlock Text="{l:T 'store.benefit1Desc'}"
+          <TextBlock Text="{l:T 'store_landing.profileDecorationText'}"
                      HorizontalAlignment="Center" TextAlignment="Center"
                      Foreground="#C8D4E0" FontSize="{DynamicResource FontSizeMD}"
                      TextWrapping="Wrap"/>
@@ -128,11 +128,11 @@
         </Border>
         <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center"
                     Spacing="8" Margin="60,0,60,28">
-          <TextBlock Text="{l:T 'store.benefit2Title'}"
+          <TextBlock Text="{l:T 'store_landing.dodgeListTitle'}"
                      HorizontalAlignment="Center" TextAlignment="Center"
                      Foreground="#C8A84B" FontSize="{DynamicResource FontSize3XL}"
                      FontWeight="Bold" TextWrapping="Wrap"/>
-          <TextBlock Text="{l:T 'store.benefit2Desc'}"
+          <TextBlock Text="{l:T 'store_landing.dodgeListText'}"
                      HorizontalAlignment="Center" TextAlignment="Center"
                      Foreground="#C8D4E0" FontSize="{DynamicResource FontSizeMD}"
                      TextWrapping="Wrap"/>
@@ -156,11 +156,11 @@
         </Border>
         <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center"
                     Spacing="8" Margin="60,0,60,28">
-          <TextBlock Text="{l:T 'store.benefit3Title'}"
+          <TextBlock Text="{l:T 'store_landing.unbanHeroTitle'}"
                      HorizontalAlignment="Center" TextAlignment="Center"
                      Foreground="#C8A84B" FontSize="{DynamicResource FontSize3XL}"
                      FontWeight="Bold" TextWrapping="Wrap"/>
-          <TextBlock Text="{l:T 'store.benefit3Desc'}"
+          <TextBlock Text="{l:T 'store_landing.unbanHeroText'}"
                      HorizontalAlignment="Center" TextAlignment="Center"
                      Foreground="#C8D4E0" FontSize="{DynamicResource FontSizeMD}"
                      TextWrapping="Wrap"/>
@@ -184,11 +184,11 @@
         </Border>
         <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center"
                     Spacing="8" Margin="60,0,60,28">
-          <TextBlock Text="{l:T 'store.benefit4Title'}"
+          <TextBlock Text="{l:T 'store_landing.inGamePraiseTitle'}"
                      HorizontalAlignment="Center" TextAlignment="Center"
                      Foreground="#C8A84B" FontSize="{DynamicResource FontSize3XL}"
                      FontWeight="Bold" TextWrapping="Wrap"/>
-          <TextBlock Text="{l:T 'store.benefit4Desc'}"
+          <TextBlock Text="{l:T 'store_landing.inGamePraiseText'}"
                      HorizontalAlignment="Center" TextAlignment="Center"
                      Foreground="#C8D4E0" FontSize="{DynamicResource FontSizeMD}"
                      TextWrapping="Wrap"/>
@@ -212,11 +212,11 @@
         </Border>
         <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center"
                     Spacing="8" Margin="60,0,60,28">
-          <TextBlock Text="{l:T 'store.benefit5Title'}"
+          <TextBlock Text="{l:T 'store_landing.muteTitle'}"
                      HorizontalAlignment="Center" TextAlignment="Center"
                      Foreground="#C8A84B" FontSize="{DynamicResource FontSize3XL}"
                      FontWeight="Bold" TextWrapping="Wrap"/>
-          <TextBlock Text="{l:T 'store.benefit5Desc'}"
+          <TextBlock Text="{l:T 'store_landing.muteText'}"
                      HorizontalAlignment="Center" TextAlignment="Center"
                      Foreground="#C8D4E0" FontSize="{DynamicResource FontSizeMD}"
                      TextWrapping="Wrap"/>
@@ -240,11 +240,39 @@
         </Border>
         <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center"
                     Spacing="8" Margin="60,0,60,28">
-          <TextBlock Text="{l:T 'store.benefit6Title'}"
+          <TextBlock Text="{l:T 'store_landing.lobbyTitle'}"
                      HorizontalAlignment="Center" TextAlignment="Center"
                      Foreground="#C8A84B" FontSize="{DynamicResource FontSize3XL}"
                      FontWeight="Bold" TextWrapping="Wrap"/>
-          <TextBlock Text="{l:T 'store.benefit6Desc'}"
+          <TextBlock Text="{l:T 'store_landing.lobbyText'}"
+                     HorizontalAlignment="Center" TextAlignment="Center"
+                     Foreground="#C8D4E0" FontSize="{DynamicResource FontSizeMD}"
+                     TextWrapping="Wrap"/>
+        </StackPanel>
+      </Panel>
+
+      <!-- FEATURE 7 — recalibration -->
+      <Panel MinHeight="330" ClipToBounds="True">
+        <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="avares://d2c-launcher/Assets/Images/splash/recalibration.webp"
+               Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Border Background="#48000000"/>
+        <!-- Bottom caption gradient -->
+        <Border VerticalAlignment="Bottom" Height="120">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+              <GradientStop Color="#00000000" Offset="0"/>
+              <GradientStop Color="#50000000" Offset="0.5"/>
+              <GradientStop Color="#88000000" Offset="1"/>
+            </LinearGradientBrush>
+          </Border.Background>
+        </Border>
+        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                    Spacing="8" Margin="60,0,60,28">
+          <TextBlock Text="{l:T 'store_landing.recalibrationTitle'}"
+                     HorizontalAlignment="Center" TextAlignment="Center"
+                     Foreground="#C8A84B" FontSize="{DynamicResource FontSize3XL}"
+                     FontWeight="Bold" TextWrapping="Wrap"/>
+          <TextBlock Text="{l:T 'store_landing.recalibrationText'}"
                      HorizontalAlignment="Center" TextAlignment="Center"
                      Foreground="#C8D4E0" FontSize="{DynamicResource FontSizeMD}"
                      TextWrapping="Wrap"/>
