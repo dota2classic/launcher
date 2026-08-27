@@ -89,7 +89,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
                           ?.Split('+')[0])
                       ?? asm.GetName().Version?.ToString(3)
                       ?? "?";
-        return $"dotaclassic v{version}";
+        return $"dotalegacy v{version}";
     }
 
     public MainWindowViewModel(

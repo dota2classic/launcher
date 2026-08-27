@@ -7,7 +7,7 @@
 
     <StackPanel Classes="InitScreenContent">
 
-        <TextBlock Classes="InitScreenTitle" Text="Dotaclassic"/>
+        <TextBlock Classes="InitScreenTitle" Text="Dotalegacy"/>
 
         <ProgressBar IsIndeterminate="True"
                      Width="200" Height="4"

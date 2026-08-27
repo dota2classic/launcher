@@ -24,7 +24,7 @@ sealed class Program
         // Without this, Windows may merge the game's window into the launcher's
         // taskbar button, showing no icon for the game.
         // Must be called before any window is created.
-        SetCurrentProcessExplicitAppUserModelID("DotaClassic.Launcher");
+        SetCurrentProcessExplicitAppUserModelID("DotaLegacy.Launcher");
 
         VelopackApp.Build().SetAutoApplyOnStartup(false).Run();
 

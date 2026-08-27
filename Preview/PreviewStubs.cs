@@ -146,7 +146,7 @@ internal sealed class StubBackendApiService : IBackendApiService
     public Task<ChatMessageData?> GetPinnedMessageAsync(string threadId, CancellationToken cancellationToken = default)
         => Task.FromResult<ChatMessageData?>(new ChatMessageData(
             "pinned-1", threadId,
-            "🚀 30 апреля в 17:00 (МСК) — глобальное обновление DOTACLASSIC: новый патч, переработка Techies 🔨, обновлённый сайт и лаунчер. 🏴",
+            "🚀 30 апреля в 17:00 (МСК) — глобальное обновление DOTALEGACY: новый патч, переработка Techies 🔨, обновлённый сайт и лаунчер. 🏴",
             "2026-04-23T14:34:00Z", "111", "egor_lib", null, false));
     public Task<IReadOnlyList<d2c_launcher.Api.NotificationDto>> GetNotificationsAsync(CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyList<d2c_launcher.Api.NotificationDto>>(Array.Empty<d2c_launcher.Api.NotificationDto>());
@@ -219,7 +219,7 @@ internal sealed class StubBackendApiService : IBackendApiService
         => Task.FromResult<d2c_launcher.Api.BlogpostDto?>(new d2c_launcher.Api.BlogpostDto
         {
             Id = 1,
-            Title = "Dotaclassic 6.82: обновление баланса и новые герои",
+            Title = "Dotalegacy 6.82: обновление баланса и новые герои",
             ShortDescription = "В этом обновлении мы скорректировали баланс нескольких героев и добавили новые предметы.",
             Image = new d2c_launcher.Api.UploadedImageDto { Url = "https://placehold.co/400x200/0d1520/4a90d6?text=News", Key = "preview" },
             PublishDate = "28 апреля 2026",

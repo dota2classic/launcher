@@ -12,7 +12,7 @@
        <StackPanel Classes="InitScreenContent"
                    IsVisible="{Binding !IsChoosingDlc}">
 
-           <TextBlock Classes="InitScreenTitle" Text="Dotaclassic"/>
+           <TextBlock Classes="InitScreenTitle" Text="Dotalegacy"/>
 
            <TextBlock Text="{x:Static res:Strings.SelectGameFolder}"
                       FontSize="{DynamicResource FontSizeLG}" HorizontalAlignment="Center"

@@ -53,7 +53,7 @@
   
     <TrayIcon.Icons>
         <TrayIcons>
-            <TrayIcon Icon="/Assets/icon.ico" ToolTipText="D2C Launcher" Clicked="TrayOpen_Click">
+            <TrayIcon Icon="/Assets/icon.ico" ToolTipText="D2L Launcher" Clicked="TrayOpen_Click">
                 <TrayIcon.Menu>
                     <NativeMenu>
                         <NativeMenuItem Header="Открыть" Click="TrayOpen_Click"/>
