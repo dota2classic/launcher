@@ -29,7 +29,7 @@
             </Border>
         </Grid>
 
-        <TextBlock Classes="InitScreenTitle" Text="Dotaclassic"/>
+        <TextBlock Classes="InitScreenTitle" Text="Dotalegacy"/>
 
         <TextBlock FontSize="{DynamicResource FontSizeLG}" HorizontalAlignment="Center"
                    Foreground="#AAAAAA"

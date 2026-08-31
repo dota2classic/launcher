@@ -23,7 +23,7 @@ public class DefenderPromptTests
         var s = new LauncherSettings
         {
             DefenderPromptAnswered = true,
-            DefenderExclusionPath = @"C:\Games\Dotaclassic",
+            DefenderExclusionPath = @"C:\Games\Dotalegacy",
         };
         Assert.False(s.ShouldShowDefenderPrompt);
     }
@@ -48,7 +48,7 @@ public class DefenderPromptTests
         var s = new LauncherSettings
         {
             DefenderPromptAnswered = false,
-            DefenderExclusionPath = @"C:\Games\Dotaclassic",
+            DefenderExclusionPath = @"C:\Games\Dotalegacy",
         };
         Assert.False(s.ShouldShowDefenderPrompt);
     }

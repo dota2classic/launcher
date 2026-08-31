@@ -12,16 +12,16 @@ namespace d2c_launcher.Util;
 /// </summary>
 internal static class ToastShortcutHelper
 {
-    internal const string Aumid = "DotaClassic.Launcher";
+    internal const string Aumid = "DotaLegacy.Launcher";
 
     private static readonly string ProgramsDir = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
         @"Microsoft\Windows\Start Menu\Programs");
 
-    private static readonly string ShortcutPath = Path.Combine(ProgramsDir, "dotaclassic.lnk");
+    private static readonly string ShortcutPath = Path.Combine(ProgramsDir, "dotalegacy.lnk");
 
     // Legacy names created by older builds — cleaned up on next launch.
-    private static readonly string[] LegacyShortcutNames = ["d2c-launcher.lnk", "Dotaclassic.lnk"];
+    private static readonly string[] LegacyShortcutNames = ["d2c-launcher.lnk", "Dotaclassic.lnk", "dotaclassic.lnk"];
 
     private static readonly Guid CLSID_ShellLink = new("00021401-0000-0000-C000-000000000046");
 
@@ -35,7 +35,7 @@ internal static class ToastShortcutHelper
 
         // Always clean up legacy shortcuts regardless of whether the current one is valid —
         // a stale d2c-launcher.lnk with the same AUMID causes Windows to show "d2c-launcher"
-        // as the toast app name instead of "dotaclassic".
+        // as the toast app name instead of "dotalegacy".
         foreach (var name in LegacyShortcutNames)
         {
             var legacy = Path.Combine(ProgramsDir, name);

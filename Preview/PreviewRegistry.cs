@@ -428,7 +428,7 @@ public static class PreviewRegistry
                 {
                     Id = "preview-reward-1",
                     SteamId = "39734273",
-                    Title = "Dotaclassic Plus активирована!",
+                    Title = "Dotalegacy Plus активирована!",
                     Content = "Спасибо за поддержку проекта. Вам доступны все привилегии подписчика.",
                     NotificationType = d2c_launcher.Api.NotificationType.SUBSCRIPTION_PURCHASED,
                     EntityType = d2c_launcher.Api.NotificationDtoEntityType.ACHIEVEMENT,
@@ -461,7 +461,7 @@ public static class PreviewRegistry
                     new d2c_launcher.Services.RedistInstallService(),
                     new StubRemoteManifestService())
                 {
-                    GameDirectory = @"C:\fake\dotaclassic",
+                    GameDirectory = @"C:\fake\dotalegacy",
                     StatusText = "Загрузка (142/2381 файлов)",
                     DetailsText = "dota/bin/win64/engine.dll\n12.3 МБ / 24.1 ГБ  1.8 МБ/с  ~3ч 42м",
                     ProgressValue = 42,
@@ -478,7 +478,7 @@ public static class PreviewRegistry
                     new d2c_launcher.Services.RedistInstallService(),
                     new StubRemoteManifestService())
                 {
-                    GameDirectory = @"C:\fake\dotaclassic",
+                    GameDirectory = @"C:\fake\dotalegacy",
                     StatusText = "Ошибка загрузки",
                     ErrorText = "Ошибка подключения к серверу обновлений.\nПроверьте интернет-соединение и попробуйте снова.",
                     ProgressValue = 47,

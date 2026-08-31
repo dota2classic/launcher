@@ -235,7 +235,7 @@
         <Button x:Name="D2CPlusButton" VerticalAlignment="Stretch" Padding="10,8"
                 Background="Transparent" BorderThickness="0" CornerRadius="0"
                 Cursor="Hand" Click="OnD2CPlusClicked"
-                ToolTip.Tip="Dotaclassic Plus">
+                ToolTip.Tip="Dotalegacy Plus">
           <Image RenderOptions.BitmapInterpolationMode="HighQuality" Source="avares://d2c-launcher/Assets/icon.ico" Width="20" Height="20"/>
         </Button>
         <Button x:Name="ProfileButton" VerticalAlignment="Stretch" Padding="10,8"

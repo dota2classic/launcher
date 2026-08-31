@@ -41,7 +41,7 @@ public static class DotaConsoleConnector
         {
             // Give the window its own taskbar identity so it doesn't merge with the launcher
             var aumidKey = WinApi.PKEY_AppUserModel_ID;
-            var aumidVal = WinApi.PROPVARIANT.FromString("DotaClassic.Dota2");
+            var aumidVal = WinApi.PROPVARIANT.FromString("DotaLegacy.Dota2");
             try
             {
                 var hrSet = store.SetValue(ref aumidKey, ref aumidVal);

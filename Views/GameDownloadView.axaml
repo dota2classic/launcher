@@ -10,7 +10,7 @@
         <!-- Main content -->
         <StackPanel Classes="InitScreenContent">
 
-            <TextBlock Classes="InitScreenTitle" Text="Dotaclassic"/>
+            <TextBlock Classes="InitScreenTitle" Text="Dotalegacy"/>
 
             <TextBlock Text="{Binding StatusText}"
                        FontSize="{DynamicResource FontSizeLG}" HorizontalAlignment="Center"

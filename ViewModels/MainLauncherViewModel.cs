@@ -537,7 +537,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Reward.Show(new NotificationDto
         {
             Id = "dev-reward-preview",
-            Title = "Dotaclassic Plus активирована!",
+            Title = "Dotalegacy Plus активирована!",
             Content = "Спасибо за поддержку проекта. Вам доступны все привилегии подписчика.",
             NotificationType = NotificationType.SUBSCRIPTION_PURCHASED,
             CreatedAt = "",
