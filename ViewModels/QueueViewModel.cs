@@ -227,6 +227,30 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
                 next.Add(view);
             }
 
+            // Locked placeholder modes — not returned by the backend yet
+            // (no queue configured), shown as always-disabled cards until
+            // we open them for real. RestrictionText gets set for these
+            // in ApplyRestrictionsToModes(), which runs right below.
+            foreach (var lockedId in LockedPlaceholderModeIds)
+            {
+                var existing = MatchmakingModes.FirstOrDefault(m => m.ModeId == lockedId);
+                MatchmakingModeView view;
+                if (existing != null)
+                {
+                    view = existing;
+                }
+                else
+                {
+                    view = new MatchmakingModeView(lockedId, I18n.T($"matchmakingMode.{lockedId}"));
+                    view.PropertyChanged += (_, e) =>
+                    {
+                        if (e.PropertyName == nameof(MatchmakingModeView.IsSelected))
+                            PersistSelectedModes();
+                    };
+                }
+                next.Add(view);
+            }
+
             MatchmakingModes = new ObservableCollection<MatchmakingModeView>(
                 next.OrderBy(m => GetModePriority(m.ModeId)));
             ApplyRestrictionsToModes();
@@ -389,10 +413,24 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
 
     private const int HighroomMmrRequired = 2500;
 
+    // Locked placeholder modes — not wired to real matchmaking yet (see
+    // dota2classic/gateway shared-types/matchmaking-mode.ts). Always show
+    // as forbidden regardless of party/ban state, so this must run before
+    // the per-party restriction logic below can overwrite RestrictionText.
+    private static readonly HashSet<int> LockedPlaceholderModeIds = new() { 14, 15 };
+    private const string LockedPlaceholderUntil = "01.01.2027";
+
     private void ApplyRestrictionsToModes()
     {
         foreach (var mode in MatchmakingModes)
         {
+            if (LockedPlaceholderModeIds.Contains(mode.ModeId))
+            {
+                mode.RestrictionText = I18n.T("game.banExpiry", ("until", LockedPlaceholderUntil));
+                mode.LockProgress = null;
+                continue;
+            }
+
             string? restriction = null;
             double? lockProgress = null;
             foreach (var member in _latestPartyMembers)
