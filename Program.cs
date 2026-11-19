@@ -23,7 +23,7 @@ sealed class Program
         // Must be called before any window is created.
         SetCurrentProcessExplicitAppUserModelID("DotaLegacy.Launcher");
 
-        VelopackApp.Build().SetAutoApplyOnStartup(true).Run();
+        VelopackApp.Build().SetAutoApplyOnStartup(!SingleInstanceService.IsAnotherInstanceRunning()).Run();
 
         // Skip single-instance enforcement in preview mode so the preview tool
         // can run alongside a running launcher instance.

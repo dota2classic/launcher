@@ -26,6 +26,14 @@ public sealed class SingleInstanceService : IDisposable
     /// </summary>
     public event Action<string>? OnMessageReceived;
 
+    public static bool IsAnotherInstanceRunning()
+    {
+        if (!Mutex.TryOpenExisting(MutexName, out var existing))
+            return false;
+        existing.Dispose();
+        return true;
+    }
+
     /// <summary>
     /// Try to become the primary instance.
     /// Returns <c>true</c> if this process is the first instance (owns the mutex).
