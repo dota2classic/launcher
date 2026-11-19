@@ -282,7 +282,6 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         // Start after auth so the token is present for the initial requests.
         Chat.StartAsync().FireAndForget("Chat.StartAsync");
         _soundCoordinator.LoadPendingNotificationsAsync().FireAndForget("LoadPendingNotificationsAsync");
-        Party.RefreshPartyAsync().FireAndForget("Party.RefreshPartyAsync (startup)");
     }
 
     private void OnOnlineUpdated(OnlineUpdateMessage msg) => Dispatcher.UIThread.Post(() =>

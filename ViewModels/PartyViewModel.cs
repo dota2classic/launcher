@@ -18,7 +18,6 @@ public partial class PartyViewModel : ViewModelBase, IDisposable
 {
     private readonly IQueueSocketService _queueSocketService;
     private readonly IBackendApiService _backendApiService;
-    private readonly DispatcherTimer _partyRefreshTimer;
     private CancellationTokenSource? _inviteSearchCts;
     private int _partyRefreshRunning;
     private System.Collections.Generic.HashSet<string> _onlineUsers = new(StringComparer.Ordinal);
@@ -46,15 +45,20 @@ public partial class PartyViewModel : ViewModelBase, IDisposable
         _queueSocketService = queueSocketService;
         _backendApiService = backendApiService;
 
-        _partyRefreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(10) };
-        _partyRefreshTimer.Tick += (_, _) => { _ = RefreshPartyAsync(); };
-        _partyRefreshTimer.Start();
-
+        queueSocketService.StateChanged += OnSocketStateChanged;
         queueSocketService.PartyUpdated += OnPartyUpdated;
+        if (queueSocketService.State == GameCoordinatorState.ConnectionComplete)
+            RefreshPartyAsync().FireAndForget("RefreshPartyAsync (already connected)");
         queueSocketService.OnlineUpdated += OnOnlineUpdated;
 
         CloseInviteModalCommand = new RelayCommand(CloseInviteModal);
         LeavePartyCommand = new AsyncRelayCommand(LeavePartyAsync);
+    }
+
+    private void OnSocketStateChanged(GameCoordinatorState state)
+    {
+        if (state == GameCoordinatorState.ConnectionComplete)
+            Dispatcher.UIThread.Post(() => RefreshPartyAsync().FireAndForget("RefreshPartyAsync (ConnectionComplete)"));
     }
 
     private void OnPartyUpdated(PartyDto party) =>
@@ -231,9 +235,9 @@ public partial class PartyViewModel : ViewModelBase, IDisposable
 
     public void Dispose()
     {
+        _queueSocketService.StateChanged -= OnSocketStateChanged;
         _queueSocketService.PartyUpdated -= OnPartyUpdated;
         _queueSocketService.OnlineUpdated -= OnOnlineUpdated;
-        _partyRefreshTimer.Stop();
         _inviteSearchCts?.Dispose();
     }
 }
