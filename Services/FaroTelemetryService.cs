@@ -19,7 +19,7 @@ public static class FaroTelemetryService
 {
     private const string CollectorUrl = "https://logsink.dotaclassic.ru/collect";
 
-    private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(10) };
+    private static readonly HttpClient Http = LauncherHttp.Create(TimeSpan.FromSeconds(10));
     private static readonly string SessionId = Guid.NewGuid().ToString("N");
     private static readonly JsonSerializerOptions JsonOpts = new()
     {

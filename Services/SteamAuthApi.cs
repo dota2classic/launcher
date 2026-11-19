@@ -10,11 +10,8 @@ namespace d2c_launcher.Services;
 
 public sealed class SteamAuthApi : ISteamAuthApi
 {
-    private static readonly HttpClient HttpClient = new()
-    {
-        BaseAddress = new Uri("https://api.dotaclassic.ru/"),
-        Timeout = TimeSpan.FromSeconds(10)
-    };
+    private static readonly HttpClient HttpClient =
+        LauncherHttp.Create(TimeSpan.FromSeconds(10), new Uri("https://api.dotaclassic.ru/"));
     public async Task<string?> RefreshTokenAsync(string currentToken, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(currentToken))

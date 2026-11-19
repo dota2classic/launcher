@@ -7,7 +7,7 @@ namespace d2c_launcher.Services;
 
 public sealed class HttpImageService : IHttpImageService, IDisposable
 {
-    private readonly HttpClient _httpClient = new() { Timeout = TimeSpan.FromSeconds(10) };
+    private readonly HttpClient _httpClient = LauncherHttp.Create(TimeSpan.FromSeconds(10));
 
     public async Task<byte[]?> LoadBytesAsync(string? url, CancellationToken cancellationToken = default)
     {

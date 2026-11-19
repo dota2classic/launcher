@@ -17,7 +17,7 @@ public sealed class RemoteManifestService : IRemoteManifestService, IDisposable
     private static readonly Regex SafeFolderName = new(@"^[a-zA-Z0-9_\-]+$", RegexOptions.Compiled);
 
     private readonly IContentRegistryService _registryService;
-    private readonly HttpClient _httpClient = new() { Timeout = TimeSpan.FromSeconds(15) };
+    private readonly HttpClient _httpClient = LauncherHttp.Create(TimeSpan.FromSeconds(15));
 
     public RemoteManifestService(IContentRegistryService registryService)
     {
