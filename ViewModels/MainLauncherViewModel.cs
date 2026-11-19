@@ -40,9 +40,13 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     /// <summary>Called when the user requests game re-verification (e.g. after corrupted files detected).</summary>
     public Action? RequestReverify { get; set; }
     public Action? RequestInstallGameUpdate { get; set; }
-    private readonly DispatcherTimer _onlineStatsTimer;
+    private static readonly PollSchedule InGameFallbackSchedule = new(TimeSpan.FromSeconds(60));
+    private static readonly PollSchedule MatchmakingModesSchedule = new(TimeSpan.FromMinutes(5));
+
+    private readonly VisibilityAwarePoller _inGameFallbackPoller;
+    private readonly VisibilityAwarePoller _matchmakingModesPoller;
+    private bool _hasSocketInGame;
     private readonly SocketEventCoordinator _soundCoordinator;
-    private readonly Action<OnlineUpdateMessage> _onlineUpdatedHandler;
     private readonly Action<User?> _onUserUpdatedHandler;
     private readonly Action<string?> _tokenAppliedHandler;
 
@@ -192,11 +196,11 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Chat = chatViewModelFactory.Create("17aa3530-d152-462e-a032-909ae69019ed");
         Chat.OpenPlayerProfile = OpenPlayerProfile;
         Profile = new ProfileViewModel(backendApiService, paidActions);
-        Live = new LiveViewModel(backendApiService);
+        Live = new LiveViewModel(backendApiService, timerFactory, windowService);
         Live.OnSpectate = matchId => Launch.SpectateMatch((int)matchId);
         Live.OnOpenProfile = steam32Id => OpenPlayerProfile(steam32Id);
 
-        Streams = new StreamsViewModel(backendApiService);
+        Streams = new StreamsViewModel(backendApiService, timerFactory, windowService);
         Streams.PlayerSettingsUrl = BuildStreamsSettingsUrl(_currentUser);
         Streams.PropertyChanged += OnStreamsPropertyChanged;
         News = new LatestNewsViewModel(backendApiService);
@@ -234,20 +238,14 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         // Push party restrictions into queue mode list
         Party.PartyMembersChanged += members => Queue.ApplyPartyRestrictions(members);
 
-        // на сайте: updated from socket events
-        _onlineUpdatedHandler = msg => Dispatcher.UIThread.Post(() =>
-        {
-            OnlineSessions = msg.Online?.Length ?? 0;
-            OnPropertyChanged(nameof(OnlineStatsText));
-            Queue.OnlineStatsText = OnlineStatsText;
-        });
-        queueSocketService.OnlineUpdated += _onlineUpdatedHandler;
-
-        // в игре: polled from API every 5 seconds
-        _onlineStatsTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
-        _onlineStatsTimer.Tick += (_, _) => RefreshInGameCountAsync().FireAndForget("RefreshInGameCountAsync (timer)");
-        _onlineStatsTimer.Start();
-        RefreshInGameCountAsync().FireAndForget("RefreshInGameCountAsync (startup)");
+        queueSocketService.OnlineUpdated += OnOnlineUpdated;
+        queueSocketService.StateChanged += OnSocketStateChanged;
+        _inGameFallbackPoller = new VisibilityAwarePoller(timerFactory, windowService, "RefreshInGameCountAsync",
+            InGameFallbackSchedule, RefreshInGameCountAsync, () => !_hasSocketInGame);
+        _inGameFallbackPoller.Start(pollIfVisible: true);
+        _matchmakingModesPoller = new VisibilityAwarePoller(timerFactory, windowService, "Queue.RefreshMatchmakingModesAsync",
+            MatchmakingModesSchedule, Queue.RefreshMatchmakingModesAsync, () => ActiveTab == LauncherTab.Play);
+        _matchmakingModesPoller.Start();
 
         // Steam user profile events
         _onUserUpdatedHandler = u => Dispatcher.UIThread.Post(() =>
@@ -284,9 +282,33 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         // Start after auth so the token is present for the initial requests.
         Chat.StartAsync().FireAndForget("Chat.StartAsync");
         _soundCoordinator.LoadPendingNotificationsAsync().FireAndForget("LoadPendingNotificationsAsync");
-        Party.RefreshPartyAsync().FireAndForget("Party.RefreshPartyAsync (startup)");
-        Queue.RefreshMatchmakingModesAsync().FireAndForget("Queue.RefreshMatchmakingModesAsync (startup)");
+    }
 
+    private void OnOnlineUpdated(OnlineUpdateMessage msg) => Dispatcher.UIThread.Post(() =>
+    {
+        OnlineSessions = msg.Online?.Length ?? 0;
+        if (msg.InGame is { } inGame)
+        {
+            _hasSocketInGame = true;
+            SetOnlineInGame(inGame);
+            _inGameFallbackPoller.Evaluate();
+        }
+        else
+        {
+            OnPropertyChanged(nameof(OnlineStatsText));
+            Queue.OnlineStatsText = OnlineStatsText;
+        }
+    });
+
+    private void OnSocketStateChanged(GameCoordinatorState state)
+    {
+        if (state != GameCoordinatorState.Disconnected)
+            return;
+        Dispatcher.UIThread.Post(() =>
+        {
+            _hasSocketInGame = false;
+            _inGameFallbackPoller.Evaluate();
+        });
     }
 
     private void OnCvarChanged()
@@ -370,6 +392,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(IsStreamsTabActive));
         OnPropertyChanged(nameof(IsProfileTabActive));
         OnPropertyChanged(nameof(IsStoreTabActive));
+        Live.SetActive(value == LauncherTab.Live);
+        _matchmakingModesPoller.Evaluate();
         if (value == LauncherTab.Streams)
             Streams.RequestRefresh();
         if (value == LauncherTab.Play)
@@ -447,6 +471,12 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     private async Task RefreshInGameCountAsync()
     {
         var (inGame, _) = await _backendApiService.GetOnlineStatsAsync();
+        if (!_hasSocketInGame)
+            SetOnlineInGame(inGame);
+    }
+
+    private void SetOnlineInGame(int inGame)
+    {
         OnlineInGame = inGame;
         OnPropertyChanged(nameof(OnlineStatsText));
         OnPropertyChanged(nameof(AnyLiveGame));
@@ -573,8 +603,10 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
     public void Dispose()
     {
-        _onlineStatsTimer.Stop();
-        _queueSocketService.OnlineUpdated -= _onlineUpdatedHandler;
+        _inGameFallbackPoller.Dispose();
+        _matchmakingModesPoller.Dispose();
+        _queueSocketService.OnlineUpdated -= OnOnlineUpdated;
+        _queueSocketService.StateChanged -= OnSocketStateChanged;
         _steamManager.OnUserUpdated -= _onUserUpdatedHandler;
         _authCoordinator.TokenApplied -= _tokenAppliedHandler;
         _paidActions.SubscriptionRequired -= OnSubscriptionRequired;

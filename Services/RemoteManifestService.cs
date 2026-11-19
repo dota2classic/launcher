@@ -1,8 +1,11 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -17,7 +20,8 @@ public sealed class RemoteManifestService : IRemoteManifestService, IDisposable
     private static readonly Regex SafeFolderName = new(@"^[a-zA-Z0-9_\-]+$", RegexOptions.Compiled);
 
     private readonly IContentRegistryService _registryService;
-    private readonly HttpClient _httpClient = new() { Timeout = TimeSpan.FromSeconds(15) };
+    private readonly HttpClient _httpClient = LauncherHttp.Create(TimeSpan.FromSeconds(15));
+    private readonly ConcurrentDictionary<string, ValidatedJson> _validated = new(StringComparer.Ordinal);
 
     public RemoteManifestService(IContentRegistryService registryService)
     {
@@ -58,8 +62,7 @@ public sealed class RemoteManifestService : IRemoteManifestService, IDisposable
         if (!SafeFolderName.IsMatch(pkg.Folder))
             throw new Exception($"Invalid package folder name: {pkg.Folder}");
 
-        var manifestUrl = $"{BaseManifestUrl}{pkg.Folder}/manifest.json";
-        var json = await _httpClient.GetStringAsync(manifestUrl, cancellationToken);
+        var json = await GetManifestJsonAsync($"{BaseManifestUrl}{pkg.Folder}/manifest.json", cancellationToken);
         var manifest = JsonSerializer.Deserialize<GameManifest>(json)
             ?? throw new Exception(I18n.T("game.emptyPackageManifest", ("name", pkg.Name)));
 
@@ -74,6 +77,28 @@ public sealed class RemoteManifestService : IRemoteManifestService, IDisposable
 
         return new RemotePackageManifest { Package = pkg, Manifest = manifest };
     }
+
+    private async Task<string> GetManifestJsonAsync(string url, CancellationToken cancellationToken)
+    {
+        _validated.TryGetValue(url, out var cached);
+        using var request = new HttpRequestMessage(HttpMethod.Get, url);
+        if (cached != null)
+            request.Headers.IfNoneMatch.Add(cached.ETag);
+
+        using var response = await _httpClient.SendAsync(request, cancellationToken);
+        if (cached != null && response.StatusCode == HttpStatusCode.NotModified)
+            return cached.Json;
+
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync(cancellationToken);
+        if (response.Headers.ETag is { } etag)
+            _validated[url] = new ValidatedJson(etag, json);
+        else
+            _validated.TryRemove(url, out _);
+        return json;
+    }
+
+    private sealed record ValidatedJson(EntityTagHeaderValue ETag, string Json);
 
     private static GameManifest Combine(IEnumerable<GameManifestFile> files)
     {

@@ -20,6 +20,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 {
     private static readonly TimeSpan BackgroundVerificationDelay = TimeSpan.FromSeconds(45);
     private static readonly TimeSpan RemoteUpdatePollInterval = TimeSpan.FromMinutes(3);
+    private static readonly TimeSpan LauncherUpdateCheckInterval = TimeSpan.FromHours(6);
 
     private readonly ISteamManager _steamManager;
     private readonly ISettingsStorage _settingsStorage;
@@ -49,6 +50,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     private readonly IPaidActionService _paidActions;
     private readonly AppStartupContext _startupContext;
     private readonly IUiTimer _remoteUpdatePollTimer;
+    private readonly IUiTimer _launcherUpdateCheckTimer;
 
     /// <summary>Pending spectate match ID received before the Launcher state was entered.</summary>
     private int? _pendingSpectateMatchId;
@@ -79,18 +81,7 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
 
     public bool IsSteamRunning => _steamManager.SteamStatus is SteamStatus.Running or SteamStatus.Offline;
 
-    public string WindowTitle { get; } = BuildWindowTitle();
-
-    private static string BuildWindowTitle()
-    {
-        var asm = Assembly.GetExecutingAssembly();
-        var version = (asm.GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>()
-                          ?.InformationalVersion
-                          ?.Split('+')[0])
-                      ?? asm.GetName().Version?.ToString(3)
-                      ?? "?";
-        return $"dotalegacy v{version}";
-    }
+    public string WindowTitle { get; } = $"dotalegacy v{AppVersion.Current}";
 
     public MainWindowViewModel(
         ISteamManager steamManager,
@@ -152,6 +143,10 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
         _remoteUpdatePollTimer = timerFactory.Create();
         _remoteUpdatePollTimer.Interval = RemoteUpdatePollInterval;
         _remoteUpdatePollTimer.Tick += OnRemoteUpdatePollTick;
+        _launcherUpdateCheckTimer = timerFactory.Create();
+        _launcherUpdateCheckTimer.Interval = LauncherUpdateCheckInterval;
+        _launcherUpdateCheckTimer.Tick += OnLauncherUpdateCheckTick;
+        _launcherUpdateCheckTimer.Start();
 
         _windowService.WindowShown += OnWindowShown;
 
@@ -197,6 +192,9 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
                 UpdateAvailable = true;
             });
     }
+
+    private void OnLauncherUpdateCheckTick(object? sender, EventArgs e) =>
+        CheckForUpdatesAsync().FireAndForget("[LauncherUpdateCheck] tick");
 
     [RelayCommand]
     private void ApplyUpdate()
@@ -716,6 +714,8 @@ public partial class MainWindowViewModel : ViewModelBase, IDisposable
     {
         _remoteUpdatePollTimer.Tick -= OnRemoteUpdatePollTick;
         _remoteUpdatePollTimer.Stop();
+        _launcherUpdateCheckTimer.Tick -= OnLauncherUpdateCheckTick;
+        _launcherUpdateCheckTimer.Stop();
         _windowService.WindowShown -= OnWindowShown;
     }
 

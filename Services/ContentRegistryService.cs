@@ -10,7 +10,7 @@ namespace d2c_launcher.Services;
 public class ContentRegistryService : IContentRegistryService
 {
     private const string RegistryUrl = "https://launcher.dotaclassic.ru/files/registry.json";
-    private readonly HttpClient _http = new();
+    private readonly HttpClient _http = LauncherHttp.Create();
     private ContentRegistry? _cached;
 
     public async Task<ContentRegistry?> GetAsync()

@@ -1,9 +1,9 @@
 ﻿using Avalonia;
 using System;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using d2c_launcher.Services;
+using d2c_launcher.Util;
 using Velopack;
 
 namespace d2c_launcher;
@@ -16,9 +16,6 @@ sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        // Disable Velopack's "auto-apply on startup" (it is ON by default).
-        // We download updates silently but only apply them when the user clicks
-        // "Restart and update" in the launcher UI.
         // Give the launcher a stable explicit AppUserModelID so the taskbar treats
         // it as a distinct group from any child process it spawns (e.g. dota.exe).
         // Without this, Windows may merge the game's window into the launcher's
@@ -26,7 +23,7 @@ sealed class Program
         // Must be called before any window is created.
         SetCurrentProcessExplicitAppUserModelID("DotaLegacy.Launcher");
 
-        VelopackApp.Build().SetAutoApplyOnStartup(false).Run();
+        VelopackApp.Build().SetAutoApplyOnStartup(!SingleInstanceService.IsAnotherInstanceRunning()).Run();
 
         // Skip single-instance enforcement in preview mode so the preview tool
         // can run alongside a running launcher instance.
@@ -49,17 +46,9 @@ sealed class Program
         // Expose the service so App can wire protocol handling after DI is set up.
         App.SingleInstance = singleInstance;
 
-        var asm = Assembly.GetExecutingAssembly();
-        // AssemblyInformationalVersion keeps the full semver (e.g. "0.0.97-pre+abc123").
-        // AssemblyVersion is numeric-only (e.g. "0.0.97.0"), losing the pre-release suffix.
-        var version = (asm.GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>()
-                          ?.InformationalVersion
-                          ?.Split('+')[0])           // strip build metadata hash
-                      ?? asm.GetName().Version?.ToString(3)
-                      ?? "0.0.0";
         // Init Faro before collecting hardware so any errors during collection
         // are reported with the correct app version instead of "0.0.0".
-        FaroTelemetryService.Init(version);
+        FaroTelemetryService.Init(AppVersion.Current);
         var hw = HardwareInfoService.Collect();
         App.Hwid = hw.Hwid;
         FaroTelemetryService.SetHardware(hw);

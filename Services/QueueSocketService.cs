@@ -253,7 +253,9 @@ public sealed record PlayerServerSearchingMessage(
 
 public sealed record OnlineUpdateMessage(
     [property: JsonPropertyName("online")] string[] Online,
-    [property: JsonPropertyName("sessions")] int Sessions);
+    [property: JsonPropertyName("sessions")] int Sessions,
+    [property: JsonPropertyName("inGame")]
+    [property: JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)] int? InGame = null);
 
 public sealed record PleaseEnterQueueMessage(
     [property: JsonPropertyName("mode")] MatchmakingMode Mode,

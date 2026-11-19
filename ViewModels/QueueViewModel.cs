@@ -32,7 +32,6 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
     private readonly IBackendApiService _backendApiService;
     private readonly ISettingsStorage _settingsStorage;
     private readonly DispatcherTimer _queueTimer;
-    private readonly DispatcherTimer _modesRefreshTimer;
 
     public TriviaViewModel Trivia { get; }
     private DateTimeOffset? _enterQueueAt;
@@ -102,10 +101,6 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         _queueTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _queueTimer.Tick += (_, _) => UpdateQueueButtonState();
         _queueTimer.Start();
-
-        _modesRefreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
-        _modesRefreshTimer.Tick += (_, _) => _ = RefreshMatchmakingModesAsync();
-        _modesRefreshTimer.Start();
 
         queueSocketService.QueueStateUpdated += OnQueueStateUpdated;
         queueSocketService.PlayerQueueStateUpdated += OnPlayerQueueStateUpdated;
@@ -506,7 +501,6 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
         _queueSocketService.PlayerQueueStateUpdated -= OnPlayerQueueStateUpdated;
         _queueSocketService.PlayerGameStateUpdated -= OnPlayerGameStateUpdated;
         _queueTimer.Stop();
-        _modesRefreshTimer.Stop();
         Trivia.Stop();
     }
 }

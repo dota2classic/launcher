@@ -91,7 +91,7 @@
 
 | Feature | Status | Notes |
 | ------- | ------ | ----- |
-| Live match list (`GET /v1/live/list`) | ✅ Done | `LiveViewModel` polls every 5s |
+| Live match list (`GET /v1/live/list`) | ✅ Done | `LiveViewModel` polls only while the Live tab is open and the window is on screen |
 | Per-match detail polling (`GET /v1/live/{id}`) | ✅ Done | `SubscribeLiveMatchAsync` polls every 3s via `IAsyncEnumerable` |
 | Minimap with animated hero positions | ✅ Done | `LivePanel.axaml` Canvas + Avalonia Transitions on `Canvas.Left`/`Canvas.Top` (1s ease) |
 | Radiant/Dire player lists | ✅ Done | Hero icon, name, K/D/A, level |

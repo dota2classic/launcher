@@ -17,7 +17,7 @@ public class GameDownloadService : IGameDownloadService
     private const int MaxFileAttempts = 5;
     private static readonly TimeSpan SpeedWindow = TimeSpan.FromSeconds(3);
 
-    private readonly HttpClient _http = new() { Timeout = TimeSpan.FromMinutes(10) };
+    private readonly HttpClient _http = LauncherHttp.Create(TimeSpan.FromMinutes(10));
 
     public async Task DownloadFilesAsync(
         IReadOnlyList<GameManifestFile> files,

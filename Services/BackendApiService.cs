@@ -21,25 +21,9 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
     private const string DefaultApiUrl = "https://api.dotaclassic.ru/";
     private const string ApiUrlEnvVar = "D2C_API_URL";
     private static readonly Uri BaseUri = new(Environment.GetEnvironmentVariable(ApiUrlEnvVar) ?? DefaultApiUrl);
-    // Shared client for unauthenticated requests (modes, online stats, avatar loading).
-    private readonly HttpClient _httpClient = new HttpClient
-    {
-        BaseAddress = BaseUri,
-        Timeout = TimeSpan.FromSeconds(10)
-    };
-    // Long-lived client for SSE streams — no timeout (cancelled via CancellationToken).
-    private readonly HttpClient _sseHttpClient = new HttpClient
-    {
-        BaseAddress = BaseUri,
-        Timeout = System.Threading.Timeout.InfiniteTimeSpan
-    };
-    // Shared client for authenticated requests. Bearer token is set once via SetBearerToken()
-    // and reused across all authenticated calls.
-    private readonly HttpClient _authHttpClient = new HttpClient
-    {
-        BaseAddress = BaseUri,
-        Timeout = TimeSpan.FromSeconds(10)
-    };
+    private readonly HttpClient _httpClient = LauncherHttp.Create(TimeSpan.FromSeconds(10), BaseUri);
+    private readonly HttpClient _sseHttpClient = LauncherHttp.Create(Timeout.InfiniteTimeSpan, BaseUri);
+    private readonly HttpClient _authHttpClient = LauncherHttp.Create(TimeSpan.FromSeconds(10), BaseUri);
     private string? _currentToken;
     private static string ModeLabel(int id) =>
         I18n.T($"matchmakingMode.{id}") is var s && s != $"matchmakingMode.{id}"

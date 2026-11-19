@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using d2c_launcher.Services;
@@ -14,8 +13,11 @@ namespace d2c_launcher.ViewModels;
 
 public partial class LiveViewModel : ObservableObject, IDisposable
 {
+    private static readonly PollSchedule ListSchedule = new(TimeSpan.FromSeconds(5));
+
     private readonly IBackendApiService _backendApiService;
-    private readonly DispatcherTimer _pollTimer;
+    private readonly VisibilityAwarePoller _poller;
+    private bool _isActive;
 
     /// <summary>Called when the user clicks "Spectate" on the selected match.</summary>
     public Action<long>? OnSpectate { get; set; }
@@ -29,23 +31,22 @@ public partial class LiveViewModel : ObservableObject, IDisposable
     [ObservableProperty] private bool _isLoading = true;
     [ObservableProperty] private bool _hasNoMatches;
 
-    private bool _isRefreshing;
-
     public ObservableCollection<LiveMatchCardViewModel> Matches { get; } = [];
 
-    public LiveViewModel(IBackendApiService backendApiService)
+    public LiveViewModel(IBackendApiService backendApiService, ITimerFactory timerFactory, IWindowService windowService)
     {
         _backendApiService = backendApiService;
-        _pollTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
-        _pollTimer.Tick += (_, _) =>
-        {
-            if (!_isRefreshing)
-                RefreshListAsync().FireAndForget("LiveViewModel.RefreshListAsync");
-        };
+        _poller = new VisibilityAwarePoller(timerFactory, windowService, "LiveViewModel.RefreshListAsync",
+            ListSchedule, RefreshListAsync, () => _isActive);
         // Timer starts only after InitAsync so mode names are populated before first refresh
         InitAsync().FireAndForget("LiveViewModel.InitAsync");
     }
 
+    public void SetActive(bool isActive)
+    {
+        _isActive = isActive;
+        _poller.Evaluate();
+    }
 
     private async Task InitAsync()
     {
@@ -58,8 +59,7 @@ public partial class LiveViewModel : ObservableObject, IDisposable
         {
             AppLog.Error("LiveViewModel.InitAsync (modes)", ex);
         }
-        await RefreshListAsync();
-        _pollTimer.Start();
+        _poller.Start(pollIfVisible: true);
     }
 
     private string ResolveModeNamе(int modeId) =>
@@ -67,7 +67,6 @@ public partial class LiveViewModel : ObservableObject, IDisposable
 
     private async Task RefreshListAsync()
     {
-        _isRefreshing = true;
         try
         {
             var matches = await _backendApiService.GetLiveMatchesAsync();
@@ -102,10 +101,6 @@ public partial class LiveViewModel : ObservableObject, IDisposable
             AppLog.Error("LiveViewModel.RefreshListAsync", ex);
             IsLoading = false;
         }
-        finally
-        {
-            _isRefreshing = false;
-        }
     }
 
 
@@ -118,6 +113,6 @@ public partial class LiveViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
-        _pollTimer.Stop();
+        _poller.Dispose();
     }
 }

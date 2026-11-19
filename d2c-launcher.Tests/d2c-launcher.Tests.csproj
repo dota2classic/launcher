@@ -96,6 +96,8 @@
     <!-- Telemetry (needed by AppLog) -->
     <Compile Include="..\Services\HardwareInfoService.cs" Link="Services\HardwareInfoService.cs" />
     <Compile Include="..\Services\FaroTelemetryService.cs" Link="Services\FaroTelemetryService.cs" />
+    <Compile Include="..\Services\LauncherHttp.cs" Link="Services\LauncherHttp.cs" />
+    <Compile Include="..\Util\AppVersion.cs" Link="Util\AppVersion.cs" />
     <!-- Extracted chat services (tested by UserNameResolverTests, EmoticonSnapshotBuilderTests, ChatMessageStreamTests) -->
     <Compile Include="..\Services\PlayerNameViewModel.cs" Link="Services\PlayerNameViewModel.cs" />
     <Compile Include="..\Services\IUserNameResolver.cs" Link="Services\IUserNameResolver.cs" />
@@ -114,7 +116,9 @@
     <Compile Include="..\Services\DotaCfgWriter.cs" Link="Services\DotaCfgWriter.cs" />
     <!-- TriviaViewModel and its dependencies (tested by TriviaViewModelTests) -->
     <Compile Include="..\Util\ITimerFactory.cs" Link="Util\ITimerFactory.cs" />
-    <Compile Include="..\Models\TriviaQuestion.cs" Link="Models\TriviaQuestion.cs" />
+    <Compile Include="..\Util\TaskExtensions.cs" Link="Util\TaskExtensions.cs" />
+    <Compile Include="..\Util\VisibilityAwarePoller.cs" Link="Util\VisibilityAwarePoller.cs" />
+    <Compile Include="..\Services\IWindowService.cs" Link="Services\IWindowService.cs" />    <Compile Include="..\Models\TriviaQuestion.cs" Link="Models\TriviaQuestion.cs" />
     <Compile Include="..\Services\ITriviaRepository.cs" Link="Services\ITriviaRepository.cs" />
     <Compile Include="..\Util\DotaItemData.cs" Link="Util\DotaItemData.cs" />
     <Compile Include="..\ViewModels\TriviaRecipeSlotVm.cs" Link="ViewModels\TriviaRecipeSlotVm.cs" />

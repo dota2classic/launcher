@@ -31,7 +31,7 @@ public sealed class PlayerLinkClickedEventArgs : RoutedEventArgs
 /// </summary>
 public class RichMessageBlock : UserControl
 {
-    private static readonly HttpClient s_http = new();
+    private static readonly HttpClient s_http = LauncherHttp.Create();
 
     public static readonly RoutedEvent<PlayerLinkClickedEventArgs> PlayerLinkClickedEvent =
         RoutedEvent.Register<RichMessageBlock, PlayerLinkClickedEventArgs>(
