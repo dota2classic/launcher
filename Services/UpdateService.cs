@@ -35,6 +35,9 @@ public class UpdateService
             var update = await _mgr.CheckForUpdatesAsync();
             if (update == null) return (false, null);
 
+            if (_pendingUpdate?.TargetFullRelease.Version == update.TargetFullRelease.Version)
+                return (true, _pendingUpdate.TargetFullRelease.NotesMarkdown);
+
             await _mgr.DownloadUpdatesAsync(update);
             _pendingUpdate = update;
             return (true, update.TargetFullRelease.NotesMarkdown);

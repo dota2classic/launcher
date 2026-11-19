@@ -16,9 +16,6 @@ sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        // Disable Velopack's "auto-apply on startup" (it is ON by default).
-        // We download updates silently but only apply them when the user clicks
-        // "Restart and update" in the launcher UI.
         // Give the launcher a stable explicit AppUserModelID so the taskbar treats
         // it as a distinct group from any child process it spawns (e.g. dota.exe).
         // Without this, Windows may merge the game's window into the launcher's
@@ -26,7 +23,7 @@ sealed class Program
         // Must be called before any window is created.
         SetCurrentProcessExplicitAppUserModelID("DotaLegacy.Launcher");
 
-        VelopackApp.Build().SetAutoApplyOnStartup(false).Run();
+        VelopackApp.Build().SetAutoApplyOnStartup(true).Run();
 
         // Skip single-instance enforcement in preview mode so the preview tool
         // can run alongside a running launcher instance.
