@@ -15,14 +15,20 @@ public sealed class WindowService : IWindowService
     public bool IsWindowVisible { get; private set; } = true;
     public bool IsWindowActive { get; private set; } = true;
     public event Action? WindowShown;
+    public bool IsWindowOnScreen { get; private set; } = true;
+    public event Action? WindowOnScreenChanged;
 
     public void SetWindow(MainWindow window)
     {
         _window = window;
         IsWindowVisible = window.IsVisible;
         IsWindowActive = window.IsActive;
+        IsWindowOnScreen = ComputeOnScreen(window);
         window.PropertyChanged += (_, e) =>
         {
+            if (e.Property.Name is "IsVisible" or "WindowState")
+                UpdateOnScreen(window);
+
             if (e.Property.Name == "IsVisible")
             {
                 var nowVisible = e.NewValue is true;
@@ -54,5 +60,17 @@ public sealed class WindowService : IWindowService
         IsWindowActive = true;
         _window?.ShowAndActivate();
         // The actual WindowShown event is still raised via IsVisibleChanged below.
+    }
+
+    private static bool ComputeOnScreen(MainWindow window) =>
+        window.IsVisible && window.WindowState != Avalonia.Controls.WindowState.Minimized;
+
+    private void UpdateOnScreen(MainWindow window)
+    {
+        var onScreen = ComputeOnScreen(window);
+        if (onScreen == IsWindowOnScreen)
+            return;
+        IsWindowOnScreen = onScreen;
+        WindowOnScreenChanged?.Invoke();
     }
 }

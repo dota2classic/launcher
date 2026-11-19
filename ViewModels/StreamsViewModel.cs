@@ -1,7 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using d2c_launcher.Api;
 using d2c_launcher.Services;
@@ -11,9 +10,10 @@ namespace d2c_launcher.ViewModels;
 
 public partial class StreamsViewModel : ObservableObject, IDisposable
 {
+    private static readonly PollSchedule StreamsSchedule = new(TimeSpan.FromMinutes(5));
+
     private readonly IBackendApiService _backendApiService;
-    private readonly DispatcherTimer _pollTimer;
-    private bool _isRefreshing;
+    private readonly VisibilityAwarePoller _poller;
 
     [ObservableProperty] private bool _isLoading = true;
     [NotifyPropertyChangedFor(nameof(HasNoStreams))]
@@ -24,52 +24,35 @@ public partial class StreamsViewModel : ObservableObject, IDisposable
 
     public ObservableCollection<TwitchStreamDto> Streams { get; } = [];
 
-    public StreamsViewModel(IBackendApiService backendApiService)
+    public StreamsViewModel(IBackendApiService backendApiService, ITimerFactory timerFactory, IWindowService windowService)
     {
         _backendApiService = backendApiService;
-        _pollTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(60) };
-        _pollTimer.Tick += (_, _) =>
-        {
-            if (!_isRefreshing)
-                RefreshAsync().FireAndForget("StreamsViewModel.RefreshAsync");
-        };
-        InitAsync().FireAndForget("StreamsViewModel.InitAsync");
+        _poller = new VisibilityAwarePoller(timerFactory, windowService, "StreamsViewModel.RefreshAsync",
+            StreamsSchedule, RefreshAsync);
+        _poller.Start(pollIfVisible: true);
     }
 
-    private async Task InitAsync()
-    {
-        await RefreshAsync();
-        _pollTimer.Start();
-    }
-
-    public void RequestRefresh()
-    {
-        if (!_isRefreshing)
-            RefreshAsync().FireAndForget("StreamsViewModel.RefreshAsync (requested)");
-    }
+    public void RequestRefresh() => _poller.PollNow();
 
     private async Task RefreshAsync()
     {
-        _isRefreshing = true;
         try
         {
-            var streams = await _backendApiService.GetTwitchStreamsAsync().ConfigureAwait(false);
-            Dispatcher.UIThread.Post(() =>
-            {
-                Streams.Clear();
-                foreach (var s in streams)
-                    Streams.Add(s);
-                HasAnyStreams = Streams.Count > 0;
-                IsLoading = false;
-                _isRefreshing = false;
-            });
+            var streams = await _backendApiService.GetTwitchStreamsAsync();
+            Streams.Clear();
+            foreach (var s in streams)
+                Streams.Add(s);
+            HasAnyStreams = Streams.Count > 0;
         }
         catch (Exception ex)
         {
             AppLog.Error("StreamsViewModel.RefreshAsync", ex);
-            Dispatcher.UIThread.Post(() => { IsLoading = false; _isRefreshing = false; });
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 
-    public void Dispose() => _pollTimer.Stop();
+    public void Dispose() => _poller.Dispose();
 }

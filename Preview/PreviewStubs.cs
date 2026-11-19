@@ -368,7 +368,9 @@ internal sealed class StubWindowService : IWindowService
     public bool IsWindowActive => true;
 #pragma warning disable CS0067
     public event Action? WindowShown;
+    public event Action? WindowOnScreenChanged;
 #pragma warning restore CS0067
+    public bool IsWindowOnScreen => true;
     public void ShowAndActivate() { }
 }
 

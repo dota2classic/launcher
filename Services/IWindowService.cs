@@ -18,4 +18,8 @@ public interface IWindowService
 
     /// <summary>Raised on the UI thread whenever the window becomes visible.</summary>
     event Action? WindowShown;
+
+    bool IsWindowOnScreen { get; }
+
+    event Action? WindowOnScreenChanged;
 }

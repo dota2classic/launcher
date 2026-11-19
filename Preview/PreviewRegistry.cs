@@ -565,7 +565,7 @@ public static class PreviewRegistry
                     new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
                 var card = new d2c_launcher.ViewModels.LiveMatchCardViewModel((int)dto.MatchId);
                 card.UpdateFrom(dto, "Против ботов");
-                var vm = new d2c_launcher.ViewModels.LiveViewModel(new StubBackendApiService());
+                var vm = new d2c_launcher.ViewModels.LiveViewModel(new StubBackendApiService(), new AvaloniaTimerFactory(), new StubWindowService());
                 vm.Matches.Add(card);
                 vm.HasNoMatches = false;
                 vm.IsLoading = false;
@@ -801,7 +801,7 @@ public static class PreviewRegistry
             ["StreamsPanel"] = () =>
             {
                 var api = new StubBackendApiService();
-                var vm = new StreamsViewModel(api);
+                var vm = new StreamsViewModel(api, new AvaloniaTimerFactory(), new StubWindowService());
                 return (new StreamsPanel { Width = 900, Height = 700, DataContext = vm }, null);
             },
             ["LatestNewsPanel"] = () =>
