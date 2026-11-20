@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using d2c_launcher.Util;
@@ -13,6 +14,7 @@ public static class LauncherHttp
     private static readonly SocketsHttpHandler Handler = new()
     {
         PooledConnectionLifetime = ConnectionLifetime,
+        AutomaticDecompression = DecompressionMethods.All,
     };
 
     private static readonly ProductInfoHeaderValue UserAgent = new(ProductName, AppVersion.Current);
