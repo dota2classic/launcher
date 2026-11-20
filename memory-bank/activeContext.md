@@ -2,6 +2,8 @@
 
 ## Current State
 
+20 November 2026: subscription checkout now targets @DotaClassicPlusBot instead of the old payment bot, preserving the Steam ID start parameter and the fallback URL when Steam ID is unavailable. Based on origin/master 8c0177a. Earlier local manifest recovery edits are preserved in the named Git stash, separate from this change.
+
 All major features are shipped. The launcher is in maintenance/polish mode.
 
 Repository AI workflow files use a shared `.agents/` layout. `.agents/commands/` and `.agents/agents/` are the canonical copies; `.claude/commands` and `.claude/agents` are Windows directory junctions to them.

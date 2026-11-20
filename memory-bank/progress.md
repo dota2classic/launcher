@@ -1,5 +1,7 @@
 # Progress
 
+20 November 2026: updated Store/Plus buy and renew destination to @DotaClassicPlusBot. Existing installed launcher versions require an application update to receive this URL change.
+
 ## Feature Status
 
 ### Core Infrastructure

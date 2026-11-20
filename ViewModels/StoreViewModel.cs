@@ -61,8 +61,8 @@ public partial class StoreViewModel : ViewModelBase
         if (!steamId.HasValue)
             AppLog.Warn("StoreViewModel.OpenTelegram: SteamId unavailable, opening bot without start param");
         var url = steamId.HasValue
-            ? $"https://t.me/dotaclassic_payments_bot?start={steamId.Value}"
-            : "https://t.me/dotaclassic_payments_bot";
+            ? $"https://t.me/DotaClassicPlusBot?start={steamId.Value}"
+            : "https://t.me/DotaClassicPlusBot";
         try
         {
             Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
