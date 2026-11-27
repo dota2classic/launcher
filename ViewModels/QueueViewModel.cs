@@ -392,7 +392,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
 
     // Mode ID → access category
     private static readonly System.Collections.Generic.HashSet<int> HumanGameModeIds =
-        new() { 0, 1, 3, 4, 5, 6, 8, 9, 10, 11 };
+        new() { 0, 1, 3, 4, 5, 6, 8, 9, 10, 11, SecretModeId };
     private static readonly System.Collections.Generic.HashSet<int> SimpleModeIds =
         new() { 2, 13 };
     private static readonly System.Collections.Generic.HashSet<int> EducationModeIds =
@@ -407,12 +407,13 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
     }
 
     private const int HighroomMmrRequired = 2500;
+    private const int SecretModeId = 14;
 
     // Locked placeholder modes — not wired to real matchmaking yet (see
     // dota2classic/gateway shared-types/matchmaking-mode.ts). Always show
     // as forbidden regardless of party/ban state, so this must run before
     // the per-party restriction logic below can overwrite RestrictionText.
-    private static readonly HashSet<int> LockedPlaceholderModeIds = new() { 14, 15 };
+    private static readonly HashSet<int> LockedPlaceholderModeIds = new() { 15 };
     private const string LockedPlaceholderUntil = "01.01.2027";
 
     private void ApplyRestrictionsToModes()
@@ -426,6 +427,13 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
                 continue;
             }
 
+            if (mode.ModeId == SecretModeId && _latestPartyMembers.Count == 0)
+            {
+                mode.RestrictionText = I18n.T("game.secretBanRequired");
+                mode.LockProgress = null;
+                continue;
+            }
+
             string? restriction = null;
             double? lockProgress = null;
             foreach (var member in _latestPartyMembers)
@@ -433,7 +441,8 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
                 restriction = GetMemberModeRestriction(member, mode.ModeId);
                 if (restriction != null)
                 {
-                    if (HumanGameModeIds.Contains(mode.ModeId) && !member.IsBanned && !member.CanPlayHumanGames)
+                    if (HumanGameModeIds.Contains(mode.ModeId) &&
+                        member.IsBanned == (mode.ModeId == SecretModeId) && !member.CanPlayHumanGames)
                         lockProgress = member.BotGameProgress;
                     break;
                 }
@@ -450,17 +459,18 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
 
     private static string? GetMemberModeRestriction(Models.PartyMemberView member, int modeId)
     {
+        if (modeId == SecretModeId)
+        {
+            if (!member.IsBanned) return I18n.T("game.secretBanRequired");
+            return member.CanPlayHumanGames ? null : I18n.T("game.humanGamesProgress");
+        }
+
         if (member.IsBanned)
         {
             if (IsPermaban(member.BannedUntil))
                 return Strings.AccountPermabanned;
-            // Regular ban blocks human 5×5 modes only
-            if (HumanGameModeIds.Contains(modeId))
-            {
-                TryGetBanExpiry(member.BannedUntil, out var until);
-                return I18n.T("game.banExpiry", ("until", until.LocalDateTime.ToString("dd.MM.yyyy HH:mm")));
-            }
-            return null;
+            TryGetBanExpiry(member.BannedUntil, out var until);
+            return I18n.T("game.banExpiry", ("until", until.LocalDateTime.ToString("dd.MM.yyyy HH:mm")));
         }
 
         if (HumanGameModeIds.Contains(modeId) && !member.CanPlayHumanGames)

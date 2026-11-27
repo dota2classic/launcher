@@ -30,6 +30,7 @@
 | Party invite / accept / leave  | ✅ Done |
 | Floating invite notifications  | ✅ Done |
 | Server search status           | ✅ Done |
+| SECRET queue and separate chat | Implemented | Requires backend support and bot verification for every party member |
 | Bot game progress on mode lock (#117) | ✅ Done | `botGameProgress` from backend shown as X% on locked human game mode cards; PR #119 |
 
 
@@ -173,5 +174,5 @@ Other known technical debt:
 | Extra launch args UI | `ExtraArgs` field in model; no UI |
 | Custom cfg lines UI | `CustomCfgLines` wired to `d2c_launch.cfg`; no UI |
 | `QueueSocketService.Dispose()` blocks UI | `Task.Run+.Wait` up to 2s |
-| Chat thread ID hardcoded | `"17aa3530-d152-462e-a032-909ae69019ed"` in `ChatViewModel` |
+| Chat thread ID hardcoded | Public and SECRET queue discussion IDs are selected in `MainLauncherViewModel` |
 

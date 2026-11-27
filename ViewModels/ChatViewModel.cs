@@ -29,6 +29,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     private readonly IUiDispatcher _dispatcher;
 
     private CancellationTokenSource? _loadCts;
+    private bool _disposed;
 
     // Tracks the last appended message for SSE header-grouping decisions.
     private (string AuthorSteamId, string CreatedAt)? _lastMessageRaw;
@@ -125,7 +126,8 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
     {
         // Load emoticons in the background — don't block message loading.
         _ = _emoticonSnapshot.EnsureLoadedAsync();
-        await RefreshAsync().ConfigureAwait(false);
+        await RefreshAsync();
+        if (_disposed) return;
         _ = RefreshPinnedMessageAsync();
         _messageStream.Start();
     }
@@ -506,6 +508,7 @@ public partial class ChatViewModel : ViewModelBase, IDisposable
 
     public void Dispose()
     {
+        _disposed = true;
         _emoticonSnapshot.SnapshotReady -= OnSnapshotReady;
         _messageStream.MessageReceived -= OnMessageReceived;
         _queueSocketService.OnlineUpdated -= OnOnlineUpdated;

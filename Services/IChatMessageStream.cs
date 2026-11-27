@@ -68,9 +68,9 @@ public sealed class ChatMessageStream : IChatMessageStream
             {
                 if (ex is not HttpIOException)
                     AppLog.Error($"Chat SSE disconnected: {ex.Message}", ex);
-                try { await Task.Delay(3000, ct).ConfigureAwait(false); }
-                catch (OperationCanceledException) { break; }
             }
+            try { await Task.Delay(3000, ct).ConfigureAwait(false); }
+            catch (OperationCanceledException) { break; }
         }
     }
 
