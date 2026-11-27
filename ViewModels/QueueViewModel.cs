@@ -442,7 +442,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
                 if (restriction != null)
                 {
                     if (HumanGameModeIds.Contains(mode.ModeId) &&
-                        member.IsBanned == (mode.ModeId == SecretModeId) && !member.CanPlayHumanGames)
+                        (mode.ModeId == SecretModeId ? member.IsSecretEligible : !member.IsBanned) && !member.CanPlayHumanGames)
                         lockProgress = member.BotGameProgress;
                     break;
                 }
@@ -461,7 +461,7 @@ public partial class QueueViewModel : ViewModelBase, IDisposable
     {
         if (modeId == SecretModeId)
         {
-            if (!member.IsBanned) return I18n.T("game.secretBanRequired");
+            if (!member.IsSecretEligible) return I18n.T("game.secretBanRequired");
             return member.CanPlayHumanGames ? null : I18n.T("game.humanGamesProgress");
         }
 

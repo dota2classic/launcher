@@ -9,6 +9,7 @@ public sealed class PartyMemberView
 
     // Ban / access restrictions (from PlayerSummaryDto; defaults for leader who has no summary)
     public bool IsBanned { get; }
+    public bool IsSecretEligible { get; }
     public string? BannedUntil { get; }
     public bool CanPlayHumanGames { get; }
     public bool CanPlaySimpleModes { get; }
@@ -28,13 +29,15 @@ public sealed class PartyMemberView
         bool canPlaySimpleModes = true,
         bool canPlayEducation = true,
         int? mmr = null,
-        double botGameProgress = 0.0)
+        double botGameProgress = 0.0,
+        double? banReason = null)
     {
         SteamId = steamId;
         Name = name;
         AvatarUrl = avatarUrl;
         Initials = string.IsNullOrWhiteSpace(name) ? "?" : name.Trim()[0].ToString().ToUpperInvariant();
         IsBanned = isBanned;
+        IsSecretEligible = isBanned && banReason is 2 or 4 or 7;
         BannedUntil = bannedUntil;
         CanPlayHumanGames = canPlayHumanGames;
         CanPlaySimpleModes = canPlaySimpleModes;

@@ -301,7 +301,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         var steamId = CurrentUser?.SteamId32.ToString();
         var self = members.FirstOrDefault(member => member.SteamId == steamId);
         if (self != null && _authCoordinator.CurrentToken != null)
-            SetChatThread(self.IsBanned ? SecretQueueChat : PublicQueueChat);
+            SetChatThread(self.IsSecretEligible ? SecretQueueChat : PublicQueueChat);
     }
 
     private void SetChatThread(string threadId)

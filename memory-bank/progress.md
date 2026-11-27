@@ -1,5 +1,7 @@
 # Progress
 
+27 November 2026: fixed SECRET admission/chat selection for decline and load-failure cooldowns. Reasons 0/1 keep IsBanned for queue blocking but do not set IsSecretEligible. Missing or unknown reasons fail closed for SECRET.
+
 20 November 2026: updated Store/Plus buy and renew destination to @DotaClassicPlusBot. Existing installed launcher versions require an application update to receive this URL change.
 
 ## Feature Status
