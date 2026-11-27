@@ -93,7 +93,8 @@ public sealed class BackendApiService : IBackendApiService, IDisposable
                     canPlaySimpleModes: access?.SimpleModes ?? true,
                     canPlayEducation: access?.Education ?? true,
                     mmr: (int)summary.SeasonStats.Mmr,
-                    botGameProgress: (double)summary.BotGameProgress);
+                    botGameProgress: (double)summary.BotGameProgress,
+                    banReason: ban?.Status);
             }
         }
 
