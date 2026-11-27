@@ -2,6 +2,8 @@
 
 ## Current State
 
+27 November 2026: the launcher follows server mode 14 availability and applies the ban and bot-verification conditions before selecting SECRET. The chat switches to the authenticated player’s discussion using the party snapshot.
+
 20 November 2026: subscription checkout now targets @DotaClassicPlusBot instead of the old payment bot, preserving the Steam ID start parameter and the fallback URL when Steam ID is unavailable. Based on origin/master 8c0177a. Earlier local manifest recovery edits are preserved in the named Git stash, separate from this change.
 
 All major features are shipped. The launcher is in maintenance/polish mode.

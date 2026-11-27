@@ -373,6 +373,7 @@
     "folderNotDotaclassic": "Выбранная папка не является Dotalegacy.",
     "wrongPatchVersionFormat": "Выбранная папка содержит другой патч Dota 2 (версия {0}). Dotalegacy использует патч 6.84. Выберите правильную папку или скачайте игру заново.",
     "needOneWinForAccess": "Для доступа выиграйте хотя бы одну игру",
+    "secretBanRequired": "SECRET доступен группам, где все игроки заблокированы",
     "humanGamesProgress": "Играйте с ботами для оценки уровня",
     "banExpiry": "Поиск запрещён до {until}",
     "highroomMmr": "Нужно {required} MMR (у {name}: {actual})",

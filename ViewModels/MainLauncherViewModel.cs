@@ -30,6 +30,11 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     private readonly IWindowService _windowService;
     private readonly INetConService _netConService;
     private readonly IPaidActionService _paidActions;
+    private readonly IChatViewModelFactory _chatViewModelFactory;
+    private const string PublicQueueChat = "17aa3530-d152-462e-a032-909ae69019ed";
+    private const string SecretQueueChat = "secret-queue-chat";
+    private string _chatThreadId = PublicQueueChat;
+    private bool _disposed;
 
     /// <summary>
     /// Called when the user applies DLC changes in Settings.
@@ -57,7 +62,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
     public PartyViewModel Party { get; }
     public NotificationAreaViewModel NotificationArea { get; }
     public SettingsViewModel Settings { get; }
-    public ChatViewModel Chat { get; }
+    public ChatViewModel Chat { get; private set; }
     public ProfileViewModel Profile { get; }
     public LiveViewModel Live { get; }
     public StreamsViewModel Streams { get; }
@@ -152,6 +157,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         _windowService = windowService;
         _netConService = netConService;
         _paidActions = paidActions;
+        _chatViewModelFactory = chatViewModelFactory;
         paidActions.SubscriptionRequired += OnSubscriptionRequired;
 
         var settings = settingsStorage.Get();
@@ -193,7 +199,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Settings = new SettingsViewModel(launchSettingsStorage, cvarProvider, settingsStorage, videoProvider, registryService, startupRegistrationService);
         Settings.PushCvar = PushCvarIfGameRunning;
         Settings.OnDlcChanged = () => OnDlcChanged?.Invoke();
-        Chat = chatViewModelFactory.Create("17aa3530-d152-462e-a032-909ae69019ed");
+        Chat = _chatViewModelFactory.Create(_chatThreadId);
         Chat.OpenPlayerProfile = OpenPlayerProfile;
         Profile = new ProfileViewModel(backendApiService, paidActions);
         Live = new LiveViewModel(backendApiService, timerFactory, windowService);
@@ -236,15 +242,15 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         Party.EnterQueueAtChanged += time => Queue.SetEnterQueueAt(time);
 
         // Push party restrictions into queue mode list
-        Party.PartyMembersChanged += members => Queue.ApplyPartyRestrictions(members);
+        Party.PartyMembersChanged += OnPartyMembersChanged;
 
         queueSocketService.OnlineUpdated += OnOnlineUpdated;
         queueSocketService.StateChanged += OnSocketStateChanged;
         _inGameFallbackPoller = new VisibilityAwarePoller(timerFactory, windowService, "RefreshInGameCountAsync",
             InGameFallbackSchedule, RefreshInGameCountAsync, () => !_hasSocketInGame);
         _inGameFallbackPoller.Start(pollIfVisible: true);
-        _matchmakingModesPoller = new VisibilityAwarePoller(timerFactory, windowService, "Queue.RefreshMatchmakingModesAsync",
-            MatchmakingModesSchedule, Queue.RefreshMatchmakingModesAsync, () => ActiveTab == LauncherTab.Play);
+        _matchmakingModesPoller = new VisibilityAwarePoller(timerFactory, windowService, "RefreshPlayStateAsync",
+            MatchmakingModesSchedule, RefreshPlayStateAsync, () => ActiveTab == LauncherTab.Play);
         _matchmakingModesPoller.Start();
 
         // Steam user profile events
@@ -270,6 +276,7 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
             else
             {
                 Party.ClearParty();
+                SetChatThread(PublicQueueChat);
                 _paidActions.SetSubscriptionStatus(false);
             }
         };
@@ -282,6 +289,32 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
         // Start after auth so the token is present for the initial requests.
         Chat.StartAsync().FireAndForget("Chat.StartAsync");
         _soundCoordinator.LoadPendingNotificationsAsync().FireAndForget("LoadPendingNotificationsAsync");
+    }
+
+    private Task RefreshPlayStateAsync() => Task.WhenAll(
+        Queue.RefreshMatchmakingModesAsync(),
+        _authCoordinator.CurrentToken == null ? Task.CompletedTask : Party.RefreshPartyAsync());
+
+    private void OnPartyMembersChanged(IReadOnlyList<PartyMemberView> members)
+    {
+        Queue.ApplyPartyRestrictions(members);
+        var steamId = CurrentUser?.SteamId32.ToString();
+        var self = members.FirstOrDefault(member => member.SteamId == steamId);
+        if (self != null && _authCoordinator.CurrentToken != null)
+            SetChatThread(self.IsBanned ? SecretQueueChat : PublicQueueChat);
+    }
+
+    private void SetChatThread(string threadId)
+    {
+        if (_disposed || _chatThreadId == threadId) return;
+
+        var next = _chatViewModelFactory.Create(threadId);
+        next.OpenPlayerProfile = OpenPlayerProfile;
+        Chat.Dispose();
+        Chat = next;
+        _chatThreadId = threadId;
+        OnPropertyChanged(nameof(Chat));
+        Chat.StartAsync().FireAndForget("Chat.StartAsync (queue chat changed)");
     }
 
     private void OnOnlineUpdated(OnlineUpdateMessage msg) => Dispatcher.UIThread.Post(() =>
@@ -603,6 +636,8 @@ public partial class MainLauncherViewModel : ViewModelBase, IDisposable
 
     public void Dispose()
     {
+        _disposed = true;
+        Party.PartyMembersChanged -= OnPartyMembersChanged;
         _inGameFallbackPoller.Dispose();
         _matchmakingModesPoller.Dispose();
         _queueSocketService.OnlineUpdated -= OnOnlineUpdated;
